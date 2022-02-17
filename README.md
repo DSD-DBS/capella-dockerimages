@@ -30,7 +30,7 @@ flowchart LR
     B(capella/base) --> F(capella/remote)
     C(t4c/client/base) --> G(t4c/client/remote)
     D(capella/ease) --> H(capella/ease/remote) --> I(capella/readonly)
-    click A "base"
+    style A fill:#ebb134
 ```
 
 ## Build the Images
