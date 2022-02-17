@@ -31,6 +31,14 @@ flowchart LR
     C(t4c/client/base) --> G(t4c/client/remote)
     D(capella/ease) --> H(capella/ease/remote) --> I(capella/readonly)
     style A fill:#ebb134
+    style B fill:#8feb34
+    style C fill:#34cceb
+    style D fill:#eb3477
+    style E fill:#eb3477
+    style F fill:#f2f1a7
+    style G fill:#f2f1a7
+    style H fill:#f2f1a7
+    style I fill:#d0a7f2
 ```
 
 ## Build the Images
