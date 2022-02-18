@@ -18,14 +18,28 @@ This repository includes Dockerfiles to build the following Dockerimages:
 |t4c/client/base|This extends the Capella Baseimage with the T4C Client and the dependencies.|
 |capella/ease<br>t4c/client/ease|This extends the Capella or T4C Client Baseimage with EASE and SWTBot Functionality. You can mount every Python-Script and execute it in a Container environment. |
 |capella/remote <br> t4c/client/remote|The Remoteimage will add a RDP server on top of any other image. This will provide the user the possibility to connect and work inside the Container.|
+|capella/readonly <br> t4c/client/remote|This image has capability to clone a Git repository, will load the project into the workspace and also offers RDP.|
 
-Important for building the images is to strictly follow the sequence: 
-- <b>capella/base</b> depends on <b>base</b>
-- <b>t4c/client/base</b> depends on <b>capella/base</b>
-- <b>capella/ease</b> depends on <b>capella/base</b>
-- <b>t4c/client/ease</b> depends on <b>t4c/client/base</b>
-- <b>capella/remote</b> depends on <b>capella/base</b>
-- <b>t4c/client/remote</b> depends on <b>t4c/client/base</b>
+Important for building the images is to strictly follow the sequence. The dependency graph of the images looks like:
+```mermaid
+flowchart LR
+    A(base) --> B(capella/base)
+    B(capella/base) --> C(t4c/client/base)
+    B(capella/base) --> D(capella/ease)
+    C(t4c/client/base) --> E(t4c/client/ease)
+    B(capella/base) --> F(capella/remote)
+    C(t4c/client/base) --> G(t4c/client/remote)
+    D(capella/ease) --> H(capella/ease/remote) --> I(capella/readonly)
+    style A fill:#ebb134
+    style B fill:#8feb34
+    style C fill:#34cceb
+    style D fill:#eb3477
+    style E fill:#eb3477
+    style F fill:#f2f1a7
+    style G fill:#f2f1a7
+    style H fill:#f2f1a7
+    style I fill:#d0a7f2
+```
 
 ## Build the Images
 
@@ -36,7 +50,7 @@ git clone --recurse-submodules https://github.com/DSD-DBS/capella-dockerimages.g
 
 <b>Make sure that all commands are executed in the root directory of the repository.</b>
 
-### 1. Base
+### 1. Base <a id="base"></a>
 Our Baseimage updates the packages and installs the following packages: 
 - `python3-pip`
 - `python3` 
