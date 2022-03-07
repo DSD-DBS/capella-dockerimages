@@ -26,9 +26,5 @@ ENV EASE_LOG_LOCATION=/proc/1/fd/1
 COPY startup.sh /home/techuser/.startup.sh
 RUN chmod +x /home/techuser/.startup.sh
 
-COPY git_askpass.py /etc/git_askpass.py
-ENV GIT_ASKPASS=/etc/git_askpass.py
-RUN chmod +x /etc/git_askpass.py
-
 USER techuser
 ENTRYPOINT [ "/home/techuser/.startup.sh" ]
