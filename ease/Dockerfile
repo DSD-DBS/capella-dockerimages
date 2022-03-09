@@ -102,6 +102,10 @@ RUN chown -R techuser /workspace
 
 WORKDIR /home/techuser
 
+COPY git_askpass.py /etc/git_askpass.py
+ENV GIT_ASKPASS=/etc/git_askpass.py
+RUN chmod +x /etc/git_askpass.py
+
 COPY startup.sh /opt/startup.sh
 RUN chmod +x /opt/startup.sh
 ENTRYPOINT [ "/opt/startup.sh" ]
