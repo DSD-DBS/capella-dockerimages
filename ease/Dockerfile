@@ -27,8 +27,8 @@ RUN apt-get update && \
     git-lfs && \
     rm -rf /var/lib/apt/lists/*
 
-RUN git config --global git.username $GIT_USERNAME && \
-    git config --global git.email $GIT_EMAIL
+RUN git config --global user.name $GIT_USERNAME && \
+    git config --global user.email $GIT_EMAIL
 
 # Use Virtual Display
 ENV DISPLAY :99
