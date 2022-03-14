@@ -14,6 +14,9 @@ COPY git_askpass.py /etc/git_askpass.py
 ENV GIT_ASKPASS=/etc/git_askpass.py
 RUN chmod +x /etc/git_askpass.py
 
+COPY importer.sh /opt/capella/importer.sh
+RUN chmod +x /opt/capella/importer.sh
+
 WORKDIR /opt/capella
 
 COPY startup.sh /opt/startup.sh
