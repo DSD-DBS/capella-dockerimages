@@ -13,9 +13,6 @@
 # limitations under the License.
 ARG BUILD_TYPE=offline
 ARG BASE_IMAGE=capella/base
-ARG GIT_EMAIL=contact@example.com
-ARG GIT_USERNAME=CCM-Bot
-
 FROM $BASE_IMAGE as prebuild
 
 RUN apt-get update && \
@@ -26,6 +23,9 @@ RUN apt-get update && \
     dbus-x11 \
     git-lfs && \
     rm -rf /var/lib/apt/lists/*
+
+ARG GIT_EMAIL=contact@example.com
+ARG GIT_USERNAME=CCM-Bot
 
 RUN git config --global user.name $GIT_USERNAME && \
     git config --global user.email $GIT_EMAIL
