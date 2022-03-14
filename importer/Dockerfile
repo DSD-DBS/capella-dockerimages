@@ -16,7 +16,7 @@ RUN chmod +x /etc/git_askpass.py
 
 COPY importer.sh /opt/capella/importer.sh
 RUN chmod +x /opt/capella/importer.sh
-COPY importer.sh /opt/capella/backup.sh
+COPY backup.sh /opt/capella/backup.sh
 RUN chmod +x /opt/capella/backup.sh
 
 ENV DISPLAY :99
