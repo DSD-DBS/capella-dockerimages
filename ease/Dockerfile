@@ -13,6 +13,8 @@
 # limitations under the License.
 ARG BUILD_TYPE=offline
 ARG BASE_IMAGE=capella/base
+ARG GIT_EMAIL=contact@example.com
+ARG GIT_USERNAME=CCM-Bot
 
 FROM $BASE_IMAGE as prebuild
 
@@ -24,6 +26,9 @@ RUN apt-get update && \
     dbus-x11 \
     git-lfs && \
     rm -rf /var/lib/apt/lists/*
+
+RUN git config --global git.username $GIT_USERNAME && \
+    git config --global git.email $GIT_EMAIL
 
 # Use Virtual Display
 ENV DISPLAY :99
