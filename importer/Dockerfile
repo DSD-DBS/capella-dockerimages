@@ -4,7 +4,7 @@ FROM $BASE_IMAGE
 USER root
 
 RUN apt-get update && \
-    apt-get install -y git-lfs && \
+    apt-get install -y git-lfs xserver-xorg-core && \
     rm -rf /var/lib/apt/lists/*
 
 ARG GIT_EMAIL=contact@example.com
