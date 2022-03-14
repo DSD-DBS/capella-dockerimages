@@ -15,9 +15,6 @@ ARG BASE_IMAGE=capella/ease/remote
 FROM $BASE_IMAGE
 
 USER root
-RUN apt-get update && \
-    apt-get install -y git-lfs && \
-    rm -rf /var/lib/apt/lists/*
 
 COPY prepare_workspace.py /opt/scripts/prepare_workspace.py
 RUN chown -R techuser /opt/capella

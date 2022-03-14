@@ -21,7 +21,8 @@ RUN apt-get update && \
     openjdk-17-jre \
     xdg-utils \
     xvfb \
-    dbus-x11 && \
+    dbus-x11 \
+    git-lfs && \
     rm -rf /var/lib/apt/lists/*
 
 # Use Virtual Display
