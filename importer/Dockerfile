@@ -4,7 +4,7 @@ FROM $BASE_IMAGE
 USER root
 
 RUN apt-get update && \
-    apt-get install -y git-lfs xserver-xorg-core && \
+    apt-get install -y git-lfs xvfb && \
     rm -rf /var/lib/apt/lists/*
 
 ARG GIT_EMAIL=contact@example.com
@@ -16,9 +16,13 @@ RUN chmod +x /etc/git_askpass.py
 
 COPY importer.sh /opt/capella/importer.sh
 RUN chmod +x /opt/capella/importer.sh
+COPY importer.sh /opt/capella/backup.sh
+RUN chmod +x /opt/capella/backup.sh
+
+ENV DISPLAY :99
 
 WORKDIR /opt/capella
 
-COPY startup.sh /opt/startup.sh
-RUN chmod +x /opt/startup.sh
-ENTRYPOINT [ "/opt/startup.sh" ]
+COPY startup.sh /opt/capella/startup.sh
+RUN chmod +x /opt/capella/startup.sh
+ENTRYPOINT [ "/opt/capella/startup.sh" ]
