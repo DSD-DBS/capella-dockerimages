@@ -19,6 +19,10 @@ cd /tmp/git;
 git switch $GIT_REPO_BRANCH || git switch -c $GIT_REPO_BRANCH;
 
 export T4C_PROJECT_NAME_CLEANED=$(echo "$T4C_PROJECT_NAME" | sed -e "s/%20/ /g")
+
+ls -l /tmp/model || true
+ls -l /tmp/model/* || true
+
 /bin/cp -rf "/tmp/model/$T4C_PROJECT_NAME_CLEANED/*" /tmp/git;
 
 git add .;
