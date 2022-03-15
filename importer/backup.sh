@@ -22,10 +22,11 @@ export T4C_PROJECT_NAME_CLEANED=$(echo "$T4C_PROJECT_NAME" | sed -e "s/%20/ /g")
 
 /bin/cp -rf "/tmp/model/$T4C_PROJECT_NAME_CLEANED/"* /tmp/git;
 
-git config user.email backup@example.com
+git config user.email backup@ertms.org
+git config user.name Backup
 
 git add .;
-git diff --quiet && git diff --staged --quiet || git commit --author="Backup <backup@ertms.org>" --message "Backup";
+git diff --quiet && git diff --staged --quiet || git commit --message "Backup";
 
 cat << EOF > ~/.netrc
 machine github.com

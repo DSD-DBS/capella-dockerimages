@@ -25,4 +25,6 @@ WORKDIR /opt/capella
 
 COPY startup.sh /opt/capella/startup.sh
 RUN chmod +x /opt/capella/startup.sh
+
+USER techuser
 ENTRYPOINT [ "/opt/capella/startup.sh" ]
