@@ -15,16 +15,16 @@ ENV GIT_ASKPASS=/etc/git_askpass.py
 RUN chmod +x /etc/git_askpass.py
 
 COPY importer.sh /opt/capella/importer.sh
-RUN chmod +x /opt/capella/importer.sh
 COPY backup.sh /opt/capella/backup.sh
-RUN chmod +x /opt/capella/backup.sh
+COPY startup.sh /opt/capella/startup.sh
 
 ENV DISPLAY :99
 
 WORKDIR /opt/capella
 
-COPY startup.sh /opt/capella/startup.sh
-RUN chmod +x /opt/capella/startup.sh
+RUN chmod +x /opt/capella/*.sh && \
+    chown techuser /opt/capella
 
 USER techuser
+
 ENTRYPOINT [ "/opt/capella/startup.sh" ]
