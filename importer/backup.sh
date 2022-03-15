@@ -22,7 +22,7 @@ export T4C_PROJECT_NAME_CLEANED=$(echo "$T4C_PROJECT_NAME" | sed -e "s/%20/ /g")
 
 /bin/cp -rf "/tmp/model/$T4C_PROJECT_NAME_CLEANED/"* /tmp/git;
 
-git config user.email backup@ertms.org
+git config user.email backup@capella.ertms.be
 git config user.name Backup
 
 git add .;
