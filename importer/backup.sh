@@ -26,5 +26,5 @@ ls -l /tmp/model/* || true
 /bin/cp -rf "/tmp/model/$T4C_PROJECT_NAME_CLEANED/"* /tmp/git;
 
 git add .;
-git diff --quiet && git diff --staged --quiet || git commit -m "Backup";
+git diff --quiet && git diff --staged --quiet || git commit --author="Backup <backup@ertms.org>" --message "Backup";
 git push origin $GIT_REPO_BRANCH;
