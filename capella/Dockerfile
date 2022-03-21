@@ -15,6 +15,7 @@ ARG BASE_IMAGE=base
 FROM ${BASE_IMAGE}
 
 ENV DEBIAN_FRONTEND=noninteractive
+ARG INJECT_PACKAGES=false
 
 # Install WebKit with GTK
 COPY libs /tmp/libs
