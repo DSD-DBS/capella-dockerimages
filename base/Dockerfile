@@ -27,4 +27,4 @@ RUN echo "techuser:tmp_passwd" | chpasswd
 ENV HOME=/home/techuser
 RUN chown techuser /home/techuser
 
-RUN ln -s $(which python3) /usr/bin/python
+RUN ln -sf $(which python3) /usr/bin/python
