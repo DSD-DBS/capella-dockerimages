@@ -21,7 +21,9 @@ ARG INJECT_PACKAGES=false
 COPY libs /tmp/libs
 RUN if [ "$INJECT_PACKAGES" = "true" ]; then \
     # Inject old packages manually
+    apt-get update && \
     apt-get install -y $(find /tmp/libs -iname "*.deb") && \
+    rm -rf /var/lib/apt/lists/* && \
     rm -r /tmp/libs; \
     else \
     # Download old packages from the Ubuntu focal registry
