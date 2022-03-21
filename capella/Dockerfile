@@ -19,7 +19,7 @@ ARG INJECT_PACKAGES=false
 
 # Install WebKit with GTK
 COPY libs /tmp/libs
-RUN if [ "$INJECT_PACKAGES" == "true" ]; then \
+RUN if [ "$INJECT_PACKAGES" = "true" ]; then \
     # Inject old packages manually
     apt-get install -y $(find /tmp/libs -iname "*.deb") && \
     rm -r /tmp/libs; \
