@@ -29,10 +29,4 @@ git config user.name $GIT_USERNAME
 git add .;
 git diff --quiet && git diff --staged --quiet || git commit --message "Backup";
 
-cat << EOF > ~/.netrc
-machine github.com
-    login $GIT_USERNAME
-    password $GIT_PASSWORD
-EOF
-
 git push origin $GIT_REPO_BRANCH;
