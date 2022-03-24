@@ -7,9 +7,6 @@ RUN apt-get update && \
     apt-get install -y git-lfs xvfb && \
     rm -rf /var/lib/apt/lists/*
 
-ARG GIT_EMAIL=contact@example.com
-ARG GIT_USERNAME=CCM-Bot
-
 COPY git_askpass.py /etc/git_askpass.py
 ENV GIT_ASKPASS=/etc/git_askpass.py
 RUN chmod +x /etc/git_askpass.py
