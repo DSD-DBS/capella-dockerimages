@@ -22,8 +22,8 @@ export T4C_PROJECT_NAME_CLEANED=$(echo "$T4C_PROJECT_NAME" | sed -e "s/%20/ /g")
 
 /bin/cp -rf "/tmp/model/$T4C_PROJECT_NAME_CLEANED/"* /tmp/git;
 
-git config user.email backup@capella.ertms.be
-git config user.name Backup
+git config user.email ${GIT_EMAIL:-backup@example.com}
+git config user.name $GIT_USERNAME
 
 git add .;
 git diff --quiet && git diff --staged --quiet || git commit --message "Backup";
