@@ -36,7 +36,7 @@ RUN if [ "$INJECT_PACKAGES" = "true" ]; then \
     apt-get install -y \
     libjavascriptcoregtk-4.0-18=2.28.1-1 \
     libwebkit2gtk-4.0-37=2.28.1-1; \
-    fi \
+    fi; \
     rm -rf /var/lib/apt/lists/*;
 
 WORKDIR /opt/
