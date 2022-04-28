@@ -1,17 +1,17 @@
-# Capella, T4C Client and EASE Dockerimages
+# Capella, T4C Client and EASE Docker images
 
 ## Introduction
 Please read the <b>complete</b> README carefully first, as some requirements must be met for the containers to work as desired. <br>
-The repository provides Dockerimages for the followings Tools: 
+The repository provides Docker images for the followings Tools: 
 - Capella: https://www.eclipse.org/capella/
 - TeamForCapella Client: https://www.obeosoft.com/en/team-for-capella <br>
-Right now, we don't provide a Dockerimage for the Server. 
+Right now, we don't provide a Docker image for the Server. 
 - EASE: https://www.eclipse.org/ease/<br>
 SWT-Bot: https://www.eclipse.org/swtbot/
 
-This repository includes Dockerfiles to build the following Dockerimages:
+This repository includes Dockerfiles to build the following Docker images:
 
-| Name of the Dockerimage | Short Description |
+| Name of the Docker image | Short Description |
 |------|---|
 | base |This is the base image that has the most important tools pre-installed.|
 |capella/base|This is the Capella Baseimage. It is a simple Container with Capella and the required dependencies installed. No more.|
@@ -100,7 +100,7 @@ Please follow these steps:
      - `libwebkit2gtk-4.0-37` in the version `2.32.4`
 
     For this reason, we use the version `2.28.1` of the two libraries in our container. There are some companies that restrict access to the latest versions only. In such a case you have to download the followings packages with the command `apt download` manually (outside the company network) and inject them manually into the container. Please refer to [Download older packages manually](#debian_packages). 
-6) Build the Dockerimage. If you have applied Step 5, please use the following command: 
+6) Build the Docker image. If you have applied Step 5, please use the following command: 
     ```
     docker build -t capella/base capella --build-arg INJECT_PACKAGES=true
     ```
