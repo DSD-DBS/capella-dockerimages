@@ -65,7 +65,7 @@ docker build -t base base
 ```
 
 <b>Important:</b>
- If you company has a specific Baseimage with all company configurations, of course, it can also be used: 
+ If your company has a specific base image with all company configurations, of course, it can also be used: 
 ```
 docker build -t base --build-arg BASE_IMAGE=$CUSTOM_IMAGE base
 ```
