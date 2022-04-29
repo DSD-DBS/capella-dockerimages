@@ -1,26 +1,32 @@
 # Capella, T4C Client and EASE Docker images
 
 ## Introduction
-Please read the <b>complete</b> README carefully first, as some requirements must be met for the containers to work as desired. <br>
-The repository provides Docker images for the followings Tools: 
-- Capella: https://www.eclipse.org/capella/
-- TeamForCapella Client: https://www.obeosoft.com/en/team-for-capella <br>
-Right now, we don't provide a Docker image for the Server. 
-- EASE: https://www.eclipse.org/ease/<br>
-SWT-Bot: https://www.eclipse.org/swtbot/
 
-This repository includes Dockerfiles to build the following Docker images:
+Please read the <b>complete</b> README carefully first, as some requirements must be met
+for the containers to work as desired.
 
-| Name of the Docker image | Short Description |
+The repository provides Docker images for the followings tools:
+
+- Capella: <https://www.eclipse.org/capella/>
+- TeamForCapella client: <https://www.obeosoft.com/en/team-for-capella><br/>
+  Right now, we don't provide a Docker image for the server.
+- EASE: <https://www.eclipse.org/ease/><br/>
+  SWT-Bot: https://www.eclipse.org/swtbot/
+
+This repository includes Docker files to build the following Docker images:
+
+| Name of the Docker image | Short description |
 |------|---|
-| base |This is the base image that has the most important tools pre-installed.|
-|capella/base|This is the Capella Baseimage. It is a simple Container with Capella and the required dependencies installed. No more.|
-|t4c/client/base|This extends the Capella Baseimage with the T4C Client and the dependencies.|
-|capella/ease<br>t4c/client/ease|This extends the Capella or T4C Client Baseimage with EASE and SWTBot Functionality. You can mount every Python-Script and execute it in a Container environment. |
-|capella/remote <br> t4c/client/remote|The Remoteimage will add a RDP server on top of any other image. This will provide the user the possibility to connect and work inside the Container.|
-|capella/readonly <br> t4c/client/remote|This image has capability to clone a Git repository, will load the project into the workspace and also offers RDP.|
+| `base` |This is the base image that has the most important tools pre-installed.|
+| `capella/base`|This is the Capella base image. It is a simple container with Capella and the required dependencies installed. No more.|
+| `t4c/client/base`|This extends the Capella base image with the T4C client and the dependencies.|
+| - `capella/ease`<br>- `t4c/client/ease`|This extends the Capella or T4C client base image with EASE and SWTBot functionality. You can mount every Python script and execute it in a container environment. |
+| - `capella/remote`<br>- `t4c/client/remote`|The remote image will add an RDP server on top of any other image. This will provide the user the possibility to connect and work inside the container.|
+| -`capella/readonly`<br>- `t4c/client/remote`|This image has capability to clone a Git repository, will load the project into the workspace and also offers RDP.|
 
-Important for building the images is to strictly follow the sequence. The dependency graph of the images looks like:
+Important for building the Docker images is to strictly follow the sequence.
+The dependency graph for the images looks like:
+
 ```mermaid
 flowchart LR
     A(base) --> B(capella/base)
@@ -41,76 +47,135 @@ flowchart LR
     style I fill:#d0a7f2
 ```
 
-## Build the Images
+## Build the images
 
 Please clone this repository and include all submodules: 
-```
+
+```zsh
 git clone --recurse-submodules https://github.com/DSD-DBS/capella-dockerimages.git
 ```
 
 <b>Make sure that all commands are executed in the root directory of the repository.</b>
 
-### 1. Base <a id="base"></a>
-Our Baseimage updates the packages and installs the following packages: 
+### 1. Docker image `base` <a id="base"></a>
+
+Our base image updates the packages and installs the following packages: 
+
+- `python3`
 - `python3-pip`
-- `python3` 
 
-Also, we create a custom user `techuser`. The user will be always used to run the containers and allows to assign a custom UID. This can make sense, if you want to deploy the Containers in a K8s Cluster and your company has some security restrictions (e.g. specific UID ranges). 
+Also, we create a custom user `techuser`. This user will always be used to run the
+containers and allows to assign a custom `UID`. This can make sense, if you want to
+deploy the containers in a K8s cluster and your company has some security restrictions
+(e.g. specific `UID` ranges).
 
-Feel free to modify this Image to your specific needs. You are able to set Proxies, custom Registry URLs, your timezone, CA Certificates and any other stuff.
+Feel free to modify this image to your specific needs. You are able to set proxies,
+custom registry URLs, your timezone, CA certificates and any other stuff.
 
-To build the Baseimage, please run: 
-```
+To build the base image, please run:
+
+```zsh
 docker build -t base base
 ```
 
 <b>Important:</b>
- If your company has a specific base image with all company configurations, of course, it can also be used: 
-```
+ If your company has a specific base image with all company configurations, of course,
+ it can also be used:
+
+```zsh
 docker build -t base --build-arg BASE_IMAGE=$CUSTOM_IMAGE base
 ```
-Make sure that your `$CUSTOM_IMAGE` is a Linux Image that has the common tools installed and uses the `apt` / `apt-get` Package Manager. If this is not the case, the image cannot be used. Our images were tested with the image `debian:bullseye`. 
 
-If you like to set a custom UID for the techuser, you can run: 
-```
+Make sure that your `$CUSTOM_IMAGE` is a Linux image that has the common tools installed
+and uses the `apt` / `apt-get` package manager. If this is not the case, the image
+cannot be used. Our images were tested with the image `debian:bullseye`.
+
+If you like to set a custom `UID` for the user `techuser`, you can run:
+
+```zsh
 docker build -t base --build-arg UID=1001 base
 ```
 
-### 2. Capella Baseimage
-The Capella Baseimage installs the Capella Client and Dropins. 
-Please follow these steps: 
-1) Download the Capella Linux Version as `zip` or `tar.gz` archive. You can get the releases here directly from Eclipse: https://github.com/eclipse/capella/releases
-2) Add `capella/archives/capella.zip` or `capella/archives/capella.tar.gz` with your custom Capella `zip` or `tar.gz`. The `capella.zip` or `capella.tar.gz` should have the following structure (looking at the root of `capella.zip` / `capella.tar.gz`). It is the default structure of the offical releases: 
-    - capella
-      - configuration
-      - features
-      - jre
-      - p2
-      - plugins
-      - capella
-      - capella.ini
-      - (depending on your version, there can be more files)
-    - samples
-3) Download your dropins (if any)
-4) Place your dropins in the folder `capella/dropins`
-5) <b>Important:</b> This step is only necessary if there are restrictions on your network. <br>
+### 2. Docker image `capella/base`
 
-    In some Capella versions, there are incompatiblities with a certain version of the following libraries: 
-     - `libjavascriptcoregtk-4.0-18` in the version `2.32.4`
-     - `libwebkit2gtk-4.0-37` in the version `2.32.4`
+The Capella base image installs a selected Capella client version. The Capella client
+needs to be downloaded and can optionally be customised prior to building the Docker
+image.
 
-    For this reason, we use the version `2.28.1` of the two libraries in our container. There are some companies that restrict access to the latest versions only. In such a case you have to download the followings packages with the command `apt download` manually (outside the company network) and inject them manually into the container. Please refer to [Download older packages manually](#debian_packages). 
-6) Build the Docker image. If you have applied Step 5, please use the following command: 
-    ```
-    docker build -t capella/base capella --build-arg INJECT_PACKAGES=true
-    ```
+Download a Capella Linux binary `zip` or `tar.gz` archive. You can get a release
+directly from Eclipse. Visit <https://github.com/eclipse/capella/releases>, select a
+version and follow the hyperlink labelled `Product` to find a binary release for Linux.
 
-    If you skipped step 5, please execute the following command: 
-    ```
-    docker build -t capella/base capella
-    ```
+Place the downloaded archive in the subdirectory `capella/archives` of the present
+repository.
 
-### 3. T4C Baseimage
+Check that the archive has a structure similar to the following coming with a top level
+directory named `capella` and several sub directories and files in it.
+
+For Capella 5.0.0 the structure is illustrated below:
+
+```zsh
+$ tree -L 1 capella
+capella
+├── artifacts.xml
+├── capella
+├── capella.ini
+├── configuration
+├── dropins
+├── epl-v10.html
+├── features
+├── jre
+├── notice.html
+├── p2
+├── plugins
+└── readme
+```
+
+#### Optional: customisation of the Capella client
+
+To customise the Capella client you can
+
+1. extract the downloaded archive,
+1. apply any modifications (e. g. installation of plugins and/ or dropins) to it, and
+1. compress the modified folder `capella` to get a `capella.zip` or `capella.tar.gz`
+
+again.
+
+#### Workaround of pinned library versions to remove incompatibilities
+
+<b>Note:</b><br/>
+<i>This workaround is normally handled in the [Dockerfile](capella/Dockerfile) and it is
+only necessary to download below libraries if there are restrictions on your network
+that block an access to these libraries when the Docker image is being built.</i>
+
+In some Capella versions, there are incompatiblities with certain versions of the
+following libraries:
+
+- `libjavascriptcoregtk-4.0-18` (version `2.32.4`)
+- `libwebkit2gtk-4.0-37` (version `2.32.4`)
+
+The workaround is to use version `2.28.1` for both libraries in the container.
+
+So if your build environment restricts access to the latest versions you need to
+manually download the packages with the command `apt download` and inject them into the
+container.
+
+For more information refer to [Download older packages manually](#debian_packages).
+
+#### Build the Docker image
+
+If you skipped the previous workaround, execute the following command:
+```zsh
+docker build -t capella/base capella
+```
+
+If you applied the previous workaround and manually downloaded the older libraries, use
+the following command:
+```zsh
+docker build -t capella/base capella --build-arg INJECT_PACKAGES=true
+```
+
+### 3. Docker image `t4c/client/base`
 The T4C Baseimage builds on top of the Capella Baseimage and installs the T4C Client plugins. 
 
 1) Please place the release from T4C inside the `t4c/updateSite` folder. It has to be a `zip`-file and in the root of the `zip`, there should be the following files/folders: 
