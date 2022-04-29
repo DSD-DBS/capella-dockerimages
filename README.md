@@ -176,23 +176,49 @@ docker build -t capella/base capella --build-arg INJECT_PACKAGES=true
 ```
 
 ### 3. Docker image `t4c/client/base`
-The T4C Baseimage builds on top of the Capella Baseimage and installs the T4C Client plugins. 
 
-1) Please place the release from T4C inside the `t4c/updateSite` folder. It has to be a `zip`-file and in the root of the `zip`, there should be the following files/folders: 
-   - `binary`
-   - `features`
-   - `plugins`
-   - `artifacts.jar`
-   - `p2.index`
-   - `content.jar`
-   - ...
-2) Build the container: 
+The T4C base image builds on top of the Capella base image and installs the T4C client
+plugins.
+
+1) Download a Team for Capella client for Linux from
+   <https://www.obeosoft.com/en/team-for-capella-download>
+
+   Note that the T4C client version must match the version for Capella itself.
+   To obtain a Linux T4C client version below 5.2 you may want to contact
+   [Obeo](https://www.obeosoft.com/en/team-for-capella-download) to get a bundle.
+
+1) Extract the downloaded archive. The extracted folder comes with a `.zip` file
+   containing the T4C client:
+
+   ```text
+   $ tree -L 2 TeamForCapella-5.0.0-linux.gtk.x86_64 
+   TeamForCapella-5.0.0-linux.gtk.x86_64
+   ├── (...)
+   └── updateSite
+       └── com.thalesgroup.mde.melody.team.license.update-5.0.0-202012091024.zip
    ```
+
+1) That extracted `.zip` file needs to be copied into the subdirectory `t4c/updateSite`
+   of the present repository.
+
+1) Build the container:
+
+   ```zsh
    docker build -t t4c/client/base t4c
    ```
 
-### 4. Remote Images
-The Remote Image allows to extend the Capella Baseimage or T4C Baseimage with an RDP Server. It is a basic Linux Server with Openbox as window manager installed. Feel free to adjust the configurations `remote/rc.xml` and `remote/menu.xml` to your custom Openbox configuration. 
+### 4. Docker images `capella/remote` and `t4c/client/remote`
+
+The remote images allow to extend the
+
+- Capella base image (`capella/base`) or
+- the T4C base image (`t4c/client/base`)
+
+with an RDP server.
+It is a basic Linux server with Openbox as window manager installed.
+
+Feel free to adjust the configurations `remote/rc.xml` and `remote/menu.xml` to your
+custom Openbox configuration.
 
 If you like to use your own wallpaper, please replace `remote/wallpaper.png`.
 
