@@ -107,7 +107,10 @@ directly from Eclipse. Visit <https://github.com/eclipse/capella/releases>, sele
 version and follow the hyperlink labelled `Product` to find a binary release for Linux.
 
 Place the downloaded archive in the subdirectory `capella/archives` of the present
-repository.
+repository and ensure that the end rersult is either
+
+* `capella/archives/capella.tar.gz` or
+* `capella/archives/capella.zip`.
 
 Check that the archive has a structure similar to the following coming with a top level
 directory named `capella` and several sub directories and files in it.
