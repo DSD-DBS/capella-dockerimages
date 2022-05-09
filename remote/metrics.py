@@ -6,7 +6,7 @@ import subprocess
 from prometheus_client import Gauge, start_http_server
 
 METRICS_PORT = int(
-    os.getenv("METRICS_PORT", 9100)  # pylint: disable=invalid-envvar-default
+    os.getenv("METRICS_PORT", 9118)  # pylint: disable=invalid-envvar-default
 )
 
 IDLETIME = Gauge("idletime_seconds", "Idletime of X server in seconds from xprintidle")
