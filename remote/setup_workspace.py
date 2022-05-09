@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import glob
 import logging
 import os
 import pathlib
@@ -59,7 +58,7 @@ def setup_repositories() -> None:
             / "fr.obeo.dsl.viewpoint.collab"
             / "repository.properties",
             repo,
-            fr"tcp\://{t4c_host}\:{t4c_port}/{repo}",
+            rf"tcp\://{t4c_host}\:{t4c_port}/{repo}",
         )
 
 
