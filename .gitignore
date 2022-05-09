@@ -2,3 +2,6 @@ capella/archives/capella.tar.gz
 capella/archives/capella.zip
 capella/dropins
 t4c/updateSite
+__pycache__
+node_exporter*
+prometheus*
