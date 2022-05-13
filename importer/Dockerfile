@@ -23,7 +23,7 @@ ENV DISPLAY :99
 WORKDIR /opt/capella
 
 RUN chmod +x /opt/capella/*.sh && \
-    chown techuser /opt/capella
+    chown -R techuser /opt/capella
 
 USER techuser
 
