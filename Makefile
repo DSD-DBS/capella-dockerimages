@@ -1,24 +1,24 @@
 # Add prefix to all dockerimage names
-DOCKER_PREFIX = 
+DOCKER_PREFIX ?= 
 
 # T4C variables
-T4C_LICENCE_SECRET = XXX
-T4C_REPOSITORIES = testrepo
-T4C_SERVER_HOST = localhost
-T4C_SERVER_PORT = 2036
-T4C_USERNAME = admin
-T4C_PASSWORD = admin
+T4C_LICENCE_SECRET ?= XXX
+T4C_REPOSITORIES ?= testrepo
+T4C_SERVER_HOST ?= localhost
+T4C_SERVER_PORT ?= 2036
+T4C_USERNAME ?= admin
+T4C_PASSWORD ?= admin
 
 # Remote container variables
-RMT_PASSWORD = tmp_passwd2
+RMT_PASSWORD ?= tmp_passwd2
 
 # Git variables (importer)
-GIT_REPO_URL = https://github.com/example.git
-GIT_REPO_BRANCH = main
-T4C_IMPORTER_REPO = repo-name
-T4C_IMPORTER_PROJECT = project-name
-GIT_USERNAME = username
-GIT_PASSWORD = password
+GIT_REPO_URL ?= https://github.com/example.git
+GIT_REPO_BRANCH ?= main
+T4C_IMPORTER_REPO ?= repo-name
+T4C_IMPORTER_PROJECT ?= project-name
+GIT_USERNAME ?= username
+GIT_PASSWORD ?= password
 
 all: base capella/base capella/remote t4c/client/base t4c/client/remote capella/ease t4c/client/ease capella/ease/remote capella/readonly t4c/client/importer
 
@@ -67,6 +67,8 @@ run/t4c/client/remote:
 run/t4c/client/importer: 
 	docker run \
 		--network="host" \
+		-it \
+		--entrypoint="/bin/bash" \
 		-e EASE_LOG_LOCATION=/proc/1/fd/1 \
 		-e GIT_REPO_URL=$(GIT_REPO_URL) \
 		-e GIT_REPO_BRANCH=$(GIT_REPO_BRANCH) \
