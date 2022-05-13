@@ -303,6 +303,7 @@ docker run -d \
     -e T4C_SERVER_PORT=$T4C_SERVER_PORT \
     -e T4C_REPOSITORIES=$T4C_REPOSITORIES \
     -e RMT_PASSWORD=$RMT_PASSWORD \
+    -e T4C_USERNAME=$T4C_USERNAME \
     t4c/client/remote
 ```
 
@@ -313,9 +314,8 @@ Please replace the followings variables:
 - `$T4C_LICENCE_SECRET` to your TeamForCapella licence secret.
 - `$T4C_SERVER_HOST` to the IP-Address of your T4C server (default: `127.0.0.1`).
 - `$T4C_SERVER_PORT` to the port of your T4C server (default: `2036`).
-- `T4C_REPOSITORIES` is a comma-seperated list of repositories. These repositories show
-  up as default options on connection (e.g. `repo1,repo2`).
-
+- `$T4C_REPOSITORIES` is a comma-seperated list of repositories. These repositories show
+  up as default options on connection (e.g. `repo1,repo2`).- `$T4C_USERNAME` is the username that is suggested when connecting to t4c.
 
 After starting the container, you should be able to connect to
 `localhost:$RDP_EXTERNAL_PORT` with your preferred RDP Client.
