@@ -57,6 +57,21 @@ git clone --recurse-submodules https://github.com/DSD-DBS/capella-dockerimages.g
 
 <b>Make sure that all commands are executed in the root directory of the repository.</b>
 
+### Quick Start
+
+The Quick Start can only be used if the following conditions are met:
+
+- Only the standard configuration is required.
+- All files are already in the right place.
+
+If the conditions are not fulfilled, please continue with the next step.
+
+Otherwise, you can simply run the following command to build all images:
+
+```sh
+make all
+```
+
 ### 1. Docker image `base` <a id="base"></a>
 
 Our base image updates the packages and installs the following packages: 
