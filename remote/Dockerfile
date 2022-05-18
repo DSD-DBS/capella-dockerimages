@@ -17,8 +17,8 @@ FROM ${BASE_IMAGE}
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Install RDP (XRDP with XORG)
-RUN apt-get update && apt-get upgrade -y && apt-get install -y \ 
-    xrdp \ 
+RUN apt-get update && apt-get upgrade -y && apt-get install -y \
+    xrdp \
     xserver-xorg-core \
     xorgxrdp \
     supervisor \
@@ -26,6 +26,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     obconf \
     gettext-base \
     xprintidle \
+    curl \
     nitrogen && rm -rf /var/lib/apt/lists/*
 
 COPY rc.xml /etc/xdg/openbox/rc.xml
