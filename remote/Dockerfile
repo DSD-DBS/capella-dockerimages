@@ -17,14 +17,15 @@ FROM ${BASE_IMAGE}
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Install RDP (XRDP with XORG)
-RUN apt-get update && apt-get upgrade -y && apt-get install -y \ 
-    xrdp \ 
+RUN apt-get update && apt-get upgrade -y && apt-get install -y \
+    xrdp \
     xserver-xorg-core \
     xorgxrdp \
     supervisor \
     openbox \
     obconf \
     gettext-base \
+    xprintidle \
     nitrogen && rm -rf /var/lib/apt/lists/*
 
 COPY rc.xml /etc/xdg/openbox/rc.xml
@@ -54,6 +55,11 @@ WORKDIR /home/techuser
 COPY startup.sh .startup.sh
 COPY autostart .config/openbox/autostart
 RUN chmod +x .startup.sh .config/openbox/autostart
+
+# Prepare idletime metric endpoint
+RUN pip install prometheus-client
+
+COPY metrics.py .metrics.py
 
 ENV AUTOSTART_CAPELLA=1
 
