@@ -14,6 +14,6 @@ fi
 python3 /opt/setup_workspace.py;
 
 # Replace environment variables in capella.ini, e.g. licences
-envsubst < /opt/capella/capella.ini | tee /opt/capella/capella.ini;
+envsubst < /opt/capella/capella.ini > /tmp/capella.ini && mv /tmp/capella.ini /opt/capella/capella.ini;
 
 exec supervisord

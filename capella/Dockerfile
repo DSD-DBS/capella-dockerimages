@@ -20,6 +20,7 @@ ARG INJECT_PACKAGES=false
 # Install WebKit with GTK
 COPY libs /tmp/libs
 RUN if [ "$INJECT_PACKAGES" = "true" ]; then \
+    apt-get update && \
     # Inject old packages manually
     apt-get install -y $(find /tmp/libs -iname "*.deb") && \
     rm -r /tmp/libs; \
@@ -34,9 +35,9 @@ RUN if [ "$INJECT_PACKAGES" = "true" ]; then \
     ## Install the packages
     apt-get install -y \
     libjavascriptcoregtk-4.0-18=2.28.1-1 \
-    libwebkit2gtk-4.0-37=2.28.1-1 && \
-    rm -rf /var/lib/apt/lists/*; \
-    fi
+    libwebkit2gtk-4.0-37=2.28.1-1; \
+    fi; \
+    rm -rf /var/lib/apt/lists/*;
 
 WORKDIR /opt/
 
@@ -57,7 +58,8 @@ RUN if [ -s capella.zip ]; then \
 # Set Permissions
 RUN chmod +x capella/capella && \
     chmod -R +x capella/jre/bin && \
-    chmod -R +x capella/jre/lib
+    chmod -R +x capella/jre/lib && \
+    chown -R techuser /opt/capella
 
 # Install Dropins for Capella
 COPY ./dropins /opt/capella/dropins

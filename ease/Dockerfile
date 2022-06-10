@@ -37,7 +37,7 @@ RUN pip install py4j
 
 # Offline build (fixed version)
 FROM prebuild as build_offline
-ONBUILD COPY ease/extensions /tmp/extensions 
+ONBUILD COPY extensions /tmp/extensions 
 ONBUILD ENV PY4J_REPOSITORY=file:/tmp/extensions/py4j
 ONBUILD ENV EASE_REPOSITORY=file:/tmp/extensions/ease
 ONBUILD ENV SWTBOT_REPOSITORY=file:/tmp/extensions/swtbot
