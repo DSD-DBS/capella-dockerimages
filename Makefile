@@ -1,23 +1,43 @@
-# Add prefix to all dockerimage names
+# Add prefix to all dockerimage names, e.g. capella-collab
 DOCKER_PREFIX ?= 
 
-# T4C variables
+# T4C license secret (usually a long numeric string)
 T4C_LICENCE_SECRET ?= XXX
+
+# Predefined T4C repositories (comma separated), e.g. testrepo,testrepo2
 T4C_REPOSITORIES ?= testrepo
+
+# T4C server host
 T4C_SERVER_HOST ?= localhost
+
+# T4C server port
 T4C_SERVER_PORT ?= 2036
+
+# Predefined T4C username (for the connection dialog or for the importer)
 T4C_USERNAME ?= admin
+
+# T4C password for the importer
 T4C_PASSWORD ?= admin
 
-# Remote container variables
+# Remote container rdp password
 RMT_PASSWORD ?= tmp_passwd2
 
-# Git variables (importer)
+# Git repository url for the importer, e.g. https://github.com/example.git
 GIT_REPO_URL ?= https://github.com/example.git
+
+# Git repository branch for the importer, e.g. main
 GIT_REPO_BRANCH ?= main
+
+# T4C repository name for the importer, e.g. repoCapella
 T4C_IMPORTER_REPO ?= repo-name
+
+# T4C project name for the importer, e.g. project
 T4C_IMPORTER_PROJECT ?= project-name
+
+# Git username for the importer to push changes
 GIT_USERNAME ?= username
+
+# Git password for the importer to push changes
 GIT_PASSWORD ?= password
 
 all: base capella/base capella/remote t4c/client/base t4c/client/remote capella/ease t4c/client/ease capella/ease/remote capella/readonly t4c/client/importer
