@@ -58,7 +58,8 @@ RUN if [ -s capella.zip ]; then \
 # Set Permissions
 RUN chmod +x capella/capella && \
     chmod -R +x capella/jre/bin && \
-    chmod -R +x capella/jre/lib
+    chmod -R +x capella/jre/lib && \
+    chown -R techuser /opt/capella
 
 # Install Dropins for Capella
 COPY ./dropins /opt/capella/dropins
