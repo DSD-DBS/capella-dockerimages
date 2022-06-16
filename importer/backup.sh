@@ -19,9 +19,9 @@ git clone $GIT_REPO_URL /tmp/git;
 cd /tmp/git;
 git switch $GIT_REPO_BRANCH || git switch -c $GIT_REPO_BRANCH;
 
-ls /tmp/model;
-ls /tmp/git;
 /bin/cp -rf /tmp/model/*/* /tmp/git;
+/bin/cp -f /tmp/model/CommitHistory__*.json /tmp/git/CommitHistory.json;
+/bin/cp -f /tmp/model/CommitHistory__*.activitymetadata /tmp/git/CommitHistory.activitymetadata;
 
 git config user.email backup@capella.ertms.be
 git config user.name Backup
