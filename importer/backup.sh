@@ -11,7 +11,8 @@ mkdir /tmp/model;
     -importerPassword "$T4C_PASSWORD" \
     -outputFolder /tmp/model \
     -archiveProject false \
-    -importCommitHistoryAsJson true;
+    -importCommitHistoryAsJson true \
+    -includeCommitHistoryChanges true;
 
 mkdir /tmp/git;
 git clone $GIT_REPO_URL /tmp/git;
