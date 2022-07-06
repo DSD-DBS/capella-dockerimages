@@ -1,17 +1,17 @@
 #!/bin/bash
 echo -e "tmp_passwd\n$RMT_PASSWORD\n$RMT_PASSWORD" | passwd
+unset RMT_PASSWORD
 
 # Load git model
 echo "---START_LOAD_MODEL---"
-git clone $GIT_URL /home/techuser/model --no-checkout || r1=$?;
-git -C /home/techuser/model checkout $GIT_REVISION || r2=$?;
-if [ -n "$r1" -a "$r1" -ne 0 ] || [ -n "$r2" -a "$r2" -ne 0 ]
+if ! git clone "$GIT_URL" /home/techuser/model -b "$GIT_REVISION"
 then 
     echo "---FAILURE_LOAD_MODEL---"
     exit 1;
 else 
     echo "---FINISH_LOAD_MODEL---"
 fi
+unset GIT_USERNAME GIT_PASSWORD
 
 # Prepare Workspace
 echo "---START_PREPARE_WORKSPACE---"
@@ -31,8 +31,6 @@ fi
 pkill java
 pkill capella
 
-unset GIT_USERNAME;
-unset GIT_PASSWORD;
 rm /opt/scripts/*;
 
 echo "---START_SESSION---"
