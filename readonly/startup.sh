@@ -1,5 +1,6 @@
 #!/bin/bash
 echo -e "tmp_passwd\n$RMT_PASSWORD\n$RMT_PASSWORD" | passwd
+unset RMT_PASSWORD
 
 # Load git model
 echo "---START_LOAD_MODEL---"
@@ -10,6 +11,7 @@ then
 else 
     echo "---FINISH_LOAD_MODEL---"
 fi
+unset GIT_USERNAME GIT_PASSWORD
 
 # Prepare Workspace
 echo "---START_PREPARE_WORKSPACE---"
@@ -29,8 +31,6 @@ fi
 pkill java
 pkill capella
 
-unset GIT_USERNAME;
-unset GIT_PASSWORD;
 rm /opt/scripts/*;
 
 echo "---START_SESSION---"
