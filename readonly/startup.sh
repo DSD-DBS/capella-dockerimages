@@ -9,17 +9,19 @@ if [ $GIT_REVISION == "" ] && [ $GIT_DEPTH == 0]
 then
     git clone $GIT_URL /home/techuser/model --no-checkout || r1=$?;
     git -C /home/techuser/model checkout $GIT_REVISION || r2=$?;
-if [ $GIT_REVISION == "" ] && [ $GIT_DEPTH == 1]
+elif [ $GIT_REVISION == "" ] && [ $GIT_DEPTH == 1]
 then
     git clone $GIT_URL /home/techuser/model --no-single-branch --no-checkout --depth 1 || r1=$?;
     git -C /home/techuser/model checkout $GIT_REVISION || r2=$?;
-if [ $GIT_REVISION != "" ] && [ $GIT_DEPTH == 0]
+elif [ $GIT_REVISION != "" ] && [ $GIT_DEPTH == 0]
 then
     git clone $GIT_URL /home/techuser/model --single-branch --branch $GIT_REVISION --no-checkout || r1=$?;
-if [ $GIT_REVISION != "" ] && [ $GIT_DEPTH == 1]
+elif [ $GIT_REVISION != "" ] && [ $GIT_DEPTH == 1]
 then
     git clone $GIT_URL /home/techuser/model --single-branch --branch $GIT_REVISION --depth 1 --no-checkout || r1=$?;
-
+else
+    echo "Environment variable, GIT_DEPTH, has to be 0 or 1"
+fi
 
 if [ -n "$r1" -a "$r1" -ne 0 ] || [ -n "$r2" -a "$r2" -ne 0 ]
 then
