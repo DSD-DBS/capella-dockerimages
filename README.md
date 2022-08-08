@@ -49,7 +49,7 @@ flowchart LR
 
 ## Build the images
 
-Please clone this repository and include all submodules: 
+Please clone this repository and include all submodules:
 
 ```zsh
 git clone --recurse-submodules https://github.com/DSD-DBS/capella-dockerimages.git
@@ -74,7 +74,7 @@ make all
 
 ### 1. Docker image `base` <a id="base"></a>
 
-Our base image updates the packages and installs the following packages: 
+Our base image updates the packages and installs the following packages:
 
 - `python3`
 - `python3-pip`
@@ -209,7 +209,7 @@ plugins.
    containing the T4C client:
 
    ```text
-   $ tree -L 2 TeamForCapella-5.0.0-linux.gtk.x86_64 
+   $ tree -L 2 TeamForCapella-5.0.0-linux.gtk.x86_64
    TeamForCapella-5.0.0-linux.gtk.x86_64
    ├── (...)
    └── updateSite
@@ -279,7 +279,7 @@ docker build -t $BASE/ease \
     --build-arg BUILD_TYPE=offline \
     ease
 ```
-Please replace $BASE with `capella` or `t4c/client`. 
+Please replace $BASE with `capella` or `t4c/client`.
 
 ## Run the images
 

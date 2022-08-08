@@ -3,5 +3,5 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://openbox.org/
                 file:///usr/share/openbox/menu.xsd">
-  <menu id="root-menu" label="Openbox">
+  <menu id="root-menu" label="Openbox" />
 </openbox_menu>

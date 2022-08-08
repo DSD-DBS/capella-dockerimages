@@ -1,5 +1,8 @@
+# Copyright DB Netz AG and the capella-collab-manager contributors
+# SPDX-License-Identifier: Apache-2.0
+
 # Add prefix to all dockerimage names, e.g. capella-collab
-DOCKER_PREFIX ?= 
+DOCKER_PREFIX ?=
 
 # T4C license secret (usually a long numeric string)
 T4C_LICENCE_SECRET ?= XXX
@@ -42,7 +45,7 @@ GIT_PASSWORD ?= password
 
 all: base capella/base capella/remote t4c/client/base t4c/client/remote capella/ease t4c/client/ease capella/ease/remote capella/readonly t4c/client/importer
 
-base: 
+base:
 	docker build -t $(DOCKER_PREFIX)base base
 
 capella/base:
@@ -51,13 +54,13 @@ capella/base:
 capella/remote:
 	docker build -t $(DOCKER_PREFIX)capella/remote --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/base remote
 
-t4c/client/base: 
+t4c/client/base:
 	docker build -t $(DOCKER_PREFIX)t4c/client/base --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/base t4c
 
 t4c/client/remote:
 	docker build -t $(DOCKER_PREFIX)t4c/client/remote --build-arg BASE_IMAGE=$(DOCKER_PREFIX)t4c/client/base remote
 
-capella/ease: 
+capella/ease:
 	docker build -t $(DOCKER_PREFIX)capella/ease --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/base --build-arg BUILD_TYPE=online ease
 
 t4c/client/ease:
@@ -69,10 +72,10 @@ capella/ease/remote:
 capella/readonly:
 	docker build -t $(DOCKER_PREFIX)capella/readonly --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/ease/remote readonly
 
-t4c/client/importer: 
+t4c/client/importer:
 	docker build -t $(DOCKER_PREFIX)t4c/client/importer --build-arg BASE_IMAGE=$(DOCKER_PREFIX)t4c/client/base importer
 
-run/t4c/client/remote: 
+run/t4c/client/remote:
 	docker run -d \
 		--network="host" \
 		-e T4C_LICENCE_SECRET=$(T4C_LICENCE_SECRET) \
@@ -84,7 +87,7 @@ run/t4c/client/remote:
 		--name t4c-client-remote \
 		t4c/client/remote
 
-run/t4c/client/importer: 
+run/t4c/client/importer:
 	docker run \
 		--network="host" \
 		-it \

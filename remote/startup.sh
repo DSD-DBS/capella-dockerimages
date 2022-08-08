@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 if [ "$(whoami)" == "root" ];
-then 
+then
     echo -e "$RMT_PASSWORD\n$RMT_PASSWORD" | passwd techuser;
 elif [ "$(whoami)" == "techuser" ];
 then
