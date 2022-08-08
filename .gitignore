@@ -2,6 +2,9 @@ capella/archives/capella.tar.gz
 capella/archives/capella.zip
 capella/dropins
 t4c/updateSite
+libs
+ease/debug/libs/*
+capella/libs/*
 __pycache__
 node_exporter*
 prometheus*
