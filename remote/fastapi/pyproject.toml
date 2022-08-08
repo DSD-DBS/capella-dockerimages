@@ -1,14 +1,11 @@
-# SPDX-FileCopyrightText: Copyright DB Netz AG and the fastapi contributors
-# SPDX-License-Identifier: Apache-2.0
-
 [build-system]
-requires = ["setuptools>=61", "setuptools_scm[toml]>=3.4", "wheel"]
+requires = ["setuptools>=61", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 dynamic = ["version"]
 
-name = "fastapi"
+name = "fileservice"
 description = "Serves workspace file structure"
 readme = "README.rst"
 requires-python = ">=3.9, <3.11"
@@ -26,7 +23,10 @@ classifiers = [
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
 ]
-dependencies = []
+dependencies = [
+  "uvicorn[standard]",
+  "fastapi"
+]
 
 [project.urls]
 Homepage = "https://github.com/DSD-DBS/capella-dockerimages"

@@ -38,7 +38,8 @@ COPY setup_workspace.py /opt/setup_workspace.py
 # Set permissions
 RUN mkdir -p /run/xrdp/sockdir && \
     chown techuser /opt /opt/capella/capella.ini && \
-    chown -R techuser /etc/xrdp /run/xrdp /var/log/xrdp*
+    chown -R techuser /etc/xrdp /run/xrdp /var/log/xrdp* && \
+    chown techuser /var/log
 
 WORKDIR /home/techuser
 
@@ -50,6 +51,10 @@ RUN chmod +x .startup.sh .config/openbox/autostart
 RUN pip install prometheus-client
 
 COPY metrics.py .metrics.py
+
+# Run fileservice endpoint
+COPY fastapi /opt/fastapi
+RUN pip install /opt/fastapi
 
 ENV AUTOSTART_CAPELLA=1
 
