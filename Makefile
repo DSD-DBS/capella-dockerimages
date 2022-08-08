@@ -43,6 +43,15 @@ GIT_USERNAME ?= username
 # Git password for the importer to push changes
 GIT_PASSWORD ?= password
 
+# Preferred RDP port on your host system
+RDP_PORT ?= 3390
+
+# Preferred fileservice port on your host system
+FILESYSTEM_PORT ?= 8081
+
+# Preferred metrics port on your host system
+METRICS_PORT ?= 9118
+
 all: base capella/base capella/remote t4c/client/base t4c/client/remote capella/ease t4c/client/ease capella/ease/remote capella/readonly t4c/client/importer
 
 base:
@@ -76,14 +85,17 @@ t4c/client/importer:
 	docker build -t $(DOCKER_PREFIX)t4c/client/importer --build-arg BASE_IMAGE=$(DOCKER_PREFIX)t4c/client/base importer
 
 run/t4c/client/remote:
+	docker rm /t4c-client-remote || true
 	docker run -d \
-		--network="host" \
 		-e T4C_LICENCE_SECRET=$(T4C_LICENCE_SECRET) \
 		-e T4C_SERVER_HOST=$(T4C_SERVER_HOST) \
 		-e T4C_SERVER_PORT=$(T4C_SERVER_PORT) \
 		-e T4C_REPOSITORIES=$(T4C_REPOSITORIES) \
 		-e RMT_PASSWORD=$(RMT_PASSWORD) \
 		-e T4C_USERNAME=$(T4C_USERNAME) \
+		-p $(RDP_PORT):3389 \
+		-p $(FILESYSTEM_PORT):8080 \
+		-p $(METRICS_PORT):9118 \
 		--name t4c-client-remote \
 		t4c/client/remote
 
