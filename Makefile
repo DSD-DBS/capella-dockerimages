@@ -1,5 +1,8 @@
+# Copyright DB Netz AG and the capella-collab-manager contributors
+# SPDX-License-Identifier: Apache-2.0
+
 # Add prefix to all dockerimage names, e.g. capella-collab
-DOCKER_PREFIX ?= 
+DOCKER_PREFIX ?=
 
 # T4C license secret (usually a long numeric string)
 T4C_LICENCE_SECRET ?= XXX
@@ -40,9 +43,18 @@ GIT_USERNAME ?= username
 # Git password for the importer to push changes
 GIT_PASSWORD ?= password
 
+# Preferred RDP port on your host system
+RDP_PORT ?= 3390
+
+# Preferred fileservice port on your host system
+FILESYSTEM_PORT ?= 8081
+
+# Preferred metrics port on your host system
+METRICS_PORT ?= 9118
+
 all: base capella/base capella/remote t4c/client/base t4c/client/remote capella/ease t4c/client/ease capella/ease/remote capella/readonly t4c/client/importer
 
-base: 
+base:
 	docker build -t $(DOCKER_PREFIX)base base
 
 capella/base:
@@ -51,13 +63,13 @@ capella/base:
 capella/remote:
 	docker build -t $(DOCKER_PREFIX)capella/remote --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/base remote
 
-t4c/client/base: 
+t4c/client/base:
 	docker build -t $(DOCKER_PREFIX)t4c/client/base --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/base t4c
 
 t4c/client/remote:
 	docker build -t $(DOCKER_PREFIX)t4c/client/remote --build-arg BASE_IMAGE=$(DOCKER_PREFIX)t4c/client/base remote
 
-capella/ease: 
+capella/ease:
 	docker build -t $(DOCKER_PREFIX)capella/ease --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/base --build-arg BUILD_TYPE=online ease
 
 t4c/client/ease:
@@ -69,22 +81,26 @@ capella/ease/remote:
 capella/readonly:
 	docker build -t $(DOCKER_PREFIX)capella/readonly --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/ease/remote readonly
 
-t4c/client/importer: 
+t4c/client/importer:
 	docker build -t $(DOCKER_PREFIX)t4c/client/importer --build-arg BASE_IMAGE=$(DOCKER_PREFIX)t4c/client/base importer
 
-run/t4c/client/remote: 
+run/t4c/client/remote:
+	docker rm /t4c-client-remote || true
 	docker run -d \
-		--network="host" \
 		-e T4C_LICENCE_SECRET=$(T4C_LICENCE_SECRET) \
 		-e T4C_SERVER_HOST=$(T4C_SERVER_HOST) \
 		-e T4C_SERVER_PORT=$(T4C_SERVER_PORT) \
 		-e T4C_REPOSITORIES=$(T4C_REPOSITORIES) \
 		-e RMT_PASSWORD=$(RMT_PASSWORD) \
+		-e FILESERVICE_PASSWORD=$(RMT_PASSWORD) \
 		-e T4C_USERNAME=$(T4C_USERNAME) \
+		-p $(RDP_PORT):3389 \
+		-p $(FILESYSTEM_PORT):8000 \
+		-p $(METRICS_PORT):9118 \
 		--name t4c-client-remote \
 		t4c/client/remote
 
-run/t4c/client/importer: 
+run/t4c/client/importer:
 	docker run \
 		--network="host" \
 		-it \

@@ -1,16 +1,6 @@
-# Copyright 2021 DB Netz AG
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Copyright DB Netz AG and the capella-collab-manager contributors
+# SPDX-License-Identifier: Apache-2.0
+
 ARG BASE_IMAGE=capella/base
 FROM ${BASE_IMAGE}
 
@@ -48,7 +38,8 @@ COPY setup_workspace.py /opt/setup_workspace.py
 # Set permissions
 RUN mkdir -p /run/xrdp/sockdir && \
     chown techuser /opt /opt/capella/capella.ini && \
-    chown -R techuser /etc/xrdp /run/xrdp /var/log/xrdp*
+    chown -R techuser /etc/xrdp /run/xrdp /var/log/xrdp* && \
+    chown techuser /var/log
 
 WORKDIR /home/techuser
 
@@ -60,6 +51,10 @@ RUN chmod +x .startup.sh .config/openbox/autostart
 RUN pip install prometheus-client
 
 COPY metrics.py .metrics.py
+
+# Run fileservice endpoint
+COPY fastapi /opt/fastapi
+RUN pip install /opt/fastapi
 
 ENV AUTOSTART_CAPELLA=1
 

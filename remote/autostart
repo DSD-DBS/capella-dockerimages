@@ -8,5 +8,5 @@ nitrogen --restore &
 if [ "$AUTOSTART_CAPELLA" = "1" ];
 then
     # Run capella in a loop:
-    ( while true; do /opt/capella/capella -data /workspace; sleep 1; done ) &
+    ( while true; do /opt/capella/capella -data /workspace > /var/log/capella.stdout.log 2> /var/log/capella.stderr.log; sleep 1; done ) &
 fi
