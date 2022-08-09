@@ -1,5 +1,5 @@
 ..
-   SPDX-FileCopyrightText: Copyright DB Netz AG and the fastapi contributors
+   SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-dockerimages contributors
    SPDX-License-Identifier: Apache-2.0
 
 .. highlight:: bash
