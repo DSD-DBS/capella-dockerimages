@@ -19,16 +19,12 @@ security = HTTPBasic()
 async def get_files(
     show_hidden: bool, credentials: HTTPBasicCredentials = Depends(security)
 ):
-    correct_username = secrets.compare_digest(
-        credentials.username, os.environ["T4C_USERNAME"]
-    )
-    correct_password = secrets.compare_digest(
-        credentials.password, os.environ["RMT_PASSWORD"]
-    )
-    if not (correct_username and correct_password):
+    if not secrets.compare_digest(
+        credentials.password, os.environ["FILESERVICE_PASSWORD"]
+    ):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
+            detail="Incorrect password",
             headers={"WWW-Authenticate": "Basic"},
         )
 
