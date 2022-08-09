@@ -9,7 +9,7 @@ from .models import FileTree, FileType
 logger = logging.getLogger("core")
 
 
-def get_files(dir: pathlib.PosixPath) -> FileTree:
+def get_files(dir: pathlib.PosixPath, show_hidden: bool) -> FileTree:
     file = FileTree(
         path=str(dir.absolute()),
         name=dir.name,
@@ -20,8 +20,10 @@ def get_files(dir: pathlib.PosixPath) -> FileTree:
     assert isinstance(file.children, list)
 
     for item in dir.iterdir():
+        if not show_hidden and item.name.startswith("."):
+            continue
         if item.is_dir():
-            file.children.append(get_files(item))
+            file.children.append(get_files(item, show_hidden))
         elif item.is_file():
             file.children.append(
                 FileTree(

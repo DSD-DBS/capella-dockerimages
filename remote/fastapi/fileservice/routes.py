@@ -16,7 +16,9 @@ security = HTTPBasic()
 
 
 @router.get("/workspaces/files", response_model=FileTree)
-async def get_files(credentials: HTTPBasicCredentials = Depends(security)):
+async def get_files(
+    show_hidden: bool, credentials: HTTPBasicCredentials = Depends(security)
+):
     correct_username = secrets.compare_digest(
         credentials.username, os.environ["T4C_USERNAME"]
     )
@@ -30,4 +32,6 @@ async def get_files(credentials: HTTPBasicCredentials = Depends(security)):
             headers={"WWW-Authenticate": "Basic"},
         )
 
-    return core.get_files(dir=pathlib.PosixPath("/workspace"))
+    return core.get_files(
+        dir=pathlib.PosixPath("/workspace"), show_hidden=show_hidden
+    )
