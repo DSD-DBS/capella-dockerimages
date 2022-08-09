@@ -232,7 +232,7 @@ The remote images allow to extend the
 - Capella base image (`capella/base`) or
 - the T4C base image (`t4c/client/base`)
 
-with an RDP server.
+with an RDP server, a metrics endpoints to meassure the container activity and a fileservice that serves the current workspace structure.
 
 It is a basic Linux server with an [Openbox](http://openbox.org/) installation.
 
@@ -318,6 +318,7 @@ docker run -d \
     -e T4C_SERVER_PORT=$T4C_SERVER_PORT \
     -e T4C_REPOSITORIES=$T4C_REPOSITORIES \
     -e RMT_PASSWORD=$RMT_PASSWORD \
+    -e FILESERVICE_PASSWORD=$FILESERVICE_PASSWORD \
     -e T4C_USERNAME=$T4C_USERNAME \
     t4c/client/remote
 ```
@@ -331,6 +332,7 @@ Please replace the followings variables:
 - `$T4C_SERVER_PORT` to the port of your T4C server (default: `2036`).
 - `$T4C_REPOSITORIES` is a comma-seperated list of repositories. These repositories show
   up as default options on connection (e.g. `repo1,repo2`).- `$T4C_USERNAME` is the username that is suggested when connecting to t4c.
+- `$FILESERVICE_PASSWORD` with the password for the fileservice, which is used as basic authentication password.
 
 After starting the container, you should be able to connect to
 `localhost:$RDP_EXTERNAL_PORT` with your preferred RDP Client.
