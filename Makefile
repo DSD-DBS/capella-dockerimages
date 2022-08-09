@@ -95,7 +95,7 @@ run/t4c/client/remote:
 		-e FILESERVICE_PASSWORD=$(RMT_PASSWORD) \
 		-e T4C_USERNAME=$(T4C_USERNAME) \
 		-p $(RDP_PORT):3389 \
-		-p $(FILESYSTEM_PORT):8080 \
+		-p $(FILESYSTEM_PORT):8000 \
 		-p $(METRICS_PORT):9118 \
 		--name t4c-client-remote \
 		t4c/client/remote
