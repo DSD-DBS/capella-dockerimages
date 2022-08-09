@@ -34,8 +34,8 @@ def get_files(dir: pathlib.PosixPath, show_hidden: bool) -> FileTree:
             )
         else:
             logger.info(
-                "Unsupported file type for file %s. Only directory and file are supported.",
-                str(file),
+                "There is no supported file type (file or directory) for file: %s.",
+                str(item),
             )
 
     return file
