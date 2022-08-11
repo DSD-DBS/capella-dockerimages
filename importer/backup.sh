@@ -4,7 +4,7 @@ set -ex
 mkdir /tmp/model;
 ./importer.sh \
     -hostname $T4C_REPO_HOST \
-    -port $T4C_REPO_PORT \
+    -port ${T4C_REPO_PORT:-2036} \
     -reponame $T4C_REPO_NAME \
     -projectName $T4C_PROJECT_NAME \
     -importerLogin "$T4C_USERNAME" \
