@@ -4,24 +4,20 @@ unset RMT_PASSWORD
 
 # Load git model
 echo "---START_LOAD_MODEL---"
-if [ "$GIT_REVISION" == "" ] && [ "$GIT_DEPTH" == "0" ]
+
+if [ "$GIT_REVISION" != "" ]
 then
-    git clone $GIT_URL /home/techuser/model || r1=$?;
-elif [ "$GIT_REVISION" == "" ] && [ "$GIT_DEPTH" == "1" ]
-then
-    git clone $GIT_URL /home/techuser/model --no-single-branch --depth 1 || r1=$?;
-elif [ "$GIT_REVISION" != "" ] && [ "$GIT_DEPTH" == "0" ]
-then
-    git clone $GIT_URL /home/techuser/model --single-branch --branch $GIT_REVISION || r1=$?;
-elif [ "$GIT_REVISION" != "" ] && [ "$GIT_DEPTH" == "1" ]
-then
-    git clone $GIT_URL /home/techuser/model --single-branch --branch $GIT_REVISION --depth 1 || r1=$?;
-else
-    echo "Environment variable, GIT_DEPTH, has to be 0 or 1"
-    exit 1;
+    FLAGS += "--single-branch --branch $GIT_REVISION";
 fi
 
-if [ -n "$r1" -a "$r1" -ne 0 ]
+if [ -z $GIT_DEPTH ] && [ "$GIT_DEPTH" != "0" ]
+then
+    FLAGS += "--depth $GIT_DEPTH";
+fi
+
+git clone $GIT_URL /home/techuser/model $FLAGS;
+
+if [ -n "$?" ] && [ "$?" -ne 0 ]
 then
     echo "---FAILURE_LOAD_MODEL---"
     exit 1;
