@@ -286,6 +286,18 @@ docker build -t $BASE/ease \
 
 Please replace $BASE with `capella` or `t4c/client`.
 
+### 6. Docker image `capella/readonly`
+
+The read-only image builds on top of the Capella EASE Remote image and provides support for the read-only use of models. It clones a Git repository and automatically injects the cloned model in the workspace.
+
+To build the image, please run:
+
+```zsh
+docker build -t $BASE/capella/readonly \
+    --build-arg BASE_IMAGE=$BASE/capella/ease/remote \
+    readonly
+```
+
 ## Run the images
 
 ### Capella in a remote container
