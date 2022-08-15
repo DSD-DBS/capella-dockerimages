@@ -124,8 +124,8 @@ version and follow the hyperlink labelled `Product` to find a binary release for
 Place the downloaded archive in the subdirectory `capella/archives` of the present
 repository and ensure that the end result is either
 
-* `capella/archives/capella.tar.gz` or
-* `capella/archives/capella.zip`.
+- `capella/archives/capella.tar.gz` or
+- `capella/archives/capella.zip`.
 
 Check that the archive has a structure similar to the following coming with a top level
 directory named `capella` and several sub directories and files in it.
@@ -183,12 +183,14 @@ For more information refer to [Download older packages manually](#debian_package
 #### Build the Docker image
 
 If you skipped the previous workaround, execute the following command:
+
 ```zsh
 docker build -t capella/base capella
 ```
 
 If you applied the previous workaround and manually downloaded the older libraries, use
 the following command:
+
 ```zsh
 docker build -t capella/base capella --build-arg INJECT_PACKAGES=true
 ```
@@ -244,11 +246,13 @@ If you like to use your own wallpaper, replace `remote/wallpaper.png`.
 In general, no additional configuration is necessary for the build of the remote image:
 
 - Remote image using Capella:
+
   ```zsh
   docker build -t capella/remote remote --build-arg BASE_IMAGE=capella/base
   ```
 
 - Remote image using T4C Client:
+
   ```zsh
   docker build -t t4c/client/remote remote --build-arg BASE_IMAGE=t4c/client/base
   ```
@@ -279,6 +283,7 @@ docker build -t $BASE/ease \
     --build-arg BUILD_TYPE=offline \
     ease
 ```
+
 Please replace $BASE with `capella` or `t4c/client`.
 
 ## Run the images
