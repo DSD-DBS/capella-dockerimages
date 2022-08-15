@@ -8,12 +8,12 @@ echo "---START_LOAD_MODEL---"
 
 if [ "$GIT_REVISION" != "" ]
 then
-    FLAGS += "--single-branch --branch $GIT_REVISION";
+    FLAGS+=" --single-branch --branch $GIT_REVISION ";
 fi
 
 if [ -z $GIT_DEPTH ] && [ "$GIT_DEPTH" != "0" ]
 then
-    FLAGS += "--depth $GIT_DEPTH";
+    FLAGS+=" --depth $GIT_DEPTH ";
 fi
 
 git clone $GIT_URL /home/techuser/model $FLAGS;
