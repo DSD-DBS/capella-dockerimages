@@ -369,6 +369,33 @@ docker run -v script.py:/opt/scripts/script.py $BASE/ease
 
 where `$BASE` is again `capella` or `t4c/client`.
 
+### Read-only container
+
+```zsh
+docker run -d \
+    -p $RDP_EXTERNAL_PORT:3389 \
+    -e RMT_PASSWORD=$RMT_PASSWORD \
+    -e GIT_URL=$GIT_URL \
+    -e GIT_ENTRYPOINT=$GIT_ENTRYPOINT \
+    -e GIT_REVISION=$GIT_REVISION \
+    -e GIT_DEPTH=$GIT_DEPTH \
+    -e GIT_USERNAME=$GIT_USERNAME \
+    -e GIT_PASSWORD=$GIT_PASSWORD \
+    -e EASE_LOG_LOCATION=$EASE_LOG_LOCATION \
+    capella/readonly
+```
+
+Please replace the followings variables:
+
+- `$RDP_EXTERNAL_PORT` with the external port for RDP on your host (usually `3389`)
+- `$GIT_URL` with the URL to the Git repository. All URI-formats supported by the `git clone` command will work. Please do NOT include credentials in the URL as they will be not cleaned after cloning the model. You can provide HTTP credentials via the `GIT_USERNAME` and `GIT_PASSWORD` variables (see below).
+- `$GIT_ENTRYPOINT` with the relative path from the root of your repository to the `aird`-file of your model, e.g. `path/to/model.aird`.
+- `$GIT_REVISION` with the desired revision of the git repository. The revision is cloned with the `--single-branch` option, therefore only the specific revision is accessible. Only tags and branches are supported, commit hashes are NOT supported. If empty, the whole repository gets cloned.
+- `$GIT_DEPTH` with the desired git depth. If not provided, the whole history will be cloned.
+- `$GIT_USERNAME` with the git username if the repository is access protected. Leave empty, when no authentication is required.
+- `$GIT_PASSWORD` with the git password if the repository is access protected. Leave empty, when no authentication is required. The password gets cleaned after cloning and is not accessible in the RDP connection.
+- `$EASE_LOG_LOCATION` (optional) with the absolute path to log file. Defaults to `/proc/1/fd/1` (Docker logs) if not provided.
+
 ## Additional notes
 
 ### Tips
