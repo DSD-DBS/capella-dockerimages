@@ -40,10 +40,9 @@ else
     exit 1;
 fi
 
-
 # Ensure that Capella is closed.
-pkill java
-pkill capella
+pkill java || true
+pkill capella || true
 
 rm /opt/scripts/*;
 
