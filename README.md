@@ -20,9 +20,9 @@ This repository includes Docker files to build the following Docker images:
 | `base` |This is the base image that has the most important tools pre-installed.|
 | `capella/base`|This is the Capella base image. It is a simple container with Capella and the required dependencies installed. No more.|
 | `t4c/client/base`|This extends the Capella base image with the T4C client and the dependencies.|
-| - `capella/ease`<br>- `t4c/client/ease`|This extends the Capella or T4C client base image with EASE and SWTBot functionality. You can mount every Python script and execute it in a container environment. |
-| - `capella/remote`<br>- `t4c/client/remote`|The remote image will add an RDP server on top of any other image. This will provide the user the possibility to connect and work inside the container.|
-| -`capella/readonly`<br>- `t4c/client/remote`|This image has capability to clone a Git repository, will load the project into the workspace and also offers RDP.|
+| `capella/ease`<br>`t4c/client/ease`|This extends the Capella or T4C client base image with EASE and SWTBot functionality. You can mount every Python script and execute it in a container environment. |
+| `capella/remote`<br>`t4c/client/remote`|The remote image will add an RDP server on top of any other image. This will provide the user the possibility to connect and work inside the container.|
+| `capella/readonly`|This image has capability to clone a Git repository, will load the project into the workspace and also offers RDP.|
 
 Important for building the Docker images is to strictly follow the sequence.
 The dependency graph for the images looks like:
@@ -124,8 +124,8 @@ version and follow the hyperlink labelled `Product` to find a binary release for
 Place the downloaded archive in the subdirectory `capella/archives` of the present
 repository and ensure that the end result is either
 
-* `capella/archives/capella.tar.gz` or
-* `capella/archives/capella.zip`.
+- `capella/archives/capella.tar.gz` or
+- `capella/archives/capella.zip`.
 
 Check that the archive has a structure similar to the following coming with a top level
 directory named `capella` and several sub directories and files in it.
@@ -183,12 +183,14 @@ For more information refer to [Download older packages manually](#debian_package
 #### Build the Docker image
 
 If you skipped the previous workaround, execute the following command:
+
 ```zsh
 docker build -t capella/base capella
 ```
 
 If you applied the previous workaround and manually downloaded the older libraries, use
 the following command:
+
 ```zsh
 docker build -t capella/base capella --build-arg INJECT_PACKAGES=true
 ```
@@ -244,11 +246,13 @@ If you like to use your own wallpaper, replace `remote/wallpaper.png`.
 In general, no additional configuration is necessary for the build of the remote image:
 
 - Remote image using Capella:
+
   ```zsh
   docker build -t capella/remote remote --build-arg BASE_IMAGE=capella/base
   ```
 
 - Remote image using T4C Client:
+
   ```zsh
   docker build -t t4c/client/remote remote --build-arg BASE_IMAGE=t4c/client/base
   ```
@@ -279,7 +283,20 @@ docker build -t $BASE/ease \
     --build-arg BUILD_TYPE=offline \
     ease
 ```
+
 Please replace $BASE with `capella` or `t4c/client`.
+
+### 6. Docker image `capella/readonly`
+
+The read-only image builds on top of the Capella EASE Remote image and provides support for the read-only use of models. It clones a Git repository and automatically injects the cloned model in the workspace.
+
+To build the image, please run:
+
+```zsh
+docker build -t $BASE/capella/readonly \
+    --build-arg BASE_IMAGE=$BASE/capella/ease/remote \
+    readonly
+```
 
 ## Run the images
 
@@ -368,6 +385,33 @@ docker run -v script.py:/opt/scripts/script.py $BASE/ease
 ```
 
 where `$BASE` is again `capella` or `t4c/client`.
+
+### Read-only container
+
+```zsh
+docker run -d \
+    -p $RDP_EXTERNAL_PORT:3389 \
+    -e RMT_PASSWORD=$RMT_PASSWORD \
+    -e GIT_URL=$GIT_URL \
+    -e GIT_ENTRYPOINT=$GIT_ENTRYPOINT \
+    -e GIT_REVISION=$GIT_REVISION \
+    -e GIT_DEPTH=$GIT_DEPTH \
+    -e GIT_USERNAME=$GIT_USERNAME \
+    -e GIT_PASSWORD=$GIT_PASSWORD \
+    -e EASE_LOG_LOCATION=$EASE_LOG_LOCATION \
+    capella/readonly
+```
+
+Please replace the followings variables:
+
+- `$RDP_EXTERNAL_PORT` with the external port for RDP on your host (usually `3389`)
+- `$GIT_URL` with the URL to the Git repository. All URI-formats supported by the `git clone` command will work. Please do NOT include credentials in the URL as they will be not cleaned after cloning the model. You can provide HTTP credentials via the `GIT_USERNAME` and `GIT_PASSWORD` variables (see below).
+- `$GIT_ENTRYPOINT` with the relative path from the root of your repository to the `aird`-file of your model, e.g. `path/to/model.aird`.
+- `$GIT_REVISION` with the desired revision of the git repository. The revision is cloned with the `--single-branch` option, therefore only the specific revision is accessible. Only tags and branches are supported, commit hashes are NOT supported. If empty, the whole repository gets cloned.
+- `$GIT_DEPTH` with the desired git depth. If not provided, the whole history will be cloned.
+- `$GIT_USERNAME` with the git username if the repository is access protected. Leave empty, when no authentication is required.
+- `$GIT_PASSWORD` with the git password if the repository is access protected. Leave empty, when no authentication is required. The password gets cleaned after cloning and is not accessible in the RDP connection.
+- `$EASE_LOG_LOCATION` (optional) with the absolute path to log file. Defaults to `/proc/1/fd/1` (Docker logs) if not provided.
 
 ## Additional notes
 
