@@ -1,12 +1,24 @@
 #!/bin/bash
+set -ex
 echo -e "tmp_passwd\n$RMT_PASSWORD\n$RMT_PASSWORD" | passwd
 unset RMT_PASSWORD
 
 # Load git model
 echo "---START_LOAD_MODEL---"
-git clone $GIT_URL /home/techuser/model --no-checkout || r1=$?;
-git -C /home/techuser/model checkout $GIT_REVISION || r2=$?;
-if [ -n "$r1" -a "$r1" -ne 0 ] || [ -n "$r2" -a "$r2" -ne 0 ]
+
+if [ "$GIT_REVISION" != "" ]
+then
+    FLAGS+=" --single-branch --branch $GIT_REVISION ";
+fi
+
+if [ -z $GIT_DEPTH ] && [ "$GIT_DEPTH" != "0" ]
+then
+    FLAGS+=" --depth $GIT_DEPTH ";
+fi
+
+git clone $GIT_URL /home/techuser/model $FLAGS;
+
+if [ -n "$?" ] && [ "$?" -ne 0 ]
 then
     echo "---FAILURE_LOAD_MODEL---"
     exit 1;
@@ -28,10 +40,9 @@ else
     exit 1;
 fi
 
-
 # Ensure that Capella is closed.
-pkill java
-pkill capella
+pkill java || true
+pkill capella || true
 
 rm /opt/scripts/*;
 
