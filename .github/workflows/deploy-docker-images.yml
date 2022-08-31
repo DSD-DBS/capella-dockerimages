@@ -17,18 +17,18 @@ jobs:
       max-parallel: 1
       matrix:
         include:
-          - image: ghcr.io/DSD-DBS/capella-dockerimages/base
+          - image: ghcr.io/dsd-dbs/capella-dockerimages/base
             context: base
-          - image: ghcr.io/DSD-DBS/capella-dockerimages/capella/base
+          - image: ghcr.io/dsd-dbs/capella-dockerimages/capella/base
             context: capella
             build-args: |
-              BASE_IMAGE=ghcr.io/DSD-DBS/capella-dockerimages/base
+              BASE_IMAGE=ghcr.io/dsd-dbs/capella-dockerimages/base
               BUILD_TYPE=online
               CAPELLA_VERSION=5.2.0
-          - image: ghcr.io/DSD-DBS/capella-dockerimages/capella/ease
+          - image: ghcr.io/dsd-dbs/capella-dockerimages/capella/ease
             context: ease
             build-args: |
-              BASE_IMAGE=ghcr.io/DSD-DBS/capella-dockerimages/capella/base
+              BASE_IMAGE=ghcr.io/dsd-dbs/capella-dockerimages/capella/base
               BUILD_TYPE=online
     steps:
       - name: Checkout repository
