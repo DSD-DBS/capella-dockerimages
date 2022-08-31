@@ -22,14 +22,15 @@ jobs:
           - image: ghcr.io/dsd-dbs/capella-dockerimages/capella/base
             context: capella
             build-args: |
-              BASE_IMAGE=ghcr.io/dsd-dbs/capella-dockerimages/base
+              BASE_IMAGE=ghcr.io/dsd-dbs/capella-dockerimages/base:add-image-push-workflow-to-ghcr
               BUILD_TYPE=online
               CAPELLA_VERSION=5.2.0
           - image: ghcr.io/dsd-dbs/capella-dockerimages/capella/ease
             context: ease
             build-args: |
-              BASE_IMAGE=ghcr.io/dsd-dbs/capella-dockerimages/capella/base
+              BASE_IMAGE=ghcr.io/dsd-dbs/capella-dockerimages/capella/base:add-image-push-workflow-to-ghcr
               BUILD_TYPE=online
+    name: build and push ${{ matrix.context }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
