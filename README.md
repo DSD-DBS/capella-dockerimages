@@ -474,7 +474,10 @@ Please download all packages and place the files in the folder `capella/libs`:
 ### <a id="eclipse_packages"></a>Download Eclipse packages manually
 
 If your network is restricted and doesn't have access to the public Eclipse registries,
-you have to manually download and inject the packages.
+you have to manually download and inject the packages. Luckily capella is an
+application build within eclipse which offers a command line tool for downloading
+resources from eclipse software repositories. Refer to [this wiki article](https://wiki.eclipse.org/Equinox_p2_Repository_Mirroring#Running_the_Mirroring_Tools) if you
+are interested to learn the capabilities of the eclipse mirroring tool.
 
 You have to run the following commands for each of these following urls to download the
 metadata and artifact for the packages:
@@ -496,7 +499,10 @@ capellac -nosplash -verbose
 -destination <destionation_path> (e.g. file:ease/extensions/<extension>)>
 ```
 
-where `<extension>` is `py4j`, `ease` or `swtbot`.
+where `<extension>` is `py4j`, `ease` or `swtbot`. `capellac` is the path to the
+capella executable laying in the capella directory (capella.zip/capella/capella).
+If you have build an AppImage (linux) or a shortcut for it you can also call this
+with the displayed options.
 
 Each directory `ease/extensions/<extension>` should have the following structure:
 
