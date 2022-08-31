@@ -1,4 +1,8 @@
 #!/bin/bash
+
+# SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
+# SPDX-License-Identifier: Apache-2.0
+
 set -ex
 echo -e "tmp_passwd\n$RMT_PASSWORD\n$RMT_PASSWORD" | passwd
 unset RMT_PASSWORD
