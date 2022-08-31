@@ -4,7 +4,7 @@ name: Push docker images to GitHub container registry
 
 on:
   push:
-    branches: [main, staging, add-image-push-workflow-to-ghcr]
+    branches: [main, staging]
     tags: ["v*.*.*"]
   pull_request:
     branches: [main, staging]
