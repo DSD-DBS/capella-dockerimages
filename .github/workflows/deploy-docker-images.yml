@@ -56,6 +56,11 @@ jobs:
             type=ref,event=branch
             type=ref,event=pr
             type=semver,pattern={{version}}
+      - name: Download Capella requirements vp addOn
+        if: ${{ matrix.context == 'capella' }}
+        run: | 
+          curl -o req.zip https://download.eclipse.org/capella/addons/requirements/dropins/releases/0.12.3/Requirements-dropins-0.12.3.202208111122.zip;
+          unzip req.zip -d capella/dropins
       - name: Build and push Docker image
         id: build-and-push
         uses: docker/build-push-action@v3
