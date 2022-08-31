@@ -1,0 +1,61 @@
+# SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
+# SPDX-License-Identifier: CC0-1.0
+name: Push docker images to GitHub container registry
+
+on:
+  push:
+    branches: [master]
+    tags: ["v*.*.*"]
+  pull_request:
+    branches: [master]
+
+jobs:
+  deploy-docker-images:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ghcr.io/DSD-DBS/rm-bridge
+          flavor: latest=true
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+      - name: Login to image repository
+        if: github.ref_type == 'tag'
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push base image
+        id: base
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ../base/Dockerfile
+          push: false
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+      - name: Build and push capella image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ../capella/Dockerfile
+          push: false
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+      - name: Build and push ease image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ../ease/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            BASE_IMAGE=${{ steps.base.outputs.tags }}
+            BUILD_TYPE=offline
