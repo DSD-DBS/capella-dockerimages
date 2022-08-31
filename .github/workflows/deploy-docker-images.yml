@@ -61,6 +61,7 @@ jobs:
           context: ${{ matrix.context }}
           tags: ${{ steps.meta.outputs.tags }}
           build-args: ${{ matrix.build-args }}
+          push: true
       - name: Debug
         id: debug
         run: |
