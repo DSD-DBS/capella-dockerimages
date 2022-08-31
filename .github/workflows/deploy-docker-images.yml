@@ -60,7 +60,10 @@ jobs:
         # Transform image:tag to BASE_IMAGE=base-image:tag
         if: ${{ matrix.base-image }}
         id: base-image
-        run: echo "::set-output name=build-arg::BASE_IMAGE=${{ matrix.base-image }}:${${{ steps.meta.outputs.tags }}##*:}"
+        run: 
+          export IMAGE=${{ steps.meta.outputs.tags }}
+          export TAG=${IMAGE##*:}
+          echo "::set-output name=build-arg::BASE_IMAGE=${{ matrix.base-image }}:$TAG"
       - name: Download Capella requirements vp addOn
         if: ${{ matrix.context == 'capella' }}
         run: | 
