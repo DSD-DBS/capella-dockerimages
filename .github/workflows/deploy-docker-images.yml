@@ -21,14 +21,14 @@ jobs:
             context: base
           - image: ghcr.io/dsd-dbs/capella-dockerimages/capella/base
             context: capella
+            base-image: ghcr.io/dsd-dbs/capella-dockerimages/base
             build-args: |
-              BASE_IMAGE=ghcr.io/dsd-dbs/capella-dockerimages/base:add-image-push-workflow-to-ghcr
               BUILD_TYPE=online
               CAPELLA_VERSION=5.2.0
           - image: ghcr.io/dsd-dbs/capella-dockerimages/capella/ease
             context: ease
+            base-image: ghcr.io/dsd-dbs/capella-dockerimages/capella/base
             build-args: |
-              BASE_IMAGE=ghcr.io/dsd-dbs/capella-dockerimages/capella/base:add-image-push-workflow-to-ghcr
               BUILD_TYPE=online
     name: build and push ${{ matrix.context }}
     steps:
@@ -52,10 +52,15 @@ jobs:
         with:
           images: ${{ matrix.image }}
           tags: |
-            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
+            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
             type=ref,event=branch
             type=ref,event=pr
             type=semver,pattern={{version}}
+      - name: Resolve base image
+        # Transform image:tag to BASE_IMAGE=base-image:tag
+        if: ${{ matrix.base-image }}
+        id: base-image
+        run: echo "::set-output name=build-arg::BASE_IMAGE=${{ matrix.base-image }}:${${{ steps.meta.outputs.tags }}##*:}"
       - name: Download Capella requirements vp addOn
         if: ${{ matrix.context == 'capella' }}
         run: | 
@@ -67,10 +72,7 @@ jobs:
         with:
           context: ${{ matrix.context }}
           tags: ${{ steps.meta.outputs.tags }}
-          build-args: ${{ matrix.build-args }}
+          build-args: |
+            ${{ steps.base-image.outputs.build-arg }}
+            ${{ matrix.build-args }}
           push: true
-      - name: Debug
-        id: debug
-        run: |
-          echo ${{ steps.meta.outputs.tags }};
-          echo ${{ steps.meta.outputs.json }};
