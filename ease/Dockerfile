@@ -40,6 +40,8 @@ ONBUILD ENV SWTBOT_REPOSITORY=https://download.eclipse.org/technology/swtbot/rel
 
 FROM build_${BUILD_TYPE}
 
+USER techuser
+
 # Install EASE Dependencies
 # - org.py4j.feature.feature.group
 RUN /opt/capella/capella \
@@ -87,6 +89,8 @@ RUN pip install pyease
 ENV EASE_WORKSPACE /workspace
 ENV EASE_SCRIPTS_LOCATION /opt/scripts
 ENV EASE_LOG_LOCATION=/proc/1/fd/1
+
+USER root
 
 RUN mkdir /opt/scripts && \
     chown techuser /opt/scripts
