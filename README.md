@@ -119,9 +119,10 @@ docker build -t base --build-arg UID=1001 base
 
 ### 2. Docker image `capella/base`
 
-The Capella base image installs a selected Capella client version. The Capella client
-needs to be downloaded and can optionally be customised prior to building the Docker
-image.
+The Capella base image installs a selected Capella client version. The Capella client can be downloaded and can optionally be customised prior to building the Docker
+image or can be downloaded automatically in the Docker image.
+
+#### Option 1: Download Capella archive manually
 
 Download a Capella Linux binary `zip` or `tar.gz` archive. You can get a release
 directly from Eclipse. Visit <https://github.com/eclipse/capella/releases>, select a
@@ -200,6 +201,17 @@ the following command:
 ```zsh
 docker build -t capella/base capella --build-arg INJECT_PACKAGES=true
 ```
+
+#### Option 2: Download Capella archive automatically
+
+If you choose to download Capella automatically, then all you have to do is run the following command:
+
+```zsh
+docker build -t capella/base capella --build-arg BUILD_TYPE=online --build-arg CAPELLA_VERSION=$CAPELLA_VERSION
+```
+
+where `$CAPELLA_VERSION` should be replaced with the Capella version (e.g. `5.2.0`).
+If a suitable version is found, it will be downloaded.
 
 ### 3. Docker image `t4c/client/base`
 
