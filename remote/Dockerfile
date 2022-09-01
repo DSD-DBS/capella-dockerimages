@@ -57,6 +57,7 @@ COPY fastapi /opt/fastapi
 RUN pip install /opt/fastapi
 
 ENV AUTOSTART_CAPELLA=1
+ENV RESTART_CAPELLA=1
 
 USER techuser
 ENTRYPOINT [ "/home/techuser/.startup.sh" ]
