@@ -93,7 +93,7 @@ To build the base image, please run:
 docker build -t base base
 ```
 
-<b>Important:</b>
+**Important:**
  If your company has a specific base image with all company configurations, of course,
  it can also be used:
 
@@ -256,6 +256,19 @@ In general, no additional configuration is necessary for the build of the remote
   ```zsh
   docker build -t t4c/client/remote remote --build-arg BASE_IMAGE=t4c/client/base
   ```
+
+**Environment variables:**
+
+The remote images come with two environment variables that can be used to
+control the (re-)start behaviour for Capella. The autostart can be tuned and is
+configurable for the window manager:
+
+`AUTOSTART_CAPELLA`: When set to 1 (default), Capella will be started as soon
+as an RDP connection has been established to the running container.
+
+`RESTART_CAPELLA`: When set to 1 (default) and when `AUTOSTART_CAPELLA=1`,
+Capella will be re-started as soon as it has been exited (after clean quits as
+well as crashs).
 
 ### 5. Docker images `capella/ease` and `t4c/client/ease`
 
