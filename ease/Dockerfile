@@ -1,4 +1,4 @@
-# Copyright DB Netz AG and the capella-collab-manager contributors
+# SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
 # SPDX-License-Identifier: Apache-2.0
 
 ARG BUILD_TYPE=offline
@@ -84,8 +84,7 @@ RUN /opt/capella/capella \
 RUN rm -rf /tmp/extensions
 RUN echo "-Dorg.eclipse.swtbot.search.timeout=1000" >> /opt/capella/capella.ini
 
-COPY pyease /tmp/pyease
-RUN pip install /tmp/pyease
+RUN pip install pyease
 
 ENV EASE_WORKSPACE /workspace
 ENV EASE_SCRIPTS_LOCATION /opt/scripts

@@ -1,4 +1,4 @@
-# Copyright DB Netz AG and the capella-collab-manager contributors
+# SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
 # SPDX-License-Identifier: Apache-2.0
 
 import os
@@ -28,6 +28,4 @@ async def get_files(
             headers={"WWW-Authenticate": "Basic"},
         )
 
-    return core.get_files(
-        dir=pathlib.PosixPath("/workspace"), show_hidden=show_hidden
-    )
+    return core.get_files(dir=pathlib.PosixPath("/workspace"), show_hidden=show_hidden)
