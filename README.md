@@ -333,8 +333,8 @@ After starting the container, you should be able to connect to
 
 For the login use the followings credentials:<br>
 
-- <b>Username</b>: `techuser`
-- <b>Password</b>: `$RMT_PASSWORD`
+- **Username**: `techuser`
+- **Password**: `$RMT_PASSWORD`
 
 Capella should then start automatically.
 
@@ -369,8 +369,8 @@ After starting the container, you should be able to connect to
 
 Please use the followings credentials: <br>
 
-- <b>Username</b>: `techuser`
-- <b>Password</b>: `$RMT_PASSWORD`
+- **Username**: `techuser`
+- **Password**: `$RMT_PASSWORD`
 
 Capella should then start automatically. You should be able to connect to T4C models
 out of the box.
