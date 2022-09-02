@@ -257,19 +257,6 @@ In general, no additional configuration is necessary for the build of the remote
   docker build -t t4c/client/remote remote --build-arg BASE_IMAGE=t4c/client/base
   ```
 
-**Environment variables:**
-
-The remote images come with two environment variables that can be used to
-control the (re-)start behaviour for Capella. The autostart can be tuned and is
-configurable for the window manager:
-
-`AUTOSTART_CAPELLA`: When set to 1 (default), Capella will be started as soon
-as an RDP connection has been established to the running container.
-
-`RESTART_CAPELLA`: When set to 1 (default) and when `AUTOSTART_CAPELLA=1`,
-Capella will be re-started as soon as it has been exited (after clean quits as
-well as crashs).
-
 ### 5. Docker images `capella/ease` and `t4c/client/ease`
 
 The EASE image builds on top of the Capella base image or the T4C base image
@@ -319,6 +306,8 @@ docker build -t $BASE/capella/readonly \
 docker run -d \
     -p $RDP_EXTERNAL_PORT:3389 \
     -e RMT_PASSWORD=$RMT_PASSWORD \
+    -e AUTOSTART_CAPELLA=$AUTOSTART_CAPELLA \
+    -e RESTART_CAPELLA=$RESTART_CAPELLA \
     capella/remote
 ```
 
@@ -327,6 +316,11 @@ Please replace the followings variables:
 - `$RDP_EXTERNAL_PORT` to the external port for RDP on your host (usually `3389`)
 - `$RMT_PASSWORD` is the password for remote connections (for the login via RDP) and has
   to be at least 8 characters long.
+- `AUTOSTART_CAPELLA` defines the autostart behaviour of Capella. When set to 1 (default), Capella will be started as soon
+  as an RDP connection has been established to the running container.
+- `RESTART_CAPELLA` defines the restart behaviour of Capella. When set to 1 (default) and when `AUTOSTART_CAPELLA=1`,
+  Capella will be re-started as soon as it has been exited (after clean quits as
+  well as crashs).
 
 After starting the container, you should be able to connect to
 `localhost:$RDP_EXTERNAL_PORT` with your preferred RDP Client.
@@ -350,6 +344,8 @@ docker run -d \
     -e RMT_PASSWORD=$RMT_PASSWORD \
     -e FILESERVICE_PASSWORD=$FILESERVICE_PASSWORD \
     -e T4C_USERNAME=$T4C_USERNAME \
+    -e AUTOSTART_CAPELLA=$AUTOSTART_CAPELLA \
+    -e RESTART_CAPELLA=$RESTART_CAPELLA \
     t4c/client/remote
 ```
 
@@ -361,8 +357,14 @@ Please replace the followings variables:
 - `$T4C_SERVER_HOST` to the IP-Address of your T4C server (default: `127.0.0.1`).
 - `$T4C_SERVER_PORT` to the port of your T4C server (default: `2036`).
 - `$T4C_REPOSITORIES` is a comma-seperated list of repositories. These repositories show
-  up as default options on connection (e.g. `repo1,repo2`).- `$T4C_USERNAME` is the username that is suggested when connecting to t4c.
+  up as default options on connection (e.g. `repo1,repo2`).
+- `$T4C_USERNAME` is the username that is suggested when connecting to t4c.
 - `$FILESERVICE_PASSWORD` with the password for the fileservice, which is used as basic authentication password.
+- `AUTOSTART_CAPELLA` defines the autostart behaviour of Capella. When set to 1 (default), Capella will be started as soon
+  as an RDP connection has been established to the running container.
+- `RESTART_CAPELLA` defines the restart behaviour of Capella. When set to 1 (default) and when `AUTOSTART_CAPELLA=1`,
+  Capella will be re-started as soon as it has been exited (after clean quits as
+  well as crashs).
 
 After starting the container, you should be able to connect to
 `localhost:$RDP_EXTERNAL_PORT` with your preferred RDP Client.
