@@ -234,7 +234,7 @@ The remote images allow to extend the
 - Capella base image (`capella/base`) or
 - the T4C base image (`t4c/client/base`)
 
-with an RDP server, a metrics endpoints to meassure the container activity and a fileservice that serves the current workspace structure.
+with an RDP server, a metrics endpoint to measure the container activity and a fileservice that serves the current workspace structure.
 
 It is a basic Linux server with an [Openbox](http://openbox.org/) installation.
 
