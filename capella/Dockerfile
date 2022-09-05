@@ -43,6 +43,7 @@ RUN if [ "$BUILD_TYPE" = "online" ]; then \
     python .download_archive.py; \
     fi;
 
+COPY ./archives/capella.* /opt/
 RUN if [ -s capella.zip ]; then \
     # Install Capella using zip
     unzip capella.zip -d . && \
