@@ -1,17 +1,23 @@
+<!--
+SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # Capella, T4C Client and EASE Docker images
 
 ## Introduction
 
-Please read the <b>complete</b> README carefully first, as some requirements must be met
+Please read the **complete** README carefully first, as some requirements must be met
 for the containers to work as desired.
 
 The repository provides Docker images for the followings tools:
 
-- Capella: <https://www.eclipse.org/capella/>
-- TeamForCapella client: <https://www.obeosoft.com/en/team-for-capella><br/>
+- [Capella](https://www.eclipse.org/capella/)
+- [TeamForCapella client](https://www.obeosoft.com/en/team-for-capella) \
   Right now, we don't provide a Docker image for the server.
-- EASE: <https://www.eclipse.org/ease/><br/>
-  SWT-Bot: https://www.eclipse.org/swtbot/
+- [EASE](https://www.eclipse.org/ease/) \
+  [SWT-Bot](https://www.eclipse.org/swtbot/)
 
 This repository includes Docker files to build the following Docker images:
 
@@ -55,7 +61,7 @@ Please clone this repository and include all submodules:
 git clone --recurse-submodules https://github.com/DSD-DBS/capella-dockerimages.git
 ```
 
-<b>Make sure that all commands are executed in the root directory of the repository.</b>
+**Make sure that all commands are executed in the root directory of the repository.**
 
 ### Quick Start
 
@@ -72,7 +78,7 @@ Otherwise, you can simply run the following command to build all images:
 make all
 ```
 
-### 1. Docker image `base` <a id="base"></a>
+### 1. Docker image `base`></a>
 
 Our base image updates the packages and installs the following packages:
 
@@ -93,7 +99,7 @@ To build the base image, please run:
 docker build -t base base
 ```
 
-<b>Important:</b>
+**Important:**
  If your company has a specific base image with all company configurations, of course,
  it can also be used:
 
@@ -113,9 +119,10 @@ docker build -t base --build-arg UID=1001 base
 
 ### 2. Docker image `capella/base`
 
-The Capella base image installs a selected Capella client version. The Capella client
-needs to be downloaded and can optionally be customised prior to building the Docker
-image.
+The Capella base image installs a selected Capella client version. The Capella client can be downloaded and can optionally be customised prior to building the Docker
+image or can be downloaded automatically in the Docker image.
+
+#### Option 1: Download Capella archive manually
 
 Download a Capella Linux binary `zip` or `tar.gz` archive. You can get a release
 directly from Eclipse. Visit <https://github.com/eclipse/capella/releases>, select a
@@ -161,10 +168,10 @@ again.
 
 #### Workaround of pinned library versions to remove incompatibilities
 
-<b>Note:</b><br/>
-<i>This workaround is normally handled in the [Dockerfile](capella/Dockerfile) and it is
+**Note:** \
+_This workaround is normally handled in the [Dockerfile](capella/Dockerfile) and it is
 only necessary to download below libraries if there are restrictions on your network
-that block an access to these libraries when the Docker image is being built.</i>
+that block an access to these libraries when the Docker image is being built._
 
 In some Capella versions, there are incompatiblities with certain versions of the
 following libraries:
@@ -178,7 +185,7 @@ So if your build environment restricts access to the latest versions you need to
 manually download the packages with the command `apt download` and inject them into the
 container.
 
-For more information refer to [Download older packages manually](#debian_packages).
+For more information refer to [Download older packages manually](#download-older-packages-manually).
 
 #### Build the Docker image
 
@@ -194,6 +201,17 @@ the following command:
 ```zsh
 docker build -t capella/base capella --build-arg INJECT_PACKAGES=true
 ```
+
+#### Option 2: Download Capella archive automatically
+
+If you choose to download Capella automatically, then all you have to do is run the following command:
+
+```zsh
+docker build -t capella/base capella --build-arg BUILD_TYPE=online --build-arg CAPELLA_VERSION=$CAPELLA_VERSION
+```
+
+where `$CAPELLA_VERSION` should be replaced with the Capella version (e.g. `5.2.0`).
+If a suitable version is found, it will be downloaded.
 
 ### 3. Docker image `t4c/client/base`
 
@@ -234,7 +252,7 @@ The remote images allow to extend the
 - Capella base image (`capella/base`) or
 - the T4C base image (`t4c/client/base`)
 
-with an RDP server, a metrics endpoints to meassure the container activity and a fileservice that serves the current workspace structure.
+with an RDP server, a metrics endpoint to measure the container activity and a fileservice that serves the current workspace structure.
 
 It is a basic Linux server with an [Openbox](http://openbox.org/) installation.
 
@@ -274,7 +292,7 @@ docker build -t $BASE/ease \
 ```
 
 If you network is restricted, please execute the steps described in
-[Download Eclipse Packages manually](#eclipse_packages). When your extensions are
+[Download Eclipse Packages manually](#download-eclipse-packages-manually). When your extensions are
 located in `ease/extensions` and the right subfolders, please run:
 
 ```zsh
@@ -306,6 +324,8 @@ docker build -t $BASE/capella/readonly \
 docker run -d \
     -p $RDP_EXTERNAL_PORT:3389 \
     -e RMT_PASSWORD=$RMT_PASSWORD \
+    -e AUTOSTART_CAPELLA=$AUTOSTART_CAPELLA \
+    -e RESTART_CAPELLA=$RESTART_CAPELLA \
     capella/remote
 ```
 
@@ -314,14 +334,19 @@ Please replace the followings variables:
 - `$RDP_EXTERNAL_PORT` to the external port for RDP on your host (usually `3389`)
 - `$RMT_PASSWORD` is the password for remote connections (for the login via RDP) and has
   to be at least 8 characters long.
+- `AUTOSTART_CAPELLA` defines the autostart behaviour of Capella. When set to 1 (default), Capella will be started as soon
+  as an RDP connection has been established to the running container.
+- `RESTART_CAPELLA` defines the restart behaviour of Capella. When set to 1 (default) and when `AUTOSTART_CAPELLA=1`,
+  Capella will be re-started as soon as it has been exited (after clean quits as
+  well as crashs).
 
 After starting the container, you should be able to connect to
 `localhost:$RDP_EXTERNAL_PORT` with your preferred RDP Client.
 
-For the login use the followings credentials:<br>
+For the login use the followings credentials:
 
-- <b>Username</b>: `techuser`
-- <b>Password</b>: `$RMT_PASSWORD`
+- **Username**: `techuser`
+- **Password**: `$RMT_PASSWORD`
 
 Capella should then start automatically.
 
@@ -337,6 +362,8 @@ docker run -d \
     -e RMT_PASSWORD=$RMT_PASSWORD \
     -e FILESERVICE_PASSWORD=$FILESERVICE_PASSWORD \
     -e T4C_USERNAME=$T4C_USERNAME \
+    -e AUTOSTART_CAPELLA=$AUTOSTART_CAPELLA \
+    -e RESTART_CAPELLA=$RESTART_CAPELLA \
     t4c/client/remote
 ```
 
@@ -348,16 +375,22 @@ Please replace the followings variables:
 - `$T4C_SERVER_HOST` to the IP-Address of your T4C server (default: `127.0.0.1`).
 - `$T4C_SERVER_PORT` to the port of your T4C server (default: `2036`).
 - `$T4C_REPOSITORIES` is a comma-seperated list of repositories. These repositories show
-  up as default options on connection (e.g. `repo1,repo2`).- `$T4C_USERNAME` is the username that is suggested when connecting to t4c.
+  up as default options on connection (e.g. `repo1,repo2`).
+- `$T4C_USERNAME` is the username that is suggested when connecting to t4c.
 - `$FILESERVICE_PASSWORD` with the password for the fileservice, which is used as basic authentication password.
+- `AUTOSTART_CAPELLA` defines the autostart behaviour of Capella. When set to 1 (default), Capella will be started as soon
+  as an RDP connection has been established to the running container.
+- `RESTART_CAPELLA` defines the restart behaviour of Capella. When set to 1 (default) and when `AUTOSTART_CAPELLA=1`,
+  Capella will be re-started as soon as it has been exited (after clean quits as
+  well as crashs).
 
 After starting the container, you should be able to connect to
 `localhost:$RDP_EXTERNAL_PORT` with your preferred RDP Client.
 
-Please use the followings credentials: <br>
+Please use the followings credentials:
 
-- <b>Username</b>: `techuser`
-- <b>Password</b>: `$RMT_PASSWORD`
+- **Username**: `techuser`
+- **Password**: `$RMT_PASSWORD`
 
 Capella should then start automatically. You should be able to connect to T4C models
 out of the box.
@@ -376,7 +409,7 @@ We also plan to integrate "dynamic resizing" in the near future.
 Run the image with this command and provide EASE Python scripts as a volume.
 The scripts have to be located in the `/opt/scripts` directory (inside the container)!
 
-For more information refer to: [How does a EASE Python Script look like?](#python_ease).
+For more information refer to: [How does a EASE Python Script look like?](#how-does-an-ease-python-script-look-like).
 
 To run the container, just execute:
 
@@ -437,11 +470,11 @@ We have explicitly observed the following:
   However, in some cases we use caching and in other cases it was not always possible
   to group everything for reasons of clarity.
 
-### <a id="debian_packages"></a>Download older packages manually
+### Download older packages manually
 
 Unfortunately the version `2.28.1` of `libwebkit2gtk-4.0-37` is no longer available in
 the default Debian `bullyseye-updates` registry, but it is still available in the
-Ubuntu `focal` repository (https://packages.ubuntu.com/focal/libwebkit2gtk-4.0-37).
+Ubuntu `focal` repository (<https://packages.ubuntu.com/focal/libwebkit2gtk-4.0-37>).
 
 First of all, you have to add the source to your `apt`-sources and add the apt keys.
 
@@ -456,32 +489,35 @@ apt update
 
 Please download all packages and place the files in the folder `capella/libs`:
 
-- `libicu66_66.1-2ubuntu2_amd64.deb`<br>
+- `libicu66_66.1-2ubuntu2_amd64.deb` \
   (Run `apt download libicu66=66.1-2ubuntu2`)
 
-- `libjavascriptcoregtk-4.0-18_2.28.1-1_amd64.deb`<br>
+- `libjavascriptcoregtk-4.0-18_2.28.1-1_amd64.deb` \
   (Run `apt download libjavascriptcoregtk-4.0-18=2.28.1-1`)
 
-- `libjpeg-turbo8_2.0.3-0ubuntu1_amd64.deb`<br>
+- `libjpeg-turbo8_2.0.3-0ubuntu1_amd64.deb` \
   (Run `apt download libjpeg-turbo8=2.0.3-0ubuntu1`)
 
-- `libjpeg8_8c-2ubuntu8_amd64.deb`<br>
+- `libjpeg8_8c-2ubuntu8_amd64.deb` \
   (Run `apt download libjpeg8=8c-2ubuntu8`)
 
-- `libwebkit2gtk-4.0-37_2.28.1-1_amd64.deb`<br>
+- `libwebkit2gtk-4.0-37_2.28.1-1_amd64.deb` \
   (Run `apt download libwebkit2gtk-4.0-37=2.28.1-1`)
 
-### <a id="eclipse_packages"></a>Download Eclipse packages manually
+### Download Eclipse packages manually
 
 If your network is restricted and doesn't have access to the public Eclipse registries,
-you have to manually download and inject the packages.
+you have to manually download and inject the packages. Luckily capella is an
+application build within eclipse which offers a command line tool for downloading
+resources from eclipse software repositories. Refer to [this wiki article](https://wiki.eclipse.org/Equinox_p2_Repository_Mirroring#Running_the_Mirroring_Tools) if you
+are interested to learn the capabilities of the eclipse mirroring tool.
 
 You have to run the following commands for each of these following urls to download the
 metadata and artifact for the packages:
 
-- https://eclipse.py4j.org/
-- https://download.eclipse.org/ease/integration/nightly/
-- https://download.eclipse.org/technology/swtbot/releases/latest/
+- <https://eclipse.py4j.org/>
+- <https://download.eclipse.org/ease/integration/nightly/>
+- <https://download.eclipse.org/technology/swtbot/releases/latest/>
 
 ```zsh
 capellac -nosplash -verbose
@@ -489,25 +525,29 @@ capellac -nosplash -verbose
 -source <url>
 -destination <destionation_path> (e.g. file:ease/extensions/<extension>)>
 ```
-```
+
+```zsh
 capellac -nosplash -verbose
 -application org.eclipse.equinox.p2.metadata.repository.mirrorApplication
 -source <url>
 -destination <destionation_path> (e.g. file:ease/extensions/<extension>)>
 ```
 
-where `<extension>` is `py4j`, `ease` or `swtbot`.
+where `<extension>` is `py4j`, `ease` or `swtbot`. `capellac` is the path to the
+capella executable laying in the capella directory (capella.zip/capella/capella).
+If you have build an AppImage (linux) or a shortcut for it you can also call this
+with the displayed options.
 
 Each directory `ease/extensions/<extension>` should have the following structure:
 
 - `content.jar`
 - `artifacts.jar`
 - `plugins/`
-    - `*.jar` files
+  - `*.jar` files
 - `features/`
-    - `*.jar` files
+  - `*.jar` files
 
-### <a id="python_ease"></a>How does an EASE Python script look like?
+### How does an EASE Python script look like?
 
 In general, you can try to execute the Py4J in the Eclipse environment for development
 purposes first. When the script is tested, you can use it in our container.

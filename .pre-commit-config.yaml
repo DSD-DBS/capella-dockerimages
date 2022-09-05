@@ -1,4 +1,4 @@
-# Copyright DB Netz AG and the capella-collab-manager contributors
+# SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
 # SPDX-License-Identifier: Apache-2.0
 
 repos:
@@ -40,9 +40,13 @@ repos:
         files: '\.py$|\.yaml$|Dockerfile$|Makefile$'
         args:
           - --license-filepath
-          - license_header.txt
+          - LICENSES/.license_header.txt
           - --comment-style
           - '#'
+  - repo: https://github.com/fsfe/reuse-tool
+    rev: v1.0.0
+    hooks:
+      - id: reuse
   - repo: https://github.com/qoomon/git-conventional-commits
     rev: v2.1.0
     hooks:

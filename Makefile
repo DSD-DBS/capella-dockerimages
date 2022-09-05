@@ -1,4 +1,4 @@
-# Copyright DB Netz AG and the capella-collab-manager contributors
+# SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
 # SPDX-License-Identifier: Apache-2.0
 
 # Add prefix to all dockerimage names, e.g. capella-collab
@@ -52,13 +52,16 @@ FILESYSTEM_PORT ?= 8081
 # Preferred metrics port on your host system
 METRICS_PORT ?= 9118
 
+# Preferred Capella version
+CAPELLA_VERSION ?= 5.2.0
+
 all: base capella/base capella/remote t4c/client/base t4c/client/remote capella/ease t4c/client/ease capella/ease/remote capella/readonly t4c/client/importer
 
 base:
 	docker build -t $(DOCKER_PREFIX)base base
 
 capella/base:
-	docker build -t $(DOCKER_PREFIX)capella/base capella
+	docker build -t $(DOCKER_PREFIX)capella/base capella --build-arg BUILD_TYPE=online --build-arg CAPELLA_VERSION=$(CAPELLA_VERSION)
 
 capella/remote:
 	docker build -t $(DOCKER_PREFIX)capella/remote --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/base remote

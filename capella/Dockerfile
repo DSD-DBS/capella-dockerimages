@@ -1,4 +1,4 @@
-# Copyright DB Netz AG and the capella-collab-manager contributors
+# SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
 # SPDX-License-Identifier: Apache-2.0
 
 ARG BASE_IMAGE=base
@@ -6,6 +6,7 @@ FROM ${BASE_IMAGE}
 
 ENV DEBIAN_FRONTEND=noninteractive
 ARG INJECT_PACKAGES=false
+ARG BUILD_TYPE=offline
 
 # Install WebKit with GTK
 COPY libs /tmp/libs
@@ -32,6 +33,15 @@ RUN if [ "$INJECT_PACKAGES" = "true" ]; then \
     rm -rf /var/lib/apt/lists/*;
 
 WORKDIR /opt/
+
+# Download a Capella executable archive
+ARG CAPELLA_VERSION
+
+COPY ./download_archive.py /opt/.download_archive.py
+RUN if [ "$BUILD_TYPE" = "online" ]; then \
+    pip install requests lxml && \
+    python .download_archive.py; \
+    fi;
 
 COPY ./archives/capella.* /opt/
 RUN if [ -s capella.zip ]; then \
