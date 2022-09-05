@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 ARG BASE_IMAGE=base
-FROM ${BASE_IMAGE}
+ARG BUILD_TYPE=online
+FROM ${BASE_IMAGE} as base
 
 ENV DEBIAN_FRONTEND=noninteractive
 ARG INJECT_PACKAGES=false
-ARG BUILD_TYPE=offline
 
 # Install WebKit with GTK
 COPY libs /tmp/libs
@@ -34,16 +34,19 @@ RUN if [ "$INJECT_PACKAGES" = "true" ]; then \
 
 WORKDIR /opt/
 
+FROM base as build_online
 # Download a Capella executable archive
 ARG CAPELLA_VERSION
 
-COPY ./download_archive.py /opt/.download_archive.py
-RUN if [ "$BUILD_TYPE" = "online" ]; then \
-    pip install requests lxml && \
-    python .download_archive.py; \
-    fi;
+ONBUILD COPY ./download_archive.py /opt/.download_archive.py
+ONBUILD RUN pip install requests lxml && \
+    python .download_archive.py;
 
-COPY ./archives/capella.* /opt/
+FROM base as build_offline
+ONBUILD COPY ./archives/capella.* /opt/
+
+FROM build_${BUILD_TYPE}
+
 RUN if [ -s capella.zip ]; then \
     # Install Capella using zip
     unzip capella.zip -d . && \
