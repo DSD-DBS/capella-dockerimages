@@ -81,6 +81,8 @@ RUN /opt/capella/capella \
     -repository ${SWTBOT_REPOSITORY} \
     -installIU org.eclipse.swtbot.forms.feature.group,org.eclipse.swtbot.eclipse.feature.group,org.eclipse.swtbot.eclipse.gef.feature.group,org.eclipse.swtbot.feature.group,org.eclipse.swtbot.ide.feature.group,org.eclipse.swtbot.generator.feature.feature.group
 
+USER root
+
 RUN rm -rf /tmp/extensions
 RUN echo "-Dorg.eclipse.swtbot.search.timeout=1000" >> /opt/capella/capella.ini
 
@@ -89,8 +91,6 @@ RUN pip install pyease
 ENV EASE_WORKSPACE /workspace
 ENV EASE_SCRIPTS_LOCATION /opt/scripts
 ENV EASE_LOG_LOCATION=/proc/1/fd/1
-
-USER root
 
 RUN mkdir /opt/scripts && \
     chown techuser /opt/scripts
