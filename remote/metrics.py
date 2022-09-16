@@ -7,8 +7,10 @@ import logging
 import os
 import subprocess
 from datetime import datetime, timedelta
+from wsgiref.simple_server import make_server
 
-from prometheus_client import Gauge, start_http_server
+from prometheus_client import Gauge, make_wsgi_app, REGISTRY
+
 
 METRICS_PORT = int(
     os.getenv("METRICS_PORT", 9118)  # pylint: disable=invalid-envvar-default
@@ -56,10 +58,15 @@ class IdleTimer:
         return round(current_idle_time, 2)
 
 
-idler = IdleTimer()
+IDLETIME.set_function(IdleTimer().get_idletime)
+
+
+def start_server(addr, port, registry):
+    """Starts a WSGI server for Prometheus metrics on the main thread."""
+    app = make_wsgi_app(registry)
+    httpd = make_server(addr, port, app)
+    httpd.serve_forever()
+
 
 if __name__ == "__main__":
-    IDLETIME.set_function(idler.get_idletime)
-    start_http_server(METRICS_PORT)
-    while True:
-        ...  # Prometheus metric server dies if there is no run_forever mechanism
+    start_server(addr="", port=METRICS_PORT, registry=REGISTRY)
