@@ -7,10 +7,24 @@ FROM $BASE_IMAGE
 RUN apt-get update && \
     apt-get upgrade --yes && \
     apt-get install --yes \
+    gettext-base \
+    locales \
     python3 \
     python3-pip \
-    zip \
-    unzip && rm -rf /var/lib/apt/lists/*
+    unzip \
+    zip && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN echo "en_GB.UTF-8 UTF-8" >> /etc/locale.gen && \
+    locale-gen en_GB.UTF-8 && \
+    update-locale en_GB.UTF-8 && \
+    dpkg-reconfigure --frontend=noninteractive locales && \
+    echo "LANG=en_GB.UTF-8" >> /etc/default/locale && \
+    echo "LANGUAGE=en_GB:en" >> /etc/default/locale && \
+    echo "LC_ALL=en_GB.UTF-8" >> /etc/default/locale
+ENV LANG="en_GB.UTF-8"
+ENV LANGUAGE="en_GB:en"
+ENV LC_ALL="en_GB.UTF-8"
 
 # Create techuser with UID
 ARG UID=1001
