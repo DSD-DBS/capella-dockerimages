@@ -55,6 +55,8 @@ METRICS_PORT ?= 9118
 # Preferred Capella version
 CAPELLA_VERSION ?= 5.2.0
 
+DOCKER_TAG ?= latest
+
 all: \
 	base \
 	capella/base \
@@ -68,34 +70,34 @@ all: \
 	t4c/client/importer
 
 base:
-	docker build -t $(DOCKER_PREFIX)base base
+	docker build -t $(DOCKER_PREFIX)$@ base
 
 capella/base:
-	docker build -t $(DOCKER_PREFIX)capella/base capella --build-arg BUILD_TYPE=online --build-arg CAPELLA_VERSION=$(CAPELLA_VERSION)
+	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BUILD_TYPE=online --build-arg CAPELLA_VERSION=$(CAPELLA_VERSION) capella
 
 capella/remote:
-	docker build -t $(DOCKER_PREFIX)capella/remote --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/base remote
+	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/base:$(DOCKER_TAG) remote
 
 t4c/client/base:
-	docker build -t $(DOCKER_PREFIX)t4c/client/base --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/base t4c
+	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/base:$(DOCKER_TAG) t4c
 
 t4c/client/remote:
-	docker build -t $(DOCKER_PREFIX)t4c/client/remote --build-arg BASE_IMAGE=$(DOCKER_PREFIX)t4c/client/base remote
+	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)t4c/client/base:$(DOCKER_TAG) remote
 
 capella/ease:
-	docker build -t $(DOCKER_PREFIX)capella/ease --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/base --build-arg BUILD_TYPE=online ease
-
-t4c/client/ease:
-	docker build -t $(DOCKER_PREFIX)t4c/client/ease --build-arg BASE_IMAGE=$(DOCKER_PREFIX)t4c/client/base --build-arg BUILD_TYPE=online ease
+	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/base:$(DOCKER_TAG) --build-arg BUILD_TYPE=online ease
 
 capella/ease/remote:
-	docker build -t $(DOCKER_PREFIX)capella/ease/remote --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/ease remote
+	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/ease:$(DOCKER_TAG) remote
+
+t4c/client/ease:
+	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)t4c/client/base:$(DOCKER_TAG) --build-arg BUILD_TYPE=online ease
 
 capella/readonly:
-	docker build -t $(DOCKER_PREFIX)capella/readonly --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/ease/remote readonly
+	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/ease/remote:$(DOCKER_TAG) readonly
 
 t4c/client/importer:
-	docker build -t $(DOCKER_PREFIX)t4c/client/importer --build-arg BASE_IMAGE=$(DOCKER_PREFIX)t4c/client/base importer
+	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)t4c/client/base:$(DOCKER_TAG) importer
 
 run/t4c/client/remote:
 	docker rm /t4c-client-remote || true
