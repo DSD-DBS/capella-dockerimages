@@ -55,7 +55,17 @@ METRICS_PORT ?= 9118
 # Preferred Capella version
 CAPELLA_VERSION ?= 5.2.0
 
-all: base capella/base capella/remote t4c/client/base t4c/client/remote capella/ease t4c/client/ease capella/ease/remote capella/readonly t4c/client/importer
+all: \
+	base \
+	capella/base \
+	capella/remote \
+	t4c/client/base \
+	t4c/client/remote \
+	capella/ease \
+	capella/ease/remote \
+	t4c/client/ease \
+	capella/readonly \
+	t4c/client/importer
 
 base:
 	docker build -t $(DOCKER_PREFIX)base base
