@@ -19,15 +19,32 @@ jobs:
         include:
           - image: ghcr.io/dsd-dbs/capella-dockerimages/base
             context: base
-          - image: ghcr.io/dsd-dbs/capella-dockerimages/capella/base
+          - image: ghcr.io/dsd-dbs/capella-dockerimages/capella/base:5.0
+            context: capella
+            base-image: ghcr.io/dsd-dbs/capella-dockerimages/base
+            build-args: |
+              BUILD_TYPE=online
+              CAPELLA_VERSION=5.0.0
+          - image: ghcr.io/dsd-dbs/capella-dockerimages/capella/base:5.2
             context: capella
             base-image: ghcr.io/dsd-dbs/capella-dockerimages/base
             build-args: |
               BUILD_TYPE=online
               CAPELLA_VERSION=5.2.0
-          - image: ghcr.io/dsd-dbs/capella-dockerimages/capella/ease
+          - image: ghcr.io/dsd-dbs/capella-dockerimages/capella/cli:5.0
+            context: cli
+            base-image: ghcr.io/dsd-dbs/capella-dockerimages/capella/base:5.0
+          - image: ghcr.io/dsd-dbs/capella-dockerimages/capella/cli:5.2
+            context: cli
+            base-image: ghcr.io/dsd-dbs/capella-dockerimages/capella/base:5.2
+          - image: ghcr.io/dsd-dbs/capella-dockerimages/capella/ease:5.0
             context: ease
-            base-image: ghcr.io/dsd-dbs/capella-dockerimages/capella/base
+            base-image: ghcr.io/dsd-dbs/capella-dockerimages/capella/base:5.0
+            build-args: |
+              BUILD_TYPE=online
+          - image: ghcr.io/dsd-dbs/capella-dockerimages/capella/ease:5.2
+            context: ease
+            base-image: ghcr.io/dsd-dbs/capella-dockerimages/capella/base:5.2
             build-args: |
               BUILD_TYPE=online
     name: build and push ${{ matrix.context }}
