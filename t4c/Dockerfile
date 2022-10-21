@@ -3,7 +3,7 @@
 
 ARG BASE_IMAGE=capella/base
 FROM ${BASE_IMAGE}
-
+USER techuser
 # Install T4C
 COPY ./updateSite /opt/updateSite
 WORKDIR /opt/updateSite
@@ -16,6 +16,7 @@ RUN T4C_ZIP=$(find . -type f -iname "*.zip" | head -n 1 | cut -c 3-); \
     -repository jar:file:///opt/updateSite/$T4C_ZIP!/ \
     -installIU com.thalesgroup.mde.melody.collab.feature.feature.group,com.thalesgroup.mde.melody.collab.maintenance.feature.feature.group,com.thalesgroup.mde.melody.collab.licbranding.feature.feature.group && \
     chown -R techuser /opt/capella/configuration
+USER root
 
 RUN chown techuser /opt/capella/capella.ini && \
     echo '-DOBEO_LICENSE_SERVER_CONFIGURATION=$T4C_LICENCE_SECRET \n-Duser.name=$T4C_USERNAME' >> /opt/capella/capella.ini
