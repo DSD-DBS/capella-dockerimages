@@ -60,8 +60,10 @@ DOCKER_TAG ?= latest
 all: \
 	base \
 	capella/base \
+	capella/cli \
 	capella/remote \
 	t4c/client/base \
+	t4c/client/cli \
 	t4c/client/remote \
 	capella/ease \
 	capella/ease/remote \
@@ -75,11 +77,17 @@ base:
 capella/base:
 	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BUILD_TYPE=online --build-arg CAPELLA_VERSION=$(CAPELLA_VERSION) capella
 
+capella/cli:
+	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/base:$(DOCKER_TAG) cli
+
 capella/remote:
 	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/base:$(DOCKER_TAG) remote
 
 t4c/client/base:
 	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/base:$(DOCKER_TAG) t4c
+
+t4c/client/cli:
+	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)t4c/client/base:$(DOCKER_TAG) cli
 
 t4c/client/remote:
 	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)t4c/client/base:$(DOCKER_TAG) remote
