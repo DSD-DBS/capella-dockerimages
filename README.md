@@ -78,7 +78,7 @@ Otherwise, you can simply run the following command to build all images:
 make all
 ```
 
-### 1. Docker image `base`></a>
+### 1. Docker image `base`
 
 Our base image updates the packages and installs the following packages:
 
