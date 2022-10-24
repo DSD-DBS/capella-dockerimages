@@ -13,7 +13,6 @@ COPY libs /tmp/libs
 RUN if [ "$INJECT_PACKAGES" = "true" ]; then \
     apt-get update && \
     # Inject old packages manually
-    apt-get update && \
     apt-get install -y $(find /tmp/libs -iname "*.deb") && \
     rm -rf /var/lib/apt/lists/* && \
     rm -r /tmp/libs; \
