@@ -104,12 +104,18 @@ def generate_project_file(project: dict[str, str]) -> None:
             "library": "org.polarsys.capella.library.nature",
             "project": "org.polarsys.capella.project.nature",
         }
+
+        if project.get("nature", "") in natures:
+            nature = natures[project["nature"]]
+        else:
+            nature = natures["project"]
+
         xml = E.projectDescription(
             E.name(name),
             E.comment(),
             E.projects(),
             E.buildSpec(),
-            E.natures(E.nature(natures["project"])),
+            E.natures(E.nature(nature)),
         )
 
         project_description_file.write_bytes(ET.tostring(xml))
