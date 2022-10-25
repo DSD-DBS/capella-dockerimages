@@ -40,7 +40,7 @@ def disable_welcome_screen() -> None:
 def fetch_projects_from_environment() -> list[dict[str, str]]:
     projects = []
 
-    git_repo_url = os.getenv("GIT_REPO_URL")
+    git_repo_url = os.getenv("GIT_URL")
     git_repo_revision = os.getenv("GIT_REVISION")
 
     if git_repo_url and git_repo_revision:
@@ -115,7 +115,7 @@ def generate_project_file(project: dict[str, str]) -> None:
             E.comment(),
             E.projects(),
             E.buildSpec(),
-            E.natures(E.nature(nature)),
+            E.natures(E.nature(natures["project"])),
         )
 
         project_description_file.write_bytes(ET.tostring(xml))
