@@ -78,7 +78,7 @@ Otherwise, you can simply run the following command to build all images:
 make all
 ```
 
-### 1. Docker image `base`></a>
+### 1. Docker image `base`
 
 Our base image updates the packages and installs the following packages:
 
@@ -277,8 +277,8 @@ In general, no additional configuration is necessary for the build of the remote
 
 ### 5. Docker images `capella/ease` and `t4c/client/ease`
 
-The EASE image builds on top of the Capella base image or the T4C base image
-respectively. It extends the images with support for Python EASE scripts.
+The EASE images build on top of the Capella base image or the T4C base image
+respectively. They extend the base image with support for Python EASE scripts.
 These EASE scripts will run automatically.
 
 If your network is unrestricted, you can build an EASE image with the following command,
@@ -291,7 +291,7 @@ docker build -t $BASE/ease \
     ease
 ```
 
-If you network is restricted, please execute the steps described in
+If your network is restricted, please execute the steps described in
 [Download Eclipse Packages manually](#download-eclipse-packages-manually). When your extensions are
 located in `ease/extensions` and the right subfolders, please run:
 
@@ -304,7 +304,24 @@ docker build -t $BASE/ease \
 
 Please replace $BASE with `capella` or `t4c/client`.
 
-### 6. Docker image `capella/readonly`
+### 6. Docker images `capella/cli` and `t4c/client/cli`
+
+The CLI images are meant to have a containerised Capella (with and without a
+Team for Capella client) that can be run headless (as command line interface).
+
+Both images build on top of the Capella base image or the T4C base image
+respectively. They extend the base image with a virtual display and consider
+an entrypoint that forwards all incoming command line flags to the capella
+executable.
+
+You can build a CLI image with the following command,
+whereby you replace `$BASE` with `capella` or `t4c/client`.
+
+```zsh
+docker build -t $BASE/cli --build-arg BASE_IMAGE=$BASE/base cli
+```
+
+### 7. Docker image `capella/readonly`
 
 The read-only image builds on top of the Capella EASE Remote image and provides support for the read-only use of models. It clones a Git repository and automatically injects the cloned model in the workspace.
 
@@ -418,6 +435,40 @@ docker run -v script.py:/opt/scripts/script.py $BASE/ease
 ```
 
 where `$BASE` is again `capella` or `t4c/client`.
+
+### CLI container
+
+```zsh
+docker run $BASE/cli -nosplash -consolelog -application APPLICATION -appid APPID [...]
+```
+
+with `$BASE` being one out of `capella` or `t4c/client`.
+
+**Example to export representations (diagrams) as SVG images:**
+
+Replace `/path/to/model` and `<PROJECT_NAME>` to pass any local Capella
+model. Set the project name so that it fits your Capella project name for the
+model as it is given in the file `/path/to/model/.project`.
+
+Exported diagrams will appear on the host machine at
+`/path/to/model/diagrams`.
+
+```zsh
+docker run --rm -it \
+  -v /path/to/model:/model \
+  capella/cli \
+  -nosplash \
+  -consolelog \
+  -application org.polarsys.capella.core.commandline.core \
+  -appid org.polarsys.capella.exportRepresentations \
+  -data /workspace \
+  -import /model \
+  -input "/all" \
+  -imageFormat SVG \
+  -exportDecorations \
+  -outputfolder /<PROJECT_NAME>/diagrams \
+  -forceoutputfoldercreation
+```
 
 ### Read-only container
 

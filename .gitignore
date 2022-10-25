@@ -8,6 +8,8 @@ capella/dropins
 t4c/updateSite
 libs
 ease/debug/libs/*
+ease/extensions/*/*
+!ease/extensions/*/.gitkeep
 capella/libs/*
 __pycache__
 node_exporter*
