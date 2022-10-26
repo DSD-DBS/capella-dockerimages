@@ -107,7 +107,7 @@ capella/readonly:
 t4c/client/importer:
 	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)t4c/client/base:$(DOCKER_TAG) importer
 
-run/t4c/client/remote:
+run-t4c/client/remote:
 	docker rm /t4c-client-remote || true
 	docker run -d \
 		-e T4C_LICENCE_SECRET=$(T4C_LICENCE_SECRET) \
@@ -123,7 +123,7 @@ run/t4c/client/remote:
 		--name t4c-client-remote \
 		$(DOCKER_PREFIX)t4c/client/remote
 
-run/t4c/client/importer:
+run-t4c/client/importer:
 	docker run \
 		--network="host" \
 		-it \
