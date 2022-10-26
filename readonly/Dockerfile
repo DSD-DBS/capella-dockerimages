@@ -6,6 +6,7 @@ FROM $BASE_IMAGE
 
 USER root
 
+RUN pip install lxml
 COPY load_models.py /opt/scripts/load_models.py
 RUN chown -R techuser /opt/capella
 ENV EASE_LOG_LOCATION=/proc/1/fd/1
