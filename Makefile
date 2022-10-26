@@ -26,10 +26,16 @@ T4C_PASSWORD ?= admin
 RMT_PASSWORD ?= tmp_passwd2
 
 # Git repository url for the importer, e.g. https://github.com/example.git
-GIT_REPO_URL ?= https://github.com/example.git
+GIT_REPO_URL ?= https://github.com/DSD-DBS/collab-platform-arch.git
 
 # Git repository branch for the importer, e.g. main
 GIT_REPO_BRANCH ?= main
+
+# Git entrypoint (path to aird file)
+GIT_REPO_ENTRYPOINT ?= collab-platform-arch.aird
+
+# Git depth to clone
+GIT_REPO_DEPTH ?= 0
 
 # T4C repository name for the importer, e.g. repoCapella
 T4C_IMPORTER_REPO ?= repo-name
@@ -106,6 +112,35 @@ capella/readonly:
 
 t4c/client/importer:
 	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)t4c/client/base:$(DOCKER_TAG) importer
+
+run-capella/readonly:
+	docker run \
+		-p $(RDP_PORT):3389 \
+		-e RMT_PASSWORD=$(RMT_PASSWORD) \
+		-e GIT_URL=$(GIT_REPO_URL) \
+		-e GIT_ENTRYPOINT=$(GIT_REPO_ENTRYPOINT) \
+		-e GIT_REVISION=$(GIT_REPO_BRANCH) \
+		-e GIT_DEPTH=$(GIT_REPO_DEPTH) \
+		-e GIT_USERNAME="" \
+		-e GIT_PASSWORD="" \
+		$(DOCKER_PREFIX)capella/readonly
+
+run-capella/readonly-debug:
+	docker run \
+		-it \
+		-v /tmp/.X11-unix:/tmp/.X11-unix \
+		-v $$(pwd)/local/scripts:/opt/scripts/debug \
+		-e DISPLAY=:0 \
+		-p $(RDP_PORT):3389 \
+		-e RMT_PASSWORD=$(RMT_PASSWORD) \
+		-e GIT_URL=$(GIT_REPO_URL) \
+		-e GIT_ENTRYPOINT=$(GIT_REPO_ENTRYPOINT) \
+		-e GIT_REVISION=$(GIT_REPO_BRANCH) \
+		-e GIT_DEPTH=$(GIT_REPO_DEPTH) \
+		-e GIT_USERNAME="" \
+		-e GIT_PASSWORD="" \
+		--entrypoint bash \
+		$(DOCKER_PREFIX)capella/readonly
 
 run-t4c/client/remote:
 	docker rm /t4c-client-remote || true
