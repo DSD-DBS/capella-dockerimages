@@ -75,7 +75,7 @@ def clone_git_model(project: dict[str, str]) -> None:
         flags += ["--depth", str(git_depth)]
 
     subprocess.run(
-        ["git", "clone", project["url"], project["location"]] + flags,
+        ["git", "clone", project["url"], str(project["location"])] + flags,
         check=True,
         env={
             "GIT_USERNAME": project.get("username", None) or "",
