@@ -4,7 +4,7 @@
 
 .. note:
     The script can be invoked with
-    ``/opt/capella/capella -workspace "/workspace" -consolelog -application org.eclipse.ease.runScript -script "file:/opt/scripts/hello_world.py"``
+    ``/opt/capella/capella --launcher.suppressErrors -consolelog -application org.eclipse.ease.runScript -script "file:/opt/scripts/load_models.py"``
 
 .. seealso:
 
