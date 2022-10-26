@@ -115,7 +115,7 @@ def generate_project_file(project: dict[str, str]) -> None:
             E.comment(),
             E.projects(),
             E.buildSpec(),
-            E.natures(E.nature(natures["project"])),
+            E.natures(E.nature(nature)),
         )
 
         project_description_file.write_bytes(ET.tostring(xml))
