@@ -30,7 +30,7 @@ log = logging.getLogger(__file__)
 def disable_welcome_screen() -> None:
     prefs = "\n".join(["eclipse.preferences.version=1", "showIntro=false"])
     prefs_path = pathlib.Path(
-        "/home/techuser/workspace/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.ui.prefs"
+        "/workspace/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.ui.prefs"
     )
     prefs_path.parent.mkdir(parents=True, exist_ok=True)
     prefs_path.write_text(prefs)
