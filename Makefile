@@ -121,7 +121,7 @@ run/t4c/client/remote:
 		-p $(FILESYSTEM_PORT):8000 \
 		-p $(METRICS_PORT):9118 \
 		--name t4c-client-remote \
-		t4c/client/remote
+		$(DOCKER_PREFIX)t4c/client/remote
 
 run/t4c/client/importer:
 	docker run \
@@ -139,6 +139,6 @@ run/t4c/client/importer:
 		-e T4C_PASSWORD=$(T4C_PASSWORD) \
 		-e GIT_USERNAME=$(GIT_USERNAME) \
 		-e GIT_PASSWORD=$(GIT_PASSWORD) \
-		t4c/client/importer
+		$(DOCKER_PREFIX)t4c/client/importer
 
 .PHONY: *
