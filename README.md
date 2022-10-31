@@ -405,7 +405,7 @@ Please replace the followings variables:
     "repository": "repoCapella",
     "host": "localhost",
     "port": 2036,
-    "instance": "" //optional, in case of duplicate name
+    "instance": "" //optional, required if the repository names are not unique
   }]  
   ```
   (`$T4C_SERVER_HOST`, `$T4C_SERVER_PORT` and `$T4C_REPOSITORIES` will be ignored.)
