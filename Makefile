@@ -113,7 +113,7 @@ capella/readonly: capella/ease/remote
 t4c/client/importer: t4c/client/base
 	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)t4c/client/base:$(DOCKER_TAG) importer
 
-run-capella/readonly:
+run-capella/readonly: capella/readonly
 	docker run \
 		-p $(RDP_PORT):3389 \
 		-e RMT_PASSWORD=$(RMT_PASSWORD) \
@@ -125,7 +125,7 @@ run-capella/readonly:
 		-e GIT_PASSWORD="" \
 		$(DOCKER_PREFIX)capella/readonly
 
-run-capella/readonly-debug:
+run-capella/readonly-debug: capella/readonly
 	docker run \
 		-it \
 		-v /tmp/.X11-unix:/tmp/.X11-unix \
@@ -142,7 +142,7 @@ run-capella/readonly-debug:
 		--entrypoint bash \
 		$(DOCKER_PREFIX)capella/readonly
 
-run-t4c/client/remote:
+run-t4c/client/remote: t4c/client/remote
 	docker rm /t4c-client-remote || true
 	docker run -d \
 		-e T4C_LICENCE_SECRET=$(T4C_LICENCE_SECRET) \
@@ -158,7 +158,7 @@ run-t4c/client/remote:
 		--name t4c-client-remote \
 		$(DOCKER_PREFIX)t4c/client/remote
 
-run-t4c/client/importer:
+run-t4c/client/importer: t4c/client/importer
 	docker run \
 		--network="host" \
 		-it \
