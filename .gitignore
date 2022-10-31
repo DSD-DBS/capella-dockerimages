@@ -16,3 +16,4 @@ node_exporter*
 prometheus*
 .venv
 .vscode
+.idea
