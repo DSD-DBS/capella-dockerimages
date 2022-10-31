@@ -9,8 +9,7 @@ import subprocess
 from datetime import datetime, timedelta
 from wsgiref.simple_server import make_server
 
-from prometheus_client import Gauge, make_wsgi_app, REGISTRY
-
+from prometheus_client import REGISTRY, Gauge, make_wsgi_app
 
 METRICS_PORT = int(
     os.getenv("METRICS_PORT", 9118)  # pylint: disable=invalid-envvar-default

@@ -1,12 +1,12 @@
 # SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
 # SPDX-License-Identifier: Apache-2.0
 
-from collections import Counter
 import json
 import logging
 import os
 import pathlib
 import re
+from collections import Counter
 
 logging.basicConfig(level=logging.DEBUG)
 LOGGER = logging.getLogger("prepare_workspace")
@@ -47,14 +47,22 @@ def setup_repositories() -> None:
 
     if t4c_json:
         t4c_repos: list[dict[str, str]] = json.loads(t4c_json)
-        duplicate_names = [name for name, count in Counter([repo['repository'] for repo in t4c_repos]).items() if count > 1]
+        duplicate_names = [
+            name
+            for name, count in Counter(
+                [repo["repository"] for repo in t4c_repos]
+            ).items()
+            if count > 1
+        ]
         for repo in t4c_repos:
             replace_config(
                 REPOSITORIES_BASE_PATH
                 / "fr.obeo.dsl.viewpoint.collab"
                 / "repository.properties",
-                f"{repo['repository']}\\ ({repo['instance']})" if repo['repository'] in duplicate_names else repo['repository'],
-                rf"tcp\://{repo['host']}\:{repo['port']}/{repo['repository']}"
+                f"{repo['repository']}\\ ({repo['instance']})"
+                if repo["repository"] in duplicate_names
+                else repo["repository"],
+                rf"tcp\://{repo['host']}\:{repo['port']}/{repo['repository']}",
             )
 
     else:

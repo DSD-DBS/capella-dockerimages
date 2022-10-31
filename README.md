@@ -406,8 +406,9 @@ Please replace the followings variables:
     "host": "localhost",
     "port": 2036,
     "instance": "" //optional, required if the repository names are not unique
-  }]  
+  }]
   ```
+
   (`$T4C_SERVER_HOST`, `$T4C_SERVER_PORT` and `$T4C_REPOSITORIES` will be ignored.)
 - Or (if `$T4C_JSON` is not defined)
   - `$T4C_SERVER_HOST` to the IP-Address of your T4C server (default: `127.0.0.1`).
