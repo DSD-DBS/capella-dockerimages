@@ -393,7 +393,7 @@ Please replace the followings variables:
 - `$T4C_LICENCE_SECRET` to your TeamForCapella licence secret.
 - `$T4C_USERNAME` is the username that is suggested when connecting to t4c.
 - `$FILESERVICE_PASSWORD` with the password for the fileservice, which is used as basic authentication password.
-- `AUTOSTART_CAPELLA` defines the autostart behaviour of Capella. When set to 1 (default), Capella will be started as soon
+- `AUTOSTART_CAPELLA` defines the auto-start behaviour of Capella. When set to 1 (default), Capella will be started as soon
   as an RDP connection has been established to the running container.
 - `RESTART_CAPELLA` defines the restart behaviour of Capella. When set to 1 (default) and when `AUTOSTART_CAPELLA=1`,
   Capella will be re-started as soon as it has been exited (after clean quits as
