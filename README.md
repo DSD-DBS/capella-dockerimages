@@ -374,7 +374,7 @@ Capella should then start automatically.
 docker run -d \
     -p $RDP_EXTERNAL_PORT:3389 \
     -e T4C_LICENCE_SECRET=XXX \
-    -e T4C_JSON='[{"instance": "", "port": 0, "host": "", "instance": ""}]' \
+    -e T4C_JSON='[{"repository": "", "port": 0, "host": "", "instance": ""}]' \
     -e T4C_SERVER_HOST=$T4C_SERVER_HOST \
     -e T4C_SERVER_PORT=$T4C_SERVER_PORT \
     -e T4C_REPOSITORIES=$T4C_REPOSITORIES \
