@@ -402,8 +402,8 @@ Please replace the followings variables:
 
   ```json
   [{
-    "repository":  "",
-    "host":  "",
+    "repository": "repoCapella",
+    "host": "localhost",
     "port": 1337,
     "instance": "" //optional, in case of duplicate name
   }]  
