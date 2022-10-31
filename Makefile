@@ -26,10 +26,16 @@ T4C_PASSWORD ?= admin
 RMT_PASSWORD ?= tmp_passwd2
 
 # Git repository url for the importer, e.g. https://github.com/example.git
-GIT_REPO_URL ?= https://github.com/example.git
+GIT_REPO_URL ?= https://github.com/DSD-DBS/collab-platform-arch.git
 
 # Git repository branch for the importer, e.g. main
 GIT_REPO_BRANCH ?= main
+
+# Git entrypoint (path to aird file)
+GIT_REPO_ENTRYPOINT ?= collab-platform-arch.aird
+
+# Git depth to clone
+GIT_REPO_DEPTH ?= 0
 
 # T4C repository name for the importer, e.g. repoCapella
 T4C_IMPORTER_REPO ?= repo-name
@@ -74,40 +80,69 @@ all: \
 base:
 	docker build -t $(DOCKER_PREFIX)$@ base
 
-capella/base:
+capella/base: base
 	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BUILD_TYPE=online --build-arg CAPELLA_VERSION=$(CAPELLA_VERSION) capella
 
-capella/cli:
+capella/cli: capella/base
 	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/base:$(DOCKER_TAG) cli
 
-capella/remote:
+capella/remote: capella/base
 	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/base:$(DOCKER_TAG) remote
 
-t4c/client/base:
+t4c/client/base: capella/base
 	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/base:$(DOCKER_TAG) t4c
 
-t4c/client/cli:
+t4c/client/cli: t4c/client/base
 	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)t4c/client/base:$(DOCKER_TAG) cli
 
-t4c/client/remote:
+t4c/client/remote: t4c/client/base
 	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)t4c/client/base:$(DOCKER_TAG) remote
 
-capella/ease:
+capella/ease: capella/base
 	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/base:$(DOCKER_TAG) --build-arg BUILD_TYPE=online ease
 
-capella/ease/remote:
-	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/ease:$(DOCKER_TAG) remote
-
-t4c/client/ease:
+t4c/client/ease: t4c/client/base
 	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)t4c/client/base:$(DOCKER_TAG) --build-arg BUILD_TYPE=online ease
 
-capella/readonly:
+capella/ease/remote: capella/ease
+	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/ease:$(DOCKER_TAG) remote
+
+capella/readonly: capella/ease/remote
 	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/ease/remote:$(DOCKER_TAG) readonly
 
-t4c/client/importer:
+t4c/client/importer: t4c/client/base
 	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)t4c/client/base:$(DOCKER_TAG) importer
 
-run/t4c/client/remote:
+run-capella/readonly: capella/readonly
+	docker run \
+		-p $(RDP_PORT):3389 \
+		-e RMT_PASSWORD=$(RMT_PASSWORD) \
+		-e GIT_URL=$(GIT_REPO_URL) \
+		-e GIT_ENTRYPOINT=$(GIT_REPO_ENTRYPOINT) \
+		-e GIT_REVISION=$(GIT_REPO_BRANCH) \
+		-e GIT_DEPTH=$(GIT_REPO_DEPTH) \
+		-e GIT_USERNAME="" \
+		-e GIT_PASSWORD="" \
+		$(DOCKER_PREFIX)capella/readonly
+
+run-capella/readonly-debug: capella/readonly
+	docker run \
+		-it \
+		-v /tmp/.X11-unix:/tmp/.X11-unix \
+		-v $$(pwd)/local/scripts:/opt/scripts/debug \
+		-e DISPLAY=:0 \
+		-p $(RDP_PORT):3389 \
+		-e RMT_PASSWORD=$(RMT_PASSWORD) \
+		-e GIT_URL=$(GIT_REPO_URL) \
+		-e GIT_ENTRYPOINT=$(GIT_REPO_ENTRYPOINT) \
+		-e GIT_REVISION=$(GIT_REPO_BRANCH) \
+		-e GIT_DEPTH=$(GIT_REPO_DEPTH) \
+		-e GIT_USERNAME="" \
+		-e GIT_PASSWORD="" \
+		--entrypoint bash \
+		$(DOCKER_PREFIX)capella/readonly
+
+run-t4c/client/remote: t4c/client/remote
 	docker rm /t4c-client-remote || true
 	docker run -d \
 		-e T4C_LICENCE_SECRET=$(T4C_LICENCE_SECRET) \
@@ -121,9 +156,9 @@ run/t4c/client/remote:
 		-p $(FILESYSTEM_PORT):8000 \
 		-p $(METRICS_PORT):9118 \
 		--name t4c-client-remote \
-		t4c/client/remote
+		$(DOCKER_PREFIX)t4c/client/remote
 
-run/t4c/client/importer:
+run-t4c/client/importer: t4c/client/importer
 	docker run \
 		--network="host" \
 		-it \
@@ -139,6 +174,6 @@ run/t4c/client/importer:
 		-e T4C_PASSWORD=$(T4C_PASSWORD) \
 		-e GIT_USERNAME=$(GIT_USERNAME) \
 		-e GIT_PASSWORD=$(GIT_PASSWORD) \
-		t4c/client/importer
+		$(DOCKER_PREFIX)t4c/client/importer
 
 .PHONY: *
