@@ -63,6 +63,8 @@ git clone --recurse-submodules https://github.com/DSD-DBS/capella-dockerimages.g
 
 **Make sure that all commands are executed in the root directory of the repository.**
 
+> :information_source: When running the build targets with `PUSH_IMAGES=1`, they get pushed to your preferred registry after each build.
+
 ### Quick Start
 
 The Quick Start can only be used if the following conditions are met:
