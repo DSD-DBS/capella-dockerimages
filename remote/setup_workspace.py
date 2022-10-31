@@ -39,7 +39,7 @@ def replace_config(path: pathlib.Path, key: str, value: str) -> None:
     path.write_text(file_content)
 
 
-def replace_config_repositories(
+def inject_t4c_connection_details(
     key: str, host: str, port: str | int, repository: str
 ) -> None:
     replace_config(
@@ -67,7 +67,7 @@ def setup_repositories() -> None:
             if count > 1
         ]
         for repo in t4c_repos:
-            replace_config_repositories(
+            inject_t4c_connection_details(
                 f"{repo['repository']}\\ ({repo['instance']})"
                 if repo["repository"] in duplicate_names
                 else repo["repository"],
@@ -78,7 +78,7 @@ def setup_repositories() -> None:
 
     else:
         for repo in t4c_repositories:
-            replace_config_repositories(repo, t4c_host, t4c_port, repo)
+            inject_t4c_connection_details(repo, t4c_host, t4c_port, repo)
 
 
 if __name__ == "__main__":
