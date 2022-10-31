@@ -67,8 +67,8 @@ DOCKER_TAG ?= latest
 PUSH_IMAGES ?= 0
 
 # Registry to push images
-LOCAL_REGISTRY_NAME = localhost
-LOCAL_REGISTRY_PORT = 12345
+LOCAL_REGISTRY_NAME ?= localhost
+LOCAL_REGISTRY_PORT ?= 12345
 
 all: \
 	base \
