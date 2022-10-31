@@ -404,7 +404,7 @@ Please replace the followings variables:
   [{
     "repository": "repoCapella",
     "host": "localhost",
-    "port": 1337,
+    "port": 2036,
     "instance": "" //optional, in case of duplicate name
   }]  
   ```
