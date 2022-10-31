@@ -39,6 +39,16 @@ def replace_config(path: pathlib.Path, key: str, value: str) -> None:
     path.write_text(file_content)
 
 
+def replace_config_repositories(key: str, value: str) -> None:
+    replace_config(
+        REPOSITORIES_BASE_PATH
+        / "fr.obeo.dsl.viewpoint.collab"
+        / "repository.properties",
+        key,
+        value,
+    )
+
+
 def setup_repositories() -> None:
     t4c_repositories = os.getenv("T4C_REPOSITORIES", "").split(",")
     t4c_host = os.getenv("T4C_SERVER_HOST", "localhost")
@@ -55,10 +65,7 @@ def setup_repositories() -> None:
             if count > 1
         ]
         for repo in t4c_repos:
-            replace_config(
-                REPOSITORIES_BASE_PATH
-                / "fr.obeo.dsl.viewpoint.collab"
-                / "repository.properties",
+            replace_config_repositories(
                 f"{repo['repository']}\\ ({repo['instance']})"
                 if repo["repository"] in duplicate_names
                 else repo["repository"],
@@ -67,10 +74,7 @@ def setup_repositories() -> None:
 
     else:
         for repo in t4c_repositories:
-            replace_config(
-                REPOSITORIES_BASE_PATH
-                / "fr.obeo.dsl.viewpoint.collab"
-                / "repository.properties",
+            replace_config_repositories(
                 repo,
                 rf"tcp\://{t4c_host}\:{t4c_port}/{repo}",
             )
