@@ -4,10 +4,9 @@ name: Push docker images to GitHub container registry
 
 on:
   push:
-    branches: [main, staging]
-    tags: ["v*.*.*"]
-  pull_request:
-    branches: [main, staging]
+
+env:
+  registry: ghcr.io/dsd-dbs/capella-dockerimages/
 
 jobs:
   deploy-docker-images:
@@ -16,66 +15,29 @@ jobs:
       fail-fast: true
       max-parallel: 1
       matrix:
-        include:
-          - image: ghcr.io/dsd-dbs/capella-dockerimages/base
-            context: base
-          - image: ghcr.io/dsd-dbs/capella-dockerimages/capella/base
-            context: capella
-            base-image: ghcr.io/dsd-dbs/capella-dockerimages/base
-            build-args: |
-              BUILD_TYPE=online
-              CAPELLA_VERSION=5.2.0
-          - image: ghcr.io/dsd-dbs/capella-dockerimages/capella/ease
-            context: ease
-            base-image: ghcr.io/dsd-dbs/capella-dockerimages/capella/base
-            build-args: |
-              BUILD_TYPE=online
-    name: build and push ${{ matrix.context }}
+        image:
+          - capella/remote
+          - capella/readonly
+          - capella/ease
+    name: build and push ${{ matrix.image }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-        with:
-          submodules: recursive
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
       - name: Login to github container registry
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Extract metadata for Docker
-        id: meta
-        uses: docker/metadata-action@v4
-        with:
-          images: ${{ matrix.image }}
-          tags: |
-            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-      - name: Resolve base image
-        # Transform image:tag to BASE_IMAGE=base-image:tag
-        if: ${{ matrix.base-image }}
-        id: base-image
-        run: |
-          export IMAGE=${{ steps.meta.outputs.tags }}
-          export TAG=${IMAGE##*:}
-          echo "::set-output name=build-arg::BASE_IMAGE=${{ matrix.base-image }}:$TAG"
-      - name: Download Capella requirements vp addOn
-        if: ${{ matrix.context == 'capella' }}
-        run: |
-          curl -o req.zip https://download.eclipse.org/capella/addons/requirements/dropins/releases/0.12.3/Requirements-dropins-0.12.3.202208111122.zip;
-          unzip req.zip -d capella/dropins
-      - name: Build and push Docker image
-        id: build-and-push
-        uses: docker/build-push-action@v3
-        with:
-          context: ${{ matrix.context }}
-          tags: ${{ steps.meta.outputs.tags }}
-          build-args: |
-            ${{ steps.base-image.outputs.build-arg }}
-            ${{ matrix.build-args }}
-          push: true
+      - name: Build
+        run: make ${{ matrix.image }} DOCKER_PREFIX=${{ env.registry }}
+      # - name: Build and push Docker image
+      #   id: build-and-push
+      #   uses: docker/build-push-action@v3
+      #   with:
+      #     context: ${{ matrix.context }}
+      #     tags: ${{ steps.meta.outputs.tags }}
+      #     build-args: |
+      #       ${{ steps.base-image.outputs.build-arg }}
+      #       ${{ matrix.build-args }}
+      #     push: ${{ github.ref == 'refs/heads/main' }}
