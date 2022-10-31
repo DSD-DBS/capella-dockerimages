@@ -31,7 +31,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Set outputs
         id: sha
-        run: echo "short=$(git rev-parse --short HEAD)" > $GITHUB_OUTPUTS
+        run: echo "short=$(git rev-parse --short HEAD)" > "$GITHUB_OUTPUT"
       - name: Build
         run: make ${{ matrix.image }} DOCKER_PREFIX=${{ env.registry }} DOCKER_TAG=${{ steps.sha.outputs.short }}
       # - name: Build and push Docker image
