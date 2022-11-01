@@ -38,10 +38,10 @@ GIT_REPO_ENTRYPOINT ?= collab-platform-arch.aird
 GIT_REPO_DEPTH ?= 0
 
 # T4C repository name for the importer, e.g. repoCapella
-T4C_IMPORTER_REPO ?= repo-name
+T4C_IMPORTER_REPO ?= repoCapella
 
 # T4C project name for the importer, e.g. project
-T4C_IMPORTER_PROJECT ?= project-name
+T4C_IMPORTER_PROJECT ?= test
 
 # Git username for the importer to push changes
 GIT_USERNAME ?= username
@@ -61,7 +61,11 @@ METRICS_PORT ?= 9118
 # Preferred Capella version
 CAPELLA_VERSION ?= 5.2.0
 
+# Capella build type (online/offline)
+CAPELLA_BUILD_TYPE ?= online
+
 DOCKER_TAG ?= latest
+DOCKER_BUILD_FLAGS ?=
 
 # If set to 1, we will push the images to the specified registry
 PUSH_IMAGES ?= 0
@@ -85,52 +89,52 @@ all: \
 	t4c/client/importer
 
 base:
-	docker build -t $(DOCKER_PREFIX)$@ base
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@ base
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
 capella/base: base
-	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BUILD_TYPE=online --build-arg CAPELLA_VERSION=$(CAPELLA_VERSION) capella
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@/$(CAPELLA_VERSION):$(DOCKER_TAG) --build-arg BUILD_TYPE=$(CAPELLA_BUILD_TYPE) --build-arg CAPELLA_VERSION=$(CAPELLA_VERSION) capella
+	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@/$(CAPELLA_VERSION) .push
 
 capella/cli: capella/base
-	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/base:$(DOCKER_TAG) cli
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@/$(CAPELLA_VERSION):$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/base/$(CAPELLA_VERSION):$(DOCKER_TAG) cli
+	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@/$(CAPELLA_VERSION) .push
 
 capella/remote: capella/base
-	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/base:$(DOCKER_TAG) remote
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@/$(CAPELLA_VERSION):$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/base/$(CAPELLA_VERSION):$(DOCKER_TAG) remote
+	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@/$(CAPELLA_VERSION) .push
 
 t4c/client/base: capella/base
-	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/base:$(DOCKER_TAG) t4c
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@/$(CAPELLA_VERSION):$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/base/$(CAPELLA_VERSION):$(DOCKER_TAG) t4c
+	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@/$(CAPELLA_VERSION) .push
 
 t4c/client/cli: t4c/client/base
-	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)t4c/client/base:$(DOCKER_TAG) cli
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@/$(CAPELLA_VERSION):$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)t4c/client/base/$(CAPELLA_VERSION):$(DOCKER_TAG) cli
+	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@/$(CAPELLA_VERSION) .push
 
 t4c/client/remote: t4c/client/base
-	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)t4c/client/base:$(DOCKER_TAG) remote
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@/$(CAPELLA_VERSION):$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)t4c/client/base/$(CAPELLA_VERSION):$(DOCKER_TAG) remote
+	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@/$(CAPELLA_VERSION) .push
 
 capella/ease: capella/base
-	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/base:$(DOCKER_TAG) --build-arg BUILD_TYPE=online ease
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@/$(CAPELLA_VERSION):$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/base/$(CAPELLA_VERSION):$(DOCKER_TAG) --build-arg BUILD_TYPE=online ease
+	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@/$(CAPELLA_VERSION) .push
 
 t4c/client/ease: t4c/client/base
-	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)t4c/client/base:$(DOCKER_TAG) --build-arg BUILD_TYPE=online ease
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@/$(CAPELLA_VERSION):$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)t4c/client/base/$(CAPELLA_VERSION):$(DOCKER_TAG) --build-arg BUILD_TYPE=online ease
+	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@/$(CAPELLA_VERSION) .push
 
 capella/ease/remote: capella/ease
-	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/ease:$(DOCKER_TAG) remote
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@/$(CAPELLA_VERSION):$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/ease/$(CAPELLA_VERSION):$(DOCKER_TAG) remote
+	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@/$(CAPELLA_VERSION) .push
 
 capella/readonly: capella/ease/remote
-	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/ease/remote:$(DOCKER_TAG) readonly
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@/$(CAPELLA_VERSION):$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/ease/remote/$(CAPELLA_VERSION):$(DOCKER_TAG) readonly
+	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@/$(CAPELLA_VERSION) .push
 
 t4c/client/importer: t4c/client/base
-	docker build -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)t4c/client/base:$(DOCKER_TAG) importer
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@/$(CAPELLA_VERSION):$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)t4c/client/base/$(CAPELLA_VERSION):$(DOCKER_TAG) importer
+	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@/$(CAPELLA_VERSION) .push
 
 run-capella/readonly: capella/readonly
 	docker run \
@@ -194,9 +198,6 @@ run-t4c/client/remote-json: t4c/client/remote
 run-t4c/client/importer: t4c/client/importer
 	docker run \
 		--network="host" \
-		-it \
-		--entrypoint="/bin/bash" \
-		-e EASE_LOG_LOCATION=/proc/1/fd/1 \
 		-e GIT_REPO_URL=$(GIT_REPO_URL) \
 		-e GIT_REPO_BRANCH=$(GIT_REPO_BRANCH) \
 		-e T4C_REPO_HOST=$(T4C_SERVER_HOST) \

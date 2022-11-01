@@ -2,10 +2,11 @@
 #
 # SPDX-License-Identifier: CC0-1.0
 
-capella/archives/capella.tar.gz
-capella/archives/capella.zip
+capella/archives/*/capella.tar.gz
+capella/archives/*/capella.zip
 capella/dropins
-t4c/updateSite
+t4c/updateSite/*/*
+!t4c/updateSite/*/.gitkeep
 libs
 ease/debug/libs/*
 ease/extensions/*/*

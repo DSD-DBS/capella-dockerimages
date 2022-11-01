@@ -42,7 +42,10 @@ ONBUILD RUN pip install requests lxml && \
     python .download_archive.py;
 
 FROM base as build_offline
-ONBUILD COPY ./archives/capella.* /opt/
+
+# Use the corresponding subdirectory
+ARG CAPELLA_VERSION=""
+ONBUILD COPY ./archives/$CAPELLA_VERSION/capella.* /opt/
 
 FROM build_${BUILD_TYPE}
 
