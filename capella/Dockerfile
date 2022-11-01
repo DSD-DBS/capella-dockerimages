@@ -43,9 +43,10 @@ ONBUILD RUN pip install requests lxml && \
 
 FROM base as build_offline
 
-# Use the corresponding subdirectory
-ARG CAPELLA_VERSION=""
-ONBUILD COPY ./archives/$CAPELLA_VERSION/capella.* /opt/
+# ONBUILD is required here
+# https://github.com/moby/moby/issues/26533#issuecomment-246966836
+ONBUILD ARG CAPELLA_VERSION=""
+ONBUILD COPY ./archives/${CAPELLA_VERSION}/capella.* /opt/
 
 FROM build_${BUILD_TYPE}
 
