@@ -213,6 +213,8 @@ run-t4c/client/importer: t4c/client/importer
 		-e GIT_PASSWORD=$(GIT_PASSWORD) \
 		$(DOCKER_PREFIX)t4c/client/importer:$(DOCKER_TAG)
 
+debug-t4c/client/importer: DOCKER_RUN_FLAGS=-it --entrypoint="bash" -v $$(pwd)/importer/backup.py:/opt/capella/backup.py -v $$(pwd)/importer/importer.sh:/opt/capella/importer.sh -e LOG_LEVEL=DEBUG
+debug-t4c/client/importer: run-t4c/client/importer
 
 .push:
 	if [ "$(PUSH_IMAGES)" == "1" ]; \
