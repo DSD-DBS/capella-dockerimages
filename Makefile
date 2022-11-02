@@ -68,6 +68,7 @@ CAPELLA_DOCKERIMAGES_REVISION ?= latest
 CAPELLA_BUILD_TYPE ?= online
 
 DOCKER_BUILD_FLAGS ?=
+DOCKER_RUN_FLAGS ?=
 
 # If set to 1, we will push the images to the specified registry
 PUSH_IMAGES ?= 0
@@ -143,7 +144,7 @@ t4c/client/importer: t4c/client/base
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
 run-capella/readonly: capella/readonly
-	docker run \
+	docker run $(DOCKER_RUN_FLAGS) \
 		-p $(RDP_PORT):3389 \
 		-e RMT_PASSWORD=$(RMT_PASSWORD) \
 		-e GIT_URL=$(GIT_REPO_URL) \
@@ -155,7 +156,7 @@ run-capella/readonly: capella/readonly
 		$(DOCKER_PREFIX)capella/readonly:$(DOCKER_TAG)
 
 run-capella/readonly-debug: capella/readonly
-	docker run \
+	docker run $(DOCKER_RUN_FLAGS) \
 		-it \
 		-v /tmp/.X11-unix:/tmp/.X11-unix \
 		-v $$(pwd)/local/scripts:/opt/scripts/debug \
@@ -173,7 +174,7 @@ run-capella/readonly-debug: capella/readonly
 
 run-t4c/client/remote-legacy: t4c/client/remote
 	docker rm /t4c-client-remote || true
-	docker run -d \
+	docker run -d $(DOCKER_RUN_FLAGS) \
 		-e T4C_LICENCE_SECRET=$(T4C_LICENCE_SECRET) \
 		-e T4C_SERVER_HOST=$(T4C_SERVER_HOST) \
 		-e T4C_SERVER_PORT=$(T4C_SERVER_PORT) \
