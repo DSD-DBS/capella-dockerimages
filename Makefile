@@ -93,7 +93,7 @@ all: \
 	capella/ease/remote \
 	t4c/client/ease \
 	capella/readonly \
-	t4c/client/backups
+	t4c/client/backup
 
 base:
 	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(CAPELLA_DOCKERIMAGES_REVISION) base
@@ -139,7 +139,7 @@ capella/readonly: capella/ease/remote
 	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/ease/remote:$(DOCKER_TAG) readonly
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
-t4c/client/backups: t4c/client/base
+t4c/client/backup: t4c/client/base
 	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)t4c/client/base:$(DOCKER_TAG) backups
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
@@ -202,7 +202,7 @@ run-t4c/client/remote-json: t4c/client/remote
 		--name t4c-client-remote-json \
 		$(DOCKER_PREFIX)t4c/client/remote:$(DOCKER_TAG)
 
-run-t4c/client/backups: t4c/client/backups
+run-t4c/client/backup: t4c/client/backup
 	docker run $(DOCKER_RUN_FLAGS) \
 		--network="host" \
 		-e GIT_REPO_URL="$(GIT_REPO_URL)" \
@@ -216,11 +216,11 @@ run-t4c/client/backups: t4c/client/backups
 		-e GIT_USERNAME="$(GIT_USERNAME)" \
 		-e GIT_PASSWORD="$(GIT_PASSWORD)" \
 		-e LOG_LEVEL="$(LOG_LEVEL)" \
-		$(DOCKER_PREFIX)t4c/client/backups:$(DOCKER_TAG)
+		$(DOCKER_PREFIX)t4c/client/backup:$(DOCKER_TAG)
 
-debug-t4c/client/backups: LOG_LEVEL=DEBUG
-debug-t4c/client/backups: DOCKER_RUN_FLAGS=-it --entrypoint="bash" -v $$(pwd)/backups/backup.py:/opt/capella/backup.py
-debug-t4c/client/backups: run-t4c/client/backups
+debug-t4c/client/backup: LOG_LEVEL=DEBUG
+debug-t4c/client/backup: DOCKER_RUN_FLAGS=-it --entrypoint="bash" -v $$(pwd)/backups/backup.py:/opt/capella/backup.py
+debug-t4c/client/backup: run-t4c/client/backup
 
 .push:
 	if [ "$(PUSH_IMAGES)" == "1" ]; \
