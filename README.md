@@ -29,6 +29,7 @@ This repository includes Docker files to build the following Docker images:
 | `capella/ease`<br>`t4c/client/ease`|This extends the Capella or T4C client base image with EASE and SWTBot functionality. You can mount every Python script and execute it in a container environment. |
 | `capella/remote`<br>`t4c/client/remote`|The remote image will add an RDP server on top of any other image. This will provide the user the possibility to connect and work inside the container.|
 | `capella/readonly`|This image has capability to clone a Git repository, will load the project into the workspace and also offers RDP.|
+| `t4c/client/backup`|This extends the T4C client base image to import a model from T4C and export it to Git.|
 
 Important for building the Docker images is to strictly follow the sequence.
 The dependency graph for the images looks like:
@@ -336,6 +337,18 @@ docker build -t $BASE/capella/readonly \
     readonly
 ```
 
+### 8. Docker image `t4c/client/backup`
+
+The T4C client backup image imports a model from a TeamForCapella server and exports it to a Git repository. It can be used as a backup solution, e.g. as cronjob every night.
+
+To build the image, please run:
+
+```zsh
+docker build -t $BASE/t4c/client/backup \
+    --build-arg BASE_IMAGE=$BASE/t4c/client/base \
+    backup
+```
+
 ## Run the images
 
 ### Capella in a remote container
@@ -559,6 +572,44 @@ Please replace the followings variables (in addition to the general variables):
 - `$GIT_DEPTH` with the desired git depth. If not provided, the whole history will be cloned.
 - `$GIT_USERNAME` with the git username if the repository is access protected. Leave empty, when no authentication is required.
 - `$GIT_PASSWORD` with the git password if the repository is access protected. Leave empty, when no authentication is required. The password gets cleaned after cloning and is not accessible in the RDP connection.
+
+### Backup image
+
+Please run the following command:
+
+```zsh
+docker run -d \
+  -e GIT_REPO_URL=https://github.com/example/example.git \
+  -e GIT_REPO_BRANCH=main \
+  -e GIT_USERNAME=user \
+  -e GIT_PASSWORD=password \
+  -e T4C_REPO_HOST=localhost \
+  -e T4C_REPO_PORT=2036 \
+  -e T4C_CDO_PORT=12036 \
+  -e T4C_REPO_NAME=repoCapella \
+  -e T4C_PROJECT_NAME=test \
+  -e T4C_USERNAME=user \
+  -e T4C_PASSWORD=password \
+  -e LOG_LEVEL=DEBUG="DEBUG" \
+  -e INCLUDE_COMMIT_HISTORY=false \
+  t4c/client/backup
+```
+
+Please set the following values for the corresponding keys:
+
+- `GIT_REPO_URL` with the URL to the target Git repository (where the model is pushed to). All URI-formats supported by the `git clone` command will work. You can provide HTTP credentials via the `GIT_USERNAME` and `GIT_PASSWORD` variables (see below).
+- `GIT_REPO_BRANCH` with the branch of the Git repository. We push to the corresponding branch.
+- `GIT_USERNAME` with the Git username if the repository is access protected.
+- `GIT_PASSWORD` with the Git password that is used during cloning from and pushing to the Git repository.
+- `T4C_REPO_HOST` with the hostname to the T4C server (the same value that you enter in Capella to connect to a remote repository)
+- `T4C_REPO_PORT` with the port to the T4C server (the same value that you enter in Capella to connect to a remote repository). Defaults to 2036.
+- `T4C_CDO_PORT` with the CDO port to the T4C server. Defaults to 12036.
+- `T4C_REPO_NAME` with the T4C repository name (the same value that you enter in Capella to connect to a remote repository)
+- `T4C_PROJECT_NAME` with the name of the Capella project. It's displayed in the Capella project explorer and in the last step when connecting to a remote repository.
+- `T4C_USERNAME` with the T4C username that is used during the import. The user needs to have access to the repository.
+- `T4C_PASSWORD` with the T4C password that is used during the import.
+- `LOG_LEVEL` to your preferred logging level (all Python logging levels are supported).
+- `INCLUDE_COMMIT_HISTORY` with `true` or `false` to define if the T4C commit history should be exported. Important: Exporting the commit history can take a few hours for large models.
 
 ## Additional notes
 
