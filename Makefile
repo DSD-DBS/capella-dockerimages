@@ -77,6 +77,9 @@ DOCKER_REGISTRY ?= localhost:12345
 
 DOCKER_TAG = $(CAPELLA_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
 
+# Log level when running Docker containers
+LOG_LEVEL ?= DEBUG
+
 all: \
 	base \
 	capella/base \
