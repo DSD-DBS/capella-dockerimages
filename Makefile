@@ -43,10 +43,10 @@ T4C_IMPORTER_REPO ?= repoCapella
 # T4C project name for the importer, e.g. project
 T4C_IMPORTER_PROJECT ?= test
 
-# Git username for the importer to push changes
+# Git username for the backup container to push changes
 GIT_USERNAME ?= username
 
-# Git password for the importer to push changes
+# Git password for the backup container to push changes
 GIT_PASSWORD ?= password
 
 # Preferred RDP port on your host system
@@ -93,7 +93,7 @@ all: \
 	capella/ease/remote \
 	t4c/client/ease \
 	capella/readonly \
-	t4c/client/importer
+	t4c/client/backups
 
 base:
 	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(CAPELLA_DOCKERIMAGES_REVISION) base
@@ -139,8 +139,8 @@ capella/readonly: capella/ease/remote
 	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/ease/remote:$(DOCKER_TAG) readonly
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
-t4c/client/importer: t4c/client/base
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)t4c/client/base:$(DOCKER_TAG) importer
+t4c/client/backups: t4c/client/base
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)t4c/client/base:$(DOCKER_TAG) backups
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
 run-capella/readonly: capella/readonly
@@ -202,7 +202,7 @@ run-t4c/client/remote-json: t4c/client/remote
 		--name t4c-client-remote-json \
 		$(DOCKER_PREFIX)t4c/client/remote:$(DOCKER_TAG)
 
-run-t4c/client/importer: t4c/client/importer
+run-t4c/client/backups: t4c/client/backups
 	docker run $(DOCKER_RUN_FLAGS) \
 		--network="host" \
 		-e GIT_REPO_URL="$(GIT_REPO_URL)" \
@@ -216,11 +216,11 @@ run-t4c/client/importer: t4c/client/importer
 		-e GIT_USERNAME="$(GIT_USERNAME)" \
 		-e GIT_PASSWORD="$(GIT_PASSWORD)" \
 		-e LOG_LEVEL="$(LOG_LEVEL)" \
-		$(DOCKER_PREFIX)t4c/client/importer:$(DOCKER_TAG)
+		$(DOCKER_PREFIX)t4c/client/backups:$(DOCKER_TAG)
 
-debug-t4c/client/importer: LOG_LEVEL=DEBUG
-debug-t4c/client/importer: DOCKER_RUN_FLAGS=-it --entrypoint="bash" -v $$(pwd)/importer/backup.py:/opt/capella/backup.py -v $$(pwd)/importer/importer.sh:/opt/capella/importer.sh
-debug-t4c/client/importer: run-t4c/client/importer
+debug-t4c/client/backups: LOG_LEVEL=DEBUG
+debug-t4c/client/backups: DOCKER_RUN_FLAGS=-it --entrypoint="bash" -v $$(pwd)/backups/backup.py:/opt/capella/backup.py
+debug-t4c/client/backups: run-t4c/client/backups
 
 .push:
 	if [ "$(PUSH_IMAGES)" == "1" ]; \
