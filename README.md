@@ -592,7 +592,7 @@ Ubuntu `focal` repository (<https://packages.ubuntu.com/focal/libwebkit2gtk-4.0-
 
 First of all, you have to add the source to your `apt`-sources and add the apt keys.
 
-Recommandation: Spawn a Docker container and execute the steps inside the container.
+Recommendation: Spawn a Docker container and execute the steps inside the container.
 
 ```zsh
 echo "deb http://de.archive.ubuntu.com/ubuntu/ focal main"
