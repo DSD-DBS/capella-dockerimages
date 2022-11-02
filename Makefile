@@ -109,7 +109,7 @@ capella/remote: capella/base
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
 t4c/client/base: capella/base
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/base:$(DOCKER_TAG) t4c
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/base:$(DOCKER_TAG) --build-arg CAPELLA_VERSION=$(CAPELLA_VERSION) t4c
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
 t4c/client/cli: t4c/client/base
