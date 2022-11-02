@@ -146,7 +146,7 @@ run-capella/readonly: capella/readonly
 		-e GIT_DEPTH=$(GIT_REPO_DEPTH) \
 		-e GIT_USERNAME="" \
 		-e GIT_PASSWORD="" \
-		$(DOCKER_PREFIX)capella/readonly
+		$(DOCKER_PREFIX)capella/readonly/$(CAPELLA_VERSION):$(DOCKER_TAG)
 
 run-capella/readonly-debug: capella/readonly
 	docker run \
@@ -163,7 +163,7 @@ run-capella/readonly-debug: capella/readonly
 		-e GIT_USERNAME="" \
 		-e GIT_PASSWORD="" \
 		--entrypoint bash \
-		$(DOCKER_PREFIX)capella/readonly
+		$(DOCKER_PREFIX)capella/readonly/$(CAPELLA_VERSION):$(DOCKER_TAG)
 
 run-t4c/client/remote-legacy: t4c/client/remote
 	docker rm /t4c-client-remote || true
@@ -179,7 +179,7 @@ run-t4c/client/remote-legacy: t4c/client/remote
 		-p $(FILESYSTEM_PORT):8000 \
 		-p $(METRICS_PORT):9118 \
 		--name t4c-client-remote-legacy \
-		$(DOCKER_PREFIX)t4c/client/remote
+		$(DOCKER_PREFIX)t4c/client/remote/$(CAPELLA_VERSION):$(DOCKER_TAG)
 
 run-t4c/client/remote-json: t4c/client/remote
 	docker rm /t4c-client-remote || true
@@ -193,7 +193,7 @@ run-t4c/client/remote-json: t4c/client/remote
 		-p $(FILESYSTEM_PORT):8000 \
 		-p $(METRICS_PORT):9118 \
 		--name t4c-client-remote-json \
-		$(DOCKER_PREFIX)t4c/client/remote
+		$(DOCKER_PREFIX)t4c/client/remote/$(CAPELLA_VERSION):$(DOCKER_TAG)
 
 run-t4c/client/importer: t4c/client/importer
 	docker run \
@@ -208,7 +208,7 @@ run-t4c/client/importer: t4c/client/importer
 		-e T4C_PASSWORD=$(T4C_PASSWORD) \
 		-e GIT_USERNAME=$(GIT_USERNAME) \
 		-e GIT_PASSWORD=$(GIT_PASSWORD) \
-		$(DOCKER_PREFIX)t4c/client/importer
+		$(DOCKER_PREFIX)t4c/client/importer/$(CAPELLA_VERSION):$(DOCKER_TAG)
 
 
 .push:
