@@ -203,21 +203,23 @@ run-t4c/client/remote-json: t4c/client/remote
 		$(DOCKER_PREFIX)t4c/client/remote:$(DOCKER_TAG)
 
 run-t4c/client/importer: t4c/client/importer
-	docker run \
+	docker run $(DOCKER_RUN_FLAGS) \
 		--network="host" \
-		-e GIT_REPO_URL=$(GIT_REPO_URL) \
-		-e GIT_REPO_BRANCH=$(GIT_REPO_BRANCH) \
-		-e T4C_REPO_HOST=$(T4C_SERVER_HOST) \
-		-e T4C_REPO_PORT=$(T4C_SERVER_PORT) \
-		-e T4C_REPO_NAME=$(T4C_IMPORTER_REPO) \
-		-e T4C_PROJECT_NAME=$(T4C_IMPORTER_PROJECT) \
-		-e T4C_USERNAME=$(T4C_USERNAME) \
-		-e T4C_PASSWORD=$(T4C_PASSWORD) \
-		-e GIT_USERNAME=$(GIT_USERNAME) \
-		-e GIT_PASSWORD=$(GIT_PASSWORD) \
+		-e GIT_REPO_URL="$(GIT_REPO_URL)" \
+		-e GIT_REPO_BRANCH="$(GIT_REPO_BRANCH)" \
+		-e T4C_REPO_HOST="$(T4C_SERVER_HOST)" \
+		-e T4C_REPO_PORT="$(T4C_SERVER_PORT)" \
+		-e T4C_REPO_NAME="$(T4C_IMPORTER_REPO)" \
+		-e T4C_PROJECT_NAME="$(T4C_IMPORTER_PROJECT)" \
+		-e T4C_USERNAME="$(T4C_USERNAME)" \
+		-e T4C_PASSWORD="$(T4C_PASSWORD)" \
+		-e GIT_USERNAME="$(GIT_USERNAME)" \
+		-e GIT_PASSWORD="$(GIT_PASSWORD)" \
+		-e LOG_LEVEL="$(LOG_LEVEL)" \
 		$(DOCKER_PREFIX)t4c/client/importer:$(DOCKER_TAG)
 
-debug-t4c/client/importer: DOCKER_RUN_FLAGS=-it --entrypoint="bash" -v $$(pwd)/importer/backup.py:/opt/capella/backup.py -v $$(pwd)/importer/importer.sh:/opt/capella/importer.sh -e LOG_LEVEL=DEBUG
+debug-t4c/client/importer: LOG_LEVEL=DEBUG
+debug-t4c/client/importer: DOCKER_RUN_FLAGS=-it --entrypoint="bash" -v $$(pwd)/importer/backup.py:/opt/capella/backup.py -v $$(pwd)/importer/importer.sh:/opt/capella/importer.sh
 debug-t4c/client/importer: run-t4c/client/importer
 
 .push:
