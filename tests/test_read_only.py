@@ -3,6 +3,7 @@
 
 import json
 import logging
+import os
 import pathlib
 import time
 
@@ -99,7 +100,7 @@ def get_container(
 
     try:
         container = client.containers.run(
-            image="capella/readonly",
+            image=os.getenv("DOCKER_CAPELLA_READONLY", "capella/readonly"),
             detach=True,
             environment=environment | {"RMT_PASSWORD": "password"},
             volumes=volumes,
