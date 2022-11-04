@@ -12,7 +12,13 @@ env:
 jobs:
   deploy-docker-images:
     runs-on: ubuntu-latest
-    name: build and push
+    strategy:
+     matrix:
+       capella_version:
+         - "5.0.0"
+         - "5.2.0"
+         - "6.0.0"
+    name: Build image for Capella ${{ matrix.capella_version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -30,7 +36,7 @@ jobs:
         id: tag
         run: echo "branch=$(git rev-parse --abbrev-ref HEAD)" > "$GITHUB_OUTPUT"
       - name: Build
-        run: make ${{ env.images }} DOCKER_PREFIX=${{ env.registry }} DOCKER_TAG=${{ steps.tag.outputs.branch }}
+        run: make ${{ env.images }} CAPELLA_VERSION=${{ matrix.capella_version }} DOCKER_PREFIX=${{ env.registry }} CAPELLA_DOCKERIMAGES_REVISION=${{ steps.tag.outputs.branch }}
       - name: Test readonly image
         run: |
           pip install pytest docker
