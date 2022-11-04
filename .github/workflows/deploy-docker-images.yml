@@ -7,7 +7,7 @@ on:
 
 env:
   registry: ghcr.io/dsd-dbs/capella-dockerimages/
-  images: capella/remote capella/readonly capella/ease
+  images: capella/remote capella/readonly capella/ease capella/cli
 
 jobs:
   deploy-docker-images:
