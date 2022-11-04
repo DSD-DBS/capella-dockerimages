@@ -38,7 +38,8 @@ jobs:
         run: echo "short=$(git rev-parse --short HEAD)" > "$GITHUB_OUTPUT"
       - name: Build
         run: make ${{ matrix.image }} DOCKER_PREFIX=${{ env.registry }} DOCKER_TAG=${{ steps.sha.outputs.short }}
-      - name: Test
+      - name: Test readonly image
+        if: matrix.image == 'capella/readonly'
         run: |
           pip install pytest docker
           pytest tests
