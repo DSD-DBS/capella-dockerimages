@@ -43,14 +43,5 @@ jobs:
         run: |
           pip install pytest docker
           pytest tests
-
-      # - name: Build and push Docker image
-      #   id: build-and-push
-      #   uses: docker/build-push-action@v3
-      #   with:
-      #     context: ${{ matrix.context }}
-      #     tags: ${{ steps.meta.outputs.tags }}
-      #     build-args: |
-      #       ${{ steps.base-image.outputs.build-arg }}
-      #       ${{ matrix.build-args }}
-      #     push: ${{ github.ref == 'refs/heads/main' }}
+      - name: Push
+        run: docker push ${{ env.registry }}${{ matrix.image }}:${{ steps.sha.outputs.short }}
