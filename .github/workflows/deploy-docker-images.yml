@@ -7,19 +7,12 @@ on:
 
 env:
   registry: ghcr.io/dsd-dbs/capella-dockerimages/
+  images: capella/remote capella/readonly capella/ease
 
 jobs:
   deploy-docker-images:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: true
-      max-parallel: 1
-      matrix:
-        image:
-          - capella/remote
-          - capella/readonly
-          - capella/ease
-    name: build and push ${{ matrix.image }}
+    name: build and push
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -37,11 +30,13 @@ jobs:
         id: sha
         run: echo "short=$(git rev-parse --short HEAD)" > "$GITHUB_OUTPUT"
       - name: Build
-        run: make ${{ matrix.image }} DOCKER_PREFIX=${{ env.registry }} DOCKER_TAG=${{ steps.sha.outputs.short }}
+        run: make ${{ env.images }} DOCKER_PREFIX=${{ env.registry }} DOCKER_TAG=${{ steps.sha.outputs.short }}
       - name: Test readonly image
-        if: matrix.image == 'capella/readonly'
         run: |
           pip install pytest docker
           pytest tests
       - name: Push
-        run: docker push ${{ env.registry }}${{ matrix.image }}:${{ steps.sha.outputs.short }}
+        run: |
+          for image in ${{ env.images }}
+          do docker push ${{ env.registry }}$image:${{ steps.sha.outputs.short }}
+          done
