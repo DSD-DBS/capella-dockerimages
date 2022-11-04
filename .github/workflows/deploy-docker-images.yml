@@ -27,16 +27,16 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Set outputs
-        id: sha
-        run: echo "short=$(git rev-parse --short HEAD)" > "$GITHUB_OUTPUT"
+        id: tag
+        run: echo "branch=$(git rev-parse --abbrev-ref HEAD)" > "$GITHUB_OUTPUT"
       - name: Build
-        run: make ${{ env.images }} DOCKER_PREFIX=${{ env.registry }} DOCKER_TAG=${{ steps.sha.outputs.short }}
+        run: make ${{ env.images }} DOCKER_PREFIX=${{ env.registry }} DOCKER_TAG=${{ steps.tag.outputs.branch }}
       - name: Test readonly image
         run: |
           pip install pytest docker
-          DOCKER_CAPELLA_READONLY="${{ env.registry }}capella/readonly:${{ steps.sha.outputs.short }}" pytest tests
+          DOCKER_CAPELLA_READONLY="${{ env.registry }}capella/readonly:${{ steps.tag.outputs.branch }}" pytest tests
       - name: Push
         run: |
           for image in ${{ env.images }}
-          do docker push ${{ env.registry }}$image:${{ steps.sha.outputs.short }}
+          do docker push ${{ env.registry }}$image:${{ steps.tag.outputs.branch }}
           done
