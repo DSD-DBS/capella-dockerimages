@@ -42,14 +42,14 @@ def replace_config(path: pathlib.Path, key: str, value: str) -> None:
 
 
 def inject_t4c_connection_details(
-    key: str, host: str, port: str | int, repository: str
+    key: str, protocol: str, host: str, port: str | int, repository: str
 ) -> None:
     replace_config(
         REPOSITORIES_BASE_PATH
         / "fr.obeo.dsl.viewpoint.collab"
         / "repository.properties",
         key,
-        rf"tcp\://{host}\:{port}/{repository}",
+        rf"{protocol}\://{host}\:{port}/{repository}",
     )
 
 
@@ -69,12 +69,16 @@ def setup_repositories() -> None:
             if count > 1
         ]
         for repo in t4c_repos:
+            protocol = repo["protocol"] if "protocol" in repo else None
+            if protocol:
+                assert protocol in ["tcp", "ssl", "ws", "wss"]
             inject_t4c_connection_details(
                 f"{repo['repository']}\\ ({repo['instance']})"
                 if repo["repository"] in duplicate_names
                 else repo["repository"],
+                protocol or "tcp",
                 repo["host"],
-                repo["port"],
+                repo["port"] or 2036,
                 repo["repository"],
             )
 
