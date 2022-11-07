@@ -78,7 +78,7 @@ def setup_repositories() -> None:
                 else repo["repository"],
                 protocol or "tcp",
                 repo["host"],
-                repo["port"] or 2036,
+                repo["port"],
                 repo["repository"],
             )
 
