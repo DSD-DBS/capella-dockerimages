@@ -129,7 +129,7 @@ def get_container(
 def wait_for_container(container: docker.models.containers.Container) -> None:
     log_line = 0
     for _ in range(int(timeout / 2)):
-        log.info("Wait until ---START_SESSION---")
+        log.info("Wait until INFO success: xrdp-sesman entered RUNNING state")
 
         splitted_logs = container.logs().decode().splitlines()
         log.debug("Current log: %s", "\n".join(splitted_logs[log_line:]))
