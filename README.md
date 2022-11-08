@@ -374,6 +374,7 @@ Capella should then start automatically.
 docker run -d \
     -p $RDP_EXTERNAL_PORT:3389 \
     -e T4C_LICENCE_SECRET=XXX \
+    -e T4C_JSON='[{"repository": "", "port": 0, "host": "", "instance": "", "protocol": "ssl"}]' \
     -e T4C_SERVER_HOST=$T4C_SERVER_HOST \
     -e T4C_SERVER_PORT=$T4C_SERVER_PORT \
     -e T4C_REPOSITORIES=$T4C_REPOSITORIES \
@@ -390,17 +391,32 @@ Please replace the followings variables:
 - `$RDP_EXTERNAL_PORT` to the external port for RDP on your host (usually `3389`)
 - `$RMT_PASSWORD` is the password for remote connections (for the login via RDP).
 - `$T4C_LICENCE_SECRET` to your TeamForCapella licence secret.
-- `$T4C_SERVER_HOST` to the IP-Address of your T4C server (default: `127.0.0.1`).
-- `$T4C_SERVER_PORT` to the port of your T4C server (default: `2036`).
-- `$T4C_REPOSITORIES` is a comma-seperated list of repositories. These repositories show
-  up as default options on connection (e.g. `repo1,repo2`).
 - `$T4C_USERNAME` is the username that is suggested when connecting to t4c.
 - `$FILESERVICE_PASSWORD` with the password for the fileservice, which is used as basic authentication password.
-- `AUTOSTART_CAPELLA` defines the autostart behaviour of Capella. When set to 1 (default), Capella will be started as soon
+- `AUTOSTART_CAPELLA` defines the auto-start behaviour of Capella. When set to 1 (default), Capella will be started as soon
   as an RDP connection has been established to the running container.
 - `RESTART_CAPELLA` defines the restart behaviour of Capella. When set to 1 (default) and when `AUTOSTART_CAPELLA=1`,
   Capella will be re-started as soon as it has been exited (after clean quits as
   well as crashs).
+- Either `$T4C_JSON` a list of repositories with name, host, port and instance name as a JSON:
+
+  ```json
+  [{
+    "repository": "repoCapella",
+    "host": "localhost",
+    "port": 2036,
+    "instance": "", //optional, required if the repository names are not unique
+    "protocol": "ssl", //optional, defaults to ssl
+  }]
+  ```
+
+  (`$T4C_SERVER_HOST`, `$T4C_SERVER_PORT` and `$T4C_REPOSITORIES` will be ignored.)
+- Or (if `$T4C_JSON` is not defined)
+  - `$T4C_SERVER_HOST` to the IP-Address of your T4C server (default: `127.0.0.1`).
+  - `$T4C_SERVER_PORT` to the port of your T4C server (default: `2036`).
+  - `$T4C_REPOSITORIES` is a comma-seperated list of repositories. These repositories show
+    up as default options on connection (e.g. `repo1,repo2`).
+
 
 After starting the container, you should be able to connect to
 `localhost:$RDP_EXTERNAL_PORT` with your preferred RDP Client.

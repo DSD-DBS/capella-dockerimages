@@ -142,7 +142,7 @@ run-capella/readonly-debug: capella/readonly
 		--entrypoint bash \
 		$(DOCKER_PREFIX)capella/readonly
 
-run-t4c/client/remote: t4c/client/remote
+run-t4c/client/remote-legacy: t4c/client/remote
 	docker rm /t4c-client-remote || true
 	docker run -d \
 		-e T4C_LICENCE_SECRET=$(T4C_LICENCE_SECRET) \
@@ -155,7 +155,21 @@ run-t4c/client/remote: t4c/client/remote
 		-p $(RDP_PORT):3389 \
 		-p $(FILESYSTEM_PORT):8000 \
 		-p $(METRICS_PORT):9118 \
-		--name t4c-client-remote \
+		--name t4c-client-remote-legacy \
+		$(DOCKER_PREFIX)t4c/client/remote
+
+run-t4c/client/remote-json: t4c/client/remote
+	docker rm /t4c-client-remote || true
+	docker run -d \
+		-e T4C_LICENCE_SECRET=$(T4C_LICENCE_SECRET) \
+		-e T4C_JSON=$(T4C_JSON) \
+		-e RMT_PASSWORD=$(RMT_PASSWORD) \
+		-e FILESERVICE_PASSWORD=$(RMT_PASSWORD) \
+		-e T4C_USERNAME=$(T4C_USERNAME) \
+		-p $(RDP_PORT):3389 \
+		-p $(FILESYSTEM_PORT):8000 \
+		-p $(METRICS_PORT):9118 \
+		--name t4c-client-remote-json \
 		$(DOCKER_PREFIX)t4c/client/remote
 
 run-t4c/client/importer: t4c/client/importer
