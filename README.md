@@ -575,7 +575,7 @@ Please replace the followings variables (in addition to the general variables):
 
 ### Backup image
 
-Please run the following command:
+Please run the following command to backup from T4C to Git:
 
 ```zsh
 docker run -d \
