@@ -590,7 +590,7 @@ docker run -d \
   -e T4C_PROJECT_NAME=test \
   -e T4C_USERNAME=user \
   -e T4C_PASSWORD=password \
-  -e LOG_LEVEL=DEBUG="DEBUG" \
+  -e LOG_LEVEL="DEBUG" \
   -e INCLUDE_COMMIT_HISTORY=false \
   t4c/client/backup
 ```
