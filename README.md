@@ -339,7 +339,7 @@ docker build -t $BASE/capella/readonly \
 
 ### 8. Docker image `t4c/client/backup`
 
-The T4C client backup image imports a model from a TeamForCapella server and exports it to a Git repository. It can be used as a backup solution, e.g. as cronjob every night.
+The T4C client backup image imports a model from a TeamForCapella server and exports it to a Git repository. It can be used as a backup solution, for example, from a scheduled job.
 
 To build the image, please run:
 
