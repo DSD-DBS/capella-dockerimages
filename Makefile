@@ -62,7 +62,7 @@ METRICS_PORT ?= 9118
 CAPELLA_VERSION ?= 5.2.0
 
 # Should be 'latest', the branch name, the commit hash or a Git tag name
-CAPELLA_DOCKERIMAGES_VERSION ?= latest
+CAPELLA_DOCKERIMAGES_REVISION ?= latest
 
 # Capella build type (online/offline)
 CAPELLA_BUILD_TYPE ?= online
@@ -75,7 +75,7 @@ PUSH_IMAGES ?= 0
 # Registry to push images
 DOCKER_REGISTRY ?= localhost:12345
 
-DOCKER_TAG = $(CAPELLA_VERSION)-$(CAPELLA_DOCKERIMAGES_VERSION)
+DOCKER_TAG = $(CAPELLA_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
 
 all: \
 	base \
@@ -92,11 +92,11 @@ all: \
 	t4c/client/importer
 
 base:
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(CAPELLA_DOCKERIMAGES_VERSION) base
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(CAPELLA_DOCKERIMAGES_REVISION) base
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
 capella/base: base
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)base:$(CAPELLA_DOCKERIMAGES_VERSION) --build-arg BUILD_TYPE=$(CAPELLA_BUILD_TYPE) --build-arg CAPELLA_VERSION=$(CAPELLA_VERSION) capella
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)base:$(CAPELLA_DOCKERIMAGES_REVISION) --build-arg BUILD_TYPE=$(CAPELLA_BUILD_TYPE) --build-arg CAPELLA_VERSION=$(CAPELLA_VERSION) capella
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
 capella/cli: capella/base
