@@ -344,8 +344,8 @@ The T4C client backup image imports a model from a TeamForCapella server and exp
 To build the image, please run:
 
 ```zsh
-docker build -t $BASE/t4c/client/backup \
-    --build-arg BASE_IMAGE=$BASE/t4c/client/base \
+docker build -t t4c/client/backup \
+    --build-arg BASE_IMAGE=t4c/client/base \
     backup
 ```
 
