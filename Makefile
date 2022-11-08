@@ -68,7 +68,7 @@ CAPELLA_DOCKERIMAGES_REVISION ?= latest
 CAPELLA_BUILD_TYPE ?= online
 
 DOCKER_BUILD_FLAGS ?=
-DOCKER_RUN_FLAGS ?=
+DOCKER_RUN_FLAGS ?= --rm
 
 # If set to 1, we will push the images to the specified registry
 PUSH_IMAGES ?= 0
