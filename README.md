@@ -595,7 +595,7 @@ docker run -d \
   t4c/client/backup
 ```
 
-Please set the following values for the corresponding keys:
+Set the following values for the corresponding keys:
 
 - `GIT_REPO_URL`: the URL to the target Git repository where the model is pushed to. All URI-formats supported by the `git clone` command will work. You can provide HTTP credentials via the `GIT_USERNAME` and `GIT_PASSWORD` variables, see below.
 - `GIT_REPO_BRANCH`: the branch of the Git repository. We push to the corresponding branch.
