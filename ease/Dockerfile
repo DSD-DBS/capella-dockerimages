@@ -53,12 +53,12 @@ RUN /opt/capella/capella \
 
 # Install EASE
 # Following Plugins will be installed:
-# - EASE Core Framework (Incubation)	        org.eclipse.ease.feature.feature.group	                    Eclipse.org
-# - EASE UI Components (Incubation)	            org.eclipse.ease.ui.feature.feature.group	                Eclipse.org
-# - EASE Py4J Support (Incubation)	            org.eclipse.ease.lang.python.py4j.feature.feature.group	    Eclipse.org
-# - EASE Python Support (Incubation)	        org.eclipse.ease.lang.python.feature.feature.group	        Eclipse.org
-# - EASE Git Feature (Incubation)	            org.eclipse.ease.modules.team.git.feature.feature.group	    Eclipse.org
-# - EASE Modules (Incubation)	                org.eclipse.ease.modules.feature.feature.group	            Eclipse.org
+# - EASE Core Framework (Incubation)            org.eclipse.ease.feature.feature.group                       Eclipse.org
+# - EASE UI Components (Incubation)             org.eclipse.ease.ui.feature.feature.group                    Eclipse.org
+# - EASE Py4J Support (Incubation)              org.eclipse.ease.lang.python.py4j.feature.feature.group      Eclipse.org
+# - EASE Python Support (Incubation)            org.eclipse.ease.lang.python.feature.feature.group           Eclipse.org
+# - EASE Git Feature (Incubation)               org.eclipse.ease.modules.team.git.feature.feature.group      Eclipse.org
+# - EASE Modules (Incubation)                   org.eclipse.ease.modules.feature.feature.group               Eclipse.org
 RUN /opt/capella/capella \
     -consoleLog \
     -application org.eclipse.equinox.p2.director \
@@ -68,12 +68,12 @@ RUN /opt/capella/capella \
 
 # Install SWTBot
 # Following Plugins will be installed:
-# - SWTBot for Eclipse Forms Testing	    org.eclipse.swtbot.forms.feature.group	            Eclipse.org - SWTBot
-# - SWTBot for Eclipse Testing	            org.eclipse.swtbot.eclipse.feature.group	        Eclipse.org - SWTBot
-# - SWTBot for GEF Testing	                org.eclipse.swtbot.eclipse.gef.feature.group	    Eclipse.org - SWTBot
-# - SWTBot for SWT Testing	                org.eclipse.swtbot.feature.group	                Eclipse.org - SWTBot
-# - SWTBot IDE Features	                    org.eclipse.swtbot.ide.feature.group	            Eclipse.org - SWTBot
-# - SWTBot Test Recorder and Code Generator	org.eclipse.swtbot.generator.feature.feature.group	Eclipse.org - SWTBot
+# - SWTBot for Eclipse Forms Testing            org.eclipse.swtbot.forms.feature.group                  Eclipse.org - SWTBot
+# - SWTBot for Eclipse Testing                  org.eclipse.swtbot.eclipse.feature.group                Eclipse.org - SWTBot
+# - SWTBot for GEF Testing                      org.eclipse.swtbot.eclipse.gef.feature.group            Eclipse.org - SWTBot
+# - SWTBot for SWT Testing                      org.eclipse.swtbot.feature.group                        Eclipse.org - SWTBot
+# - SWTBot IDE Features                         org.eclipse.swtbot.ide.feature.group                    Eclipse.org - SWTBot
+# - SWTBot Test Recorder and Code Generator     org.eclipse.swtbot.generator.feature.feature.group      Eclipse.org - SWTBot
 RUN /opt/capella/capella \
     -consoleLog \
     -application org.eclipse.equinox.p2.director \
