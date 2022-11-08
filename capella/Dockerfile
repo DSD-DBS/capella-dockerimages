@@ -42,7 +42,11 @@ ONBUILD RUN pip install requests lxml && \
     python .download_archive.py;
 
 FROM base as build_offline
-ONBUILD COPY ./archives/capella.* /opt/
+
+# ONBUILD is required here
+# https://github.com/moby/moby/issues/26533#issuecomment-246966836
+ONBUILD ARG CAPELLA_VERSION="5.2.0"
+ONBUILD COPY ./versions/${CAPELLA_VERSION}/capella.* /opt/
 
 FROM build_${BUILD_TYPE}
 
@@ -66,7 +70,7 @@ RUN chmod +x capella/capella && \
     chown -R techuser /opt/capella
 
 # Install Dropins for Capella
-COPY ./dropins /opt/capella/dropins
+COPY ./versions/${CAPELLA_VERSION}/dropins /opt/capella/dropins
 
 # Eclipse settings
 RUN mkdir -p /opt/capella/configuration/.settings; \

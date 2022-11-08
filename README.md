@@ -63,6 +63,8 @@ git clone --recurse-submodules https://github.com/DSD-DBS/capella-dockerimages.g
 
 **Make sure that all commands are executed in the root directory of the repository.**
 
+> :information_source: When running the build targets with `PUSH_IMAGES=1`, they get pushed to your preferred registry after each build.
+
 ### Quick Start
 
 The Quick Start can only be used if the following conditions are met:
@@ -128,11 +130,11 @@ Download a Capella Linux binary `zip` or `tar.gz` archive. You can get a release
 directly from Eclipse. Visit <https://github.com/eclipse/capella/releases>, select a
 version and follow the hyperlink labelled `Product` to find a binary release for Linux.
 
-Place the downloaded archive in the subdirectory `capella/archives` of the present
+Place the downloaded archive in the subdirectory `capella/versions/$CAPELLA_VERSION` of the present
 repository and ensure that the end result is either
 
-- `capella/archives/capella.tar.gz` or
-- `capella/archives/capella.zip`.
+- `capella/versions/$CAPELLA_VERSION/capella.tar.gz` or
+- `capella/versions/$CAPELLA_VERSION/capella.zip`.
 
 Check that the archive has a structure similar to the following coming with a top level
 directory named `capella` and several sub directories and files in it.
@@ -192,14 +194,14 @@ For more information refer to [Download older packages manually](#download-older
 If you skipped the previous workaround, execute the following command:
 
 ```zsh
-docker build -t capella/base capella
+docker build -t capella/base --build-arg CAPELLA_VERSION=$CAPELLA_VERSION capella
 ```
 
 If you applied the previous workaround and manually downloaded the older libraries, use
 the following command:
 
 ```zsh
-docker build -t capella/base capella --build-arg INJECT_PACKAGES=true
+docker build -t capella/base --build-arg CAPELLA_VERSION=$CAPELLA_VERSION --build-arg INJECT_PACKAGES=true capella
 ```
 
 #### Option 2: Download Capella archive automatically
@@ -236,13 +238,13 @@ plugins.
        └── com.thalesgroup.mde.melody.team.license.update-5.0.0-202012091024.zip
    ```
 
-1) That extracted `.zip` file needs to be copied into the subdirectory `t4c/updateSite`
+1) That extracted `.zip` file needs to be copied into the subdirectory `t4c/updateSite/$CAPELLA_VERSION`
    of the present repository.
 
 1) Build the container:
 
    ```zsh
-   docker build -t t4c/client/base t4c
+   docker build -t t4c/client/base --build-arg CAPELLA_VERSION=$CAPELLA_VERSION t4c
    ```
 
 ### 4. Docker images `capella/remote` and `t4c/client/remote`
@@ -590,7 +592,7 @@ Ubuntu `focal` repository (<https://packages.ubuntu.com/focal/libwebkit2gtk-4.0-
 
 First of all, you have to add the source to your `apt`-sources and add the apt keys.
 
-Recommandation: Spawn a Docker container and execute the steps inside the container.
+Recommendation: Spawn a Docker container and execute the steps inside the container.
 
 ```zsh
 echo "deb http://de.archive.ubuntu.com/ubuntu/ focal main"
