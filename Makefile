@@ -43,10 +43,10 @@ T4C_IMPORTER_REPO ?= repoCapella
 # T4C project name for the importer, e.g. project
 T4C_IMPORTER_PROJECT ?= test
 
-# Git username for the importer to push changes
+# Git username for the backup container to push changes
 GIT_USERNAME ?= username
 
-# Git password for the importer to push changes
+# Git password for the backup container to push changes
 GIT_PASSWORD ?= password
 
 # Preferred RDP port on your host system
@@ -68,6 +68,7 @@ CAPELLA_DOCKERIMAGES_REVISION ?= latest
 CAPELLA_BUILD_TYPE ?= online
 
 DOCKER_BUILD_FLAGS ?=
+DOCKER_RUN_FLAGS ?= --rm
 
 # If set to 1, we will push the images to the specified registry
 PUSH_IMAGES ?= 0
@@ -76,6 +77,9 @@ PUSH_IMAGES ?= 0
 DOCKER_REGISTRY ?= localhost:12345
 
 DOCKER_TAG = $(CAPELLA_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
+
+# Log level when running Docker containers
+LOG_LEVEL ?= DEBUG
 
 all: \
 	base \
@@ -89,7 +93,7 @@ all: \
 	capella/ease/remote \
 	t4c/client/ease \
 	capella/readonly \
-	t4c/client/importer
+	t4c/client/backup
 
 base:
 	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(CAPELLA_DOCKERIMAGES_REVISION) base
@@ -135,12 +139,12 @@ capella/readonly: capella/ease/remote
 	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)capella/ease/remote:$(DOCKER_TAG) readonly
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
-t4c/client/importer: t4c/client/base
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)t4c/client/base:$(DOCKER_TAG) importer
+t4c/client/backup: t4c/client/base
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)t4c/client/base:$(DOCKER_TAG) backups
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
 run-capella/readonly: capella/readonly
-	docker run \
+	docker run $(DOCKER_RUN_FLAGS) \
 		-p $(RDP_PORT):3389 \
 		-e RMT_PASSWORD=$(RMT_PASSWORD) \
 		-e GIT_URL=$(GIT_REPO_URL) \
@@ -152,7 +156,7 @@ run-capella/readonly: capella/readonly
 		$(DOCKER_PREFIX)capella/readonly:$(DOCKER_TAG)
 
 run-capella/readonly-debug: capella/readonly
-	docker run \
+	docker run $(DOCKER_RUN_FLAGS) \
 		-it \
 		-v /tmp/.X11-unix:/tmp/.X11-unix \
 		-v $$(pwd)/local/scripts:/opt/scripts/debug \
@@ -170,7 +174,7 @@ run-capella/readonly-debug: capella/readonly
 
 run-t4c/client/remote-legacy: t4c/client/remote
 	docker rm /t4c-client-remote || true
-	docker run -d \
+	docker run -d $(DOCKER_RUN_FLAGS) \
 		-e T4C_LICENCE_SECRET=$(T4C_LICENCE_SECRET) \
 		-e T4C_SERVER_HOST=$(T4C_SERVER_HOST) \
 		-e T4C_SERVER_PORT=$(T4C_SERVER_PORT) \
@@ -198,21 +202,25 @@ run-t4c/client/remote-json: t4c/client/remote
 		--name t4c-client-remote-json \
 		$(DOCKER_PREFIX)t4c/client/remote:$(DOCKER_TAG)
 
-run-t4c/client/importer: t4c/client/importer
-	docker run \
+run-t4c/client/backup: t4c/client/backup
+	docker run $(DOCKER_RUN_FLAGS) \
 		--network="host" \
-		-e GIT_REPO_URL=$(GIT_REPO_URL) \
-		-e GIT_REPO_BRANCH=$(GIT_REPO_BRANCH) \
-		-e T4C_REPO_HOST=$(T4C_SERVER_HOST) \
-		-e T4C_REPO_PORT=$(T4C_SERVER_PORT) \
-		-e T4C_REPO_NAME=$(T4C_IMPORTER_REPO) \
-		-e T4C_PROJECT_NAME=$(T4C_IMPORTER_PROJECT) \
-		-e T4C_USERNAME=$(T4C_USERNAME) \
-		-e T4C_PASSWORD=$(T4C_PASSWORD) \
-		-e GIT_USERNAME=$(GIT_USERNAME) \
-		-e GIT_PASSWORD=$(GIT_PASSWORD) \
-		$(DOCKER_PREFIX)t4c/client/importer:$(DOCKER_TAG)
+		-e GIT_REPO_URL="$(GIT_REPO_URL)" \
+		-e GIT_REPO_BRANCH="$(GIT_REPO_BRANCH)" \
+		-e T4C_REPO_HOST="$(T4C_SERVER_HOST)" \
+		-e T4C_REPO_PORT="$(T4C_SERVER_PORT)" \
+		-e T4C_REPO_NAME="$(T4C_IMPORTER_REPO)" \
+		-e T4C_PROJECT_NAME="$(T4C_IMPORTER_PROJECT)" \
+		-e T4C_USERNAME="$(T4C_USERNAME)" \
+		-e T4C_PASSWORD="$(T4C_PASSWORD)" \
+		-e GIT_USERNAME="$(GIT_USERNAME)" \
+		-e GIT_PASSWORD="$(GIT_PASSWORD)" \
+		-e LOG_LEVEL="$(LOG_LEVEL)" \
+		$(DOCKER_PREFIX)t4c/client/backup:$(DOCKER_TAG)
 
+debug-t4c/client/backup: LOG_LEVEL=DEBUG
+debug-t4c/client/backup: DOCKER_RUN_FLAGS=-it --entrypoint="bash" -v $$(pwd)/backups/backup.py:/opt/capella/backup.py
+debug-t4c/client/backup: run-t4c/client/backup
 
 .push:
 	if [ "$(PUSH_IMAGES)" == "1" ]; \
