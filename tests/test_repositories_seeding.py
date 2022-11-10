@@ -3,6 +3,7 @@
 
 import json
 import logging
+import os
 import pathlib
 import re
 import time
@@ -113,6 +114,7 @@ def get_container(
         if tmp_path
         else {}
     )
+    container = None
     try:
         container = client.containers.run(
             image=os.getenv("DOCKER_CAPELLA_READONLY", "t4c/client/remote"),
@@ -122,8 +124,9 @@ def get_container(
         )
         yield container
     finally:
-        container.stop()
-        container.remove()
+        if container:
+            container.stop()
+            container.remove()
 
 
 def wait_for_container(container: docker.models.containers.Container) -> None:

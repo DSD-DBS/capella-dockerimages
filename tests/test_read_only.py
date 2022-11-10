@@ -98,6 +98,7 @@ def get_container(
             }
         }
 
+    container = None
     try:
         container = client.containers.run(
             image=os.getenv("DOCKER_CAPELLA_READONLY", "capella/readonly"),
@@ -107,8 +108,9 @@ def get_container(
         )
         yield container
     finally:
-        container.stop()
-        container.remove()
+        if container:
+            container.stop()
+            container.remove()
 
 
 def wait_for_container(container: docker.models.containers.Container) -> None:
