@@ -50,6 +50,8 @@ ONBUILD COPY ./versions/${CAPELLA_VERSION}/capella.* /opt/
 
 FROM build_${BUILD_TYPE}
 
+ARG CAPELLA_VERSION
+
 RUN if [ -s capella.zip ]; then \
     # Install Capella using zip
     unzip capella.zip -d . && \
