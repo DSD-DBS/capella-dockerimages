@@ -40,9 +40,9 @@ jobs:
       - name: Test readonly image
         run: |
           pip install pytest docker
-          DOCKER_CAPELLA_READONLY="${{ env.registry }}capella/readonly:${{ steps.tag.outputs.branch }}" pytest tests
+          DOCKER_CAPELLA_READONLY="${{ env.registry }}capella/readonly:${{ matrix.capella_version }}-${{ steps.tag.outputs.branch }}" pytest tests
       - name: Push
         run: |
           for image in ${{ env.images }}
-          do docker push ${{ env.registry }}$image:${{ steps.tag.outputs.branch }}
+          do docker push ${{ env.registry }}$image:${{ matrix.capella_version }}-${{ steps.tag.outputs.branch }}
           done
