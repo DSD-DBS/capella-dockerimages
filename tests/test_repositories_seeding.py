@@ -115,7 +115,7 @@ def get_container(
     )
     try:
         container = client.containers.run(
-            image="t4c/client/remote",
+            image=os.getenv("DOCKER_CAPELLA_READONLY", "t4c/client/remote"),
             detach=True,
             environment=environment | {"RMT_PASSWORD": "password"},
             volumes=volumes,
