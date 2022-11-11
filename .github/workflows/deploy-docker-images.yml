@@ -34,9 +34,16 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Set outputs
         id: tag
-        run: echo "branch=$(git rev-parse --abbrev-ref HEAD)" > "$GITHUB_OUTPUT"
+        run: |
+          echo "branch=$(git rev-parse --abbrev-ref HEAD)" > "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse --short HEAD)" > "$GITHUB_OUTPUT"
       - name: Build
-        run: make ${{ env.images }} CAPELLA_VERSION=${{ matrix.capella_version }} DOCKER_PREFIX=${{ env.registry }} CAPELLA_DOCKERIMAGES_REVISION=${{ steps.tag.outputs.branch }}
+        run: >
+          make ${{ env.images }}
+          CAPELLA_VERSION=${{ matrix.capella_version }}
+          DOCKER_PREFIX=${{ env.registry }}
+          CAPELLA_DOCKERIMAGES_REVISION=${{ steps.tag.outputs.branch }}
+          DOCKER_BUILD_FLAGS="--label git-short-sha=${{ steps.tag.outputs.sha }}"
       - name: Test readonly image
         run: |
           pip install pytest docker
