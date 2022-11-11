@@ -3,6 +3,7 @@
 
 import json
 import logging
+import os
 import pathlib
 import re
 import time
@@ -113,17 +114,19 @@ def get_container(
         if tmp_path
         else {}
     )
+    container = None
     try:
         container = client.containers.run(
-            image="t4c/client/remote",
+            image=os.getenv("DOCKER_CAPELLA_T4C_REMOTE", "t4c/client/remote"),
             detach=True,
             environment=environment | {"RMT_PASSWORD": "password"},
             volumes=volumes,
         )
         yield container
     finally:
-        container.stop()
-        container.remove()
+        if container:
+            container.stop()
+            container.remove()
 
 
 def wait_for_container(container: docker.models.containers.Container) -> None:
@@ -150,6 +153,7 @@ def wait_for_container(container: docker.models.containers.Container) -> None:
         raise TimeoutError("Timeout while waiting for model loading")
 
 
+@pytest.mark.t4c
 def test_repositories_seeding(
     container_success: Generator[docker.models.containers.Container],
     mode: str,
@@ -181,6 +185,7 @@ def test_repositories_seeding(
         assert repositories[key] == re.search(f"{key}=(.+)", file_content).group(1)
 
 
+@pytest.mark.t4c
 def test_invalid_env_variable(
     container_failure: Generator[docker.models.containers.Container],
 ):

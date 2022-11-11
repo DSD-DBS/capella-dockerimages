@@ -1,9 +1,10 @@
 # SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
 # SPDX-License-Identifier: Apache-2.0
 
+import io
 import json
 import logging
-import pathlib
+import os
 import time
 
 import docker
@@ -27,7 +28,7 @@ def fixture_mode(request) -> str:
     name="container_success",
 )
 def fixture_container_success(
-    mode: str, tmp_path: pathlib.Path
+    mode: str,
 ) -> Generator[docker.models.containers.Container]:
     env = {
         "json": {
@@ -55,7 +56,7 @@ def fixture_container_success(
             "GIT_DEPTH": 0,
         },
     }[mode]
-    yield get_container(environment=env, tmp_path=tmp_path)
+    yield get_container(environment=env)
 
 
 @pytest.fixture(name="container_failure")
@@ -86,28 +87,22 @@ def fixture_container_failure(
 
 
 def get_container(
-    environment: dict[str, str], tmp_path: pathlib.Path = None
+    environment: dict[str, str]
 ) -> Generator[docker.models.containers.Container]:
     volumes = {}
-    if tmp_path:
-        volumes = {
-            str(tmp_path): {
-                "bind": "/workspace",
-                "mode": "rw",
-            }
-        }
-
+    container = None
     try:
         container = client.containers.run(
-            image="capella/readonly",
+            image=os.getenv("DOCKER_CAPELLA_READONLY", "capella/readonly"),
             detach=True,
             environment=environment | {"RMT_PASSWORD": "password"},
             volumes=volumes,
         )
         yield container
     finally:
-        container.stop()
-        container.remove()
+        if container:
+            container.stop()
+            container.remove()
 
 
 def wait_for_container(container: docker.models.containers.Container) -> None:
@@ -134,19 +129,22 @@ def wait_for_container(container: docker.models.containers.Container) -> None:
         raise TimeoutError("Timeout while waiting for model loading")
 
 
+def lines(bytes):
+    return io.BytesIO(bytes).readlines()
+
+
 def test_model_loading(
     container_success: Generator[docker.models.containers.Container],
     mode: str,
-    tmp_path: pathlib.Path,
 ):
     container = next(container_success)
     wait_for_container(container)
 
-    number_of_files = len(list(tmp_path.iterdir()))
+    result = container.exec_run("ls -A1 /workspace")
     if mode == "legacy":
-        assert number_of_files == 2
+        assert len(lines(result.output)) == 2
     else:
-        assert number_of_files == 3
+        assert len(lines(result.output)) == 3
 
 
 def test_invalid_url_fails(
