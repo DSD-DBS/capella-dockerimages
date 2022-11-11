@@ -28,7 +28,7 @@ def fixture_mode(request) -> str:
     name="container_success",
 )
 def fixture_container_success(
-    mode: str
+    mode: str,
 ) -> Generator[docker.models.containers.Container]:
     env = {
         "json": {
@@ -145,6 +145,7 @@ def test_model_loading(
         assert len(lines(result.output)) == 2
     else:
         assert len(lines(result.output)) == 3
+
 
 def test_invalid_url_fails(
     container_failure: Generator[docker.models.containers.Container],
