@@ -4,6 +4,8 @@ name: Push docker images to GitHub container registry
 
 on:
   push:
+  pull_request:
+    branches: [main, staging]
 
 env:
   registry: ghcr.io/dsd-dbs/capella-dockerimages/
