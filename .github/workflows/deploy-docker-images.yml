@@ -35,8 +35,8 @@ jobs:
       - name: Set outputs
         id: tag
         run: |
-          echo "branch=$(git rev-parse --abbrev-ref HEAD)" > "$GITHUB_OUTPUT"
-          echo "sha=$(git rev-parse --short HEAD)" > "$GITHUB_OUTPUT"
+          echo "branch=$(git rev-parse --abbrev-ref HEAD)" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
       - name: Build
         run: >
           make ${{ env.images }}
