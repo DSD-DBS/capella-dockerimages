@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Add prefix to all dockerimage names, e.g. capella-collab
-DOCKER_PREFIX ?=
+export DOCKER_PREFIX ?=
 
 # T4C license secret (usually a long numeric string)
 T4C_LICENCE_SECRET ?= XXX
@@ -76,7 +76,7 @@ PUSH_IMAGES ?= 0
 # Registry to push images
 DOCKER_REGISTRY ?= localhost:12345
 
-DOCKER_TAG = $(CAPELLA_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
+export DOCKER_TAG = $(CAPELLA_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
 
 # Log level when running Docker containers
 LOG_LEVEL ?= DEBUG
@@ -224,6 +224,11 @@ debug-t4c/client/backup: LOG_LEVEL=DEBUG
 debug-t4c/client/backup: DOCKER_RUN_FLAGS=-it --entrypoint="bash" -v $$(pwd)/backups/backup.py:/opt/capella/backup.py
 debug-t4c/client/backup: run-t4c/client/backup
 
+test: capella/readonly t4c/client/remote
+	source .venv/bin/activate
+	cd tests
+	pytest
+
 .push:
 	if [ "$(PUSH_IMAGES)" == "1" ]; \
 	then \
@@ -232,3 +237,4 @@ debug-t4c/client/backup: run-t4c/client/backup
 	fi
 
 .PHONY: *
+.ONESHELL: test

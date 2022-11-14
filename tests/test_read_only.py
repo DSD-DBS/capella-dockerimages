@@ -93,7 +93,9 @@ def get_container(
     container = None
     try:
         container = client.containers.run(
-            image=os.getenv("DOCKER_CAPELLA_READONLY", "capella/readonly"),
+            image=os.getenv("DOCKER_PREFIX", "")
+            + "capella/readonly:"
+            + os.getenv("DOCKER_TAG", "latest"),
             detach=True,
             environment=environment | {"RMT_PASSWORD": "password"},
             volumes=volumes,
