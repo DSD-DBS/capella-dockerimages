@@ -6,8 +6,8 @@ eclipse download page:
 
 https://download.eclipse.org/capella/core/products/stable/.
 """
-import os
 import pathlib
+import sys
 
 import requests
 from lxml import etree, html
@@ -25,8 +25,11 @@ def get_directory_structure(url: str) -> list[str]:
 
 
 if __name__ == "__main__":
+    desired_version = sys.argv[1]
+    print(f"Installing Capella {desired_version}")
+
     versions = get_directory_structure(CAPELLA_INDEX_URL)
-    if not (capella_version := os.getenv("CAPELLA_VERSION")) and versions:
+    if not (capella_version := desired_version) and versions:
         capella_archive_path = versions[-1]
     else:
         capella_archive_path = next(

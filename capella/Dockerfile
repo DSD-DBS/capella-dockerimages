@@ -35,11 +35,12 @@ WORKDIR /opt/
 
 FROM base as build_online
 # Download a Capella executable archive
-ARG CAPELLA_VERSION
 
+# https://github.com/moby/moby/issues/26533#issuecomment-246966836
+ONBUILD ARG CAPELLA_VERSION="5.2.0"
 ONBUILD COPY ./download_archive.py /opt/.download_archive.py
 ONBUILD RUN pip install requests lxml && \
-    python .download_archive.py;
+    python .download_archive.py ${CAPELLA_VERSION};
 
 FROM base as build_offline
 
@@ -47,6 +48,7 @@ FROM base as build_offline
 # https://github.com/moby/moby/issues/26533#issuecomment-246966836
 ONBUILD ARG CAPELLA_VERSION="5.2.0"
 ONBUILD COPY ./versions/${CAPELLA_VERSION}/capella.* /opt/
+
 
 FROM build_${BUILD_TYPE}
 
