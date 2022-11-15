@@ -25,16 +25,13 @@ def get_directory_structure(url: str) -> list[str]:
 
 
 if __name__ == "__main__":
-    desired_version = sys.argv[1]
-    print(f"Installing Capella {desired_version}")
+    capella_version = sys.argv[1]
+    print(f"Installing Capella {capella_version}")
 
     versions = get_directory_structure(CAPELLA_INDEX_URL)
-    if not (capella_version := desired_version) and versions:
-        capella_archive_path = versions[-1]
-    else:
-        capella_archive_path = next(
-            version for version in versions if version.startswith(capella_version)
-        )
+    capella_archive_path = next(
+        version for version in versions if version.startswith(capella_version)
+    )
 
     final_url = f"{CAPELLA_INDEX_URL}{capella_archive_path}"
     dir_content = get_directory_structure(final_url)
