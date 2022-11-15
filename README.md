@@ -239,7 +239,7 @@ plugins.
        └── com.thalesgroup.mde.melody.team.license.update-5.0.0-202012091024.zip
    ```
 
-1) That extracted `.zip` file needs to be copied into the subdirectory `t4c/updateSite/$CAPELLA_VERSION`
+1) That `.zip` file needs to be copied into the subdirectory `t4c/updateSite/$CAPELLA_VERSION`
    of the present repository.
 
 1) Build the container:
