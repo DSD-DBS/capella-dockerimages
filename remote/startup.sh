@@ -3,6 +3,9 @@
 # SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
 # SPDX-License-Identifier: Apache-2.0
 
+mkdir -p /workspace/.metadata/.plugins/org.eclipse.core.runtime/.settings/
+echo licenseServerLocation="$FLOATING_LICENSE_SERVER" >> /workspace/.metadata/.plugins/org.eclipse.core.runtime/.settings/com.ps.consul.eclipse.ui.float.prefs
+
 set -e
 if [ "$(whoami)" == "root" ];
 then
