@@ -26,7 +26,3 @@ RUN /opt/capella/capella \
 
 USER root
 WORKDIR /home/techuser
-
-COPY startup.sh /opt/startup.sh
-RUN chmod +x /opt/startup.sh
-ENTRYPOINT [ "/opt/startup.sh" ]
