@@ -30,6 +30,7 @@ This repository includes Docker files to build the following Docker images:
 | `capella/remote`<br>`t4c/client/remote`|The remote image will add an RDP server on top of any other image. This will provide the user the possibility to connect and work inside the container.|
 | `capella/readonly`|This image has capability to clone a Git repository, will load the project into the workspace and also offers RDP.|
 | `t4c/client/backup`|This extends the T4C client base image to import a model from T4C and export it to Git.|
+| `capella/remote/pure-variants`<br>`t4c/client/remote/pure-variants`|This extends the remote image with pure::variants support.|
 
 Important for building the Docker images is to strictly follow the sequence.
 The dependency graph for the images looks like:
@@ -40,7 +41,7 @@ flowchart LR
     B(capella/base) --> C(t4c/client/base)
     B(capella/base) --> D(capella/ease)
     C(t4c/client/base) --> E(t4c/client/ease)
-    B(capella/base) --> F(capella/remote)
+    B(capella/base) --> F(capella/remote) --> K(capella/remote/pure-variants)
     C(t4c/client/base) --> G(t4c/client/remote) --> J(t4c/client/remote/pure-variants)
     D(capella/ease) --> H(capella/ease/remote) --> I(capella/readonly)
     style A fill:#ebb134
@@ -468,6 +469,16 @@ easily set "Use client resolution" instead of "Use initial window size" in the r
 connection profile.
 
 We also plan to integrate "dynamic resizing" in the near future.
+
+### Pure::variants
+
+To run the `pure-variants` images, please follow the instructions to run the [`Capella in a remote container`](#capella-in-a-remote-container)
+or [`T4C client in a remote container`](#t4c-client-in-a-remote-container) instructions.
+
+You just have to do changes:
+
+- Add the environment variable `$PURE_VARIANTS_LICENSE_SERVER` to the `docker run` command.
+- Replace the image name `$BASE/remote` with `$BASE/remote/pure-variants`
 
 ### EASE container
 
