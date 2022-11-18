@@ -54,7 +54,7 @@ def inject_t4c_connection_details(
 
 
 def setup_repositories() -> None:
-    t4c_repositories = os.getenv("T4C_REPOSITORIES", "").split(",")
+    t4c_repositories: list[str] = os.getenv("T4C_REPOSITORIES", "").split(",")
     t4c_host = os.getenv("T4C_SERVER_HOST", "localhost")
     t4c_port = os.getenv("T4C_SERVER_PORT", 2036)
     t4c_json = os.getenv("T4C_JSON", None)
@@ -83,8 +83,10 @@ def setup_repositories() -> None:
             )
 
     else:
-        for repo in t4c_repositories:
-            inject_t4c_connection_details(repo, t4c_host, t4c_port, repo)
+        for repository in t4c_repositories:
+            inject_t4c_connection_details(
+                repository, "tcp", t4c_host, t4c_port, repository
+            )
 
 
 if __name__ == "__main__":
