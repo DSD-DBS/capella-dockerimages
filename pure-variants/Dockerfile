@@ -25,6 +25,9 @@ RUN /opt/capella/capella \
     -repository file:///tmp/pure-variants \
     -installIU com.ps.consul.eclipse.purevariants.capella.feature.group,com.ps.consul.eclipse.purevariants.emf.feature.mapping.feature.group,com.ps.consul.eclipse.purevariants.de.enterprise.feature.group && \
     rm -rf /tmp/pure-variants
+RUN chown -R techuser /opt/capella/plugins
+
 USER techuser
+
 
 RUN sed -i '5 i\echo licenseServerLocation="$PURE_VARIANTS_LICENSE_SERVER" >> /workspace/.metadata/.plugins/org.eclipse.core.runtime/.settings/com.ps.consul.eclipse.ui.float.prefs' /home/techuser/.startup.sh
