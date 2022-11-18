@@ -8,6 +8,8 @@ capella/versions/*/dropins/*
 !capella/versions/*/dropins/.gitkeep
 t4c/updateSite/*/*
 !t4c/updateSite/*/.gitkeep
+pure-variants/updateSite/*
+!pure-variants/updateSite/.gitkeep
 libs
 ease/debug/libs/*
 ease/extensions/*/*

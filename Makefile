@@ -67,6 +67,8 @@ CAPELLA_DOCKERIMAGES_REVISION ?= latest
 # Capella build type (online/offline)
 CAPELLA_BUILD_TYPE ?= online
 
+PURE_VARIANTS_LICENSE_SERVER ?= http://localhost:8080
+
 DOCKER_BUILD_FLAGS ?=
 DOCKER_RUN_FLAGS ?= --rm
 
@@ -123,6 +125,10 @@ t4c/client/cli: t4c/client/base
 
 t4c/client/remote: t4c/client/base
 	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(DOCKER_TAG) remote
+	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
+
+t4c/client/remote/pure-variants: t4c/client/remote
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(DOCKER_TAG) pure-variants
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
 capella/ease: capella/base
@@ -203,6 +209,20 @@ run-t4c/client/remote-json: t4c/client/remote
 		-p $(METRICS_PORT):9118 \
 		--name t4c-client-remote-json \
 		$(DOCKER_PREFIX)t4c/client/remote:$(DOCKER_TAG)
+
+run-t4c/client/pure-variants:
+	docker run \
+		-e T4C_LICENCE_SECRET=$(T4C_LICENCE_SECRET) \
+		-e T4C_JSON=$(T4C_JSON) \
+		-e RMT_PASSWORD=$(RMT_PASSWORD) \
+		-e FILESERVICE_PASSWORD=$(RMT_PASSWORD) \
+		-e T4C_USERNAME=$(T4C_USERNAME) \
+		-e PURE_VARIANTS_LICENSE_SERVER=$(PURE_VARIANTS_LICENSE_SERVER) \
+		-p $(RDP_PORT):3389 \
+		-p $(FILESYSTEM_PORT):8000 \
+		-p $(METRICS_PORT):9118 \
+		--rm \
+		$(DOCKER_PREFIX)t4c/client/remote/pure-variants:$(DOCKER_TAG)
 
 run-t4c/client/backup: t4c/client/backup
 	docker run $(DOCKER_RUN_FLAGS) \

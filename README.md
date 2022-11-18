@@ -41,7 +41,7 @@ flowchart LR
     B(capella/base) --> D(capella/ease)
     C(t4c/client/base) --> E(t4c/client/ease)
     B(capella/base) --> F(capella/remote)
-    C(t4c/client/base) --> G(t4c/client/remote)
+    C(t4c/client/base) --> G(t4c/client/remote) --> J(t4c/client/remote/pure-variants)
     D(capella/ease) --> H(capella/ease/remote) --> I(capella/readonly)
     style A fill:#ebb134
     style B fill:#8feb34
@@ -348,6 +348,22 @@ docker build -t t4c/client/backup \
     --build-arg BASE_IMAGE=t4c/client/base \
     backup
 ```
+
+### 8. Docker images `capella/remote/pure-variants` and `t4c/client/remote/pure-variants`
+
+This Docker image adds the `pure::variants` Capella plugin and allows the definition of a pure variants license server during runtime.
+
+1. Download the pure::variants updateSite here: <https://www.pure-systems.com/pv-update/>
+    Please select: "pure::variants Archived Update Site with all Extensions" for Linux.
+1. Place the zip-file into `pure-variants/updateSite`.
+1. Start the Docker build:
+
+  ```zsh
+  docker build -t t4c/client/remote/pure-variants \
+      --build-arg CAPELLA_VERSION=$CAPELLA_VERSION \
+      --build-arg
+      pure-variants
+  ```
 
 ## Run the images
 
