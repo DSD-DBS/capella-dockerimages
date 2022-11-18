@@ -357,6 +357,7 @@ This Docker image adds the `pure::variants` Capella plugin and allows the defini
 1. Download the pure::variants updateSite here: <https://www.pure-systems.com/pv-update/>
     Please select: "pure::variants Archived Update Site with all Extensions" for Linux.
 1. Place the zip-file into `pure-variants/updateSite`.
+1. If you don't have internet access in your build environment, please go to step 8.1 and continue here afterwards.
 1. Start the Docker build:
 
   ```zsh
@@ -365,6 +366,31 @@ This Docker image adds the `pure::variants` Capella plugin and allows the defini
       --build-arg
       pure-variants
   ```
+
+#### 8.1 Download pure variants dependencies
+
+pure::variants needs a subset of the Eclipse 2020-06 repository.
+You can find the directory structure here at the bottom of the page: <https://download.eclipse.org/releases/2020-06/202006171000/>
+
+Please downloads all required files. Your tree should look like:
+
+```text
+$ tree pure-variants/dependencies
+pure-variants/dependencies
+├── artifacts.jar
+├── content.jar
+└── plugins
+    ├── com.google.javascript_0.0.20160315.v20161124-1903.jar
+    ├── com.google.protobuf_2.4.0.v201105131100.jar
+    ├── org.eclipse.wst.common.core_1.3.0.v201903222010.jar
+    ├── org.eclipse.wst.common.environment_1.0.400.v201903222010.jar
+    ├── org.eclipse.wst.common.frameworks_1.2.201.v201903222010.jar
+    ├── org.eclipse.wst.common.project.facet.core_1.4.400.v201903222010.jar
+    ├── org.eclipse.wst.jsdt.core_2.0.303.v202005041016.jar
+    ├── org.eclipse.wst.jsdt.manipulation_1.0.601.v201903222047.jar
+    ├── org.eclipse.wst.jsdt.ui_2.1.0.v202005221335.jar
+    └── org.eclipse.wst.validation_1.2.800.v201904082137.jar
+```
 
 ## Run the images
 
@@ -712,14 +738,14 @@ metadata and artifact for the packages:
 - <https://download.eclipse.org/technology/swtbot/releases/latest/>
 
 ```zsh
-capellac -nosplash -verbose
+capella -nosplash -verbose
 -application org.eclipse.equinox.p2.artifact.repository.mirrorApplication
 -source <url>
 -destination <destionation_path> (e.g. file:ease/extensions/<extension>)>
 ```
 
 ```zsh
-capellac -nosplash -verbose
+capella -nosplash -verbose
 -application org.eclipse.equinox.p2.metadata.repository.mirrorApplication
 -source <url>
 -destination <destionation_path> (e.g. file:ease/extensions/<extension>)>

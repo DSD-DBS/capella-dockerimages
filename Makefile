@@ -66,6 +66,8 @@ CAPELLA_DOCKERIMAGES_REVISION ?= latest
 
 # Capella build type (online/offline)
 CAPELLA_BUILD_TYPE ?= online
+PURE_VARIANTS_BUILD_TYPE ?= online
+EASE_BUILD_TYPE ?= online
 
 PURE_VARIANTS_LICENSE_SERVER ?= http://localhost:8080
 
@@ -128,15 +130,15 @@ t4c/client/remote: t4c/client/base
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
 t4c/client/remote/pure-variants: t4c/client/remote
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(DOCKER_TAG) pure-variants
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BUILD_TYPE=$(PURE_VARIANTS_BUILD_TYPE) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(DOCKER_TAG) pure-variants
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
 capella/ease: capella/base
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(DOCKER_TAG) --build-arg BUILD_TYPE=online ease
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(DOCKER_TAG) --build-arg BUILD_TYPE=$(EASE_BUILD_TYPE) ease
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
 t4c/client/ease: t4c/client/base
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(DOCKER_TAG) --build-arg BUILD_TYPE=online ease
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(DOCKER_TAG) --build-arg BUILD_TYPE=$(EASE_BUILD_TYPE) ease
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
 capella/ease/remote: capella/ease
