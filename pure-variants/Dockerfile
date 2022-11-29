@@ -17,6 +17,8 @@ FROM build_${BUILD_TYPE}
 USER root
 COPY ./updateSite /tmp/pure-variants
 
+COPY setup_workspace_purevariants.py /opt/setup_workspace_purevariants.py
+
 RUN /opt/capella/capella \
     -consoleLog \
     -application org.eclipse.equinox.p2.director \
@@ -28,6 +30,3 @@ RUN /opt/capella/capella \
 RUN chown -R techuser /opt/capella/plugins
 
 USER techuser
-
-
-RUN sed -i '5 i\echo licenseServerLocation="$PURE_VARIANTS_LICENSE_SERVER" >> /workspace/.metadata/.plugins/org.eclipse.core.runtime/.settings/com.ps.consul.eclipse.ui.float.prefs' /home/techuser/.startup.sh

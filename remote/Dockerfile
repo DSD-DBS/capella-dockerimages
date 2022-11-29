@@ -7,6 +7,8 @@ FROM ${BASE_IMAGE}
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Install RDP (XRDP with XORG)
+USER root
+
 RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     xrdp \
     xserver-xorg-core \
@@ -39,7 +41,8 @@ COPY setup_workspace.py /opt/setup_workspace.py
 RUN mkdir -p /run/xrdp/sockdir && \
     chown techuser /opt /opt/capella/capella.ini && \
     chown -R techuser /etc/xrdp /run/xrdp /var/log/xrdp* && \
-    chown techuser /var/log
+    chown techuser /var/log && \
+    chown -R techuser /opt/capella/configuration
 
 WORKDIR /home/techuser
 

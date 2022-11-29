@@ -16,6 +16,7 @@ else
 fi
 
 python3 /opt/setup_workspace.py;
+stat /opt/setup_workspace_purevariants.py &>/dev/null && python3 /opt/setup_workspace_purevariants.py
 
 # Replace environment variables in capella.ini, e.g. licences
 envsubst < /opt/capella/capella.ini > /tmp/capella.ini && mv /tmp/capella.ini /opt/capella/capella.ini;

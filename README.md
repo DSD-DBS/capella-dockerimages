@@ -372,7 +372,7 @@ This Docker image adds the `pure::variants` Capella plugin and allows the defini
 pure::variants needs a subset of the Eclipse 2020-06 repository.
 You can find the directory structure here at the bottom of the page: <https://download.eclipse.org/releases/2020-06/202006171000/>
 
-Please downloads all required files. Your tree should look like:
+Please download all required files. Your tree should look like:
 
 ```text
 $ tree pure-variants/dependencies

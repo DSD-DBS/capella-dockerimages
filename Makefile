@@ -133,6 +133,10 @@ t4c/client/remote/pure-variants: t4c/client/remote
 	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BUILD_TYPE=$(PURE_VARIANTS_BUILD_TYPE) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(DOCKER_TAG) pure-variants
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
+capella/remote/pure-variants: capella/remote
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BUILD_TYPE=$(PURE_VARIANTS_BUILD_TYPE) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(DOCKER_TAG) pure-variants
+	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
+
 capella/ease: capella/base
 	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(DOCKER_TAG) --build-arg BUILD_TYPE=$(EASE_BUILD_TYPE) ease
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
