@@ -392,6 +392,10 @@ pure-variants/dependencies
     └── org.eclipse.wst.validation_1.2.800.v201904082137.jar
 ```
 
+#### 8.2 Download pure::variants license
+
+Please download the license file and put it in `pure-variants`, with the name `license.lic`.
+
 ## Run the images
 
 ### Capella in a remote container
