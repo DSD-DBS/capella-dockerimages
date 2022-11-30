@@ -505,7 +505,7 @@ We also plan to integrate "dynamic resizing" in the near future.
 To run the `pure-variants` images, please follow the instructions to run the [`Capella in a remote container`](#capella-in-a-remote-container)
 or [`T4C client in a remote container`](#t4c-client-in-a-remote-container) instructions.
 
-You just have to do changes:
+You just have to do some changes:
 
 - Add the environment variable `$PURE_VARIANTS_LICENSE_SERVER` to the `docker run` command.
 - Replace the image name `$BASE/remote` with `$BASE/remote/pure-variants`
