@@ -31,8 +31,7 @@ def replace_config(path: pathlib.Path, key: str, value: str) -> None:
         file_content = ""
 
     pattern = f"{key}=.+"
-    match = re.search(pattern, file_content)
-    if match:
+    if re.search(pattern, file_content):
         LOGGER.info("Set existing config %s to %s", key, value)
         file_content = re.sub(pattern, f"{key}={value}", file_content)
     else:
