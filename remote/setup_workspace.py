@@ -22,9 +22,7 @@ ECLIPSE_UI_PREFS_PATH = (
 )
 
 
-def replace_config(
-    logger: logging.Logger, path: pathlib.Path, key: str, value: str
-) -> None:
+def replace_config(path: pathlib.Path, key: str, value: str) -> None:
     """This will replace the existing config or add the config (if it doesn't exist)"""
     path.parent.mkdir(exist_ok=True, parents=True)
     if path.exists():
@@ -35,7 +33,7 @@ def replace_config(
     pattern = f"{key}=.+"
     match = re.search(pattern, file_content)
     if match:
-        logger.info("Set existing config %s to %s", key, value)
+        LOGGER.info("Set existing config %s to %s", key, value)
         file_content = re.sub(pattern, f"{key}={value}", file_content)
     else:
         file_content += f"\n{key}={value}"
@@ -47,7 +45,6 @@ def inject_t4c_connection_details(
     key: str, protocol: str, host: str, port: str | int, repository: str
 ) -> None:
     replace_config(
-        LOGGER,
         REPOSITORIES_BASE_PATH
         / "fr.obeo.dsl.viewpoint.collab"
         / "repository.properties",
@@ -96,7 +93,7 @@ if __name__ == "__main__":
     LOGGER.info("Prepare Workspace...")
 
     # Disable Welcome Screen
-    replace_config(LOGGER, ECLIPSE_UI_PREFS_PATH, "showIntro", "false")
+    replace_config(ECLIPSE_UI_PREFS_PATH, "showIntro", "false")
 
     if (
         os.getenv(
@@ -107,7 +104,6 @@ if __name__ == "__main__":
     ):
         # Set default T4C Server IP address
         replace_config(
-            LOGGER,
             OBEO_COLLAB_CONF,
             "PREF_DEFAULT_REPOSITORY_LOCATION",
             os.getenv("T4C_SERVER_HOST", "localhost"),
