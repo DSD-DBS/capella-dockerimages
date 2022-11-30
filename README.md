@@ -509,6 +509,7 @@ You just have to do some changes:
 
 - Add the environment variable `$PURE_VARIANTS_LICENSE_SERVER` to the `docker run` command.
 - Replace the image name `$BASE/remote` with `$BASE/remote/pure-variants`
+- Bind the directory containing the `license.lic` file `/inputs/pure-variants/` inside the container.
 
 ### EASE container
 
