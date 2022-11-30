@@ -17,7 +17,6 @@ FROM build_${BUILD_TYPE}
 USER root
 
 COPY ./updateSite /tmp/pure-variants
-COPY ./license.lic /home/techuser/pure-variants-5/de.license
 COPY setup_workspace_purevariants.py /opt/setup_workspace_purevariants.py
 
 RUN /opt/capella/capella \
