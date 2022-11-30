@@ -11,7 +11,7 @@ import re
 from collections import Counter
 
 logging.basicConfig(level=logging.DEBUG)
-LOGGER = logging.getLogger("remote")
+LOGGER = logging.getLogger("TeamForCapella preparation")
 
 OBEO_COLLAB_CONF = pathlib.Path(
     "/workspace/.metadata/.plugins/org.eclipse.core.runtime/.settings/fr.obeo.dsl.viewpoint.collab.prefs"

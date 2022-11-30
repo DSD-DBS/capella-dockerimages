@@ -9,7 +9,7 @@ import pathlib
 import re
 
 logging.basicConfig(level=logging.DEBUG)
-LOGGER = logging.getLogger("pure::variants")
+LOGGER = logging.getLogger("pure::variants preparation")
 
 eclipse_settings_base_path = pathlib.Path(
     "/workspace/.metadata/.plugins/org.eclipse.core.runtime/.settings"
