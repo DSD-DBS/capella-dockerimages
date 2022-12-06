@@ -19,8 +19,8 @@ from collections.abc import Generator
 timeout = 120  # Timeout in seconds
 
 
-@pytest.fixture(name="mode", params=["json", "legacy"])
-def fixture_mode(request) -> str:
+@pytest.fixture(name="mode_success", params=["json", "json2", "legacy"])
+def fixture_mode_success(request) -> str:
     return request.param
 
 
@@ -28,7 +28,7 @@ def fixture_mode(request) -> str:
     name="container_success",
 )
 def fixture_container_success(
-    mode: str,
+    mode_success: str,
 ) -> Generator[docker.models.containers.Container]:
     env = {
         "json": {
@@ -49,19 +49,37 @@ def fixture_container_success(
                 ]
             ),
         },
+        # Test with starting slash in entrypoint
+        "json2": {
+            "GIT_REPOS_JSON": json.dumps(
+                [
+                    {
+                        "url": "https://github.com/DSD-DBS/py-capellambse.git",
+                        "revision": "master",
+                        "depth": 1,
+                        "entrypoint": "/tests/data/melodymodel/5_2/Melody Model Test.aird",
+                    },
+                ]
+            ),
+        },
         "legacy": {
             "GIT_URL": "https://github.com/DSD-DBS/collab-platform-arch.git",
             "GIT_ENTRYPOINT": "collab-platform-arch.aird",
             "GIT_REVISION": "main",
             "GIT_DEPTH": 0,
         },
-    }[mode]
+    }[mode_success]
     yield get_container(environment=env)
+
+
+@pytest.fixture(name="mode_failure", params=["json", "legacy"])
+def fixture_mode_failure(request) -> str:
+    return request.param
 
 
 @pytest.fixture(name="container_failure")
 def fixture_container_failure(
-    mode: str,
+    mode_failure: str,
 ) -> Generator[docker.models.containers.Container]:
     env = {
         "json": {
@@ -82,7 +100,7 @@ def fixture_container_failure(
             "GIT_REVISION": "main",
             "GIT_DEPTH": 0,
         },
-    }[mode]
+    }[mode_failure]
     yield get_container(environment=env)
 
 
@@ -138,16 +156,20 @@ def lines(bytes):
 
 def test_model_loading(
     container_success: Generator[docker.models.containers.Container],
-    mode: str,
+    mode_success: str,
 ):
     container = next(container_success)
     wait_for_container(container)
 
     result = container.exec_run("ls -A1 /workspace")
-    if mode == "legacy":
+    if mode_success == "legacy":
+        assert len(lines(result.output)) == 2
+    elif mode_success == "json":
+        assert len(lines(result.output)) == 3
+    elif mode_success == "json2":
         assert len(lines(result.output)) == 2
     else:
-        assert len(lines(result.output)) == 3
+        raise KeyError(f"Mode ${mode_success} not found")
 
 
 def test_invalid_url_fails(
