@@ -224,6 +224,7 @@ run-t4c/client/remote/pure-variants: t4c/client/remote/pure-variants
 		-e FILESERVICE_PASSWORD=$(RMT_PASSWORD) \
 		-e T4C_USERNAME=$(T4C_USERNAME) \
 		-e PURE_VARIANTS_LICENSE_SERVER=$(PURE_VARIANTS_LICENSE_SERVER) \
+		-v $$(pwd)/volumes/pure-variants:/inputs/pure-variants \
 		-p $(RDP_PORT):3389 \
 		-p $(FILESYSTEM_PORT):8000 \
 		-p $(METRICS_PORT):9118 \
