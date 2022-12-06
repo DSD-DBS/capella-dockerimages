@@ -54,7 +54,11 @@ def fixture_container_success(
                         "host": "instance-host",
                         "instance": "dev-5.2",
                     },
-                    {"repository": "test", "port": 2036, "host": "instance-host"},
+                    {
+                        "repository": "test",
+                        "port": 2036,
+                        "host": "instance-host",
+                    },
                 ]
             ),
         },
@@ -87,7 +91,11 @@ def fixture_container_failure(
                         "port": 2036,
                         "host": "instance-host",
                     },
-                    {"repository": "test", "port": 2036, "host": "instance-host"},
+                    {
+                        "repository": "test",
+                        "port": 2036,
+                        "host": "instance-host",
+                    },
                 ]
             ),
         },
@@ -141,7 +149,10 @@ def wait_for_container(container: docker.models.containers.Container) -> None:
         log.debug("Current log: %s", "\n".join(splitted_logs[log_line:]))
         log_line = len(splitted_logs)
 
-        if b"INFO success: xrdp-sesman entered RUNNING state" in container.logs():
+        if (
+            b"INFO success: xrdp-sesman entered RUNNING state"
+            in container.logs()
+        ):
             log.info("Loading of model finished")
             break
         container.reload()
@@ -184,8 +195,8 @@ def test_repositories_seeding(
         }
     else:
         repositories = {}
-    for key in repositories:
-        assert repositories[key] == re.search(f"{key}=(.+)", file_content).group(1)
+    for key, value in repositories.items():
+        assert value == re.search(f"{key}=(.+)", file_content).group(1)
 
 
 @pytest.mark.t4c

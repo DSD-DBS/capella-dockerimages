@@ -55,7 +55,9 @@ def test_get_idletime_works(idler: IdleTimer) -> None:
     assert isinstance(idletime, float)
 
 
-def test_get_idletime_increases_after_display_is_closed(idler: IdleTimer) -> None:
+def test_get_idletime_increases_after_display_is_closed(
+    idler: IdleTimer,
+) -> None:
     idletime = idler.get_idletime()
 
     time.sleep(60)

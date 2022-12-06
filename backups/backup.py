@@ -71,7 +71,9 @@ def checkout_git_repository() -> pathlib.Path:
     )
     try:
         subprocess.run(
-            ["git", "switch", os.environ["GIT_REPO_BRANCH"]], check=True, cwd=git_dir
+            ["git", "switch", os.environ["GIT_REPO_BRANCH"]],
+            check=True,
+            cwd=git_dir,
         )
     except subprocess.CalledProcessError as e:
         print(e.returncode)
@@ -113,7 +115,12 @@ def copy_exported_files_into_git_repo(model_dir: pathlib.Path) -> None:
 
 def git_commit_and_push(git_dir: pathlib.Path) -> None:
     subprocess.run(
-        ["git", "config", "user.email", os.getenv("GIT_EMAIL", "backup@example.com")],
+        [
+            "git",
+            "config",
+            "user.email",
+            os.getenv("GIT_EMAIL", "backup@example.com"),
+        ],
         check=True,
         cwd=git_dir,
     )

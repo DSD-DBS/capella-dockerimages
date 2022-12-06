@@ -15,7 +15,9 @@ METRICS_PORT = int(
     os.getenv("METRICS_PORT", 9118)  # pylint: disable=invalid-envvar-default
 )
 LOGGER = logging.getLogger(__file__)
-IDLETIME = Gauge("idletime_minutes", "Idletime of X server in minutes from xprintidle")
+IDLETIME = Gauge(
+    "idletime_minutes", "Idletime of X server in minutes from xprintidle"
+)
 
 
 class IdleTimer:
