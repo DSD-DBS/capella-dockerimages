@@ -203,7 +203,7 @@ run-t4c/client/remote-legacy: t4c/client/remote
 		$(DOCKER_PREFIX)t4c/client/remote:$(DOCKER_TAG)
 
 run-t4c/client/remote-json: t4c/client/remote
-	docker rm /t4c-client-remote || true
+	docker rm /t4c-client-remote-json || true
 	docker run -d \
 		-e T4C_LICENCE_SECRET=$(T4C_LICENCE_SECRET) \
 		-e T4C_JSON=$(T4C_JSON) \
@@ -216,8 +216,8 @@ run-t4c/client/remote-json: t4c/client/remote
 		--name t4c-client-remote-json \
 		$(DOCKER_PREFIX)t4c/client/remote:$(DOCKER_TAG)
 
-run-t4c/client/pure-variants:
-	docker run \
+run-t4c/client/remote/pure-variants: t4c/client/remote/pure-variants
+	docker run $(DOCKER_RUN_FLAGS) \
 		-e T4C_LICENCE_SECRET=$(T4C_LICENCE_SECRET) \
 		-e T4C_JSON=$(T4C_JSON) \
 		-e RMT_PASSWORD=$(RMT_PASSWORD) \
