@@ -83,7 +83,9 @@ def clone_git_model(project: dict[str, str]) -> None:
             "GIT_ASKPASS": os.environ["GIT_ASKPASS"],
         },
     )
-    log.info("Clone of git repository with url %s was successful", project["url"])
+    log.info(
+        "Clone of git repository with url %s was successful", project["url"]
+    )
 
 
 def resolve_entrypoint(project: dict[str, str]) -> None:

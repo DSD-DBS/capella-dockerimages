@@ -48,7 +48,7 @@ jobs:
           DOCKER_BUILD_FLAGS="--label git-short-sha=${{ steps.tag.outputs.sha }}"
       - name: Install test dependencies
         run: |
-          pip install pytest docker
+          pip install .
       - name: Run pytest
         run: >
           DOCKER_PREFIX=${{ env.registry }}

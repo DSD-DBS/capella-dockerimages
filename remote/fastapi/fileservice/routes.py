@@ -28,4 +28,6 @@ async def get_files(
             headers={"WWW-Authenticate": "Basic"},
         )
 
-    return core.get_files(dir=pathlib.PosixPath("/workspace"), show_hidden=show_hidden)
+    return core.get_files(
+        dir=pathlib.PosixPath("/workspace"), show_hidden=show_hidden
+    )
