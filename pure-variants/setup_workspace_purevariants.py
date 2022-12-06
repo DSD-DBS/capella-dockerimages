@@ -39,9 +39,9 @@ def copy_license_file_to_right_location():
     source = pathlib.Path("/inputs/pure-variants/license.lic")
     if source.exists():
         LOGGER.info("License file was found.")
-        shutil.copyfile(
-            source, pathlib.Path("/home/techuser/pure-variants-5/de.license")
-        )
+        destination = pathlib.Path("/home/techuser/pure-variants-5/de.license")
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source, destination)
     else:
         LOGGER.warning(
             "No license file was found."
