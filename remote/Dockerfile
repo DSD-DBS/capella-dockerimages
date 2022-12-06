@@ -35,8 +35,6 @@ RUN sed -i 's/allowed_users=console/allowed_users=anybody/g' /etc/X11/Xwrapper.c
 
 RUN id techuser || useradd -l -m -u 1001000000 techuser && echo "techuser:tmp_passwd" | chpasswd
 
-COPY setup_workspace.py /opt/setup_workspace.py
-
 # Set permissions
 RUN mkdir -p /run/xrdp/sockdir && \
     chown techuser /opt /opt/capella/capella.ini && \

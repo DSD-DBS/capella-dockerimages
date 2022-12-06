@@ -88,5 +88,7 @@ RUN mkdir -p /opt/capella/configuration/.settings; \
     chown -R techuser /opt/capella/p2/org.eclipse.equinox.p2.engine/profileRegistry
 
 RUN echo '-Dosgi.configuration.area=file:/opt/capella/configuration' >> /opt/capella/capella.ini
+COPY setup_workspace.py /opt/setup/setup_welcome_screen.py
+
 
 ENV BASE_TYPE=capella

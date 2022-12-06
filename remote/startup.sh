@@ -15,7 +15,11 @@ else
     exit 1;
 fi
 
-python3 /opt/setup_workspace.py;
+# Run preparation scripts
+for filename in /opt/setup/*.py; do
+    echo "Executing script '$filename'..."
+    python3 $filename
+done
 stat /opt/setup_workspace_purevariants.py &>/dev/null && python3 /opt/setup_workspace_purevariants.py
 stat /inputs/pure-variants/license.lic &>/dev/null \
 && mkdir -p /home/techuser/pure-variants-5/ \

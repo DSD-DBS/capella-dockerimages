@@ -17,7 +17,7 @@ FROM build_${BUILD_TYPE}
 USER root
 
 COPY ./updateSite /tmp/pure-variants
-COPY setup_workspace_purevariants.py /opt/setup_workspace_purevariants.py
+COPY setup_workspace_purevariants.py /opt/setup/setup_workspace_purevariants.py
 
 RUN /opt/capella/capella \
     -consoleLog \

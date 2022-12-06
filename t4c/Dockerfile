@@ -21,6 +21,8 @@ RUN T4C_ZIP=$(find . -type f -iname "*.zip" | head -n 1 | cut -c 3-); \
     chown -R techuser /opt/capella/configuration
 USER root
 
+COPY setup_workspace.py /opt/setup/setup_t4c_client.py
+
 RUN chown techuser /opt/capella/capella.ini && \
     echo '-DOBEO_LICENSE_SERVER_CONFIGURATION=$T4C_LICENCE_SECRET \n-Duser.name=$T4C_USERNAME' >> /opt/capella/capella.ini
 
