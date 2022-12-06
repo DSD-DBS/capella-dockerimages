@@ -72,7 +72,7 @@ EASE_BUILD_TYPE ?= online
 PURE_VARIANTS_LICENSE_SERVER ?= http://localhost:8080
 
 DOCKER_BUILD_FLAGS ?=
-DOCKER_RUN_FLAGS ?= --rm
+DOCKER_RUN_FLAGS ?= --add-host=host.docker.internal:host-gateway --rm
 
 # If set to 1, we will push the images to the specified registry
 PUSH_IMAGES ?= 0
