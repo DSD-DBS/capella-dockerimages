@@ -36,3 +36,13 @@ if __name__ == "__main__":
         "showIntro",
         "false",
     )
+
+    eclipse_settings_base_path = pathlib.Path(
+        "/workspace/.metadata/.plugins/org.eclipse.core.runtime/.settings"
+    )
+    # Set default Git path to /workspace/git
+    replace_config(
+        eclipse_settings_base_path / "org.eclipse.egit.core.prefs",
+        "core_defaultRepositoryDir",
+        "/workspace/git",
+    )

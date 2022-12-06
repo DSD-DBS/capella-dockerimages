@@ -7,6 +7,7 @@ import logging
 import os
 import pathlib
 import re
+import shutil
 
 logging.basicConfig(level=logging.DEBUG)
 LOGGER = logging.getLogger("pure::variants preparation")
@@ -34,6 +35,20 @@ def replace_config(path: pathlib.Path, key: str, value: str) -> None:
     path.write_text(file_content)
 
 
+def copy_license_file_to_right_location():
+    source = pathlib.Path("/inputs/pure-variants/license.lic")
+    if source.exists():
+        LOGGER.info("License file was found.")
+        shutil.copyfile(
+            source, pathlib.Path("/home/techuser/pure-variants-5/de.license")
+        )
+    else:
+        LOGGER.warning(
+            "No license file was found."
+            "Please mount the file as volume to /inputs/pure-variants/license.lic"
+        )
+
+
 if __name__ == "__main__":
     LOGGER.info("Prepare Workspace...")
 
@@ -43,8 +58,4 @@ if __name__ == "__main__":
         os.getenv("PURE_VARIANTS_LICENSE_SERVER"),
     )
 
-    replace_config(
-        eclipse_settings_base_path / "org.eclipse.egit.core.prefs",
-        "core_defaultRepositoryDir",
-        "/workspace/git",
-    )
+    copy_license_file_to_right_location()
