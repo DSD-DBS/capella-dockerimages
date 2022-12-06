@@ -115,9 +115,12 @@ def get_container(
         else {}
     )
     container = None
+    docker_prefix = os.getenv("DOCKER_PREFIX", "")
+    docker_tag = os.getenv("DOCKER_TAG", "latest")
+
     try:
         container = client.containers.run(
-            image=os.getenv("DOCKER_CAPELLA_T4C_REMOTE", "t4c/client/remote"),
+            image=f"{docker_prefix}t4c/client/remote:{docker_tag}",
             detach=True,
             environment=environment | {"RMT_PASSWORD": "password"},
             volumes=volumes,

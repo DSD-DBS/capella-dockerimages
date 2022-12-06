@@ -91,9 +91,12 @@ def get_container(
 ) -> Generator[docker.models.containers.Container]:
     volumes = {}
     container = None
+    docker_prefix = os.getenv("DOCKER_PREFIX", "")
+    docker_tag = os.getenv("DOCKER_TAG", "latest")
+
     try:
         container = client.containers.run(
-            image=os.getenv("DOCKER_CAPELLA_READONLY", "capella/readonly"),
+            image=f"{docker_prefix}capella/readonly:{docker_tag}",
             detach=True,
             environment=environment | {"RMT_PASSWORD": "password"},
             volumes=volumes,

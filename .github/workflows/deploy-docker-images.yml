@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
 # SPDX-License-Identifier: CC0-1.0
-name: Push docker images to GitHub container registry
+name: Build & push images
 
 on:
   push:
@@ -20,7 +20,7 @@ jobs:
          - "5.0.0"
          - "5.2.0"
          - "6.0.0"
-    name: Build image for Capella ${{ matrix.capella_version }}
+    name: Capella ${{ matrix.capella_version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -46,10 +46,14 @@ jobs:
           DOCKER_PREFIX=${{ env.registry }}
           CAPELLA_DOCKERIMAGES_REVISION=${{ steps.tag.outputs.branch }}
           DOCKER_BUILD_FLAGS="--label git-short-sha=${{ steps.tag.outputs.sha }}"
-      - name: Test readonly image
+      - name: Install test dependencies
         run: |
           pip install pytest docker
-          DOCKER_CAPELLA_READONLY="${{ env.registry }}capella/readonly:${{ matrix.capella_version }}-${{ steps.tag.outputs.branch }}" pytest -m "not t4c" tests
+      - name: Run pytest
+        run: >
+          DOCKER_PREFIX=${{ env.registry }}
+          DOCKER_TAG=${{ matrix.capella_version }}-${{ steps.tag.outputs.branch }}
+          pytest -m "not t4c" tests
       - name: Push
         run: |
           for image in ${{ env.images }}
