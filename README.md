@@ -351,6 +351,27 @@ docker build -t t4c/client/backup \
 
 ## Run the images
 
+### Capella locally on X11 systems
+
+On some systems, you have to whitelist the X-Server with:
+
+```zsh
+xhost +local
+```
+
+It allows all local programs to connect to your X server. You can further restrict the access to the X server. Please read the [documentation of `xhost`](https://man.archlinux.org/man/xhost.1) for more details.
+
+The container can be started with the following command. The `DISPLAY` environment has to be passed to the container.
+
+```zsh
+docker run -d \
+    -v /tmp/.X11-unix:/tmp/.X11-unix \
+    -e DISPLAY=$(DISPLAY) \
+    capella/base
+```
+
+Capella should start after a few seconds.
+
 ### Capella in a remote container
 
 ```zsh
