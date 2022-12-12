@@ -32,7 +32,9 @@ def replace_config(path: pathlib.Path, key: str, value: str) -> None:
 if __name__ == "__main__":
     # Disable Welcome Screen
     replace_config(
-        pathlib.Path("/opt/capella/configuration/.settings/org.eclipse.ui.ide.prefs"),
+        pathlib.Path(
+            "/opt/capella/configuration/.settings/org.eclipse.ui.ide.prefs"
+        ),
         "showIntro",
         "false",
     )

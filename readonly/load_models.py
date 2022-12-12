@@ -91,7 +91,8 @@ def clone_git_model(project: dict[str, str]) -> None:
 def resolve_entrypoint(project: dict[str, str]) -> None:
     if entrypoint := project["entrypoint"]:
         project["location"] = pathlib.Path(
-            project["location"], str(pathlib.Path(entrypoint).parent).lstrip("/")
+            project["location"],
+            str(pathlib.Path(entrypoint).parent).lstrip("/"),
         )
 
 
