@@ -15,7 +15,11 @@ else
     exit 1;
 fi
 
-python3 /opt/setup_workspace.py;
+# Run preparation scripts
+for filename in /opt/setup/*.py; do
+    echo "Executing script '$filename'..."
+    python3 $filename
+done
 
 # Replace environment variables in capella.ini, e.g. licences
 envsubst < /opt/capella/capella.ini > /tmp/capella.ini && mv /tmp/capella.ini /opt/capella/capella.ini;

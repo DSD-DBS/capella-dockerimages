@@ -30,6 +30,7 @@ This repository includes Docker files to build the following Docker images:
 | `capella/remote`<br>`t4c/client/remote`|The remote image will add an RDP server on top of any other image. This will provide the user the possibility to connect and work inside the container.|
 | `capella/readonly`|This image has capability to clone a Git repository, will load the project into the workspace and also offers RDP.|
 | `t4c/client/backup`|This extends the T4C client base image to import a model from T4C and export it to Git.|
+| `capella/remote/pure-variants`<br>`t4c/client/remote/pure-variants`|This extends the remote image with pure::variants support.|
 
 Important for building the Docker images is to strictly follow the sequence.
 The dependency graph for the images looks like:
@@ -40,8 +41,8 @@ flowchart LR
     B(capella/base) --> C(t4c/client/base)
     B(capella/base) --> D(capella/ease)
     C(t4c/client/base) --> E(t4c/client/ease)
-    B(capella/base) --> F(capella/remote)
-    C(t4c/client/base) --> G(t4c/client/remote)
+    B(capella/base) --> F(capella/remote) --> K(capella/remote/pure-variants)
+    C(t4c/client/base) --> G(t4c/client/remote) --> J(t4c/client/remote/pure-variants)
     D(capella/ease) --> H(capella/ease/remote) --> I(capella/readonly)
     style A fill:#ebb134
     style B fill:#8feb34
@@ -349,6 +350,52 @@ docker build -t t4c/client/backup \
     backup
 ```
 
+### 8. Docker images `capella/remote/pure-variants` and `t4c/client/remote/pure-variants`
+
+This Docker image adds the `pure::variants` Capella plugin and allows the definition of a pure variants license server during runtime.
+
+1. Download the pure::variants updateSite here: <https://www.pure-systems.com/pv-update/>
+    Please select: "pure::variants Archived Update Site with all Extensions" for Linux.
+1. Place the zip-file into `pure-variants/updateSite`.
+1. If you don't have internet access in your build environment, please go to step 8.1 and continue here afterwards.
+1. Start the Docker build:
+
+  ```zsh
+  docker build -t t4c/client/remote/pure-variants \
+      --build-arg CAPELLA_VERSION=$CAPELLA_VERSION \
+      --build-arg
+      pure-variants
+  ```
+
+#### 8.1 Download pure variants dependencies
+
+pure::variants needs a subset of the Eclipse 2020-06 repository.
+You can find the directory structure here at the bottom of the page: <https://download.eclipse.org/releases/2020-06/202006171000/>
+
+Please download all required files. Your tree should look like:
+
+```text
+$ tree pure-variants/dependencies
+pure-variants/dependencies
+├── artifacts.jar
+├── content.jar
+└── plugins
+    ├── com.google.javascript_0.0.20160315.v20161124-1903.jar
+    ├── com.google.protobuf_2.4.0.v201105131100.jar
+    ├── org.eclipse.wst.common.core_1.3.0.v201903222010.jar
+    ├── org.eclipse.wst.common.environment_1.0.400.v201903222010.jar
+    ├── org.eclipse.wst.common.frameworks_1.2.201.v201903222010.jar
+    ├── org.eclipse.wst.common.project.facet.core_1.4.400.v201903222010.jar
+    ├── org.eclipse.wst.jsdt.core_2.0.303.v202005041016.jar
+    ├── org.eclipse.wst.jsdt.manipulation_1.0.601.v201903222047.jar
+    ├── org.eclipse.wst.jsdt.ui_2.1.0.v202005221335.jar
+    └── org.eclipse.wst.validation_1.2.800.v201904082137.jar
+```
+
+#### 8.2 Download pure::variants license
+
+Please download the license file and put it in `pure-variants`, with the name `license.lic`.
+
 ## Run the images
 
 ### Capella locally on X11 systems
@@ -473,6 +520,17 @@ easily set "Use client resolution" instead of "Use initial window size" in the r
 connection profile.
 
 We also plan to integrate "dynamic resizing" in the near future.
+
+### Pure::variants
+
+To run the `pure-variants` images, please follow the instructions to run the [`Capella in a remote container`](#capella-in-a-remote-container)
+or [`T4C client in a remote container`](#t4c-client-in-a-remote-container) instructions.
+
+You just have to do some changes:
+
+- Add the environment variable `$PURE_VARIANTS_LICENSE_SERVER` to the `docker run` command.
+- Replace the image name `$BASE/remote` with `$BASE/remote/pure-variants`
+- Bind the directory containing the `license.lic` file `/inputs/pure-variants/` inside the container.
 
 ### EASE container
 
@@ -706,14 +764,14 @@ metadata and artifact for the packages:
 - <https://download.eclipse.org/technology/swtbot/releases/latest/>
 
 ```zsh
-capellac -nosplash -verbose
+capella -nosplash -verbose
 -application org.eclipse.equinox.p2.artifact.repository.mirrorApplication
 -source <url>
 -destination <destionation_path> (e.g. file:ease/extensions/<extension>)>
 ```
 
 ```zsh
-capellac -nosplash -verbose
+capella -nosplash -verbose
 -application org.eclipse.equinox.p2.metadata.repository.mirrorApplication
 -source <url>
 -destination <destionation_path> (e.g. file:ease/extensions/<extension>)>

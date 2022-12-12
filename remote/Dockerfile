@@ -7,6 +7,8 @@ FROM ${BASE_IMAGE}
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Install RDP (XRDP with XORG)
+USER root
+
 RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     xrdp \
     xserver-xorg-core \
@@ -33,13 +35,12 @@ RUN sed -i 's/allowed_users=console/allowed_users=anybody/g' /etc/X11/Xwrapper.c
 
 RUN id techuser || useradd -l -m -u 1001000000 techuser && echo "techuser:tmp_passwd" | chpasswd
 
-COPY setup_workspace.py /opt/setup_workspace.py
-
 # Set permissions
 RUN mkdir -p /run/xrdp/sockdir && \
     chown techuser /opt /opt/capella/capella.ini && \
     chown -R techuser /etc/xrdp /run/xrdp /var/log/xrdp* && \
-    chown techuser /var/log
+    chown techuser /var/log && \
+    chown -R techuser /opt/capella/configuration
 
 WORKDIR /home/techuser
 

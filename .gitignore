@@ -8,6 +8,10 @@ capella/versions/*/dropins/*
 !capella/versions/*/dropins/.gitkeep
 t4c/updateSite/*/*
 !t4c/updateSite/*/.gitkeep
+pure-variants/updateSite/*
+!pure-variants/updateSite/.gitkeep
+pure-variants/dependencies/*
+!pure-variants/dependencies/.gitkeep
 libs
 ease/debug/libs/*
 ease/extensions/*/*
@@ -19,3 +23,4 @@ prometheus*
 .venv
 .vscode
 .idea
+volumes
