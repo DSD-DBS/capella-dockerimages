@@ -353,7 +353,7 @@ docker build -t t4c/client/backup \
 
 ### Capella locally on X11 systems
 
-On some systems, you have to whitelist the X-Server with: 
+On some systems, you have to whitelist the X-Server with:
 
 ```zsh
 xhost +local
