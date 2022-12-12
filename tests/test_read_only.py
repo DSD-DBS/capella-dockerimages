@@ -154,22 +154,29 @@ def lines(bytes):
     return io.BytesIO(bytes).readlines()
 
 
-def test_model_loading(
+@pytest.fixture(name="workspace_result")
+def fixture_workspace_result(
     container_success: Generator[docker.models.containers.Container],
-    mode_success: str,
-):
+) -> bytes:
     container = next(container_success)
     wait_for_container(container)
 
-    result = container.exec_run("ls -A1 /workspace")
-    if mode_success == "legacy":
-        assert len(lines(result.output)) == 2
-    elif mode_success == "json":
-        assert len(lines(result.output)) == 3
-    elif mode_success == "json2":
-        assert len(lines(result.output)) == 2
-    else:
-        raise KeyError(f"Mode ${mode_success} not found")
+    return container.exec_run("ls -A1 /workspace")
+
+
+@pytest.mark.parametrize("mode_success", ["legacy"])
+def test_model_loading_with_legacy_env(workspace_result: bytes):
+    assert len(lines(workspace_result.output)) == 2
+
+
+@pytest.mark.parametrize("mode_success", ["json"])
+def test_model_loading_with_json_env(workspace_result: bytes):
+    assert len(lines(workspace_result.output)) == 3
+
+
+@pytest.mark.parametrize("mode_success", ["json2"])
+def test_model_loading_with_json2_env(workspace_result: bytes):
+    assert len(lines(workspace_result.output)) == 2
 
 
 def test_invalid_url_fails(
