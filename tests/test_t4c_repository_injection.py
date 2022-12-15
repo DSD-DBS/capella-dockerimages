@@ -3,18 +3,19 @@
 
 import json
 import logging
-import os
 import pathlib
 import re
-import time
+from collections.abc import Iterator
 
-import docker.models.containers
+import docker
 import pytest
+from docker.models import containers
+
+from tests import conftest
 
 log = logging.getLogger(__file__)
 log.setLevel("DEBUG")
 client = docker.from_env()
-from collections.abc import Generator
 
 timeout = 120  # Timeout in seconds
 default_env = {
@@ -25,8 +26,8 @@ default_env = {
 }
 
 
-@pytest.fixture(name="mode", params=["json", "repositories"])
-def fixture_mode(request) -> str:
+@pytest.fixture(name="success_mode", params=["json", "repositories"])
+def fixture_success_mode(request) -> str:
     return request.param
 
 
@@ -34,9 +35,9 @@ def fixture_mode(request) -> str:
     name="container_success",
 )
 def fixture_container_success(
-    mode: str,
+    success_mode: str,
     tmp_path: pathlib.Path,
-) -> Generator[docker.models.containers.Container]:
+) -> Iterator[containers.Container]:
     env = {
         "json": {
             **default_env,
@@ -68,14 +69,24 @@ def fixture_container_success(
             "T4C_SERVER_PORT": "2036",
             "T4C_REPOSITORIES": "repo1,repo2",
         },
-    }[mode]
-    yield get_container(environment=env, tmp_path=tmp_path)
+    }[success_mode]
+    yield conftest.get_container(
+        image="t4c/client/remote",
+        environment=env,
+        tmp_path=tmp_path,
+        mount_path="/opt/capella/configuration",
+    )
+
+
+@pytest.fixture(name="failure_mode", params=["json"])
+def fixture_failure_mode(request) -> str:
+    return request.param
 
 
 @pytest.fixture(name="container_failure")
 def fixture_container_failure(
-    mode: str,
-) -> Generator[docker.models.containers.Container]:
+    failure_mode: str,
+) -> Iterator[containers.Container]:
     env = {
         "json": {
             **default_env,
@@ -99,96 +110,34 @@ def fixture_container_failure(
                 ]
             ),
         },
-        "repositories": {
-            **default_env,
-            "T4C_SERVER_HOST": "instance-host",
-            "T4C_SERVER_PORT": "2036",
-        },
-    }[mode]
-    yield get_container(environment=env)
-
-
-def get_container(
-    environment: dict[str, str], tmp_path: pathlib.Path = None
-) -> Generator[docker.models.containers.Container]:
-    log.info(tmp_path)
-    volumes = (
-        {
-            str(tmp_path): {
-                "bind": "/opt/capella/configuration",
-                "model": "rw",
-            }
-        }
-        if tmp_path
-        else {}
-    )
-    container = None
-    docker_prefix = os.getenv("DOCKER_PREFIX", "")
-    docker_tag = os.getenv("DOCKER_TAG", "latest")
-
-    try:
-        container = client.containers.run(
-            image=f"{docker_prefix}t4c/client/remote:{docker_tag}",
-            detach=True,
-            environment=environment | {"RMT_PASSWORD": "password"},
-            volumes=volumes,
-        )
-        yield container
-    finally:
-        if container:
-            container.stop()
-            container.remove()
-
-
-def wait_for_container(container: docker.models.containers.Container) -> None:
-    log_line = 0
-    for _ in range(int(timeout / 2)):
-        log.info("Wait until INFO success: xrdp-sesman entered RUNNING state")
-
-        splitted_logs = container.logs().decode().splitlines()
-        log.debug("Current log: %s", "\n".join(splitted_logs[log_line:]))
-        log_line = len(splitted_logs)
-
-        if (
-            b"INFO success: xrdp-sesman entered RUNNING state"
-            in container.logs()
-        ):
-            log.info("Loading of model finished")
-            break
-        container.reload()
-        if container.status == "exited":
-            log.error("Log from container: %s", container.logs().decode())
-            raise RuntimeError("Container exited unexpectedly")
-
-        time.sleep(2)
-
-    else:
-        log.error("Log from container: %s", container.logs().decode())
-        raise TimeoutError("Timeout while waiting for model loading")
+    }[failure_mode]
+    yield conftest.get_container(image="t4c/client/remote", environment=env)
 
 
 @pytest.mark.t4c
 def test_repositories_seeding(
-    container_success: Generator[docker.models.containers.Container],
-    mode: str,
+    container_success: Iterator[containers.Container],
+    success_mode: str,
     tmp_path: pathlib.Path,
 ):
     tmp_path.chmod(0o777)
 
     container = next(container_success)
-    wait_for_container(container)
+    conftest.wait_for_container(
+        container, "INFO success: xrdp-sesman entered RUNNING state"
+    )
 
     path = tmp_path / "fr.obeo.dsl.viewpoint.collab" / "repository.properties"
     assert path.exists()
     file_content = path.read_text()
 
-    if mode == "json":
+    if success_mode == "json":
         repositories = {
             r"name\\ \(dev-5.0\)": r"tcp\://instance-host\:2036/name",
             r"name\\ \(dev-5.2\)": r"tcp\://instance-host\:2036/name",
             r"test": r"tcp\://instance-host\:2036/test",
         }
-    elif mode == "repositories":
+    elif success_mode == "repositories":
         repositories = {
             r"repo1": r"tcp\://instance-host\:2036/repo1",
             r"repo2": r"tcp\://instance-host\:2036/repo2",
@@ -196,13 +145,17 @@ def test_repositories_seeding(
     else:
         repositories = {}
     for key, value in repositories.items():
-        assert value == re.search(f"{key}=(.+)", file_content).group(1)
+        findings = re.search(f"{key}=(.+)", file_content)
+        assert findings
+        assert value == findings.group(1)
 
 
 @pytest.mark.t4c
 def test_invalid_env_variable(
-    container_failure: Generator[docker.models.containers.Container],
+    container_failure: Iterator[containers.Container],
 ):
     container = next(container_failure)
     with pytest.raises(RuntimeError):
-        wait_for_container(container)
+        conftest.wait_for_container(
+            container, "INFO success: xrdp-sesman entered RUNNING state"
+        )
