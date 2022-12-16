@@ -58,11 +58,17 @@ FILESYSTEM_PORT ?= 8081
 # Preferred metrics port on your host system
 METRICS_PORT ?= 9118
 
-# Preferred Capella version
-CAPELLA_VERSION ?= 5.2.0
+# Capella version used for builds and tests
+export CAPELLA_VERSIONS ?= 5.0.0 5.2.0 6.0.0
+
+# Capella version used to run containers
+CAPELLA_VERSION ?= 6.0.0
+
+# Only used when "capella_loop.sh" is NOT used
+export DOCKER_TAG=$(CAPELLA_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
 
 # Should be 'latest', the branch name, the commit hash or a Git tag name
-CAPELLA_DOCKERIMAGES_REVISION ?= latest
+export CAPELLA_DOCKERIMAGES_REVISION ?= latest
 
 # Capella build type (online/offline)
 CAPELLA_BUILD_TYPE ?= online
@@ -79,8 +85,6 @@ PUSH_IMAGES ?= 0
 
 # Registry to push images
 DOCKER_REGISTRY ?= localhost:12345
-
-export DOCKER_TAG = $(CAPELLA_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
 
 # Log level when running Docker containers
 LOG_LEVEL ?= DEBUG
@@ -101,60 +105,75 @@ all: \
 	capella/readonly \
 	t4c/client/backup
 
+base: SHELL=./capella_loop.sh
 base:
 	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(CAPELLA_DOCKERIMAGES_REVISION) base
+	echo test
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) DOCKER_TAG=$(CAPELLA_DOCKERIMAGES_REVISION) IMAGENAME=$@ .push
 
+capella/base: SHELL=./capella_loop.sh
 capella/base: base
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(CAPELLA_DOCKERIMAGES_REVISION) --build-arg BUILD_TYPE=$(CAPELLA_BUILD_TYPE) --build-arg CAPELLA_VERSION=$(CAPELLA_VERSION) capella
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(CAPELLA_DOCKERIMAGES_REVISION) --build-arg BUILD_TYPE=$(CAPELLA_BUILD_TYPE) --build-arg CAPELLA_VERSION=$$CAPELLA_VERSION capella
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
+capella/cli: SHELL=./capella_loop.sh
 capella/cli: capella/base
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(DOCKER_TAG) cli
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG cli
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
+capella/remote: SHELL=./capella_loop.sh
 capella/remote: capella/base
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(DOCKER_TAG) remote
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG remote
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
+t4c/client/base: SHELL=./capella_loop.sh
 t4c/client/base: capella/base
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(DOCKER_TAG) --build-arg CAPELLA_VERSION=$(CAPELLA_VERSION) t4c
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG --build-arg CAPELLA_VERSION=$(CAPELLA_VERSION) t4c
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
+t4c/client/cli: SHELL=./capella_loop.sh
 t4c/client/cli: t4c/client/base
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(DOCKER_TAG) cli
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG cli
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
+t4c/client/remote: SHELL=./capella_loop.sh
 t4c/client/remote: t4c/client/base
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(DOCKER_TAG) remote
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG remote
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
+t4c/client/remote/pure-variants: SHELL=./capella_loop.sh
 t4c/client/remote/pure-variants: t4c/client/remote
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BUILD_TYPE=$(PURE_VARIANTS_BUILD_TYPE) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(DOCKER_TAG) pure-variants
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BUILD_TYPE=$(PURE_VARIANTS_BUILD_TYPE) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG pure-variants
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
+capella/remote/pure-variants: SHELL=./capella_loop.sh
 capella/remote/pure-variants: capella/remote
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BUILD_TYPE=$(PURE_VARIANTS_BUILD_TYPE) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(DOCKER_TAG) pure-variants
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BUILD_TYPE=$(PURE_VARIANTS_BUILD_TYPE) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG pure-variants
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
+capella/ease: SHELL=./capella_loop.sh
 capella/ease: capella/base
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(DOCKER_TAG) --build-arg BUILD_TYPE=$(EASE_BUILD_TYPE) ease
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG --build-arg BUILD_TYPE=$(EASE_BUILD_TYPE) ease
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
+t4c/client/ease: SHELL=./capella_loop.sh
 t4c/client/ease: t4c/client/base
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(DOCKER_TAG) --build-arg BUILD_TYPE=$(EASE_BUILD_TYPE) ease
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG --build-arg BUILD_TYPE=$(EASE_BUILD_TYPE) ease
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
+capella/ease/remote: SHELL=./capella_loop.sh
 capella/ease/remote: capella/ease
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(DOCKER_TAG) remote
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG remote
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
+capella/readonly: SHELL=./capella_loop.sh
 capella/readonly: capella/ease/remote
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(DOCKER_TAG) readonly
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG readonly
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
+t4c/client/backup: SHELL=./capella_loop.sh
 t4c/client/backup: t4c/client/base
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(DOCKER_TAG) backups
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG backups
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
 run-capella/readonly: capella/readonly
@@ -251,6 +270,7 @@ debug-t4c/client/backup: LOG_LEVEL=DEBUG
 debug-t4c/client/backup: DOCKER_RUN_FLAGS=-it --entrypoint="bash" -v $$(pwd)/backups/backup.py:/opt/capella/backup.py
 debug-t4c/client/backup: run-t4c/client/backup
 
+test: SHELL=./capella_loop.sh
 test: capella/readonly t4c/client/remote
 	source .venv/bin/activate
 	cd tests
