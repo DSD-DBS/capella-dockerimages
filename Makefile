@@ -254,7 +254,7 @@ debug-t4c/client/backup: run-t4c/client/backup
 test: capella/readonly t4c/client/remote
 	source .venv/bin/activate
 	cd tests
-	pytest
+	pytest -o log_cli=true -s
 
 .push:
 	if [ "$(PUSH_IMAGES)" == "1" ]; \
