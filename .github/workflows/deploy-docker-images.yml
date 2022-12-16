@@ -42,7 +42,7 @@ jobs:
       - name: Build
         run: >
           make ${{ env.images }}
-          CAPELLA_VERSION=${{ matrix.capella_version }}
+          CAPELLA_VERSIONS=${{ matrix.capella_version }}
           DOCKER_PREFIX=${{ env.registry }}
           CAPELLA_DOCKERIMAGES_REVISION=${{ steps.tag.outputs.branch }}
           DOCKER_BUILD_FLAGS="--label git-short-sha=${{ steps.tag.outputs.sha }}"
