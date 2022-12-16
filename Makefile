@@ -257,10 +257,10 @@ test: capella/readonly t4c/client/remote
 	pytest -o log_cli=true -s
 
 .push:
-	if [ "$(PUSH_IMAGES)" == "1" ]; \
+	@if [ "$(PUSH_IMAGES)" == "1" ]; \
 	then \
-		docker tag "$(DOCKER_PREFIX)$(IMAGENAME):$(DOCKER_TAG)" "$(DOCKER_REGISTRY)/$(DOCKER_PREFIX)$(IMAGENAME):$(DOCKER_TAG)"; \
-		docker push "$(DOCKER_REGISTRY)/$(DOCKER_PREFIX)$(IMAGENAME):$(DOCKER_TAG)";\
+		docker tag "$(DOCKER_PREFIX)$(IMAGENAME):$$DOCKER_TAG" "$(DOCKER_REGISTRY)/$(DOCKER_PREFIX)$(IMAGENAME):$$DOCKER_TAG"; \
+		docker push "$(DOCKER_REGISTRY)/$(DOCKER_PREFIX)$(IMAGENAME):$$DOCKER_TAG";\
 	fi
 
 .PHONY: *
