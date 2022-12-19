@@ -368,7 +368,9 @@ This Docker image adds the `pure::variants` Capella plugin and allows the defini
        pure-variants
    ```
 
-#### 8.1 Download pure variants dependencies
+#### 8.1 Download pure::variants dependencies
+
+This step is only needed if there is a restricted internet connection in your build environment.
 
 pure::variants needs a subset of the Eclipse 2020-06 repository.
 You can find the directory structure here at the bottom of the page: <https://download.eclipse.org/releases/2020-06/202006171000/>
@@ -392,10 +394,6 @@ pure-variants/dependencies
     ├── org.eclipse.wst.jsdt.ui_2.1.0.v202005221335.jar
     └── org.eclipse.wst.validation_1.2.800.v201904082137.jar
 ```
-
-#### 8.2 Download pure::variants license
-
-Please download the license file and put it in `pure-variants`, with the name `license.lic`.
 
 ## Run the images
 
@@ -526,14 +524,13 @@ We also plan to integrate "dynamic resizing" in the near future.
 
 ### Pure::variants
 
-To run the `pure-variants` images, please follow the instructions to run the [`Capella in a remote container`](#capella-in-a-remote-container)
-or [`T4C client in a remote container`](#t4c-client-in-a-remote-container) instructions.
+To run the `pure-variants` images, please follow the instructions to run [`Capella in a remote container`](#capella-in-a-remote-container) or [`T4C client in a remote container`](#t4c-client-in-a-remote-container).
 
 You just have to do some changes:
 
-- Add the environment variable `$PURE_VARIANTS_LICENSE_SERVER` to the `docker run` command.
+- Add the environment variable `$PURE_VARIANTS_LICENSE_SERVER` to the `docker run` command. The value is the same that someone has to set in the Capella GUI when running a normal installation, e.g., `http://localhost:8080`.
 - Replace the image name `$BASE/remote` with `$BASE/remote/pure-variants`
-- Bind the directory containing the `license.lic` file `/inputs/pure-variants/` inside the container.
+- Bind the directory containing the `license.lic` file to `/inputs/pure-variants/` inside the container.
 
 ### EASE container
 
