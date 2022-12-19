@@ -21,6 +21,7 @@ The repository provides Docker images for the followings tools:
 
 This repository includes Docker files to build the following Docker images:
 
+<!-- prettier-ignore -->
 | Name of the Docker image | Short description |
 |------|---|
 | `base` |This is the base image that has the most important tools pre-installed.|
@@ -104,8 +105,8 @@ docker build -t base base
 ```
 
 **Important:**
- If your company has a specific base image with all company configurations, of course,
- it can also be used:
+If your company has a specific base image with all company configurations, of course,
+it can also be used:
 
 ```zsh
 docker build -t base --build-arg BASE_IMAGE=$CUSTOM_IMAGE base
@@ -222,14 +223,14 @@ If a suitable version is found, it will be downloaded.
 The T4C base image builds on top of the Capella base image and installs the T4C client
 plugins.
 
-1) Download a Team for Capella client for Linux from
+1. Download a Team for Capella client for Linux from
    <https://www.obeosoft.com/en/team-for-capella-download>
 
    Note that the T4C client version must match the version for Capella itself.
    To obtain a Linux T4C client version below 5.2 you may want to contact
    [Obeo](https://www.obeosoft.com/en/team-for-capella-download) to get a bundle.
 
-1) Extract the downloaded archive. The extracted folder comes with a `.zip` file
+1. Extract the downloaded archive. The extracted folder comes with a `.zip` file
    containing the T4C client:
 
    ```text
@@ -240,10 +241,10 @@ plugins.
        └── com.thalesgroup.mde.melody.team.license.update-5.0.0-202012091024.zip
    ```
 
-1) That `.zip` file needs to be copied into the subdirectory `t4c/updateSite/$CAPELLA_VERSION`
+1. That `.zip` file needs to be copied into the subdirectory `t4c/updateSite/$CAPELLA_VERSION`
    of the present repository.
 
-1) Build the container:
+1. Build the container:
 
    ```zsh
    docker build -t t4c/client/base --build-arg CAPELLA_VERSION=$CAPELLA_VERSION t4c
@@ -355,17 +356,17 @@ docker build -t t4c/client/backup \
 This Docker image adds the `pure::variants` Capella plugin and allows the definition of a pure variants license server during runtime.
 
 1. Download the pure::variants updateSite here: <https://www.pure-systems.com/pv-update/>
-    Please select: "pure::variants Archived Update Site with all Extensions" for Linux.
+   Please select: "pure::variants Archived Update Site with all Extensions" for Linux.
 1. Place the zip-file into `pure-variants/updateSite`.
 1. If you don't have internet access in your build environment, please go to step 8.1 and continue here afterwards.
 1. Start the Docker build:
 
-  ```zsh
-  docker build -t t4c/client/remote/pure-variants \
-      --build-arg CAPELLA_VERSION=$CAPELLA_VERSION \
-      --build-arg
-      pure-variants
-  ```
+   ```zsh
+   docker build -t t4c/client/remote/pure-variants \
+       --build-arg CAPELLA_VERSION=$CAPELLA_VERSION \
+       --build-arg
+       pure-variants
+   ```
 
 #### 8.1 Download pure variants dependencies
 
@@ -484,22 +485,24 @@ Please replace the followings variables:
 - Either `$T4C_JSON` a list of repositories with name, host, port and instance name as a JSON:
 
   ```json
-  [{
-    "repository": "repoCapella",
-    "host": "localhost",
-    "port": 2036,
-    "instance": "", //optional, required if the repository names are not unique
-    "protocol": "ssl", //optional, defaults to ssl
-  }]
+  [
+    {
+      "repository": "repoCapella",
+      "host": "localhost",
+      "port": 2036,
+      "instance": "", //optional, required if the repository names are not unique
+      "protocol": "ssl" //optional, defaults to ssl
+    }
+  ]
   ```
 
   (`$T4C_SERVER_HOST`, `$T4C_SERVER_PORT` and `$T4C_REPOSITORIES` will be ignored.)
+
 - Or (if `$T4C_JSON` is not defined)
   - `$T4C_SERVER_HOST` to the IP-Address of your T4C server (default: `127.0.0.1`).
   - `$T4C_SERVER_PORT` to the port of your T4C server (default: `2036`).
   - `$T4C_REPOSITORIES` is a comma-seperated list of repositories. These repositories show
     up as default options on connection (e.g. `repo1,repo2`).
-
 
 After starting the container, you should be able to connect to
 `localhost:$RDP_EXTERNAL_PORT` with your preferred RDP Client.
