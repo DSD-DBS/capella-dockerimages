@@ -274,8 +274,11 @@ debug-t4c/client/backup: run-t4c/client/backup
 
 tests/local-git-server: SHELL=./capella_loop.sh
 tests/local-git-server:
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg CAPELLA_VERSION=$$CAPELLA_VERSION tests/local-git-server
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
+	if [ "$(RUN_TESTS_AGAINST_T4C_SERVER)" == "1" ]; \
+	then \
+		docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg CAPELLA_VERSION=$$CAPELLA_VERSION tests/local-git-server; \
+		$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push; \
+	fi
 
 tests/t4c-server-docker-images: SHELL=./capella_loop.sh
 tests/t4c-server-docker-images:
