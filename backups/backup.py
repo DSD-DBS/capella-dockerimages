@@ -1,7 +1,6 @@
 # SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
 # SPDX-License-Identifier: Apache-2.0
 
-import itertools
 import logging
 import os
 import pathlib
@@ -13,30 +12,41 @@ logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 log = logging.getLogger("Importer")
 
 
+capella_version: str = os.getenv("CAPELLA_VERSION", "")
+
+
 def run_importer_script() -> None:
     log.debug("Import model from TeamForCapella server...")
-    subprocess.run(
+
+    connection_type: str = get_connection_type()
+
+    command: list[str] = ["/opt/capella/capella"]
+
+    if is_capella_5_x_x():
+        command.append("--launcher.suppressErrors")
+
+    command.extend(
         [
-            "/opt/capella/capella",
-            "--launcher.suppressErrors",
             "-consoleLog",
             "-data",
             "importer-workspace",
             "-application",
             "com.thalesgroup.mde.melody.collab.importer",
-            "-closeserveronfailure",
+            "-closeserverOnFailure",
             "false",
             "-hostname",
             os.environ["T4C_REPO_HOST"],
             "-port",
             os.getenv("T4C_REPO_PORT", "2036"),
-            "-reponame",
+            "-repoName",
             os.environ["T4C_REPO_NAME"],
             "-projectName",
             urllib.parse.quote(os.environ["T4C_PROJECT_NAME"]),
-            "-importerLogin",
+            "-importerLogin" if is_capella_5_x_x() else "-repositoryLogin",
             os.environ["T4C_USERNAME"],
-            "-importerPassword",
+            "-importerPassword"
+            if is_capella_5_x_x()
+            else "-repositoryPassword",
             os.environ["T4C_PASSWORD"],
             "-outputFolder",
             "/tmp/model",
@@ -46,12 +56,38 @@ def run_importer_script() -> None:
             "true",
             "-includeCommitHistoryChanges",
             os.getenv("INCLUDE_COMMIT_HISTORY", "true"),
-            "-consoleport",
-            os.getenv("T4C_CDO_PORT", "12036"),
-        ],
-        check=True,
-        cwd="/opt/capella",
+        ]
     )
+
+    if connection_type == "telnet":
+        command.extend(
+            [
+                "-consoleport",
+                os.getenv("T4C_CDO_PORT", "12036"),
+            ]
+        )
+    else:
+        http_login, http_password, http_port = get_http_envs()
+        command.extend(
+            [
+                "-httpLogin",
+                http_login,
+                "-httpPassword",
+                http_password,
+                "-httpPort",
+                http_port,
+            ]
+        )
+
+    import_stdout = subprocess.run(
+        command, check=True, cwd="/opt/capella", capture_output=True, text=True
+    ).stdout
+
+    if "Team for Capella server unreachable" in import_stdout:
+        raise RuntimeError(
+            "Import of model from TeamForCapella server failed - Team for Capella server unreachable"
+        )
+
     log.info("Import of model from TeamForCapella server finished")
 
 
@@ -162,6 +198,43 @@ def git_commit_and_push(git_dir: pathlib.Path) -> None:
         log.warning("No changes, will not commit.")
 
 
+def get_connection_type() -> str:
+    default_connection_type: str = "telnet" if is_capella_5_x_x() else "http"
+    connection_type: str = os.getenv(
+        "CONNECTION_TYPE", default_connection_type
+    )
+
+    if connection_type not in ("telnet", "http"):
+        raise ValueError(
+            'CONNECTION_TYPE is only allowed to be: "telnet", "http"'
+        )
+
+    if connection_type == "http":
+        if is_capella_5_x_x():
+            raise ValueError(
+                'CONNECTION_TYPE must be "telnet" for capella 5.x.x'
+            )
+
+    return connection_type
+
+
+def is_capella_5_x_x():
+    return capella_version in ("5.0.0", "5.2.0")
+
+
+def get_http_envs() -> tuple[str, str, str]:
+    http_login = os.getenv("HTTP_LOGIN")
+    http_password = os.getenv("HTTP_PASSWORD")
+    http_port = os.getenv("HTTP_PORT")
+
+    if not (http_login and http_password and http_port):
+        raise ValueError(
+            "HTTP_LOGIN, HTTP_PASSWORD, HTTP_PORT must be specified"
+        )
+
+    return (http_login, http_password, http_port)
+
+
 if __name__ == "__main__":
     model_dir = pathlib.Path("/tmp/model")
     model_dir.mkdir(exist_ok=True)
@@ -170,3 +243,4 @@ if __name__ == "__main__":
     git_dir = checkout_git_repository()
     copy_exported_files_into_git_repo(model_dir)
     git_commit_and_push(git_dir)
+    print("Backup finished")
