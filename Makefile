@@ -91,6 +91,9 @@ LOG_LEVEL ?= DEBUG
 
 GIT_SHA = $(shell git rev-parse --short HEAD)
 
+# If set to 1, we will run the tests against the
+RUN_TESTS_AGAINST_T4C_SERVER = 0
+
 all: \
 	base \
 	capella/base \
@@ -108,7 +111,6 @@ all: \
 base: SHELL=./capella_loop.sh
 base:
 	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(CAPELLA_DOCKERIMAGES_REVISION) base
-	echo test
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) DOCKER_TAG=$(CAPELLA_DOCKERIMAGES_REVISION) IMAGENAME=$@ .push
 
 capella/base: SHELL=./capella_loop.sh
@@ -128,7 +130,7 @@ capella/remote: capella/base
 
 t4c/client/base: SHELL=./capella_loop.sh
 t4c/client/base: capella/base
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG --build-arg CAPELLA_VERSION=$(CAPELLA_VERSION) t4c
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG --build-arg CAPELLA_VERSION=$$CAPELLA_VERSION t4c
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
 t4c/client/cli: SHELL=./capella_loop.sh
@@ -173,7 +175,7 @@ capella/readonly: capella/ease/remote
 
 t4c/client/backup: SHELL=./capella_loop.sh
 t4c/client/backup: t4c/client/base
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG backups
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG --build-arg CAPELLA_VERSION=$$CAPELLA_VERSION backups
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
 run-capella/readonly: capella/readonly
@@ -270,11 +272,29 @@ debug-t4c/client/backup: LOG_LEVEL=DEBUG
 debug-t4c/client/backup: DOCKER_RUN_FLAGS=-it --entrypoint="bash" -v $$(pwd)/backups/backup.py:/opt/capella/backup.py
 debug-t4c/client/backup: run-t4c/client/backup
 
+tests/local-git-server: SHELL=./capella_loop.sh
+tests/local-git-server:
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg CAPELLA_VERSION=$$CAPELLA_VERSION tests/local-git-server
+	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
+
+tests/t4c-server-docker-images: SHELL=./capella_loop.sh
+tests/t4c-server-docker-images:
+	if [ "$(RUN_TESTS_AGAINST_T4C_SERVER)" == "1" ]; \
+	then \
+		$(MAKE) -C tests/t4c-server-docker-images PUSH_IMAGES=$(PUSH_IMAGES) CAPELLA_VERSION=$$CAPELLA_VERSION t4c/server/server; \
+	fi
+
 test: SHELL=./capella_loop.sh
-test: capella/readonly t4c/client/remote
+test: capella/readonly t4c/client/remote t4c/client/backup tests/local-git-server tests/t4c-server-docker-images
+	export CAPELLA_VERSION=$$CAPELLA_VERSION
 	source .venv/bin/activate
 	cd tests
-	pytest -o log_cli=true -s
+	if [ "$(RUN_TESTS_AGAINST_T4C_SERVER)" == "1" ]
+	then
+		pytest -o log_cli=true -s
+	else
+		pytest -o log_cli=true -s -m "not t4c_server"
+	fi
 
 .push:
 	@if [ "$(PUSH_IMAGES)" == "1" ]; \
@@ -283,5 +303,5 @@ test: capella/readonly t4c/client/remote
 		docker push "$(DOCKER_REGISTRY)/$(DOCKER_PREFIX)$(IMAGENAME):$$DOCKER_TAG";\
 	fi
 
-.PHONY: *
+.PHONY: tests/*
 .ONESHELL: test
