@@ -296,7 +296,7 @@ test: capella/readonly t4c/client/remote t4c/client/backup tests/local-git-serve
 	then
 		pytest -o log_cli=true -s
 	else
-		pytest -o log_cli=true -s -m "not t4c_server"
+		pytest -o log_cli=true -s -m "not (t4c_server or t4c)"
 	fi
 
 .push:
@@ -306,5 +306,5 @@ test: capella/readonly t4c/client/remote t4c/client/backup tests/local-git-serve
 		docker push "$(DOCKER_REGISTRY)/$(DOCKER_PREFIX)$(IMAGENAME):$$DOCKER_TAG";\
 	fi
 
-.PHONY: tests/*
+.PHONY: tests/* *
 .ONESHELL: test

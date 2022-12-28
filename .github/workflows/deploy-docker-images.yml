@@ -53,7 +53,7 @@ jobs:
         run: >
           DOCKER_PREFIX=${{ env.registry }}
           DOCKER_TAG=${{ matrix.capella_version }}-${{ steps.tag.outputs.branch }}
-          pytest -m "not t4c" tests
+          pytest -m "not (t4c_server or t4c)" tests
       - name: Push
         run: |
           for image in ${{ env.images }}
