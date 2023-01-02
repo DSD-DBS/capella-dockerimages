@@ -91,7 +91,14 @@ LOG_LEVEL ?= DEBUG
 
 GIT_SHA = $(shell git rev-parse --short HEAD)
 
-# If set to 1, we will run the tests against the
+# If this option is set to 1, all tests that require a running t4c server
+# will be executed. To run these tests, you need a Makefile in
+# tests/t4c-server-docker-images with a target t4c/server/server that
+# builds the t4c server docker images and provides them in the following
+# format: t4c/server/server:x.x.x-latest. You also need test data in
+# tests/t4c-server-test-data/data/x.x.x, which consists of a
+# test repository (name test-repo) with a test project (name test-project).
+# x.x.x here refers to the capella version
 RUN_TESTS_AGAINST_T4C_SERVER = 0
 
 all: \
