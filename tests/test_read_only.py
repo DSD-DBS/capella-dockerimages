@@ -21,9 +21,7 @@ def fixture_mode_success(request) -> str:
 @pytest.fixture(
     name="container_success",
 )
-def fixture_container_success(
-    mode_success: str,
-) -> containers.Container:
+def fixture_container_success(mode_success: str) -> containers.Container:
     env: dict[str, str] = {  # type: ignore
         "json": {
             "GIT_REPOS_JSON": json.dumps(
@@ -62,7 +60,7 @@ def fixture_container_success(
             "GIT_REVISION": "main",
             "GIT_DEPTH": 0,
         },
-    }[mode_success]
+    }[mode_success] | {"RMT_PASSWORD": "password"}
     with conftest.get_container(
         image="capella/readonly", environment=env
     ) as container:

@@ -23,7 +23,7 @@ timeout = 120  # Timeout in seconds
 @contextmanager
 def get_container(
     image: str,
-    ports: dict[str, int] | None = None,
+    ports: dict[str, int | None] | None = None,
     environment: dict[str, str] | None = None,
     path: pathlib.Path | None = None,
     mount_path: str | None = None,
@@ -45,10 +45,8 @@ def get_container(
     container = client.containers.run(
         image=f"{docker_prefix}{image}:{docker_tag}",
         detach=True,
-        ports=ports if ports else None,
-        environment=environment | {"RMT_PASSWORD": "password"}
-        if environment
-        else None,
+        ports=ports,
+        environment=environment,
         volumes=volumes,
         network=network,
     )
