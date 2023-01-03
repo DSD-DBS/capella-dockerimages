@@ -93,13 +93,18 @@ GIT_SHA = $(shell git rev-parse --short HEAD)
 
 # If this option is set to 1, all tests that require a running t4c server
 # will be executed. To run these tests, you need a Makefile in
-# tests/t4c-server-docker-images with a target t4c/server/server that
-# builds the t4c server docker images and provides them in the following
-# format: t4c/server/server:x.x.x-latest. You also need test data in
+# t4c/server with a target t4c/server/server that builds the t4c server
+# docker images and provides them in the following format:
+# t4c/server/server:x.x.x-latest. You also need test data in
 # tests/t4c-server-test-data/data/x.x.x, which consists of a
 # test repository (name test-repo) with a test project (name test-project).
 # x.x.x here refers to the capella version
-RUN_TESTS_AGAINST_T4C_SERVER = 0
+RUN_TESTS_WITH_T4C_SERVER ?= 0
+
+# If this option is set to 1, all tests that require a t4c client will
+# be executed. To run these tests, you must place the t4c files in the
+# correct locations (as described in the README)
+RUN_TESTS_WITH_T4C_CLIENT ?= 0
 
 all: \
 	base \
@@ -279,32 +284,41 @@ debug-t4c/client/backup: LOG_LEVEL=DEBUG
 debug-t4c/client/backup: DOCKER_RUN_FLAGS=-it --entrypoint="bash" -v $$(pwd)/backups/backup.py:/opt/capella/backup.py
 debug-t4c/client/backup: run-t4c/client/backup
 
-tests/local-git-server: SHELL=./capella_loop.sh
-tests/local-git-server:
-	if [ "$(RUN_TESTS_AGAINST_T4C_SERVER)" == "1" ]; \
-	then \
-		docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg CAPELLA_VERSION=$$CAPELLA_VERSION tests/local-git-server; \
-		$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push; \
-	fi
+t4c/server: SHELL=./capella_loop.sh
+t4c/server:
+	$(MAKE) -C t4c/server PUSH_IMAGES=$(PUSH_IMAGES) CAPELLA_VERSION=$$CAPELLA_VERSION t4c/server/server
 
-tests/t4c-server-docker-images: SHELL=./capella_loop.sh
-tests/t4c-server-docker-images:
-	if [ "$(RUN_TESTS_AGAINST_T4C_SERVER)" == "1" ]; \
-	then \
-		$(MAKE) -C tests/t4c-server-docker-images PUSH_IMAGES=$(PUSH_IMAGES) CAPELLA_VERSION=$$CAPELLA_VERSION t4c/server/server; \
-	fi
+local-git-server: SHELL=./capella_loop.sh
+local-git-server:
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg CAPELLA_VERSION=$$CAPELLA_VERSION tests/local-git-server
+	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push; \
+
+ifeq ($(RUN_TESTS_WITH_T4C_SERVER), 1)
+test: t4c/client/backup local-git-server t4c/server
+endif
+
+ifeq ($(RUN_TESTS_WITH_T4C_CLIENT), 1)
+test: t4c/client/remote
+endif
 
 test: SHELL=./capella_loop.sh
-test: capella/readonly t4c/client/remote t4c/client/backup tests/local-git-server tests/t4c-server-docker-images
+test: capella/readonly
 	export CAPELLA_VERSION=$$CAPELLA_VERSION
 	source .venv/bin/activate
 	cd tests
-	if [ "$(RUN_TESTS_AGAINST_T4C_SERVER)" == "1" ]
+
+	export PYTEST_MARKERS="not (t4c or t4c_server)"
+	if [ "$(RUN_TESTS_WITH_T4C_SERVER)" == "1" ]
 	then
-		pytest -o log_cli=true -s
-	else
-		pytest -o log_cli=true -s -m "not (t4c_server or t4c)"
+		export PYTEST_MARKERS="$$PYTEST_MARKERS or t4c_server"
 	fi
+
+	if [ "$(RUN_TESTS_WITH_T4C_CLIENT)" == "1" ]
+	then
+		export PYTEST_MARKERS="$$PYTEST_MARKERS or t4c"
+	fi
+
+	pytest -o log_cli=true -s -m "$$PYTEST_MARKERS" test_backups.py
 
 .push:
 	@if [ "$(PUSH_IMAGES)" == "1" ]; \
