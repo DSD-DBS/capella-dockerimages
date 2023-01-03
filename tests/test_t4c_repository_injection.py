@@ -13,7 +13,6 @@ from docker.models import containers
 log = logging.getLogger(__file__)
 log.setLevel("DEBUG")
 
-timeout = 120  # Timeout in seconds
 default_env = {
     "T4C_LICENCE_SECRET": "",
     "RMT_PASSWORD": "my_long_password",
