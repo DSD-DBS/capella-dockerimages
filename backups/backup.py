@@ -4,15 +4,13 @@
 import logging
 import os
 import pathlib
+import re
 import shutil
 import subprocess
 import urllib.parse
 
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 log = logging.getLogger("Importer")
-
-
-capella_version: str = os.getenv("CAPELLA_VERSION", "")
 
 
 def run_importer_script() -> None:
@@ -25,47 +23,41 @@ def run_importer_script() -> None:
     if is_capella_5_x_x():
         command.append("--launcher.suppressErrors")
 
-    command.extend(
-        [
-            "-consoleLog",
-            "-data",
-            "importer-workspace",
-            "-application",
-            "com.thalesgroup.mde.melody.collab.importer",
-            "-closeserverOnFailure",
-            "false",
-            "-hostname",
-            os.environ["T4C_REPO_HOST"],
-            "-port",
-            os.getenv("T4C_REPO_PORT", "2036"),
-            "-repoName",
-            os.environ["T4C_REPO_NAME"],
-            "-projectName",
-            urllib.parse.quote(os.environ["T4C_PROJECT_NAME"]),
-            "-importerLogin" if is_capella_5_x_x() else "-repositoryLogin",
-            os.environ["T4C_USERNAME"],
-            "-importerPassword"
-            if is_capella_5_x_x()
-            else "-repositoryPassword",
-            os.environ["T4C_PASSWORD"],
-            "-outputFolder",
-            "/tmp/model",
-            "-archiveProject",
-            "false",
-            "-importCommitHistoryAsJson",
-            "true",
-            "-includeCommitHistoryChanges",
-            os.getenv("INCLUDE_COMMIT_HISTORY", "true"),
-        ]
-    )
+    command += [
+        "-consoleLog",
+        "-data",
+        "importer-workspace",
+        "-application",
+        "com.thalesgroup.mde.melody.collab.importer",
+        "-closeserverOnFailure",
+        "false",
+        "-hostname",
+        os.environ["T4C_REPO_HOST"],
+        "-port",
+        os.getenv("T4C_REPO_PORT", "2036"),
+        "-repoName",
+        os.environ["T4C_REPO_NAME"],
+        "-projectName",
+        urllib.parse.quote(os.environ["T4C_PROJECT_NAME"]),
+        "-importerLogin" if is_capella_5_x_x() else "-repositoryLogin",
+        os.environ["T4C_USERNAME"],
+        "-importerPassword" if is_capella_5_x_x() else "-repositoryPassword",
+        os.environ["T4C_PASSWORD"],
+        "-outputFolder",
+        "/tmp/model",
+        "-archiveProject",
+        "false",
+        "-importCommitHistoryAsJson",
+        "true",
+        "-includeCommitHistoryChanges",
+        os.getenv("INCLUDE_COMMIT_HISTORY", "true"),
+    ]
 
     if connection_type == "telnet":
-        command.extend(
-            [
-                "-consoleport",
-                os.getenv("T4C_CDO_PORT", "12036"),
-            ]
-        )
+        command += [
+            "-consoleport",
+            os.getenv("T4C_CDO_PORT", "12036"),
+        ]
     else:
         http_login, http_password, http_port = get_http_envs()
         command.extend(
@@ -79,14 +71,22 @@ def run_importer_script() -> None:
             ]
         )
 
-    import_stdout = subprocess.run(
-        command, check=True, cwd="/opt/capella", capture_output=True, text=True
-    ).stdout
+    with subprocess.Popen(
+        command,
+        cwd="/opt/capella",
+        stdout=subprocess.PIPE,
+        universal_newlines=True,
+    ) as popen:
+        if popen.stdout:
+            for line in popen.stdout:
+                print(line, end="")
+                if "Team for Capella server unreachable" in line:
+                    raise RuntimeError(
+                        "Import of model from TeamForCapella server failed - Team for Capella server unreachable"
+                    )
 
-    if "Team for Capella server unreachable" in import_stdout:
-        raise RuntimeError(
-            "Import of model from TeamForCapella server failed - Team for Capella server unreachable"
-        )
+    if (return_code := popen.returncode) != 0:
+        raise subprocess.CalledProcessError(return_code, command)
 
     log.info("Import of model from TeamForCapella server finished")
 
@@ -209,17 +209,14 @@ def get_connection_type() -> str:
             'CONNECTION_TYPE is only allowed to be: "telnet", "http"'
         )
 
-    if connection_type == "http":
-        if is_capella_5_x_x():
-            raise ValueError(
-                'CONNECTION_TYPE must be "telnet" for capella 5.x.x'
-            )
+    if connection_type == "http" and is_capella_5_x_x():
+        raise ValueError('CONNECTION_TYPE must be "telnet" for capella 5.x.x')
 
     return connection_type
 
 
-def is_capella_5_x_x():
-    return capella_version in ("5.0.0", "5.2.0")
+def is_capella_5_x_x() -> bool:
+    return bool(re.match(r"5.[0-9]+.[0-9]+", os.getenv("CAPELLA_VERSION", "")))
 
 
 def get_http_envs() -> tuple[str, str, str]:
