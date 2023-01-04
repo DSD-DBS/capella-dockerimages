@@ -284,8 +284,8 @@ debug-t4c/client/backup: LOG_LEVEL=DEBUG
 debug-t4c/client/backup: DOCKER_RUN_FLAGS=-it --entrypoint="bash" -v $$(pwd)/backups/backup.py:/opt/capella/backup.py
 debug-t4c/client/backup: run-t4c/client/backup
 
-t4c/server: SHELL=./capella_loop.sh
-t4c/server:
+t4c/server/server: SHELL=./capella_loop.sh
+t4c/server/server:
 	$(MAKE) -C t4c/server PUSH_IMAGES=$(PUSH_IMAGES) CAPELLA_VERSION=$$CAPELLA_VERSION t4c/server/server
 
 local-git-server: SHELL=./capella_loop.sh
@@ -294,7 +294,7 @@ local-git-server:
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push; \
 
 ifeq ($(RUN_TESTS_WITH_T4C_SERVER), 1)
-test: t4c/client/backup local-git-server t4c/server
+test: t4c/client/backup local-git-server t4c/server/server
 endif
 
 ifeq ($(RUN_TESTS_WITH_T4C_CLIENT), 1)
@@ -318,7 +318,7 @@ test: capella/readonly
 		export PYTEST_MARKERS="$$PYTEST_MARKERS or t4c"
 	fi
 
-	pytest -o log_cli=true -s -m "$$PYTEST_MARKERS" test_backups.py
+	pytest -o log_cli=true -s -m "$$PYTEST_MARKERS"
 
 .push:
 	@if [ "$(PUSH_IMAGES)" == "1" ]; \
@@ -327,5 +327,5 @@ test: capella/readonly
 		docker push "$(DOCKER_REGISTRY)/$(DOCKER_PREFIX)$(IMAGENAME):$$DOCKER_TAG";\
 	fi
 
-.PHONY: tests/* *
+.PHONY: tests/* t4c/* *
 .ONESHELL: test
