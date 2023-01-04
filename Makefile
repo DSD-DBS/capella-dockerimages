@@ -286,7 +286,7 @@ debug-t4c/client/backup: run-t4c/client/backup
 
 t4c/server/server: SHELL=./capella_loop.sh
 t4c/server/server:
-	$(MAKE) -C t4c/server PUSH_IMAGES=$(PUSH_IMAGES) CAPELLA_VERSION=$$CAPELLA_VERSION t4c/server/server
+	$(MAKE) -C t4c/server PUSH_IMAGES=$(PUSH_IMAGES) CAPELLA_VERSION=$$CAPELLA_VERSION $@
 
 local-git-server: SHELL=./capella_loop.sh
 local-git-server:
