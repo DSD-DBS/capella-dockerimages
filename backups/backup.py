@@ -72,10 +72,7 @@ def run_importer_script() -> None:
         )
 
     with subprocess.Popen(
-        command,
-        cwd="/opt/capella",
-        stdout=subprocess.PIPE,
-        universal_newlines=True,
+        command, cwd="/opt/capella", stdout=subprocess.PIPE, text=True
     ) as popen:
         if popen.stdout:
             for line in popen.stdout:
