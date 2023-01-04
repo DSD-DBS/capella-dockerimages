@@ -8,9 +8,10 @@ import os
 import pathlib
 import time
 from collections.abc import Iterator
+from contextlib import contextmanager
 
 import docker
-import docker.models.containers
+from docker.models import containers
 
 log = logging.getLogger(__file__)
 log.setLevel("DEBUG")
@@ -19,33 +20,38 @@ client = docker.from_env()
 timeout = 120  # Timeout in seconds
 
 
+@contextmanager
 def get_container(
     image: str,
-    environment: dict[str, str],
-    tmp_path: pathlib.Path | None = None,
+    ports: dict[str, int | None] | None = None,
+    environment: dict[str, str] | None = None,
+    path: pathlib.Path | None = None,
     mount_path: str | None = None,
-) -> Iterator[docker.models.containers.Container]:
+    network: str | None = None,
+) -> Iterator[containers.Container]:
     volumes = (
         {
-            str(tmp_path): {
+            str(path): {
                 "bind": mount_path,
                 "model": "rw",
             }
         }
-        if tmp_path
+        if path
         else {}
     )
-    container = None
     docker_prefix = os.getenv("DOCKER_PREFIX", "")
     docker_tag = os.getenv("DOCKER_TAG", "latest")
 
+    container = client.containers.run(
+        image=f"{docker_prefix}{image}:{docker_tag}",
+        detach=True,
+        ports=ports,
+        environment=environment,
+        volumes=volumes,
+        network=network,
+    )
+
     try:
-        container = client.containers.run(
-            image=f"{docker_prefix}{image}:{docker_tag}",
-            detach=True,
-            environment=environment | {"RMT_PASSWORD": "password"},
-            volumes=volumes,
-        )
         yield container
     finally:
         if container:
@@ -54,7 +60,7 @@ def get_container(
 
 
 def wait_for_container(
-    container: docker.models.containers.Container, wait_for_message: str
+    container: containers.Container, wait_for_message: str
 ) -> None:
     log_line = 0
     for _ in range(int(timeout / 2)):

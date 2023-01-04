@@ -5,19 +5,14 @@ import json
 import logging
 import pathlib
 import re
-from collections.abc import Iterator
 
-import docker
+import conftest
 import pytest
 from docker.models import containers
 
-from tests import conftest
-
 log = logging.getLogger(__file__)
 log.setLevel("DEBUG")
-client = docker.from_env()
 
-timeout = 120  # Timeout in seconds
 default_env = {
     "T4C_LICENCE_SECRET": "",
     "RMT_PASSWORD": "my_long_password",
@@ -37,7 +32,7 @@ def fixture_success_mode(request) -> str:
 def fixture_container_success(
     success_mode: str,
     tmp_path: pathlib.Path,
-) -> Iterator[containers.Container]:
+) -> containers.Container:
     env = {
         "json": {
             **default_env,
@@ -70,12 +65,13 @@ def fixture_container_success(
             "T4C_REPOSITORIES": "repo1,repo2",
         },
     }[success_mode]
-    yield conftest.get_container(
+    with conftest.get_container(
         image="t4c/client/remote",
         environment=env,
-        tmp_path=tmp_path,
+        path=tmp_path,
         mount_path="/opt/capella/configuration",
-    )
+    ) as container:
+        yield container
 
 
 @pytest.fixture(name="failure_mode", params=["json"])
@@ -86,7 +82,7 @@ def fixture_failure_mode(request) -> str:
 @pytest.fixture(name="container_failure")
 def fixture_container_failure(
     failure_mode: str,
-) -> Iterator[containers.Container]:
+) -> containers.Container:
     env = {
         "json": {
             **default_env,
@@ -111,20 +107,22 @@ def fixture_container_failure(
             ),
         },
     }[failure_mode]
-    yield conftest.get_container(image="t4c/client/remote", environment=env)
+    with conftest.get_container(
+        image="t4c/client/remote", environment=env
+    ) as container:
+        yield container
 
 
 @pytest.mark.t4c
 def test_repositories_seeding(
-    container_success: Iterator[containers.Container],
+    container_success: containers.Container,
     success_mode: str,
     tmp_path: pathlib.Path,
 ):
     tmp_path.chmod(0o777)
 
-    container = next(container_success)
     conftest.wait_for_container(
-        container, "INFO success: xrdp-sesman entered RUNNING state"
+        container_success, "INFO success: xrdp-sesman entered RUNNING state"
     )
 
     path = tmp_path / "fr.obeo.dsl.viewpoint.collab" / "repository.properties"
@@ -151,11 +149,9 @@ def test_repositories_seeding(
 
 
 @pytest.mark.t4c
-def test_invalid_env_variable(
-    container_failure: Iterator[containers.Container],
-):
-    container = next(container_failure)
+def test_invalid_env_variable(container_failure: containers.Container):
     with pytest.raises(RuntimeError):
         conftest.wait_for_container(
-            container, "INFO success: xrdp-sesman entered RUNNING state"
+            container_failure,
+            "INFO success: xrdp-sesman entered RUNNING state",
         )

@@ -6,10 +6,12 @@ FROM ${BASE_IMAGE}
 
 ARG CAPELLA_VERSION=""
 
-USER techuser
 # Install T4C
 COPY ./updateSite/$CAPELLA_VERSION /opt/updateSite
 WORKDIR /opt/updateSite
+RUN chmod +r $(ls /opt/updateSite/*.zip)
+
+USER techuser
 ## Install T4C Plugins via the P2 API from Eclipse
 RUN T4C_ZIP=$(find . -type f -iname "*.zip" | head -n 1 | cut -c 3-); \
     /opt/capella/capella \

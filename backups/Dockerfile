@@ -4,6 +4,9 @@
 ARG BASE_IMAGE=t4c/client/base
 FROM $BASE_IMAGE
 
+ARG CAPELLA_VERSION
+ENV CAPELLA_VERSION=${CAPELLA_VERSION}
+
 USER root
 
 # Otherwise, xvfb runs with PID 1 and signal USR1 is not handled properly

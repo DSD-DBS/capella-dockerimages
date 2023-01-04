@@ -4,17 +4,13 @@
 import io
 import json
 import logging
-from collections.abc import Iterator
 
-import docker
+import conftest
 import pytest
 from docker.models import containers
 
-from tests import conftest
-
 log = logging.getLogger(__file__)
 log.setLevel("DEBUG")
-client = docker.from_env()
 
 
 @pytest.fixture(name="mode_success", params=["json", "json2", "legacy"])
@@ -25,9 +21,7 @@ def fixture_mode_success(request) -> str:
 @pytest.fixture(
     name="container_success",
 )
-def fixture_container_success(
-    mode_success: str,
-) -> Iterator[containers.Container]:
+def fixture_container_success(mode_success: str) -> containers.Container:
     env: dict[str, str] = {  # type: ignore
         "json": {
             "GIT_REPOS_JSON": json.dumps(
@@ -66,8 +60,11 @@ def fixture_container_success(
             "GIT_REVISION": "main",
             "GIT_DEPTH": 0,
         },
-    }[mode_success]
-    yield conftest.get_container(image="capella/readonly", environment=env)
+    }[mode_success] | {"RMT_PASSWORD": "password"}
+    with conftest.get_container(
+        image="capella/readonly", environment=env
+    ) as container:
+        yield container
 
 
 @pytest.fixture(name="mode_failure", params=["json", "legacy"])
@@ -76,9 +73,7 @@ def fixture_mode_failure(request) -> str:
 
 
 @pytest.fixture(name="container_failure")
-def fixture_container_failure(
-    mode_failure: str,
-) -> Iterator[containers.Container]:
+def fixture_container_failure(mode_failure: str) -> containers.Container:
     env: dict[str, str] = {  # type: ignore
         "json": {
             "GIT_REPOS_JSON": json.dumps(
@@ -99,7 +94,10 @@ def fixture_container_failure(
             "GIT_DEPTH": 0,
         },
     }[mode_failure]
-    yield conftest.get_container(image="capella/readonly", environment=env)
+    with conftest.get_container(
+        image="capella/readonly", environment=env
+    ) as container:
+        yield container
 
 
 def lines(bytes):
@@ -108,12 +106,11 @@ def lines(bytes):
 
 @pytest.fixture(name="workspace_result")
 def fixture_workspace_result(
-    container_success: Iterator[containers.Container],
+    container_success: containers.Container,
 ) -> containers.ExecResult:
-    container = next(container_success)
-    conftest.wait_for_container(container, "---START_SESSION---")
+    conftest.wait_for_container(container_success, "---START_SESSION---")
 
-    return container.exec_run("ls -A1 /workspace")
+    return container_success.exec_run("ls -A1 /workspace")
 
 
 @pytest.mark.parametrize("mode_success", ["legacy"])
@@ -133,9 +130,6 @@ def test_model_loading_with_json2_env(workspace_result: containers.ExecResult):
     assert len(lines(workspace_result.output)) == 2
 
 
-def test_invalid_url_fails(
-    container_failure: Iterator[containers.Container],
-):
-    container = next(container_failure)
+def test_invalid_url_fails(container_failure: containers.Container):
     with pytest.raises(RuntimeError):
-        conftest.wait_for_container(container, "---START_SESSION---")
+        conftest.wait_for_container(container_failure, "---START_SESSION---")
