@@ -7,11 +7,13 @@ capella/versions/*/capella.zip
 capella/versions/*/dropins/*
 !capella/versions/*/dropins/.gitkeep
 t4c/updateSite/*/*
+t4c/server/*
 !t4c/updateSite/*/.gitkeep
 pure-variants/updateSite/*
 !pure-variants/updateSite/.gitkeep
 pure-variants/dependencies/*
 !pure-variants/dependencies/.gitkeep
+tests/t4c-server-test-data/*
 libs
 ease/debug/libs/*
 ease/extensions/*/*
