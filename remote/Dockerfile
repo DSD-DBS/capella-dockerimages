@@ -13,7 +13,6 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     xrdp \
     xserver-xorg-core \
     xorgxrdp \
-    supervisor \
     openbox \
     obconf \
     gettext-base \
@@ -28,6 +27,7 @@ COPY wallpaper.png /tmp/wallpaper.png
 COPY bg-saved.cfg /home/techuser/.config/nitrogen/bg-saved.cfg
 
 # Copy Supervisor Configuration
+RUN pip install supervisor
 COPY supervisord.conf /etc/supervisord.conf
 
 # Allow any user to start the RDP Server
