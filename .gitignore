@@ -2,23 +2,35 @@
 #
 # SPDX-License-Identifier: CC0-1.0
 
+# Capella
 capella/versions/*/capella.tar.gz
 capella/versions/*/capella.zip
 capella/versions/*/dropins/*
 !capella/versions/*/dropins/.gitkeep
+capella/.dockerignore
+capella/libs/*
+
+# TeamForCapella
 t4c/updateSite/*/*
 t4c/server
+t4c/.dockerignore
 !t4c/updateSite/*/.gitkeep
+
+# EASE
+ease/debug/libs/*
+ease/extensions/*/*
+!ease/extensions/*/.gitkeep
+
+# Pure::variants
 pure-variants/updateSite/*
 !pure-variants/updateSite/.gitkeep
 pure-variants/dependencies/*
 !pure-variants/dependencies/.gitkeep
+
+# Tests
 tests/t4c-server-test-data
-libs
-ease/debug/libs/*
-ease/extensions/*/*
-!ease/extensions/*/.gitkeep
-capella/libs/*
+
+# General
 __pycache__
 node_exporter*
 prometheus*
