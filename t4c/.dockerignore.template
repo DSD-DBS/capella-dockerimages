@@ -1,0 +1,7 @@
+# Please only edit the .dockerignore.template file!
+# The .dockerignore file is gitignored and updated by the Makefile
+# Environment variables are replaced before build with `envsubst`
+
+.dockerignore.template
+updateSite/*
+!updateSite/$CAPELLA_VERSION

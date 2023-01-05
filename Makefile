@@ -129,7 +129,9 @@ base:
 
 capella/base: SHELL=./capella_loop.sh
 capella/base: base
+	envsubst < capella/.dockerignore.template > capella/.dockerignore
 	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(CAPELLA_DOCKERIMAGES_REVISION) --build-arg BUILD_TYPE=$(CAPELLA_BUILD_TYPE) --build-arg CAPELLA_VERSION=$$CAPELLA_VERSION capella
+	rm capella/.dockerignore
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
 capella/cli: SHELL=./capella_loop.sh
@@ -144,7 +146,9 @@ capella/remote: capella/base
 
 t4c/client/base: SHELL=./capella_loop.sh
 t4c/client/base: capella/base
+	envsubst < t4c/.dockerignore.template > t4c/.dockerignore
 	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG --build-arg CAPELLA_VERSION=$$CAPELLA_VERSION t4c
+	rm t4c/.dockerignore
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
 t4c/client/cli: SHELL=./capella_loop.sh
