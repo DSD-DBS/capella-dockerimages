@@ -106,6 +106,8 @@ RUN_TESTS_WITH_T4C_SERVER ?= 0
 # correct locations (as described in the README)
 RUN_TESTS_WITH_T4C_CLIENT ?= 0
 
+export DOCKER_BUILDKIT=1
+
 all: \
 	base \
 	capella/base \
@@ -114,9 +116,11 @@ all: \
 	t4c/client/base \
 	t4c/client/cli \
 	t4c/client/remote \
+	t4c/client/remote/pure-variants \
+	capella/remote/pure-variants \
 	capella/ease \
-	capella/ease/remote \
 	t4c/client/ease \
+	capella/ease/remote \
 	capella/readonly \
 	t4c/client/backup
 
@@ -127,7 +131,9 @@ base:
 
 capella/base: SHELL=./capella_loop.sh
 capella/base: base
+	envsubst < capella/.dockerignore.template > capella/.dockerignore
 	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(CAPELLA_DOCKERIMAGES_REVISION) --build-arg BUILD_TYPE=$(CAPELLA_BUILD_TYPE) --build-arg CAPELLA_VERSION=$$CAPELLA_VERSION capella
+	rm capella/.dockerignore
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
 capella/cli: SHELL=./capella_loop.sh
@@ -142,7 +148,9 @@ capella/remote: capella/base
 
 t4c/client/base: SHELL=./capella_loop.sh
 t4c/client/base: capella/base
+	envsubst < t4c/.dockerignore.template > t4c/.dockerignore
 	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG --build-arg CAPELLA_VERSION=$$CAPELLA_VERSION t4c
+	rm t4c/.dockerignore
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
 t4c/client/cli: SHELL=./capella_loop.sh
