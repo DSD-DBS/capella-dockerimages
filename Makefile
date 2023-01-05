@@ -116,9 +116,11 @@ all: \
 	t4c/client/base \
 	t4c/client/cli \
 	t4c/client/remote \
+	t4c/client/remote/pure-variants \
+	capella/remote/pure-variants \
 	capella/ease \
-	capella/ease/remote \
 	t4c/client/ease \
+	capella/ease/remote \
 	capella/readonly \
 	t4c/client/backup
 
