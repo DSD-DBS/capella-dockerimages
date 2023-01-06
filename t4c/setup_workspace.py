@@ -51,39 +51,44 @@ def inject_t4c_connection_details(
 
 
 def setup_repositories() -> None:
-    t4c_repositories: list[str] = os.getenv("T4C_REPOSITORIES", "").split(",")
-    t4c_host = os.getenv("T4C_SERVER_HOST", "localhost")
-    t4c_port = os.getenv("T4C_SERVER_PORT", "2036")
     t4c_json = os.getenv("T4C_JSON", None)
 
-    if t4c_json:
-        t4c_repos: list[dict[str, str]] = json.loads(t4c_json)
-        duplicate_names = [
-            name
-            for name, count in Counter(
-                [repo["repository"] for repo in t4c_repos]
-            ).items()
-            if count > 1
-        ]
-        for repo in t4c_repos:
-            protocol = repo["protocol"] if "protocol" in repo else None
-            if protocol:
-                assert protocol in ["tcp", "ssl", "ws", "wss"]
-            inject_t4c_connection_details(
-                f"{repo['repository']}\\ ({repo['instance']})"
-                if repo["repository"] in duplicate_names
-                else repo["repository"],
-                protocol or "tcp",
-                repo["host"],
-                repo["port"],
-                repo["repository"],
-            )
-
-    else:
+    if not t4c_json:
+        t4c_repositories: list[str] = os.getenv("T4C_REPOSITORIES", "").split(
+            ","
+        )
+        t4c_host = os.getenv("T4C_SERVER_HOST", "localhost")
+        t4c_port = os.getenv("T4C_SERVER_PORT", "2036")
         for repository in t4c_repositories:
             inject_t4c_connection_details(
                 repository, "tcp", t4c_host, t4c_port, repository
             )
+        return
+
+    t4c_repos: list[dict[str, str]] = json.loads(t4c_json)
+    if not t4c_repos:
+        return
+
+    duplicate_names = [
+        name
+        for name, count in Counter(
+            [repo["repository"] for repo in t4c_repos]
+        ).items()
+        if count > 1
+    ]
+    for repo in t4c_repos:
+        protocol = repo["protocol"] if "protocol" in repo else None
+        if protocol:
+            assert protocol in ["tcp", "ssl", "ws", "wss"]
+        inject_t4c_connection_details(
+            f"{repo['repository']}\\ ({repo['instance']})"
+            if repo["repository"] in duplicate_names
+            else repo["repository"],
+            protocol or "tcp",
+            repo["host"],
+            repo["port"],
+            repo["repository"],
+        )
 
 
 if __name__ == "__main__":
