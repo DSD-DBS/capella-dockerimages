@@ -528,7 +528,7 @@ To run the `pure-variants` images, please follow the instructions to run [`Capel
 
 You just have to do some changes:
 
-- Add the environment variable `$PURE_VARIANTS_LICENSE_SERVER` to the `docker run` command. The value is the same that someone has to set in the Capella GUI when running a normal installation, e.g., `http://localhost:8080`.
+- Add the environment variable `$PURE_VARIANTS_LICENSE_SERVER` to the `docker run` command. The value is the same as set in the Capella GUI when running a normal installation, e.g. `http://localhost:8080`.
 - Replace the image name `$BASE/remote` with `$BASE/remote/pure-variants`
 - Bind the directory containing the `license.lic` file to `/inputs/pure-variants/` inside the container.
 
