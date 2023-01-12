@@ -203,6 +203,10 @@ t4c/client/backup: t4c/client/base
 	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG --build-arg CAPELLA_VERSION=$$CAPELLA_VERSION backups
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
+capella/builder:
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(CAPELLA_DOCKERIMAGES_REVISION) builder
+	docker run -it -e CAPELLA_VERSION=$(CAPELLA_VERSION) -v $$(pwd)/builder/output/$(CAPELLA_VERSION):/output -v $$(pwd)/builder/m2_cache:/root/.m2/repository $(DOCKER_PREFIX)$@:$(CAPELLA_DOCKERIMAGES_REVISION)
+
 run-capella/readonly: capella/readonly
 	docker run $(DOCKER_RUN_FLAGS) \
 		-p $(RDP_PORT):3389 \
