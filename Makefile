@@ -114,6 +114,8 @@ RUN_TESTS_WITH_T4C_CLIENT ?= 0
 export DOCKER_BUILDKIT=1
 export MAKE_CURRENT_TARGET=$@
 
+.ONESHELL:
+
 all: \
 	base \
 	capella/base \
@@ -341,4 +343,3 @@ test: capella/readonly
 	fi
 
 .PHONY: tests/* t4c/* *
-.ONESHELL: test

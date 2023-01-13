@@ -21,7 +21,7 @@ do
     printf "${ASCII_BOLD}${ASCII_CYAN}Running target '$MAKE_CURRENT_TARGET' for Capella version $version...${ASCII_RESET}\n"
     export CAPELLA_VERSION=$version
     export DOCKER_TAG=$CAPELLA_VERSION-$CAPELLA_DOCKERIMAGES_REVISION
-    /bin/bash -e "$@" || r=$?
+    /bin/bash -euo pipefail "$@" || r=$?
     if [[ -z "$r" ]]; then
         printf "${ASCII_BOLD}${ASCII_GREEN}Successfully ran target '$MAKE_CURRENT_TARGET' for Capella version $version.${ASCII_RESET}\n"
     else
