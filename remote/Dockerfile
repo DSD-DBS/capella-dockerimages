@@ -46,7 +46,7 @@ WORKDIR /home/techuser
 
 COPY startup.sh .startup.sh
 COPY autostart .config/openbox/autostart
-RUN chmod +x .startup.sh .config/openbox/autostart
+RUN chmod 755 .startup.sh .config/openbox/autostart
 
 # Prepare idletime metric endpoint
 RUN pip install prometheus-client
