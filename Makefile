@@ -70,6 +70,9 @@ export DOCKER_TAG=$(CAPELLA_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
 # Should be 'latest', the branch name, the commit hash or a Git tag name
 export CAPELLA_DOCKERIMAGES_REVISION ?= latest
 
+# UID which is used for the techuser in the Docker images
+TECHUSER_UID = 1004370000
+
 # Capella build type (online/offline)
 CAPELLA_BUILD_TYPE ?= online
 
@@ -133,7 +136,7 @@ all: \
 	t4c/client/backup
 
 base:
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(CAPELLA_DOCKERIMAGES_REVISION) base
+	docker build $(DOCKER_BUILD_FLAGS) --build-arg UID=$(TECHUSER_UID) -t $(DOCKER_PREFIX)$@:$(CAPELLA_DOCKERIMAGES_REVISION) base
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) DOCKER_TAG=$(CAPELLA_DOCKERIMAGES_REVISION) IMAGENAME=$@ .push
 
 capella/base: SHELL=./capella_loop.sh
