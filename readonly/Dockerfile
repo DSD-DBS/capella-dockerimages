@@ -12,7 +12,7 @@ RUN chown -R techuser /opt/capella
 ENV EASE_LOG_LOCATION=/proc/1/fd/1
 
 COPY startup.sh /home/techuser/.startup.sh
-RUN chmod +x /home/techuser/.startup.sh
+RUN chmod 755 /home/techuser/.startup.sh
 
 USER techuser
 ENTRYPOINT [ "/home/techuser/.startup.sh" ]
