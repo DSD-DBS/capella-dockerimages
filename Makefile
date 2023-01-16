@@ -345,4 +345,4 @@ test: capella/readonly
 		docker push "$(DOCKER_REGISTRY)/$(DOCKER_PREFIX)$(IMAGENAME):$$DOCKER_TAG";\
 	fi
 
-.PHONY: tests/* t4c/* *
+.PHONY: tests/* t4c/* t4c/server/* *
