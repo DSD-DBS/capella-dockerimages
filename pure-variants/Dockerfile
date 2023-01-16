@@ -16,7 +16,10 @@ FROM build_${BUILD_TYPE}
 
 USER root
 
-COPY ./updateSite /tmp/pure-variants
+COPY ./updateSite /tmp/updateSite
+RUN mkdir /tmp/pure-variants && \
+    unzip /tmp/updateSite/* -d /tmp/pure-variants && \
+    rm -rf /tmp/updateSite
 COPY setup_workspace_purevariants.py /opt/setup/setup_workspace_purevariants.py
 
 RUN /opt/capella/capella \
