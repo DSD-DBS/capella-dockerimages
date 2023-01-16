@@ -355,8 +355,11 @@ docker build -t t4c/client/backup \
 
 This Docker image adds the `pure::variants` Capella plugin and allows the definition of a pure variants license server during runtime.
 
-1. Download the pure::variants updateSite here: <https://www.pure-systems.com/pv-update/>
-   Please select: "pure::variants Archived Update Site with all Extensions" for Linux.
+1. Download the pure::variants updateSite from the pure::variants download site: <https://www.pure-systems.com/pvde-update/> (access restricted, license needed).
+   The version on the [public website](https://www.pure-systems.com/pv-update/) is not sufficient (it's missing important plugins).
+
+   Please select: "pure::variants Archived Update Site with all Extensions" for Linux (Tux).
+
 1. Place the zip-file into `pure-variants/updateSite`.
 1. If you don't have internet access in your build environment, please go to step 8.1 and continue here afterwards.
 1. Start the Docker build:
