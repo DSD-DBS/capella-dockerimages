@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-dockerimages contributors
 # SPDX-License-Identifier: Apache-2.0
 set -e
@@ -18,14 +18,14 @@ ASCII_RESET="\033[0m"
 
 for version in $CAPELLA_VERSIONS
 do
-    echo -e "${ASCII_BOLD}${ASCII_CYAN}Running target '$MAKE_CURRENT_TARGET' for Capella version $version...${ASCII_RESET}"
+    printf "${ASCII_BOLD}${ASCII_CYAN}Running target '$MAKE_CURRENT_TARGET' for Capella version $version...${ASCII_RESET}\n"
     export CAPELLA_VERSION=$version
     export DOCKER_TAG=$CAPELLA_VERSION-$CAPELLA_DOCKERIMAGES_REVISION
-    /bin/sh "$@" || r=$?
-    if [ -z "$r" ]; then
-        echo -e "${ASCII_BOLD}${ASCII_GREEN}Successfully ran target '$MAKE_CURRENT_TARGET' for Capella version $version.${ASCII_RESET}"
+    /bin/bash -euo pipefail "$@" || r=$?
+    if [[ -z "$r" ]]; then
+        printf "${ASCII_BOLD}${ASCII_GREEN}Successfully ran target '$MAKE_CURRENT_TARGET' for Capella version $version.${ASCII_RESET}\n"
     else
-        echo -e "${ASCII_BOLD}${ASCII_RED}Running target '$MAKE_CURRENT_TARGET' for Capella version $version failed. Please check the logs above.${ASCII_RESET}"
+        printf "${ASCII_BOLD}${ASCII_RED}Running target '$MAKE_CURRENT_TARGET' for Capella version $version failed. Please check the logs above.${ASCII_RESET}\n"
         exit $r
     fi
 done

@@ -72,6 +72,11 @@ export CAPELLA_DOCKERIMAGES_REVISION ?= latest
 
 # Capella build type (online/offline)
 CAPELLA_BUILD_TYPE ?= online
+
+# Old GTK versions can improve the Capella description editor experience.
+# Set the option to 'false' if you want to run it on arm architectures.
+INSTALL_OLD_GTK_VERSION ?= true
+
 PURE_VARIANTS_BUILD_TYPE ?= online
 EASE_BUILD_TYPE ?= online
 
@@ -109,6 +114,8 @@ RUN_TESTS_WITH_T4C_CLIENT ?= 0
 export DOCKER_BUILDKIT=1
 export MAKE_CURRENT_TARGET=$@
 
+.ONESHELL:
+
 all: \
 	base \
 	capella/base \
@@ -125,7 +132,6 @@ all: \
 	capella/readonly \
 	t4c/client/backup
 
-base: SHELL=./capella_loop.sh
 base:
 	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(CAPELLA_DOCKERIMAGES_REVISION) base
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) DOCKER_TAG=$(CAPELLA_DOCKERIMAGES_REVISION) IMAGENAME=$@ .push
@@ -133,7 +139,7 @@ base:
 capella/base: SHELL=./capella_loop.sh
 capella/base: base
 	envsubst < capella/.dockerignore.template > capella/.dockerignore
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(CAPELLA_DOCKERIMAGES_REVISION) --build-arg BUILD_TYPE=$(CAPELLA_BUILD_TYPE) --build-arg CAPELLA_VERSION=$$CAPELLA_VERSION capella
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(CAPELLA_DOCKERIMAGES_REVISION) --build-arg BUILD_TYPE=$(CAPELLA_BUILD_TYPE) --build-arg CAPELLA_VERSION=$$CAPELLA_VERSION --build-arg INSTALL_OLD_GTK_VERSION=$(INSTALL_OLD_GTK_VERSION) capella
 	rm capella/.dockerignore
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
@@ -337,4 +343,3 @@ test: capella/readonly
 	fi
 
 .PHONY: tests/* t4c/* *
-.ONESHELL: test
