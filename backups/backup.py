@@ -12,6 +12,10 @@ import urllib.parse
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 log = logging.getLogger("Importer")
 
+ERROR_PREFIX: str = "Import of model from TeamForCapella server failed"
+
+OUTPUT_FOLDER: str = "/tmp/model"
+
 
 def run_importer_script() -> None:
     log.debug("Import model from TeamForCapella server...")
@@ -26,7 +30,7 @@ def run_importer_script() -> None:
     command += [
         "-consoleLog",
         "-data",
-        "importer-workspace",
+        "workspace",
         "-application",
         "com.thalesgroup.mde.melody.collab.importer",
         "-closeserverOnFailure",
@@ -44,11 +48,11 @@ def run_importer_script() -> None:
         "-importerPassword" if is_capella_5_x_x() else "-repositoryPassword",
         os.environ["T4C_PASSWORD"],
         "-outputFolder",
-        "/tmp/model",
+        OUTPUT_FOLDER,
         "-archiveProject",
         "false",
         "-importCommitHistoryAsJson",
-        "true",
+        os.getenv("INCLUDE_COMMIT_HISTORY", "true"),
         "-includeCommitHistoryChanges",
         os.getenv("INCLUDE_COMMIT_HISTORY", "true"),
     ]
@@ -60,16 +64,14 @@ def run_importer_script() -> None:
         ]
     else:
         http_login, http_password, http_port = get_http_envs()
-        command.extend(
-            [
-                "-httpLogin",
-                http_login,
-                "-httpPassword",
-                http_password,
-                "-httpPort",
-                http_port,
-            ]
-        )
+        command += [
+            "-httpLogin",
+            http_login,
+            "-httpPassword",
+            http_password,
+            "-httpPort",
+            http_port,
+        ]
 
     with subprocess.Popen(
         command, cwd="/opt/capella", stdout=subprocess.PIPE, text=True
@@ -79,7 +81,11 @@ def run_importer_script() -> None:
                 print(line, end="")
                 if "Team for Capella server unreachable" in line:
                     raise RuntimeError(
-                        "Import of model from TeamForCapella server failed - Team for Capella server unreachable"
+                        f"{ERROR_PREFIX} - Team for Capella server unreachable"
+                    )
+                elif "1 copies failed" in line:
+                    raise RuntimeError(
+                        f"{ERROR_PREFIX} - Failed to copy to output folder ({OUTPUT_FOLDER})"
                     )
 
     if (return_code := popen.returncode) != 0:
@@ -125,7 +131,9 @@ def checkout_git_repository() -> pathlib.Path:
 
 def copy_exported_files_into_git_repo(model_dir: pathlib.Path) -> None:
     if entrypoint := os.getenv("GIT_REPO_ENTRYPOINT", None):
-        target_directory = pathlib.Path("/tmp/git", entrypoint).parent
+        target_directory = pathlib.Path(
+            "/tmp/git", str(pathlib.Path(entrypoint).parent).lstrip("/")
+        )
         target_directory.mkdir(exist_ok=True, parents=True)
     else:
         target_directory = pathlib.Path(
@@ -230,11 +238,17 @@ def get_http_envs() -> tuple[str, str, str]:
 
 
 if __name__ == "__main__":
-    model_dir = pathlib.Path("/tmp/model")
+    model_dir = pathlib.Path(OUTPUT_FOLDER)
     model_dir.mkdir(exist_ok=True)
 
     run_importer_script()
-    git_dir = checkout_git_repository()
-    copy_exported_files_into_git_repo(model_dir)
-    git_commit_and_push(git_dir)
+
+    file_handler = os.getenv("FILE_HANDLER", "")
+    if file_handler == "local":
+        pass
+    else:  # USE GIT
+        git_dir = checkout_git_repository()
+        copy_exported_files_into_git_repo(model_dir)
+        git_commit_and_push(git_dir)
+
     print("Backup finished")
