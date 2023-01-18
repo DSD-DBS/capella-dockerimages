@@ -104,7 +104,7 @@ def test_backup_locally(
 def apply_model_changes(
     model: capellambse.MelodyModel,
 ) -> capellambse.MelodyModel:
-    layer: str = "LA"
+    layer: str = "SA"
 
     if layer == "SA":
         actor_uuid = SA_ACTOR_UUID
@@ -112,9 +112,6 @@ def apply_model_changes(
     elif layer == "LA":
         actor_uuid = LA_ACTOR_UUID
         layer_accessor = model.la
-    elif layer == "OA":
-        actor_uuid = OA_ACTOR_UUID
-        layer_accessor = model.oa
 
     actor = model.by_uuid(actor_uuid)
     actor.description = "modified-by-test"
