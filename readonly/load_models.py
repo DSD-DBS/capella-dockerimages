@@ -11,12 +11,12 @@
     The acronym EASE stands for "Eclipse Advanced Scripting Environment".
     Further information: https://www.eclipse.org/ease/
 """
-import hashlib
 import json
 import logging
 import os
 import pathlib
 import subprocess
+import tempfile
 import typing as t
 
 from eclipse.system.resources import importProject
@@ -61,9 +61,7 @@ def fetch_projects_from_environment() -> list[dict[str, str]]:
 def clone_git_model(project: dict[str, str]) -> None:
     log.info("Cloning git repository with url %s", project["url"])
 
-    project["location"] = pathlib.Path(
-        "/tmp/models", hashlib.sha1(project["url"].encode()).hexdigest()
-    )
+    project["location"] = pathlib.Path(tempfile.mkdtemp(prefix="model_"))
 
     flags = []
 
