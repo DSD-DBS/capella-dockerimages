@@ -6,6 +6,8 @@ SPDX-License-Identifier: Apache-2.0
 
 # Capella, T4C Client and EASE Docker images
 
+[![REUSE status](https://api.reuse.software/badge/github.com/DSD-DBS/capella-dockerimages)](https://api.reuse.software/info/github.com/DSD-DBS/capella-dockerimages)
+
 ## Introduction
 
 Please read the **complete** README carefully first, as some requirements must be met
