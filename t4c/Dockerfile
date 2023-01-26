@@ -16,7 +16,7 @@ RUN chmod +r $(ls /opt/updateSite/*.zip)
 
 USER techuser
 ## Install T4C Plugins via the P2 API from Eclipse
-RUN T4C_ZIP=$(find . -type f -iname "*.zip" | head -n 1 | cut -c 3-); \
+RUN T4C_ZIP=$(find . -type f -iname "com.thalesgroup.mde.melody.team.license.update-*.zip" | head -n 1 | cut -c 3-); \
     /opt/capella/capella \
     -consoleLog \
     -application org.eclipse.equinox.p2.director \
@@ -24,6 +24,21 @@ RUN T4C_ZIP=$(find . -type f -iname "*.zip" | head -n 1 | cut -c 3-); \
     -repository jar:file:///opt/updateSite/$T4C_ZIP!/ \
     -installIU com.thalesgroup.mde.melody.collab.feature.feature.group,com.thalesgroup.mde.melody.collab.maintenance.feature.feature.group,com.thalesgroup.mde.melody.collab.licbranding.feature.feature.group && \
     chown -R techuser /opt/capella/configuration
+
+RUN T4C_PATCH_ZIP=$(find . -type f -iname "com.thalesgroup.mde.melody.team.license.update.featurepatch-*.zip" | head -n 1 | cut -c 3-); \
+    if [[ -n $T4C_PATCH_ZIP ]]; \
+    then \
+    /opt/capella/capella \
+    -consoleLog \
+    -application org.eclipse.equinox.p2.director \
+    -profile DefaultProfile \
+    -tag InstallTeamForCapella \
+    -noSplash \
+    -repository jar:file:///opt/updateSite/$T4C_PATCH_ZIP!/ \
+    -installIU com.thalesgroup.mde.melody.collab.featurepatch.feature.group && \
+    chown -R techuser /opt/capella/configuration; \
+    fi
+
 USER root
 
 COPY setup_workspace.py /opt/setup/setup_t4c_client.py
