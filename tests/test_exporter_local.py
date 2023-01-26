@@ -12,6 +12,7 @@ import tarfile
 import time
 
 import capellambse
+import capellambse.decl
 import conftest
 import pytest
 from capellambse.loader import exs
@@ -22,10 +23,6 @@ log.setLevel("DEBUG")
 pytestmark = pytest.mark.t4c_server
 
 TECHUSER_UID: str | int = os.getenv("TECHUSER_UID", "")
-
-OA_ACTOR_UUID: str = "ce69cb4c-fd7d-4d92-9414-b627af13ca13"
-LA_ACTOR_UUID: str = "68c4da78-f68f-42fa-aee8-2f03c0708679"
-SA_ACTOR_UUID: str = "9db9070c-509a-42f3-b6f6-bdf9a7788aa2"
 
 
 @pytest.fixture(name="t4c_exporter_local_environment")
@@ -58,18 +55,17 @@ def fixture_export_import_model_diff_path(
     condition=conftest.is_capella_5_x_x(),
     reason="Capella 5.x.x. not supported",
 )
-def test_backup_locally(
+def test_export_locally(
     model_export_import_diff_path: tuple[
         pathlib.Path, pathlib.Path, pathlib.Path
     ],
     t4c_exporter_local_environment: dict[str, str],
 ):
     export_path, import_path, model_diff_path = model_export_import_diff_path
+    data_dir: pathlib.Path = pathlib.Path(__file__).parents[0] / "data"
 
     copy_model_files_to_directory(
-        model_dir=pathlib.Path(__file__).parents[0]
-        / "data"
-        / conftest.T4C_PROJECT_NAME,
+        model_dir=data_dir / conftest.T4C_PROJECT_NAME,
         tar_dir=export_path,
     )
 
@@ -78,9 +74,11 @@ def test_backup_locally(
     )
 
     export_model(export_path, t4c_exporter_local_environment)
-    for i in range(2):
+    for i in range(1):
         if i == 0:
-            initial_model = apply_model_changes(initial_model)
+            capellambse.decl.apply(
+                initial_model, data_dir / "model-changes.yaml"
+            )
             initial_model.save()
 
         export_model(export_path, t4c_exporter_local_environment)
@@ -96,33 +94,18 @@ def test_backup_locally(
             import_path / conftest.T4C_PROJECT_NAME
         )
 
-    print(model_export_import_diff_path)
-    breakpoint()
-    assert True
+    assert imported_model
 
+    actor = imported_model.by_uuid("9db9070c-509a-42f3-b6f6-bdf9a7788aa2")
+    function_1 = actor.allocated_functions.by_name("do stuff 1")
 
-def apply_model_changes(
-    model: capellambse.MelodyModel,
-) -> capellambse.MelodyModel:
-    layer: str = "SA"
+    assert actor.is_actor
+    assert actor.description == "modified-by-test"
+    assert len(actor.allocated_functions) == 2
 
-    if layer == "SA":
-        actor_uuid = SA_ACTOR_UUID
-        layer_accessor = model.sa
-    elif layer == "LA":
-        actor_uuid = LA_ACTOR_UUID
-        layer_accessor = model.la
-
-    actor = model.by_uuid(actor_uuid)
-    actor.description = "modified-by-test"
-
-    func_1 = layer_accessor.root_function.functions.create(name="do stuff 1")
-    func_2 = layer_accessor.root_function.functions.create(name="do stuff 2")
-
-    actor.allocated_functions.insert(0, func_1)
-    actor.allocated_functions.append(func_2)
-
-    return model
+    assert function_1.owner == actor
+    assert len(function_1.functions)
+    assert function_1.functions[0].name == "do stuff 1.1"
 
 
 def import_model(model_dir: pathlib.Path, env: dict[str, str]):

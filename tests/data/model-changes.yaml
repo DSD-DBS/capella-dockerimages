@@ -1,0 +1,20 @@
+# SPDX-FileCopyrightText: Copyright DB Netz AG and the capellambse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+- parent: !uuid 4e40b7a4-6ebc-40d4-b0e3-df91394ae622
+  extend:
+    functions:
+      - name: do stuff 1
+        promise_id: do-stuff-1
+        functions:
+          - name: do stuff 1.1
+      - name: do stuff 2
+        promise_id: do-stuff-2
+
+- parent: !uuid 9db9070c-509a-42f3-b6f6-bdf9a7788aa2
+  modify:
+    description: modified-by-test
+  extend:
+    allocated_functions:
+      - !promise do-stuff-1
+      - !promise do-stuff-2
