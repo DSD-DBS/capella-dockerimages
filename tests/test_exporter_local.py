@@ -186,8 +186,9 @@ def create_model_diff(
 def copy_model_files_to_directory(
     model_dir: pathlib.Path, tar_dir: pathlib.Path
 ):
-    for file in model_dir.glob("*"):
-        shutil.copy2(file, tar_dir)
+    for _file in model_dir.glob("*"):
+        if not str(_file).endswith("license"):
+            shutil.copy2(_file, tar_dir)
 
 
 def clear_files_and_delete_directory(model_dir: pathlib.Path):
