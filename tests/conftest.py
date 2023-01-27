@@ -185,8 +185,6 @@ def fixture_git_general_environment(git_port: str) -> dict[str, str]:
 
 @pytest.fixture(name="t4c_server_container")
 def fixture_t4c_server_container() -> containers.Container:
-    env: dict[str, str] = {"REST_API_PASSWORD": "password"}
-
     ports: dict[str, int | None] = {
         "2036/tcp": None,
         "8080/tcp": None,
@@ -194,7 +192,9 @@ def fixture_t4c_server_container() -> containers.Container:
     }
 
     with get_container(
-        image="t4c/server/server", ports=ports, environment=env
+        image="t4c/server/server",
+        ports=ports,
+        environment={"REST_API_PASSWORD": "password"},
     ) as container:
         wait_for_container(container, "!MESSAGE CDO server started")
         container.reload()
