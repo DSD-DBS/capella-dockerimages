@@ -22,7 +22,7 @@ default_env = {
 
 
 @pytest.fixture(name="success_mode", params=["json", "repositories"])
-def fixture_success_mode(request) -> str:
+def fixture_success_mode(request: pytest.FixtureRequest) -> str:
     return request.param
 
 
@@ -75,7 +75,7 @@ def fixture_container_success(
 
 
 @pytest.fixture(name="failure_mode", params=["json"])
-def fixture_failure_mode(request) -> str:
+def fixture_failure_mode(request: pytest.FixtureRequest) -> str:
     return request.param
 
 

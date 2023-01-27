@@ -21,7 +21,7 @@ pytestmark = pytest.mark.t4c_server
 
 @pytest.fixture(name="t4c_server_container_parametrized")
 def fixture_t4c_server_container_parametrized(
-    tmp_path: pathlib.Path, request
+    tmp_path: pathlib.Path, request: pytest.FixtureRequest
 ) -> containers.Container:
     env: dict[str, str] = {"REST_API_PASSWORD": "password"} | request.param
 
@@ -89,7 +89,7 @@ def fixture_t4c_backup_container(
     git_general_environment: dict[str, str],
     t4c_backups_prametrized_environment: dict[str, str],
     t4c_server_ports_parametrized: tuple[str, str, str],
-    request,
+    request: pytest.FixtureRequest,
 ) -> containers.Container:
     if "HTTP_PORT" in request.param:
         request.param["HTTP_PORT"] = t4c_server_ports_parametrized[1]

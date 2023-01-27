@@ -57,7 +57,7 @@ def fixture_t4c_exporter_git_parametrized_container(
     t4c_exporter_git_environment: dict[str, str],
     t4c_server_ports: tuple[str, str, str],
     prepare_local_git_server: None,  # pylint: disable=unused-argument
-    request,
+    request: pytest.FixtureRequest,
 ) -> containers.Container:
     if conftest.is_capella_6_x_x():
         assert not conftest.get_projects_of_t4c_repository(t4c_server_ports[1])
