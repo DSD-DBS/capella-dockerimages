@@ -8,7 +8,7 @@ FROM ${BASE_IMAGE} as base
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-SHELL ["/bin/bash", "-c"]
+SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 ENV SHELL=/bin/bash
 
 FROM base as old_gtk_true
