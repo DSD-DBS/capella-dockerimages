@@ -79,7 +79,10 @@ def run_importer_script() -> None:
         if popen.stdout:
             for line in popen.stdout:
                 print(line, end="")
-                if "Team for Capella server unreachable" in line:
+                if (
+                    "Team for Capella server unreachable" in line
+                    or "Name or service not known" in line
+                ):
                     raise RuntimeError(
                         f"{ERROR_PREFIX} - Team for Capella server unreachable"
                     )
