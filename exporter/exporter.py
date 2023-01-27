@@ -68,8 +68,8 @@ def determine_model_dir(git_dir: pathlib.Path) -> pathlib.Path:
 
 
 def check_dir_for_aird_file(path: pathlib.Path):
-    for _file in path.glob("*"):
-        if str(_file).endswith(".aird"):
+    for file in path.glob("*"):
+        if str(file).endswith(".aird"):
             return
     raise RuntimeError(
         f"{ERROR_PREFIX} - Entrypoint (if provided) or root directoy does not contain a .aird file"
@@ -81,8 +81,8 @@ def get_model_dir_with_project_name(path: pathlib.Path) -> pathlib.Path:
     project_dir: pathlib.Path = pathlib.Path(f"/tmp/{T4C_PROJECT_NAME}")
     project_dir.mkdir(parents=True)
 
-    for _file in path.glob("*"):
-        shutil.copy2(_file, project_dir)
+    for file in path.glob("*"):
+        shutil.copy2(file, project_dir)
 
     return project_dir
 

@@ -182,9 +182,9 @@ def copy_test_project_into_git_repo(git_path: pathlib.Path):
         pathlib.Path(__file__).parents[0] / "data" / "test-project"
     )
 
-    for _file in project_dir.glob("*"):
-        if not str(_file).endswith("license"):
-            shutil.copy2(_file, target_dir)
+    for file in project_dir.glob("*"):
+        if not str(file).endswith("license"):
+            shutil.copy2(file, target_dir)
 
 
 def commit_and_push_git_repo(path: pathlib.Path):
