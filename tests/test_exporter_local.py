@@ -114,7 +114,6 @@ def import_model(model_dir: pathlib.Path, env: dict[str, str]):
     with conftest.get_container(
         image="t4c/client/backup",
         environment=env,
-        network="host",
     ) as container:
         conftest.wait_for_container(container, "Backup finished")
         strm, _ = conftest.client.api.get_archive(container.id, "/tmp/model/")
@@ -139,7 +138,6 @@ def export_model(model_dir: pathlib.Path, env: dict[str, str]):
         path=model_dir,
         mount_path="/tmp/data",
         environment=env,
-        network="host",
     ) as container:
         conftest.wait_for_container(container, "Export finished")
         time.sleep(4)

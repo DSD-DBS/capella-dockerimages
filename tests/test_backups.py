@@ -101,7 +101,7 @@ def fixture_t4c_backup_container(
     )
 
     with conftest.get_container(
-        image="t4c/client/backup", environment=env, network="host"
+        image="t4c/client/backup", environment=env
     ) as container:
         yield container
 

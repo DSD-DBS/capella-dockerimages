@@ -29,7 +29,7 @@ HTTP_LOGIN: str = "admin"
 HTTP_PASSWORD: str = "password"
 
 
-T4C_REPO_HOST: str = "127.0.0.1"
+T4C_REPO_HOST: str = "host.docker.internal"
 T4C_REPO_NAME: str = "test-repo"
 T4C_PROJECT_NAME: str = "test-project"
 T4C_USERNAME: str = "admin"
@@ -48,7 +48,6 @@ def get_container(
     environment: dict[str, str] | None = None,
     path: pathlib.Path | None = None,
     mount_path: str | None = None,
-    network: str | None = None,
     entrypoint: list[str] | None = None,
     use_docker_prefix: bool = True,
 ) -> cabc.Iterator[containers.Container]:
@@ -74,7 +73,9 @@ def get_container(
         ports=ports,
         environment=environment,
         volumes=volumes,
-        network=network,
+        extra_hosts={
+            "host.docker.internal": "host-gateway",
+        },
         entrypoint=entrypoint,
     )
 
@@ -173,7 +174,7 @@ def fixture_git_port(local_git_container: containers.Containe) -> str:
 def fixture_git_general_environment(git_port: str) -> dict[str, str]:
     return {
         "FILE_HANDLER": "GIT",
-        "GIT_REPO_URL": f"http://localhost:{git_port}/git/git-test-repo.git",
+        "GIT_REPO_URL": f"http://host.docker.internal:{git_port}/git/git-test-repo.git",
         "GIT_REPO_BRANCH": GIT_REPO_BRANCH,
         "GIT_USERNAME": GIT_USERNAME,
         "GIT_PASSWORD": GIT_PASSWORD,

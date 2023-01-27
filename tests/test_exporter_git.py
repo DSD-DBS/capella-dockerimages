@@ -65,7 +65,7 @@ def fixture_t4c_exporter_git_parametrized_container(
     env: dict[str, str] = t4c_exporter_git_environment | request.param
 
     with conftest.get_container(
-        image="t4c/client/exporter", environment=env, network="host"
+        image="t4c/client/exporter", environment=env
     ) as container:
         yield container
 
@@ -86,7 +86,6 @@ def fixture_t4c_exporter_git_container(
     with conftest.get_container(
         image="t4c/client/exporter",
         environment=t4c_exporter_git_environment,
-        network="host",
     ) as container:
         yield container
 
