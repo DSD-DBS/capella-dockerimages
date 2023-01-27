@@ -85,6 +85,8 @@ EASE_BUILD_TYPE ?= online
 
 PURE_VARIANTS_LICENSE_SERVER ?= http://localhost:8080
 
+BUILD_ARCHITECTURE ?= amd64
+
 DOCKER_BUILD_FLAGS ?=
 DOCKER_RUN_FLAGS ?= --add-host=host.docker.internal:host-gateway --rm
 
@@ -206,12 +208,12 @@ capella/readonly: capella/ease/remote
 
 t4c/client/backup: SHELL=./capella_loop.sh
 t4c/client/backup: t4c/client/base
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG --build-arg CAPELLA_VERSION=$$CAPELLA_VERSION backups
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BUILD_ARCHITECTURE=$(BUILD_ARCHITECTURE) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG --build-arg CAPELLA_VERSION=$$CAPELLA_VERSION backups
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
 t4c/client/exporter: SHELL=./capella_loop.sh
 t4c/client/exporter: t4c/client/base
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG --build-arg CAPELLA_VERSION=$$CAPELLA_VERSION exporter
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BUILD_ARCHITECTURE=$(BUILD_ARCHITECTURE) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG --build-arg CAPELLA_VERSION=$$CAPELLA_VERSION exporter
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
 

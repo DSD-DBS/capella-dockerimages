@@ -11,7 +11,8 @@ USER root
 
 # Otherwise, xvfb runs with PID 1 and signal USR1 is not handled properly
 # -> xvfb wait command doesn't terminate
-ADD https://github.com/krallin/tini/releases/download/v0.19.0/tini /tini
+ARG BUILD_ARCHITECTURE=amd64
+ADD https://github.com/krallin/tini/releases/download/v0.19.0/tini-$BUILD_ARCHITECTURE /tini
 RUN chmod +x /tini
 
 RUN apt-get update && \
