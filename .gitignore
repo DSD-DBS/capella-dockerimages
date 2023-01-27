@@ -10,6 +10,10 @@ capella/versions/*/dropins/*
 capella/.dockerignore
 capella/libs/*
 
+# Capella Builder
+builder/m2_cache
+builder/output
+
 # TeamForCapella
 t4c/updateSite/*/*
 t4c/server
