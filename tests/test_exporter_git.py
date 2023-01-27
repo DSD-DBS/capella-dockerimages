@@ -40,7 +40,6 @@ def fixture_t4c_exporter_git_environment(
     git_general_environment: dict[str, str],
     t4c_exporter_general_environment: dict[str, str],
 ) -> dict[str, str]:
-
     return (
         t4c_exporter_general_environment
         | git_general_environment
@@ -62,10 +61,9 @@ def fixture_t4c_exporter_git_parametrized_container(
     if conftest.is_capella_6_x_x():
         assert not conftest.get_projects_of_t4c_repository(t4c_server_ports[1])
 
-    env: dict[str, str] = t4c_exporter_git_environment | request.param
-
     with conftest.get_container(
-        image="t4c/client/exporter", environment=env
+        image="t4c/client/exporter",
+        environment=t4c_exporter_git_environment | request.param,
     ) as container:
         yield container
 
