@@ -136,7 +136,7 @@ def get_projects_of_t4c_repository(t4c_http_port: str) -> list[dict[str, str]]:
 # In case you encounter a connection error here for the tests, first try:
 # 1. deamon-reload
 # 2. docker restart
-# Related to: https://github.com/testcontainers/testcontainers-go/issues/551
+# Related to: https://github.com/moby/moby/issues/42442
 def create_t4c_repository(t4c_http_port: str):
     res = requests.post(
         f"http://localhost:{t4c_http_port}/api/v1.0/repositories",
