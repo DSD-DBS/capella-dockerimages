@@ -69,7 +69,7 @@ def determine_model_dir(git_dir: pathlib.Path) -> pathlib.Path:
 
 def check_dir_for_aird_file(path: pathlib.Path):
     for file in path.glob("*"):
-        if str(file).endswith(".aird"):
+        if file.suffix == ".aird":
             return
     raise RuntimeError(
         f"{ERROR_PREFIX} - Entrypoint (if provided) or root directoy does not contain a .aird file"
