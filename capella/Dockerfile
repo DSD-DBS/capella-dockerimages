@@ -7,7 +7,6 @@ ARG INSTALL_OLD_GTK_VERSION=true
 FROM ${BASE_IMAGE} as base
 
 ENV DEBIAN_FRONTEND=noninteractive
-ARG INJECT_PACKAGES=false
 
 SHELL ["/bin/bash", "-c"]
 ENV SHELL=/bin/bash
@@ -15,6 +14,7 @@ ENV SHELL=/bin/bash
 FROM base as old_gtk_true
 # Install WebKit with GTK
 ONBUILD COPY libs /tmp/libs
+ONBUILD ARG INJECT_PACKAGES=false
 ONBUILD RUN if [[ "$INJECT_PACKAGES" = "true" ]]; then \
     apt-get update && \
     # Inject old packages manually
