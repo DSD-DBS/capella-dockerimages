@@ -122,8 +122,10 @@ def is_capella_6_x_x() -> bool:
 
 
 def get_projects_of_t4c_repository(t4c_http_port: str) -> list[dict[str, str]]:
+    assert t4c_http_port.isnumeric()
+
     res = requests.get(
-        f"http://localhost:{int(t4c_http_port)}/api/v1.0/projects/{T4C_REPO_NAME}",
+        f"http://localhost:{t4c_http_port}/api/v1.0/projects/{T4C_REPO_NAME}",
         auth=_get_basic_auth(),
         timeout=60,
     )
