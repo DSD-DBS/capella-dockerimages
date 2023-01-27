@@ -66,7 +66,7 @@ def fixture_t4c_server_ports_parametrized(
     )
 
 
-@pytest.fixture(name="t4c_backups_prametrized_environment")
+@pytest.fixture(name="t4c_backups_parametrized_environment")
 def fixture_t4c_backups_prametrized_environment(
     t4c_server_ports_parametrized: tuple[str, str, str],
 ) -> dict[str, str]:
@@ -87,7 +87,7 @@ def fixture_t4c_backups_prametrized_environment(
 @pytest.fixture(name="t4c_backup_container_parametrized")
 def fixture_t4c_backup_container(
     git_general_environment: dict[str, str],
-    t4c_backups_prametrized_environment: dict[str, str],
+    t4c_backups_parametrized_environment: dict[str, str],
     t4c_server_ports_parametrized: tuple[str, str, str],
     request: pytest.FixtureRequest,
 ) -> containers.Container:
@@ -96,7 +96,7 @@ def fixture_t4c_backup_container(
 
     env: dict[str, str] = (
         git_general_environment
-        | t4c_backups_prametrized_environment
+        | t4c_backups_parametrized_environment
         | request.param
     )
 
