@@ -1,6 +1,8 @@
 # SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
 import logging
 import os
 import pathlib
@@ -14,6 +16,8 @@ log = logging.getLogger("Exporter")
 ERROR_PREFIX = "Export of model to TeamForCapella server failed"
 
 T4C_PROJECT_NAME: str = os.environ["T4C_PROJECT_NAME"]
+
+GIT_ENTRYPONT: str | None = os.getenv("GIT_REPO_ENTRYPOINT", None)
 
 
 def check_capella_version():
@@ -60,20 +64,27 @@ def checkout_git_repository() -> pathlib.Path:
 
 def determine_model_dir(git_dir: pathlib.Path) -> pathlib.Path:
     model_dir: pathlib.Path = git_dir
-    if entrypoint := os.getenv("GIT_REPO_ENTRYPOINT", None):
+    if GIT_ENTRYPONT:
         model_dir = pathlib.Path(
-            "/tmp/git", str(pathlib.Path(entrypoint).parent).lstrip("/")
+            "/tmp/git", str(pathlib.Path(GIT_ENTRYPONT).parent).lstrip("/")
         )
     return model_dir
 
 
 def check_dir_for_aird_file(path: pathlib.Path):
-    for file in path.glob("*"):
-        if file.suffix == ".aird":
-            return
-    raise RuntimeError(
-        f"{ERROR_PREFIX} - Entrypoint (if provided) or root directoy does not contain a .aird file"
-    )
+    aird_files = list(path.glob("*.aird"))
+
+    if not len(aird_files) == 1:
+        raise RuntimeError(
+            f"{ERROR_PREFIX} - Entrypoint (if provided) or root directoy does not contain a .aird file"
+        )
+
+    if GIT_ENTRYPONT and (
+        not pathlib.Path(GIT_ENTRYPONT).name == aird_files[0].name
+    ):
+        raise RuntimeError(
+            f"{ERROR_PREFIX} - .aird file found in git entrypoint directory does not match git entrypoint aird"
+        )
 
 
 # T4C determines the project name based on the directory name
