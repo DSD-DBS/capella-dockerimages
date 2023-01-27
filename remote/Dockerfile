@@ -6,6 +6,9 @@ FROM ${BASE_IMAGE}
 
 ARG DEBIAN_FRONTEND=noninteractive
 
+SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
+ENV SHELL=/bin/bash
+
 # Install RDP (XRDP with XORG)
 USER root
 

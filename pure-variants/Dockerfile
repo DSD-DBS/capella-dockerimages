@@ -14,6 +14,9 @@ ONBUILD COPY ./dependencies /tmp/dependencies
 
 FROM build_${BUILD_TYPE}
 
+SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
+ENV SHELL=/bin/bash
+
 USER root
 
 COPY ./updateSite /tmp/updateSite

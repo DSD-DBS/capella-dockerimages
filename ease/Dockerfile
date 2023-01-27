@@ -3,6 +3,7 @@
 
 ARG BUILD_TYPE=offline
 ARG BASE_IMAGE=capella/base
+
 FROM $BASE_IMAGE as prebuild
 
 RUN apt-get update && \
@@ -39,6 +40,9 @@ ONBUILD ENV EASE_REPOSITORY=https://download.eclipse.org/ease/integration/nightl
 ONBUILD ENV SWTBOT_REPOSITORY=https://download.eclipse.org/technology/swtbot/releases/latest/
 
 FROM build_${BUILD_TYPE}
+
+SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
+ENV SHELL=/bin/bash
 
 USER techuser
 

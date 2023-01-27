@@ -3,6 +3,10 @@
 
 FROM python:3.11.1-bullseye
 
+
+SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
+ENV SHELL=/bin/bash
+
 RUN apt-get update && \
     apt-get install -y maven
 

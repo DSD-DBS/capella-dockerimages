@@ -6,6 +6,9 @@ FROM ${BASE_IMAGE}
 
 ARG CAPELLA_VERSION=""
 
+SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
+ENV SHELL=/bin/bash
+
 # Install T4C
 COPY ./updateSite/$CAPELLA_VERSION /opt/updateSite
 WORKDIR /opt/updateSite

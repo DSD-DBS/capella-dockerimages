@@ -4,6 +4,10 @@
 
 ARG BASE_IMAGE=debian:bullseye
 FROM $BASE_IMAGE
+
+SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
+ENV SHELL=/bin/bash
+
 RUN apt-get update && \
     apt-get upgrade --yes && \
     apt-get install --yes \
