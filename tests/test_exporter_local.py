@@ -25,11 +25,11 @@ pytestmark = pytest.mark.t4c_server
 TECHUSER_UID: str | int = os.getenv("TECHUSER_UID", "")
 
 
-@pytest.fixture(name="t4c_exporter_local_environment")
-def fixture_t4c_exporter_local_environment(
-    t4c_exporter_general_environment: dict[str, str]
+@pytest.fixture(name="t4c_exporter_local_env")
+def fixture_t4c_exporter_local_env(
+    t4c_exporter_env: dict[str, str]
 ) -> dict[str, str]:
-    return t4c_exporter_general_environment | {"FILE_HANDLER": "local"}
+    return t4c_exporter_env | {"FILE_HANDLER": "local"}
 
 
 @pytest.fixture(name="model_export_import_diff_path")
@@ -55,13 +55,14 @@ def fixture_export_import_model_diff_path(
     condition=conftest.is_capella_5_x_x(),
     reason="Capella 5.x.x. not supported",
 )
+@pytest.mark.usefixtures("init_t4c_server_repo")
 def test_export_locally(
     model_export_import_diff_path: tuple[
         pathlib.Path, pathlib.Path, pathlib.Path
     ],
-    t4c_exporter_local_environment: dict[str, str],
+    t4c_exporter_local_env: dict[str, str],
 ):
-    export_path, import_path, model_diff_path = model_export_import_diff_path
+    export_path, import_path, _ = model_export_import_diff_path
     data_dir: pathlib.Path = pathlib.Path(__file__).parents[0] / "data"
 
     copy_model_files_to_directory(
@@ -73,26 +74,17 @@ def test_export_locally(
         export_path / "test-project.aird"
     )
 
-    export_model(export_path, t4c_exporter_local_environment)
-    for i in range(1):
-        if i == 0:
-            capellambse.decl.apply(
-                initial_model, data_dir / "model-changes.yaml"
-            )
-            initial_model.save()
+    export_model(export_path, t4c_exporter_local_env)
 
-        export_model(export_path, t4c_exporter_local_environment)
-        import_model(import_path, t4c_exporter_local_environment)
+    capellambse.decl.apply(initial_model, data_dir / "model-changes.yaml")
+    initial_model.save()
 
-        imported_model: capellambse.MelodyModel = capellambse.MelodyModel(
-            import_path / conftest.T4C_PROJECT_NAME / "test-project.aird"
-        )
+    export_model(export_path, t4c_exporter_local_env)
+    import_model(import_path, t4c_exporter_local_env)
 
-        create_model_diff(initial_model, imported_model, model_diff_path, i)
-
-        clear_files_and_delete_directory(
-            import_path / conftest.T4C_PROJECT_NAME
-        )
+    imported_model: capellambse.MelodyModel = capellambse.MelodyModel(
+        import_path / conftest.T4C_PROJECT_NAME / "test-project.aird"
+    )
 
     assert imported_model
 
@@ -135,15 +127,24 @@ def import_model(model_dir: pathlib.Path, env: dict[str, str]):
 def export_model(model_dir: pathlib.Path, env: dict[str, str]):
     with conftest.get_container(
         image="t4c/client/exporter",
-        path=model_dir,
-        mount_path="/tmp/data",
+        volumes=conftest.create_volume(model_dir, "/tmp/data"),
         environment=env,
     ) as container:
-        conftest.wait_for_container(container, "Export finished")
+        conftest.wait_for_container(
+            container, "Export of model to TeamForCapella server finished"
+        )
         time.sleep(4)
 
 
-def create_model_diff(
+def copy_model_files_to_directory(
+    model_dir: pathlib.Path, tar_dir: pathlib.Path
+):
+    for file in model_dir.glob("*"):
+        if not str(file).endswith("license"):
+            shutil.copy2(file, tar_dir)
+
+
+def _create_model_diff(
     model_1: capellambse.MelodyModel,
     model_2: capellambse.MelodyModel,
     path: pathlib.Path,
@@ -164,15 +165,7 @@ def create_model_diff(
         diff_file.write("".join(model_diff))
 
 
-def copy_model_files_to_directory(
-    model_dir: pathlib.Path, tar_dir: pathlib.Path
-):
-    for file in model_dir.glob("*"):
-        if not str(file).endswith("license"):
-            shutil.copy2(file, tar_dir)
-
-
-def clear_files_and_delete_directory(model_dir: pathlib.Path):
+def _clear_files_and_delete_directory(model_dir: pathlib.Path):
     for file in model_dir.glob("*"):
         if file.is_file():
             file.unlink()

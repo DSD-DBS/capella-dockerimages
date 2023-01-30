@@ -68,8 +68,7 @@ def fixture_container_success(
     with conftest.get_container(
         image="t4c/client/remote",
         environment=env,
-        path=tmp_path,
-        mount_path="/opt/capella/configuration",
+        volumes=conftest.create_volume(tmp_path, "/opt/capella/configuration"),
     ) as container:
         yield container
 

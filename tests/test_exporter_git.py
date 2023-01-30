@@ -27,63 +27,48 @@ SUBPROCESS_DEFAULT_ARGS: dict[str, t.Any] = {
 }
 
 
-@pytest.fixture(name="prepare_local_git_server")
-def fixture_prepare_local_git_server(git_port: str, tmp_path: pathlib.Path):
-    checkout_git_repository(git_port, tmp_path)
-    copy_test_project_into_git_repo(tmp_path)
-    commit_and_push_git_repo(tmp_path)
+@pytest.fixture(name="init_git_server")
+def fixture_init_git_server(git_ip_addr: str, tmp_path: pathlib.Path):
+    _checkout_git_repository(git_ip_addr, tmp_path)
+    _copy_test_project_into_git_repo(tmp_path)
+    _commit_and_push_git_repo(tmp_path)
     yield
 
 
-@pytest.fixture(name="t4c_exporter_git_environment")
-def fixture_t4c_exporter_git_environment(
-    git_general_environment: dict[str, str],
-    t4c_exporter_general_environment: dict[str, str],
+@pytest.fixture(name="t4c_exporter_git_env")
+def fixture_t4c_exporter_git_env(
+    git_general_env: dict[str, str],
+    t4c_exporter_env: dict[str, str],
+    request: pytest.FixtureRequest,
 ) -> dict[str, str]:
-    return (
-        t4c_exporter_general_environment
-        | git_general_environment
+    env: dict[str, str] = (
+        t4c_exporter_env
+        | git_general_env
         | {"GIT_REPO_ENTRYPOINT": GIT_REPO_ENTRYPOINT}
     )
 
+    if hasattr(request, "param"):
+        env = env | request.param
 
-# We should just use @pytest.mark.usefixtures("perpare_local_git_server")
-# here, but right now there is a bug/issue that it doesn't work with
-# @pytest.fixture (https://github.com/pytest-dev/pytest/issues/3664)
-# So for now we have to keep it as an actual argument
-@pytest.fixture(name="t4c_exporter_git_parametrized_container")
-def fixture_t4c_exporter_git_parametrized_container(
-    t4c_exporter_git_environment: dict[str, str],
-    t4c_server_ports: tuple[str, str, str],
-    prepare_local_git_server: None,  # pylint: disable=unused-argument
-    request: pytest.FixtureRequest,
-) -> containers.Container:
-    if conftest.is_capella_6_x_x():
-        assert not conftest.get_projects_of_t4c_repository(t4c_server_ports[1])
-
-    with conftest.get_container(
-        image="t4c/client/exporter",
-        environment=t4c_exporter_git_environment | request.param,
-    ) as container:
-        yield container
+    return env
 
 
 # We should just use @pytest.mark.usefixtures("perpare_local_git_server")
 # here, but right now there is a bug/issue that it doesn't work with
 # @pytest.fixture (https://github.com/pytest-dev/pytest/issues/3664)
 # So for now we have to keep it as an actual argument
-@pytest.fixture(name="t4c_exporter_git_container")
-def fixture_t4c_exporter_git_container(
-    t4c_exporter_git_environment: dict[str, str],
-    t4c_server_ports: tuple[str, str, str],
-    prepare_local_git_server: None,  # pylint: disable=unused-argument
+@pytest.fixture(name="t4c_exporter_container")
+def fixture_t4c_exporter_container(
+    t4c_exporter_git_env: dict[str, str],
+    t4c_ip_addr: str,
+    init_t4c_server_repo: None,  # pylint: disable=unused-argument
+    init_git_server: None,  # pylint: disable=unused-argument
 ) -> containers.Container:
     if conftest.is_capella_6_x_x():
-        assert not conftest.get_projects_of_t4c_repository(t4c_server_ports[1])
+        assert not conftest.get_projects_of_t4c_repository(t4c_ip_addr)
 
     with conftest.get_container(
-        image="t4c/client/exporter",
-        environment=t4c_exporter_git_environment,
+        image="t4c/client/exporter", environment=t4c_exporter_git_env
     ) as container:
         yield container
 
@@ -93,14 +78,13 @@ def fixture_t4c_exporter_git_container(
     reason="Exporter does not work for capella 5.x.x",
 )
 def test_export_model_happy(
-    t4c_exporter_git_container: containers.Container,
-    t4c_server_ports: tuple[str, str, str],
+    t4c_exporter_container: containers.Container, t4c_ip_addr: str
 ):
-    conftest.wait_for_container(t4c_exporter_git_container, "Export finished")
+    conftest.wait_for_container(t4c_exporter_container, "Export finished")
 
     t4c_projects: list[
         dict[str, str]
-    ] = conftest.get_projects_of_t4c_repository(t4c_server_ports[1])
+    ] = conftest.get_projects_of_t4c_repository(t4c_ip_addr)
 
     assert len(t4c_projects) == 1
 
@@ -116,7 +100,7 @@ def test_export_model_happy(
     reason="Exporter does not work for capella 5.x.x",
 )
 @pytest.mark.parametrize(
-    "t4c_exporter_git_parametrized_container",
+    "t4c_exporter_git_env",
     [
         pytest.param(
             {"GIT_REPO_ENTRYPOINT": "/this/does/not/exist"},
@@ -131,12 +115,10 @@ def test_export_model_happy(
     indirect=True,
 )
 def test_export_model_6_x_x_unhappy(
-    t4c_exporter_git_parametrized_container: containers.Container,
+    t4c_exporter_container: containers.Container,
 ):
     with pytest.raises(RuntimeError):
-        conftest.wait_for_container(
-            t4c_exporter_git_parametrized_container, "Export finished"
-        )
+        conftest.wait_for_container(t4c_exporter_container, "Export finished")
 
 
 @pytest.mark.skipif(
@@ -144,20 +126,18 @@ def test_export_model_6_x_x_unhappy(
     reason="Tests checkes whether error is thrown for 5.x.x",
 )
 def test_export_model_5_x_x_unhappy(
-    t4c_exporter_git_container: containers.Containe,
+    t4c_exporter_container: containers.Containe,
 ):
     with pytest.raises(RuntimeError):
-        conftest.wait_for_container(
-            t4c_exporter_git_container, "Export finished"
-        )
+        conftest.wait_for_container(t4c_exporter_container, "Export finished")
 
 
-def checkout_git_repository(server_port: str, path: pathlib.Path):
+def _checkout_git_repository(server_ip: str, path: pathlib.Path):
     subprocess.run(  # pylint: disable=subprocess-run-check
         [
             "git",
             "clone",
-            f"http://localhost:{server_port}/git/git-test-repo.git",
+            f"http://{server_ip}:80/git/git-test-repo.git",
             path,
         ],
         **SUBPROCESS_DEFAULT_ARGS,
@@ -169,7 +149,7 @@ def checkout_git_repository(server_port: str, path: pathlib.Path):
     )
 
 
-def copy_test_project_into_git_repo(git_path: pathlib.Path):
+def _copy_test_project_into_git_repo(git_path: pathlib.Path):
     target_dir: pathlib.Path = pathlib.Path(
         git_path,
         str(pathlib.Path(GIT_REPO_ENTRYPOINT).parent).lstrip("/"),
@@ -185,7 +165,7 @@ def copy_test_project_into_git_repo(git_path: pathlib.Path):
             shutil.copy2(file, target_dir)
 
 
-def commit_and_push_git_repo(path: pathlib.Path):
+def _commit_and_push_git_repo(path: pathlib.Path):
     subprocess_shared_args: dict[str, t.Any] = SUBPROCESS_DEFAULT_ARGS | {
         "cwd": path
     }
