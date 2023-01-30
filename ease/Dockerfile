@@ -6,6 +6,9 @@ ARG BASE_IMAGE=capella/base
 
 FROM $BASE_IMAGE as prebuild
 
+SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
+ENV SHELL=/bin/bash
+
 RUN apt-get update && \
     apt-get install -y \
     openjdk-17-jre \
@@ -36,13 +39,10 @@ ONBUILD ENV SWTBOT_REPOSITORY=file:/tmp/extensions/swtbot
 # Online build (latest version)
 FROM prebuild as build_online
 ONBUILD ENV PY4J_REPOSITORY=https://eclipse.py4j.org/
-ONBUILD ENV EASE_REPOSITORY=https://download.eclipse.org/ease/integration/nightly
+ONBUILD ENV EASE_REPOSITORY=https://download.eclipse.org/ease/release/latest/
 ONBUILD ENV SWTBOT_REPOSITORY=https://download.eclipse.org/technology/swtbot/releases/latest/
 
 FROM build_${BUILD_TYPE}
-
-SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
-ENV SHELL=/bin/bash
 
 USER techuser
 
