@@ -1,0 +1,65 @@
+# SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
+# SPDX-License-Identifier: Apache-2.0
+
+variables:
+  CAPELLA_DOCKER_IMAGES_REVISION: main
+
+export-to-t4c:
+  image: $DOCKER_REGISTRY/t4c/client/exporter:${CAPELLA_DOCKER_IMAGES_TAG}
+  script:
+    # The local file handler reads input from /tmp/data, so we'll copy to the right place.
+    - mv . /tmp/data
+
+    # Mirror of the Docker ENTRYPOINT
+    - xvfb-run python /opt/scripts/exporter.py
+  variables:
+    # Use local filehandler
+    # Pulling of the Git repository is done by the Gitlab runner
+    FILE_HANDLER: local
+
+    # Semantic Capella version (x.x.x)
+    # Defaults to ${CAPELLA_VERSION}-${CAPELLA_DOCKER_IMAGES_REVISION} if not defined
+    CAPELLA_VERSION: 6.0.0
+
+    # Docker tag, which is used for the t4c/client/exporter image.
+    # Defaults to ${CAPELLA_VERSION}-${CAPELLA_DOCKER_IMAGES_REVISION} if not defined
+    CAPELLA_DOCKER_IMAGES_TAG: ${CAPELLA_VERSION}-${CAPELLA_DOCKER_IMAGES_REVISION}
+
+    # Optional: Relative entrypoint to AIRD file inside repository (starting from the root of the repository).
+    # Must be used if there are multiple projects in the repository/context.
+    # Example: test/test.aird
+    GIT_REPO_ENTRYPOINT: None
+
+    # Required: Hostname of T4C server
+    T4C_REPO_HOST: ${T4C_REPO_HOST}
+
+    # Port of repository endpoint to the T4C server
+    # Defaults to 2036
+    T4C_REPO_PORT: 2036
+
+    # Required: T4C project name
+    T4C_PROJECT_NAME: ${T4C_PROJECT_NAME}
+
+    # Required: T4C repository name
+    T4C_REPO_NAME: ${T4C_REPO_NAME}
+
+    # T4C username (for repository login)
+    # The user needs access to the specific repository
+    T4C_USERNAME: ${T4C_USERNAME}
+
+    # T4C password (for repository login)
+    T4C_PASSWORD: ${T4C_PASSWORD}
+
+    # HTTP username
+    HTTP_LOGIN: ${HTTP_LOGIN}
+
+    # HTTP password
+    HTTP_PASSWORD: ${HTTP_PASSWORD}
+
+    # HTTP Port (port for REST API endpoint)
+    # Defaults to 8080
+    HTTP_PORT: 8080
+
+    # Log level. All Python `logging` levels are allowed.
+    # Defaults to INFO
+    LOG_LEVEL: INFO

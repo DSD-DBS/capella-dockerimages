@@ -1,6 +1,5 @@
 <!--
 SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
-
 SPDX-License-Identifier: Apache-2.0
 -->
 
@@ -57,6 +56,11 @@ flowchart LR
     style H fill:#f2f1a7
     style I fill:#d0a7f2
 ```
+
+# Use our CI templates
+
+Our CI templates are work in progress. You can find the list of supported instances here:
+[CI templates README](./ci-templates/README.md)
 
 ## Build the images
 
