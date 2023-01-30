@@ -17,7 +17,7 @@ ERROR_PREFIX = "Export of model to TeamForCapella server failed"
 
 T4C_PROJECT_NAME: str = os.environ["T4C_PROJECT_NAME"]
 
-GIT_ENTRYPONT: str | None = os.getenv("GIT_REPO_ENTRYPOINT", None)
+ENTRYPOINT: str | None = os.getenv("ENTRYPOINT", None)
 
 
 def check_capella_version():
@@ -62,11 +62,11 @@ def checkout_git_repository() -> pathlib.Path:
     return git_dir
 
 
-def determine_model_dir(git_dir: pathlib.Path) -> pathlib.Path:
-    model_dir: pathlib.Path = git_dir
-    if GIT_ENTRYPONT:
+def determine_model_dir(root_path: pathlib.Path) -> pathlib.Path:
+    model_dir: pathlib.Path = root_path
+    if ENTRYPOINT:
         model_dir = pathlib.Path(
-            "/tmp/git", str(pathlib.Path(GIT_ENTRYPONT).parent).lstrip("/")
+            root_path, str(pathlib.Path(ENTRYPOINT).parent).lstrip("/")
         )
     return model_dir
 
@@ -79,8 +79,8 @@ def check_dir_for_aird_file(path: pathlib.Path):
             f"{ERROR_PREFIX} - Entrypoint (if provided) or root directoy does not contain a .aird file"
         )
 
-    if GIT_ENTRYPONT and (
-        not pathlib.Path(GIT_ENTRYPONT).name == aird_files[0].name
+    if ENTRYPOINT and (
+        not pathlib.Path(ENTRYPOINT).name == aird_files[0].name
     ):
         raise RuntimeError(
             f"{ERROR_PREFIX} - .aird file found in git entrypoint directory does not match git entrypoint aird"
@@ -163,10 +163,11 @@ if __name__ == "__main__":
 
     file_handler = os.getenv("FILE_HANDLER", "")
     if file_handler == "local":
-        _model_dir = pathlib.Path("/tmp/data")
+        _root_path = pathlib.Path(os.getenv("ROOT_PATH", "/tmp/data"))
     else:  # USE GIT
-        _git_dir = checkout_git_repository()
-        _model_dir = determine_model_dir(_git_dir)
+        _root_path = checkout_git_repository()
+
+    _model_dir = determine_model_dir(root_path=_root_path)
 
     check_dir_for_aird_file(_model_dir)
     _project_dir: pathlib.Path = get_model_dir_with_project_name(_model_dir)

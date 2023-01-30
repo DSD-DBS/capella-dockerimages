@@ -18,7 +18,7 @@ log.setLevel("DEBUG")
 
 pytestmark = pytest.mark.t4c_server
 
-GIT_REPO_ENTRYPOINT: str = "/test-project/test-project.aird"
+ENTRYPOINT: str = "/test-project/test-project.aird"
 
 SUBPROCESS_DEFAULT_ARGS: dict[str, t.Any] = {
     "check": True,
@@ -42,9 +42,7 @@ def fixture_t4c_exporter_git_env(
     request: pytest.FixtureRequest,
 ) -> dict[str, str]:
     env: dict[str, str] = (
-        t4c_exporter_env
-        | git_general_env
-        | {"GIT_REPO_ENTRYPOINT": GIT_REPO_ENTRYPOINT}
+        t4c_exporter_env | git_general_env | {"ENTRYPOINT": ENTRYPOINT}
     )
 
     if hasattr(request, "param"):
@@ -80,7 +78,10 @@ def fixture_t4c_exporter_container(
 def test_export_model_happy(
     t4c_exporter_container: containers.Container, t4c_ip_addr: str
 ):
-    conftest.wait_for_container(t4c_exporter_container, "Export finished")
+    conftest.wait_for_container(
+        t4c_exporter_container,
+        "Export of model to TeamForCapella server finished",
+    )
 
     t4c_projects: list[
         dict[str, str]
@@ -103,7 +104,7 @@ def test_export_model_happy(
     "t4c_exporter_git_env",
     [
         pytest.param(
-            {"GIT_REPO_ENTRYPOINT": "/this/does/not/exist"},
+            {"ENTRYPOINT": "/this/does/not/exist"},
             id="invalid-entrypoint",
         ),
         pytest.param(
@@ -152,7 +153,7 @@ def _checkout_git_repository(server_ip: str, path: pathlib.Path):
 def _copy_test_project_into_git_repo(git_path: pathlib.Path):
     target_dir: pathlib.Path = pathlib.Path(
         git_path,
-        str(pathlib.Path(GIT_REPO_ENTRYPOINT).parent).lstrip("/"),
+        str(pathlib.Path(ENTRYPOINT).parent).lstrip("/"),
     )
     target_dir.mkdir(exist_ok=True, parents=True)
 
