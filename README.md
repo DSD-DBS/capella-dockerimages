@@ -57,7 +57,7 @@ flowchart LR
     style I fill:#d0a7f2
 ```
 
-# Use our CI templates
+### Use our CI templates
 
 Our CI templates are work in progress. You can find the list of supported instances here:
 [CI templates README](./ci-templates/README.md)
