@@ -34,5 +34,4 @@ In addition, you have to add the following environment variables on repository l
 - `T4C_USERNAME` and `T4C_PASSWORD`: Username / password for the T4C repository
 
 This is the minimal configuration. For more advanced configuration options,
-
 please refer to the [Gitlab CI template](./exporter.yaml).
