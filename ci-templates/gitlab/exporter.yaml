@@ -63,3 +63,9 @@ export-to-t4c:
     # Log level. All Python `logging` levels are allowed.
     # Defaults to INFO
     LOG_LEVEL: INFO
+
+    # Path to the root of the repository. Do not overwrite!
+    ROOT_PATH: $CI_BUILDS_DIR/model
+
+    # Clone Git repository into root path
+    GIT_CLONE_PATH: $CI_BUILDS_DIR/model
