@@ -90,12 +90,8 @@ def check_dir_for_aird_file(path: pathlib.Path):
 # T4C determines the project name based on the directory name
 def get_model_dir_with_project_name(path: pathlib.Path) -> pathlib.Path:
     project_dir: pathlib.Path = pathlib.Path(f"/tmp/{T4C_PROJECT_NAME}")
-    project_dir.mkdir(parents=True)
 
-    for file in path.glob("*"):
-        shutil.copy2(file, project_dir)
-
-    return project_dir
+    return shutil.copytree(path, project_dir)
 
 
 def run_exporter_script(model_dir: pathlib.Path) -> None:
@@ -139,7 +135,7 @@ def run_exporter_script(model_dir: pathlib.Path) -> None:
     ) as popen:
         if popen.stdout:
             for line in popen.stdout:
-                print(line, end="")
+                print(line, end="", flush=True)
                 if (
                     "Team for Capella server unreachable" in line
                     or "Name or service not known" in line
@@ -156,8 +152,6 @@ def run_exporter_script(model_dir: pathlib.Path) -> None:
 
     if (return_code := popen.returncode) != 0:
         raise subprocess.CalledProcessError(return_code, command)
-
-    log.info("Export of model to TeamForCapella server finished")
 
 
 def is_capella_5_x_x() -> bool:
@@ -179,4 +173,4 @@ if __name__ == "__main__":
 
     run_exporter_script(_project_dir)
 
-    print("Export finished")
+    log.info("Export of model to TeamForCapella server finished")
