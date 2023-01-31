@@ -7,9 +7,6 @@ FROM $BASE_IMAGE
 ARG CAPELLA_VERSION
 ENV CAPELLA_VERSION=${CAPELLA_VERSION}
 
-SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
-ENV SHELL=/bin/bash
-
 USER root
 
 # Otherwise, xvfb runs with PID 1 and signal USR1 is not handled properly
@@ -23,7 +20,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 COPY git_askpass.py /etc/git_askpass.py
-COPY backup.py /opt/scripts/backup.py
+COPY exporter.py /opt/scripts/exporter.py
 
 ENV DISPLAY :99
 
@@ -33,4 +30,4 @@ RUN chown -R techuser /opt/capella
 
 USER techuser
 
-ENTRYPOINT [ "/tini", "--", "xvfb-run", "python", "/opt/scripts/backup.py" ]
+ENTRYPOINT [ "/tini", "--", "xvfb-run", "python", "/opt/scripts/exporter.py" ]

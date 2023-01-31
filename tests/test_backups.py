@@ -6,7 +6,6 @@ from __future__ import annotations
 import logging
 import os
 import pathlib
-import re
 import subprocess
 
 import conftest
@@ -16,118 +15,61 @@ from docker.models import containers
 log = logging.getLogger(__file__)
 log.setLevel("DEBUG")
 
-CAPELLA_VERSION = os.getenv("CAPELLA_VERSION", "")
+pytestmark = pytest.mark.t4c_server
 
 
-def is_capella_5_x_x() -> bool:
-    return bool(re.match(r"5.[0-9]+.[0-9]+", CAPELLA_VERSION))
+@pytest.fixture(name="t4c_backup_local_env")
+def fixture_t4c_backup_local_env(
+    git_general_env: dict[str, str],
+    t4c_general_env: dict[str, str],
+    request: pytest.FixtureRequest,
+) -> dict[str, str]:
+    env: dict[str, str] = git_general_env | t4c_general_env
 
+    if hasattr(request, "param"):
+        env = env | request.param
 
-def is_capella_6_x_x() -> bool:
-    return bool(re.match(r"6.[0-9]+.[0-9]+", CAPELLA_VERSION))
-
-
-@pytest.fixture(name="local_git_container")
-def fixture_local_git_container() -> containers.Container:
-    ports: dict[str, int | None] = {"80/tcp": None}
-
-    with conftest.get_container(
-        image="local-git-server", ports=ports
-    ) as container:
-        conftest.wait_for_container(container, "server started")
-        yield container
+    return env
 
 
 @pytest.fixture(name="t4c_backup_container")
 def fixture_t4c_backup_container(
-    local_git_container: containers.Container,
-    t4c_server_container: containers.Container,
-    request,
+    t4c_backup_local_env: dict[str, str]
 ) -> containers.Container:
-    t4c_server_container.reload()
-
-    t4c_repo_port = t4c_server_container.ports["2036/tcp"][0]["HostPort"]
-    t4c_cdo_port = t4c_server_container.ports["12036/tcp"][0]["HostPort"]
-
-    if "HTTP_PORT" in request.param:
-        request.param["HTTP_PORT"] = t4c_server_container.ports["8080/tcp"][0][
-            "HostPort"
-        ]
-
-    local_git_container.reload()
-    git_server_port = local_git_container.ports["80/tcp"][0]["HostPort"]
-
-    env: dict[str, str] = {
-        "GIT_REPO_URL": f"http://localhost:{git_server_port}/git/git-test-repo.git",
-        "GIT_REPO_BRANCH": "backup-test",
-        "GIT_USERNAME": "any",
-        "GIT_PASSWORD": "any",
-        "T4C_REPO_HOST": "127.0.0.1",
-        "T4C_REPO_PORT": t4c_repo_port,
-        "T4C_CDO_PORT": t4c_cdo_port,
-        "T4C_REPO_NAME": "test-repo",
-        "T4C_PROJECT_NAME": "test-project",
-        "T4C_USERNAME": "admin",
-        "T4C_PASSWORD": "password",
-        "LOG_LEVEL": "INFO",
-        "INCLUDE_COMMIT_HISTORY": "false",
-    } | request.param
-
     with conftest.get_container(
-        image="t4c/client/backup", environment=env, network="host"
+        image="t4c/client/backup", environment=t4c_backup_local_env
     ) as container:
         yield container
 
 
-@pytest.fixture(name="t4c_server_container")
-def fixture_t4c_server_container(request) -> containers.Container:
-    env: dict[str, str] = {"REST_API_PASSWORD": "password"} | request.param
-
-    ports: dict[str, int | None] = {
-        "2036/tcp": None,
-        "8080/tcp": None,
-        "12036/tcp": None,
-    }
-
-    with conftest.get_container(
-        image="t4c/server/server",
-        ports=ports,
-        environment=env,
-        path=pathlib.Path(__file__).parents[0]
-        / "t4c-server-test-data"
-        / "data"
-        / CAPELLA_VERSION,
-        mount_path="/data",
-    ) as container:
-        conftest.wait_for_container(
-            container, "!MESSAGE Warmup done for repository test-repo."
-        )
-        yield container
-
-
-@pytest.mark.t4c_server
 @pytest.mark.parametrize(
-    "t4c_server_container,t4c_backup_container",
+    "t4c_server_volumes,t4c_server_env,t4c_backup_local_env",
     [
-        pytest.param({"ENABLE_CDO": "true"}, {"CONNECTION_TYPE": "telnet"}),
         pytest.param(
+            {"init": True},
+            {"ENABLE_CDO": "true"},
+            {"CONNECTION_TYPE": "telnet"},
+        ),
+        pytest.param(
+            {"init": True},
             {"ENABLE_CDO": "false"},
             {"CONNECTION_TYPE": "telnet"},
             marks=pytest.mark.skipif(
-                condition=is_capella_6_x_x(),
+                condition=conftest.is_capella_6_x_x(),
                 reason="CDO disabled by default for capella >= 6.0.0",
             ),
         ),
         pytest.param(
+            {"init": True},
             {"ENABLE_CDO": "false"},
             {
                 "CONNECTION_TYPE": "http",
                 "HTTP_LOGIN": "admin",
                 "HTTP_PASSWORD": "password",
-                "HTTP_PORT": None,
+                "HTTP_PORT": "8080",
             },
             marks=pytest.mark.skipif(
-                condition=is_capella_5_x_x(),
+                condition=conftest.is_capella_5_x_x(),
                 reason="conncetion type http is not supported for capella < 6.0.0",
             ),
         ),
@@ -136,53 +78,65 @@ def fixture_t4c_server_container(request) -> containers.Container:
 )
 def test_model_backup_happy(
     t4c_backup_container: containers.Container,
-    local_git_container: containers.Container,
+    git_http_port: str,
     tmp_path: pathlib.Path,
 ):
-    conftest.wait_for_container(t4c_backup_container, "Backup finished")
+    conftest.wait_for_container(
+        t4c_backup_container,
+        "Import of model from TeamForCapella server finished",
+    )
 
-    git_server_port = local_git_container.ports["80/tcp"][0]["HostPort"]
+    git_path = tmp_path / "test-git-data"
+    git_path.mkdir()
+
     subprocess.run(
         [
             "git",
             "clone",
-            f"http://localhost:{git_server_port}/git/git-test-repo.git",
-            tmp_path,
+            f"http://127.0.0.1:{git_http_port}/git/git-test-repo.git",
+            git_path,
         ],
         check=True,
     )
     try:
         subprocess.run(
-            ["git", "switch", "backup-test"], check=True, cwd=tmp_path
+            ["git", "switch", "backup-test"], check=True, cwd=git_path
         )
     except subprocess.CalledProcessError:
         log.debug("backup failed - backup-test branch does not exists")
         raise
 
-    assert os.path.exists(tmp_path / ".project")
-    assert os.path.exists(tmp_path / "test-project.afm")
-    assert os.path.exists(tmp_path / "test-project.aird")
-    assert os.path.exists(tmp_path / "test-project.capella")
+    assert os.path.exists(git_path / ".project")
+    assert os.path.exists(git_path / "test-project.afm")
+    assert os.path.exists(git_path / "test-project.aird")
+    assert os.path.exists(git_path / "test-project.capella")
 
 
-@pytest.mark.t4c_server
 @pytest.mark.parametrize(
-    "t4c_server_container,t4c_backup_container",
+    "t4c_server_volumes,t4c_server_env,t4c_backup_local_env",
     [
         # CONNECTION_TYPE "unknown" is not allowed
-        ({"ENABLE_CDO": "true"}, {"CONNECTION_TYPE": "unknown"}),
+        (
+            {"init": True},
+            {"ENABLE_CDO": "true"},
+            {"CONNECTION_TYPE": "unknown"},
+        ),
         pytest.param(
+            {"init": True},
             {"ENABLE_CDO": "false"},
             {"CONNECTION_TYPE": "telnet"},
             marks=pytest.mark.skipif(
-                condition=is_capella_5_x_x(),
+                condition=conftest.is_capella_5_x_x(),
                 reason="CDO enabled by default for capella < 6.0.0",
             ),
         ),
-        ({"ENABLE_CDO": "false"}, {"CONNECTION_TYPE": "http"}),
+        ({"init": True}, {"ENABLE_CDO": "false"}, {"CONNECTION_TYPE": "http"}),
     ],
     indirect=True,
 )
 def test_model_backup_unhappy(t4c_backup_container):
     with pytest.raises(RuntimeError):
-        conftest.wait_for_container(t4c_backup_container, "Backup finished")
+        conftest.wait_for_container(
+            t4c_backup_container,
+            "Import of model from TeamForCapella server finished",
+        )

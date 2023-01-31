@@ -14,7 +14,7 @@ log.setLevel("DEBUG")
 
 
 @pytest.fixture(name="mode_success", params=["json", "json2", "legacy"])
-def fixture_mode_success(request) -> str:
+def fixture_mode_success(request: pytest.FixtureRequest) -> str:
     return request.param
 
 
@@ -68,7 +68,7 @@ def fixture_container_success(mode_success: str) -> containers.Container:
 
 
 @pytest.fixture(name="mode_failure", params=["json", "legacy"])
-def fixture_mode_failure(request) -> str:
+def fixture_mode_failure(request: pytest.FixtureRequest) -> str:
     return request.param
 
 

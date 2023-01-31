@@ -22,7 +22,7 @@ default_env = {
 
 
 @pytest.fixture(name="success_mode", params=["json", "repositories"])
-def fixture_success_mode(request) -> str:
+def fixture_success_mode(request: pytest.FixtureRequest) -> str:
     return request.param
 
 
@@ -68,14 +68,13 @@ def fixture_container_success(
     with conftest.get_container(
         image="t4c/client/remote",
         environment=env,
-        path=tmp_path,
-        mount_path="/opt/capella/configuration",
+        volumes=conftest.create_volume(tmp_path, "/opt/capella/configuration"),
     ) as container:
         yield container
 
 
 @pytest.fixture(name="failure_mode", params=["json"])
-def fixture_failure_mode(request) -> str:
+def fixture_failure_mode(request: pytest.FixtureRequest) -> str:
     return request.param
 
 

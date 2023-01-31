@@ -71,7 +71,7 @@ export DOCKER_TAG=$(CAPELLA_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
 export CAPELLA_DOCKERIMAGES_REVISION ?= latest
 
 # UID which is used for the techuser in the Docker images
-TECHUSER_UID = 1004370000
+export TECHUSER_UID = 1004370000
 
 # Capella build type (online/offline)
 CAPELLA_BUILD_TYPE ?= online
@@ -84,6 +84,8 @@ PURE_VARIANTS_BUILD_TYPE ?= online
 EASE_BUILD_TYPE ?= online
 
 PURE_VARIANTS_LICENSE_SERVER ?= http://localhost:8080
+
+BUILD_ARCHITECTURE ?= amd64
 
 DOCKER_BUILD_FLAGS ?=
 DOCKER_RUN_FLAGS ?= --add-host=host.docker.internal:host-gateway --rm
@@ -133,7 +135,8 @@ all: \
 	t4c/client/ease \
 	capella/ease/remote \
 	capella/readonly \
-	t4c/client/backup
+	t4c/client/backup \
+	t4c/client/exporter
 
 base:
 	docker build $(DOCKER_BUILD_FLAGS) --build-arg UID=$(TECHUSER_UID) -t $(DOCKER_PREFIX)$@:$(CAPELLA_DOCKERIMAGES_REVISION) base
@@ -205,8 +208,14 @@ capella/readonly: capella/ease/remote
 
 t4c/client/backup: SHELL=./capella_loop.sh
 t4c/client/backup: t4c/client/base
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG --build-arg CAPELLA_VERSION=$$CAPELLA_VERSION backups
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BUILD_ARCHITECTURE=$(BUILD_ARCHITECTURE) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG --build-arg CAPELLA_VERSION=$$CAPELLA_VERSION backups
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
+
+t4c/client/exporter: SHELL=./capella_loop.sh
+t4c/client/exporter: t4c/client/base
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BUILD_ARCHITECTURE=$(BUILD_ARCHITECTURE) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG --build-arg CAPELLA_VERSION=$$CAPELLA_VERSION exporter
+	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
+
 
 capella/builder:
 	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(CAPELLA_DOCKERIMAGES_REVISION) builder
@@ -316,7 +325,7 @@ local-git-server:
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push; \
 
 ifeq ($(RUN_TESTS_WITH_T4C_SERVER), 1)
-test: t4c/client/backup local-git-server t4c/server/server
+test: t4c/client/backup t4c/client/exporter local-git-server t4c/server/server
 endif
 
 ifeq ($(RUN_TESTS_WITH_T4C_CLIENT), 1)
