@@ -78,7 +78,7 @@ def fixture_t4c_backup_container(
 )
 def test_model_backup_happy(
     t4c_backup_container: containers.Container,
-    git_ip_addr: str,
+    git_http_port: str,
     tmp_path: pathlib.Path,
 ):
     conftest.wait_for_container(t4c_backup_container, "Backup finished")
@@ -90,7 +90,7 @@ def test_model_backup_happy(
         [
             "git",
             "clone",
-            f"http://{git_ip_addr}:80/git/git-test-repo.git",
+            f"http://127.0.0.1:{git_http_port}/git/git-test-repo.git",
             git_path,
         ],
         check=True,

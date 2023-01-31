@@ -43,7 +43,9 @@ GIT_PASSWORD: str = "any"
 
 @pytest.fixture(name="git_container")
 def fixture_git_container() -> containers.Container:
-    with get_container(image="local-git-server") as container:
+    with get_container(
+        image="local-git-server", ports={"80/tcp": None}
+    ) as container:
         wait_for_container(container, "server started")
         yield container
 
@@ -52,6 +54,12 @@ def fixture_git_container() -> containers.Container:
 def fixture_git_ip_addr(git_container: containers.Containe) -> str:
     git_container.reload()
     return git_container.attrs["NetworkSettings"]["IPAddress"]
+
+
+@pytest.fixture(name="git_http_port")
+def fixture_git_http_port(git_container: containers.Container) -> str:
+    git_container.reload()
+    return git_container.ports["80/tcp"][0]["HostPort"]
 
 
 @pytest.fixture(name="git_general_env")
@@ -110,6 +118,7 @@ def fixture_t4c_server_container(
     with get_container(
         image="t4c/server/server",
         environment=t4c_server_env,
+        ports={"8080/tcp": None},
         volumes=t4c_server_volumes,
     ) as container:
         wait_for_container(container, wait_for_message)
@@ -122,6 +131,12 @@ def fixture_t4c_ip_addr(
 ) -> str:
     t4c_server_container.reload()
     return t4c_server_container.attrs["NetworkSettings"]["IPAddress"]
+
+
+@pytest.fixture(name="t4c_http_port")
+def fixture_t4c_http_port(t4c_server_container: containers.Container) -> str:
+    t4c_server_container.reload()
+    return t4c_server_container.ports["8080/tcp"][0]["HostPort"]
 
 
 @pytest.fixture(name="t4c_general_env")
@@ -151,8 +166,8 @@ def fixture_t4c_exporter_env(
 
 
 @pytest.fixture(name="init_t4c_server_repo")
-def fixture_init_t4c_server_repo(t4c_ip_addr: str):
-    create_t4c_repository(t4c_ip_addr)
+def fixture_init_t4c_server_repo(t4c_http_port: str):
+    create_t4c_repository(t4c_http_port)
     yield
 
 
@@ -219,9 +234,9 @@ def is_capella_6_x_x() -> bool:
     return bool(re.match(r"6.[0-9]+.[0-9]+", os.getenv("CAPELLA_VERSION", "")))
 
 
-def get_projects_of_t4c_repository(t4c_ip_addr: str) -> list[dict[str, str]]:
+def get_projects_of_t4c_repository(t4c_http_port: str) -> list[dict[str, str]]:
     res = requests.get(
-        f"http://{t4c_ip_addr}:8080/api/v1.0/projects/{T4C_REPO_NAME}",
+        f"http://127.0.0.1:{t4c_http_port}/api/v1.0/projects/{T4C_REPO_NAME}",
         auth=_get_basic_auth(),
         timeout=60,
     )
@@ -233,9 +248,9 @@ def get_projects_of_t4c_repository(t4c_ip_addr: str) -> list[dict[str, str]]:
 # 1. deamon-reload
 # 2. docker restart
 # Related to: https://github.com/moby/moby/issues/42442
-def create_t4c_repository(t4c_ip_addr: str):
+def create_t4c_repository(t4c_http_port: str):
     res = requests.post(
-        f"http://{t4c_ip_addr}:8080/api/v1.0/repositories",
+        f"http://127.0.0.1:{t4c_http_port}/api/v1.0/repositories",
         auth=_get_basic_auth(),
         timeout=60,
         json={
