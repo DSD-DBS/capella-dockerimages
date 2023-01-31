@@ -27,7 +27,8 @@ export-to-t4c:
     T4C_REPO_NAME: testrepo # T4C repository name
 ```
 
-In addition, you have to add the following environment variables on repository level:
+In addition, you have to add the following environment variables on repository level.
+Make sure to enable the "Expand variable reference" flag.
 
 - `CAPELLA_DOCKER_IMAGES_REVISION`: Revision of this Github repository
 - `HTTP_LOGIN` and `HTTP_PASSWORD`: Username / password for the REST API
