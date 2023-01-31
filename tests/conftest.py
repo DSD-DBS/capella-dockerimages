@@ -178,12 +178,10 @@ def get_container(
     environment: dict[str, str] | None = None,
     volumes: dict[str, dict[str, str]] | None = None,
     entrypoint: list[str] | None = None,
-    use_docker_prefix: bool = True,
 ) -> cabc.Iterator[containers.Container]:
-    if use_docker_prefix:
-        docker_prefix = os.getenv("DOCKER_PREFIX", "")
-        docker_tag = os.getenv("DOCKER_TAG", "latest")
-        image = f"{docker_prefix}{image}:{docker_tag}"
+    docker_prefix = os.getenv("DOCKER_PREFIX", "")
+    docker_tag = os.getenv("DOCKER_TAG", "latest")
+    image = f"{docker_prefix}{image}:{docker_tag}"
 
     container = client.containers.run(
         image=image,
