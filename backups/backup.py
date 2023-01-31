@@ -78,7 +78,7 @@ def run_importer_script() -> None:
     ) as popen:
         if popen.stdout:
             for line in popen.stdout:
-                print(line, end="")
+                print(line, end="", flush=True)
                 if (
                     "Team for Capella server unreachable" in line
                     or "Name or service not known" in line
@@ -241,8 +241,8 @@ def get_http_envs() -> tuple[str, str, str]:
 
 
 if __name__ == "__main__":
-    model_dir = pathlib.Path(OUTPUT_FOLDER)
-    model_dir.mkdir(exist_ok=True)
+    _model_dir = pathlib.Path(OUTPUT_FOLDER)
+    _model_dir.mkdir(exist_ok=True)
 
     run_importer_script()
 
@@ -250,8 +250,8 @@ if __name__ == "__main__":
     if file_handler == "local":
         pass
     else:  # USE GIT
-        git_dir = checkout_git_repository()
-        copy_exported_files_into_git_repo(model_dir)
-        git_commit_and_push(git_dir)
+        _git_dir = checkout_git_repository()
+        copy_exported_files_into_git_repo(_model_dir)
+        git_commit_and_push(_git_dir)
 
-    print("Backup finished")
+    log.info("Import of model from TeamForCapella server finished")

@@ -81,7 +81,10 @@ def test_model_backup_happy(
     git_http_port: str,
     tmp_path: pathlib.Path,
 ):
-    conftest.wait_for_container(t4c_backup_container, "Backup finished")
+    conftest.wait_for_container(
+        t4c_backup_container,
+        "Import of model from TeamForCapella server finished",
+    )
 
     git_path = tmp_path / "test-git-data"
     git_path.mkdir()
@@ -133,4 +136,7 @@ def test_model_backup_happy(
 )
 def test_model_backup_unhappy(t4c_backup_container):
     with pytest.raises(RuntimeError):
-        conftest.wait_for_container(t4c_backup_container, "Backup finished")
+        conftest.wait_for_container(
+            t4c_backup_container,
+            "Import of model from TeamForCapella server finished",
+        )
