@@ -89,9 +89,7 @@ def check_dir_for_aird_file(path: pathlib.Path):
 
 # T4C determines the project name based on the directory name
 def get_model_dir_with_project_name(path: pathlib.Path) -> pathlib.Path:
-    project_dir: pathlib.Path = pathlib.Path(f"/tmp/{T4C_PROJECT_NAME}")
-
-    return shutil.copytree(path, project_dir)
+    return shutil.copytree(path, pathlib.Path(f"/tmp/{T4C_PROJECT_NAME}"))
 
 
 def run_exporter_script(model_dir: pathlib.Path) -> None:
