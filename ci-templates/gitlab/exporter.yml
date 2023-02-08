@@ -15,7 +15,7 @@ export-to-t4c:
     FILE_HANDLER: local
 
     # Semantic Capella version (x.x.x) >= 6.0.0
-    # Defaults to ${CAPELLA_VERSION}-${CAPELLA_DOCKER_IMAGES_REVISION} if not defined
+    # Defaults to 6.0.0 if not defined
     CAPELLA_VERSION: 6.0.0
 
     # Docker tag, which is used for the t4c/client/exporter image.

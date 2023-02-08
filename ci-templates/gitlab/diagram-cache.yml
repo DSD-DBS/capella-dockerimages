@@ -1,0 +1,43 @@
+# SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
+# SPDX-License-Identifier: Apache-2.0
+
+variables:
+  CAPELLA_DOCKER_IMAGES_REVISION: main
+
+update_capella_diagram_cache:
+  stage: deploy
+  image:
+    name: $DOCKER_REGISTRY/capella/cli:${CAPELLA_DOCKER_IMAGES_TAG}
+    entrypoint: [""]
+  script:
+    - pip install capellambse
+    - mkdir diagram_cache
+    - |
+      xvfb-run python <<EOF
+      import capellambse
+      print(f"capellambse.__version__: {capellambse.__version__}")
+      model = capellambse.MelodyModel("$ENTRY_POINT", diagram_cache="diagram_cache")
+      model.update_diagram_cache(
+          capella_cli="/opt/capella/capella",
+          create_index=True
+      )
+      EOF
+  artifacts:
+    paths:
+      - "diagram_cache"
+  variables:
+    # Virtual display used to run Capella in the background.
+    # Do not modify the value!
+    DISPLAY: ":99"
+
+    # Docker tag, which is used for the capella/cli image.
+    # Defaults to ${CAPELLA_VERSION}-${CAPELLA_DOCKER_IMAGES_REVISION} if not defined
+    CAPELLA_DOCKER_IMAGES_TAG: ${CAPELLA_VERSION}-${CAPELLA_DOCKER_IMAGES_REVISION}
+
+    # Relative entrypoint to .aird file inside repository (starting from the root of the repository).
+    # Example: test/test.aird
+    ENTRY_POINT: null
+
+    # Semantic Capella version (x.x.x) >= 5.0.0
+    # Defaults to 6.0.0 if not defined
+    CAPELLA_VERSION: 6.0.0
