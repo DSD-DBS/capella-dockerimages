@@ -15,7 +15,7 @@ update_capella_diagram_cache:
       xvfb-run python <<EOF
       import capellambse
       print(f"capellambse.__version__: {capellambse.__version__}")
-      model = capellambse.MelodyModel("$ENTRY_POINT", diagram_cache="diagram_cache")
+      model = capellambse.MelodyModel("$ENTRYPOINT", diagram_cache="diagram_cache")
       model.update_diagram_cache(
           capella_cli="/opt/capella/capella",
           create_index=True
@@ -35,7 +35,7 @@ update_capella_diagram_cache:
 
     # Relative entrypoint to .aird file inside repository (starting from the root of the repository).
     # Example: test/test.aird
-    # ENTRY_POINT: ${ENTRY_POINT}
+    # ENTRYPOINT: ${ENTRYPOINT}
 
     # Semantic Capella version (x.x.x) >= 5.0.0
     # Defaults to 6.0.0 if not defined
