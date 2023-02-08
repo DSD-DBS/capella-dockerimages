@@ -14,8 +14,9 @@ update_capella_diagram_cache:
     - |
       xvfb-run python <<EOF
       import capellambse
+      import os
       print(f"capellambse.__version__: {capellambse.__version__}")
-      model = capellambse.MelodyModel("$ENTRYPOINT", diagram_cache="diagram_cache")
+      model = capellambse.MelodyModel(os.environ["ENTRYPOINT"], diagram_cache="diagram_cache")
       model.update_diagram_cache(
           capella_cli="/opt/capella/capella",
           create_index=True
