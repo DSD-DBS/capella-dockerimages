@@ -5,7 +5,6 @@ variables:
   CAPELLA_DOCKER_IMAGES_REVISION: main
 
 update_capella_diagram_cache:
-  stage: deploy
   image:
     name: $DOCKER_REGISTRY/capella/cli:${CAPELLA_DOCKER_IMAGES_TAG}
     entrypoint: [""]
