@@ -14,7 +14,7 @@ export-to-t4c:
     # Pulling of the Git repository is done by the Gitlab runner
     FILE_HANDLER: local
 
-    # Semantic Capella version (x.x.x)
+    # Semantic Capella version (x.x.x) >= 6.0.0
     # Defaults to ${CAPELLA_VERSION}-${CAPELLA_DOCKER_IMAGES_REVISION} if not defined
     CAPELLA_VERSION: 6.0.0
 
@@ -64,5 +64,5 @@ export-to-t4c:
     # Path to the root of the repository. Do not overwrite!
     ROOT_PATH: $CI_BUILDS_DIR/model
 
-    # Clone Git repository into root path
+    # Clone Git repository into root path. Do not overwrite!
     GIT_CLONE_PATH: $CI_BUILDS_DIR/model

@@ -15,7 +15,7 @@ Please add the following section to your `.gitlab-ci.yml`:
 
 ```yml
 variables:
-  CAPELLA_VERSION: 6.0.0 # Enter the Capella version of the model here
+  CAPELLA_VERSION: 6.0.0 # Enter the Capella version of the model here, only versions >= 6.0.0 are supported
 
 include:
   - remote: https://raw.githubusercontent.com/DSD-DBS/capella-dockerimages/${CAPELLA_DOCKER_IMAGES_REVISION}/ci-templates/gitlab/exporter.yaml
@@ -31,7 +31,7 @@ In addition, you have to add the following environment variables on repository l
 Make sure to enable the "Expand variable reference" flag.
 
 - `CAPELLA_DOCKER_IMAGES_REVISION`: Revision of this Github repository
-- `HTTP_LOGIN` and `HTTP_PASSWORD`: Username / password for the REST API
+- `HTTP_LOGIN` and `HTTP_PASSWORD`: Username / password for the T4C REST API
 - `T4C_USERNAME` and `T4C_PASSWORD`: Username / password for the T4C repository
 
 This is the minimal configuration. For more advanced configuration options,
