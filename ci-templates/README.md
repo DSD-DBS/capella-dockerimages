@@ -3,6 +3,6 @@ SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager cont
 SPDX-License-Identifier: Apache-2.0
 -->
 
-Currently, we support the following instances:
+# Supported instances
 
 - Gitlab CI/CD ([More information](./gitlab/README.md))
