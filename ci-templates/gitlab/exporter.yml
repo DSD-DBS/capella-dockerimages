@@ -33,7 +33,7 @@ export-to-t4c:
     # Optional: Relative entrypoint to .aird file inside repository (starting from the root of the repository).
     # Must be used if there are multiple projects in the repository/context.
     # Example: test/test.aird
-    ENTRYPOINT: null
+    # ENTRYPOINT: null
 
     # Required: Hostname of T4C server
     T4C_REPO_HOST: ${T4C_REPO_HOST}
