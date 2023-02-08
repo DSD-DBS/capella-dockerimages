@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: CC0-1.0
 
 # Capella
-capella/versions/*/capella.tar.gz
-capella/versions/*/capella.zip
+capella/versions/*/*/capella.tar.gz
+capella/versions/*/*/capella.zip
 capella/versions/*/dropins/*
 !capella/versions/*/dropins/.gitkeep
 capella/.dockerignore
