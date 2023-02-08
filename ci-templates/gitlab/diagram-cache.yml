@@ -39,4 +39,4 @@ update_capella_diagram_cache:
 
     # Semantic Capella version (x.x.x) >= 5.0.0
     # Defaults to 6.0.0 if not defined
-    CAPELLA_VERSION: 6.0.0
+    # CAPELLA_VERSION: 6.0.0
