@@ -13,14 +13,25 @@ update_capella_diagram_cache:
     - mkdir diagram_cache
     - |
       xvfb-run python <<EOF
-      import capellambse
+      import json
       import os
+
+      import capellambse
+
+      ignore_duplicate_uuids = os.getenv(
+          "IGNORE_DUPLICATE_UUIDS_AND_VOID_ALL_WARRANTIES", ""
+      ).lower() in ("true", "1", "t")
+
+      resources = json.loads(os.getenv("RESOURCES", "null"))
+
       print(f"capellambse.__version__: {capellambse.__version__}")
-      model = capellambse.MelodyModel(os.environ["ENTRYPOINT"], diagram_cache="diagram_cache")
-      model.update_diagram_cache(
-          capella_cli="/opt/capella/capella",
-          create_index=True
+      model = capellambse.MelodyModel(
+          os.environ["ENTRYPOINT"],
+          diagram_cache="diagram_cache",
+          ignore_duplicate_uuids_and_void_all_warranties=ignore_duplicate_uuids,
+          resources=resources,
       )
+      model.update_diagram_cache(capella_cli="/opt/capella/capella", create_index=True)
       EOF
   artifacts:
     paths:
