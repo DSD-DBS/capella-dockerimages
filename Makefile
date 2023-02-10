@@ -52,9 +52,6 @@ GIT_PASSWORD ?= password
 # Preferred RDP port on your host system
 RDP_PORT ?= 3390
 
-# Preferred fileservice port on your host system
-FILESYSTEM_PORT ?= 8081
-
 # Preferred metrics port on your host system
 METRICS_PORT ?= 9118
 
@@ -258,7 +255,6 @@ run-t4c/client/remote-legacy: t4c/client/remote
 		-e T4C_SERVER_PORT=$(T4C_SERVER_PORT) \
 		-e T4C_REPOSITORIES=$(T4C_REPOSITORIES) \
 		-e RMT_PASSWORD=$(RMT_PASSWORD) \
-		-e FILESERVICE_PASSWORD=$(RMT_PASSWORD) \
 		-e T4C_USERNAME=$(T4C_USERNAME) \
 		-p $(RDP_PORT):3389 \
 		-p $(FILESYSTEM_PORT):8000 \
@@ -272,7 +268,6 @@ run-t4c/client/remote-json: t4c/client/remote
 		-e T4C_LICENCE_SECRET=$(T4C_LICENCE_SECRET) \
 		-e T4C_JSON=$(T4C_JSON) \
 		-e RMT_PASSWORD=$(RMT_PASSWORD) \
-		-e FILESERVICE_PASSWORD=$(RMT_PASSWORD) \
 		-e T4C_USERNAME=$(T4C_USERNAME) \
 		-p $(RDP_PORT):3389 \
 		-p $(FILESYSTEM_PORT):8000 \
@@ -285,7 +280,6 @@ run-t4c/client/remote/pure-variants: t4c/client/remote/pure-variants
 		-e T4C_LICENCE_SECRET=$(T4C_LICENCE_SECRET) \
 		-e T4C_JSON=$(T4C_JSON) \
 		-e RMT_PASSWORD=$(RMT_PASSWORD) \
-		-e FILESERVICE_PASSWORD=$(RMT_PASSWORD) \
 		-e T4C_USERNAME=$(T4C_USERNAME) \
 		-e PURE_VARIANTS_LICENSE_SERVER=$(PURE_VARIANTS_LICENSE_SERVER) \
 		-v $$(pwd)/volumes/pure-variants:/inputs/pure-variants \
