@@ -67,6 +67,7 @@ please refer to the [Gitlab CI template](./diagram-cache.yml).
 
 The image builder template builds all images supported by this repository and pushes them to any Docker registry.
 We use it in our automated deployment environment for our [Collaboration project](https://github.com/DSD-DBS/capella-collab-manager).
+We have restricted internet access in our build environment, so the Gitlab CI is optimized for restricted network access.
 
 Please add the following section to your `.gitlab-ci.yml`:
 
@@ -100,6 +101,35 @@ Make sure to enable the "Expand variable reference" flag.
   - `DOCKER_REGISTRY`: The URL to the Docker registry
   - `DOCKER_REGISTRY_USER`: Username of a techuser with push permission to the Docker registry
   - `DOCKER_REGISTRY_PASSWORD`: Corresponding password of the techuser
+
+The tree inside of your Gitlab repository should look like:
+
+```zsh
+├── 5.0.0
+│   ├── capella.tar.gz
+│   ├── dropins
+│   ├── ease
+│   └── updateSite
+├── 5.2.0
+│   ├── capella.tar.gz
+│   ├── dropins
+│   ├── ease
+│   └── updateSite
+├── 6.0.0
+│   ├── capella.tar.gz
+│   ├── dropins
+│   ├── ease
+│   └── updateSite
+├── libs
+│   ├── libicu66_66.1-2ubuntu2_amd64.deb
+│   ├── libjavascriptcoregtk-4.0-18_2.28.1-1_amd64.deb
+│   ├── libjpeg-turbo8_2.0.3-0ubuntu1.20.04.1_amd64.deb
+│   ├── libjpeg8_8c-2ubuntu8_amd64.deb
+│   └── libwebkit2gtk-4.0-37_2.28.1-1_amd64.deb
+└── pure-variants
+    ├── dependencies
+    └── updateSite
+```
 
 This is the minimal configuration. For more advanced configuration options,
 please refer to the [Gitlab CI template](./image-builder.yml).
