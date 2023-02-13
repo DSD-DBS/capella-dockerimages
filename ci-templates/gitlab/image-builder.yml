@@ -237,7 +237,7 @@ t4c/client/exporter:
     - |
       docker build $DOCKER_BUILD_ARGS \
       -t $DOCKER_REGISTRY/t4c/client/exporter:$DOCKER_TAG \
-      --build-arg BASE_IMAGE=$BASE_IMAGE
+      --build-arg BASE_IMAGE=$BASE_IMAGE \
       exporter
     - *push
 
@@ -258,7 +258,7 @@ t4c/client/remote:
     - |
       docker build $DOCKER_BUILD_ARGS \
       -t $DOCKER_REGISTRY/t4c/client/remote:$DOCKER_TAG \
-      --build-arg BASE_IMAGE=$BASE_IMAGE
+      --build-arg BASE_IMAGE=$BASE_IMAGE \
       remote
     - *push
 
