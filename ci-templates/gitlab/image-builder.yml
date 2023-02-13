@@ -51,6 +51,7 @@ variables:
     value: "6.0.0"
     description: "Capella version. Please make sure that a subdirectory with the name of the value exists. The value must be valid ASCII and may contain lowercase and uppercase letters, digits, underscores, periods and dashes."
   DOCKER_BUILD_ARGS: "--no-cache"
+  BUILD_ARCHITECTURE: amd64
 
 default:
   image: $DOCKER_REGISTRY/base
@@ -122,7 +123,7 @@ capella/base:
   script:
     - *prepare
     - *docker
-    - mv ../capella.tar.gz ./capella/versions/$CAPELLA_VERSION/capella.tar.gz
+    - mv ../capella.tar.gz ./capella/versions/$CAPELLA_VERSION/$BUILD_ARCHITECTURE/capella.tar.gz
     - mv ../dropins/* ./capella/versions/$CAPELLA_VERSION/dropins/
     - mv ../../libs/* ./capella/libs/
     - >
