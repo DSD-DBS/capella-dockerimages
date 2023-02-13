@@ -44,7 +44,7 @@ Please add the following section to your `.gitlab-ci.yml`:
 
 ```yml
 variables:
-  CAPELLA_VERSION: 6.0.0 # Enter the Capella version of the model here, only versions >= 6.0.0 are supported
+  CAPELLA_VERSION: 6.0.0 # Enter the Capella version of the model here
 
 include:
   - remote: https://raw.githubusercontent.com/DSD-DBS/capella-dockerimages/${CAPELLA_DOCKER_IMAGES_REVISION}/ci-templates/gitlab/diagram-cache.yml
