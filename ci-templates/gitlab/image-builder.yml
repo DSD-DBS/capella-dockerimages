@@ -72,12 +72,6 @@ default:
   - docker pull $BASE_IMAGE
 
 .push: &push
-  - >
-    if [ "$CAPELLA_DOCKER_IMAGES_REVISION" = "main" ];
-    then
-      docker image tag $IMAGE:$DOCKER_TAG $IMAGE:$CAPELLA_VERSION-latest;
-      docker push $IMAGE:$CAPELLA_VERSION-latest;
-    fi
   - docker push $IMAGE:$DOCKER_TAG
 
 .ease: &ease
