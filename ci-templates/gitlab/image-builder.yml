@@ -126,6 +126,7 @@ capella/base:
         --build-arg BUILD_TYPE=offline \
         --build-arg CAPELLA_VERSION=$CAPELLA_VERSION \
         --build-arg INJECT_PACKAGES=true \
+        --build-arg BUILD_ARCHITECTURE="$BUILD_ARCHITECTURE" \
         --build-arg BASE_IMAGE=$BASE_IMAGE \
         capella
     - *push
