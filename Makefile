@@ -130,6 +130,7 @@ export MAKE_CURRENT_TARGET=$@
 
 all: \
 	base \
+	jupyter \
 	capella/base \
 	capella/cli \
 	capella/remote \
@@ -147,6 +148,10 @@ all: \
 
 base:
 	docker build $(DOCKER_BUILD_FLAGS) --build-arg UID=$(TECHUSER_UID) -t $(DOCKER_PREFIX)$@:$(CAPELLA_DOCKERIMAGES_REVISION) base
+	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) DOCKER_TAG=$(CAPELLA_DOCKERIMAGES_REVISION) IMAGENAME=$@ .push
+
+jupyter:
+	docker build $(DOCKER_BUILD_FLAGS) --build-arg UID=$(TECHUSER_UID) -t $(DOCKER_PREFIX)$@:$(CAPELLA_DOCKERIMAGES_REVISION) jupyter
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) DOCKER_TAG=$(CAPELLA_DOCKERIMAGES_REVISION) IMAGENAME=$@ .push
 
 capella/base: SHELL=./capella_loop.sh
