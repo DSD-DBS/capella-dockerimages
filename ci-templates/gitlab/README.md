@@ -9,6 +9,7 @@ Currently, we provide the following Gitlab CI/CD templates:
 
 - [Export to T4C](#export-to-t4c): Export model in repository to T4C using the merge strategy
 - [Diagram cache](#diagram-cache): Export diagrams of a Capella model and store them in Gitlab artifacts
+- [Image builder](#image-builder): Build and push all Docker images to any Docker registry.
 
 ## Export to T4C
 
@@ -61,3 +62,44 @@ Make sure to enable the "Expand variable reference" flag.
 
 This is the minimal configuration. For more advanced configuration options,
 please refer to the [Gitlab CI template](./diagram-cache.yml).
+
+## Image builder
+
+The image builder template builds all images supported by this repository and pushes them to any Docker registry.
+We use it in our automated deployment environment for our [Collaboration project](https://github.com/DSD-DBS/capella-collab-manager).
+
+Please add the following section to your `.gitlab-ci.yml`:
+
+```yml
+include:
+  - remote: https://raw.githubusercontent.com/DSD-DBS/capella-dockerimages/${CAPELLA_DOCKER_IMAGES_REVISION}/ci-templates/gitlab/image-builder.yml
+```
+
+The resulting images will be tagged in the following format:
+`$CAPELLA_VERSION-$CAPELLA_DOCKER_IMAGES_REVISION-$GITLAB_IMAGE_BUILDER_REVISION`, e.g., `6.0.0-v1.7.0-v1.0.0`.
+
+where:
+
+- `$CAPELLA_VERSION` is the semantic Capella version, e.g., `6.0.0` or `5.2.0`
+- `$CAPELLA_DOCKER_IMAGES_REVISION` is the revision of this Github repository.
+
+  - All characters matching the regex `[^a-zA-Z0-9.]` will be replaces with `-`
+  - Any branch or tag name is supported as revision
+
+- `$GITLAB_IMAGE_BUILDER_REVISION` is the revision of the Gitlab repository, where the Gitlab CI template is included.
+
+  - We use the [predefined Gitlab CI variable](https://docs.gitlab.com/ee/ci/variables/predefined_variables.html) `$CI_COMMIT_REF_NAME` to determine the name of the branch or tag.
+  - This part can be used for your own versioning, e.g., when you have to patch the Capella archives, but the semantic version is still the same.
+
+In addition, you have to add the following environment variables on repository level.
+Make sure to enable the "Expand variable reference" flag.
+
+- `CAPELLA_DOCKER_IMAGES_REVISION`: Revision of this Github repository.
+- `UID_ENV`: The user ID which will be used for the technical user.
+- Variables related to the Docker registry (all parameters are passed to `docker login`):
+  - `DOCKER_REGISTRY`: The URL to the Docker registry
+  - `DOCKER_REGISTRY_USER`: Username of a techuser with push permission to the Docker registry
+  - `DOCKER_REGISTRY_PASSWORD`: Corresponding password of the techuser
+
+This is the minimal configuration. For more advanced configuration options,
+please refer to the [Gitlab CI template](./image-builder.yml).
