@@ -7,7 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 
 Currently, we provide the following Gitlab CI/CD templates:
 
-- Export to T4C (Synchronize model in repository with T4C using the merge strategy)
+- [Export to T4C](#export-to-t4c): Export model in repository to T4C using the merge strategy
+- [Diagram cache](#diagram-cache): Export diagrams of a Capella model and store them in Gitlab artifacts
 
 ## Export to T4C
 
@@ -18,7 +19,7 @@ variables:
   CAPELLA_VERSION: 6.0.0 # Enter the Capella version of the model here, only versions >= 6.0.0 are supported
 
 include:
-  - remote: https://raw.githubusercontent.com/DSD-DBS/capella-dockerimages/${CAPELLA_DOCKER_IMAGES_REVISION}/ci-templates/gitlab/exporter.yaml
+  - remote: https://raw.githubusercontent.com/DSD-DBS/capella-dockerimages/${CAPELLA_DOCKER_IMAGES_REVISION}/ci-templates/gitlab/exporter.yml
 
 export-to-t4c:
   variables:
@@ -35,4 +36,28 @@ Make sure to enable the "Expand variable reference" flag.
 - `T4C_USERNAME` and `T4C_PASSWORD`: Username / password for the T4C repository
 
 This is the minimal configuration. For more advanced configuration options,
-please refer to the [Gitlab CI template](./exporter.yaml).
+please refer to the [Gitlab CI template](./exporter.yml).
+
+## Diagram cache
+
+Please add the following section to your `.gitlab-ci.yml`:
+
+```yml
+variables:
+  CAPELLA_VERSION: 6.0.0 # Enter the Capella version of the model here
+
+include:
+  - remote: https://raw.githubusercontent.com/DSD-DBS/capella-dockerimages/${CAPELLA_DOCKER_IMAGES_REVISION}/ci-templates/gitlab/diagram-cache.yml
+
+update_capella_diagram_cache:
+  variables:
+    ENTRY_POINT: test/test.aird # Entry point to the .aird file of the model (relative from root level of the repository)
+```
+
+In addition, you have to add the following environment variables on repository level.
+Make sure to enable the "Expand variable reference" flag.
+
+- `CAPELLA_DOCKER_IMAGES_REVISION`: Revision of this Github repository
+
+This is the minimal configuration. For more advanced configuration options,
+please refer to the [Gitlab CI template](./diagram-cache.yml).

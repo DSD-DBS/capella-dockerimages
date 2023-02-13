@@ -63,7 +63,8 @@ FROM base_new as build_offline
 # ONBUILD is required here
 # https://github.com/moby/moby/issues/26533#issuecomment-246966836
 ONBUILD ARG CAPELLA_VERSION="5.2.0"
-ONBUILD COPY ./versions/${CAPELLA_VERSION}/capella.* /opt/
+ONBUILD ARG BUILD_ARCHITECTURE="amd"
+ONBUILD COPY ./versions/${CAPELLA_VERSION}/${BUILD_ARCHITECTURE}/capella.* /opt/
 
 
 FROM build_${BUILD_TYPE}

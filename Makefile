@@ -85,9 +85,10 @@ EASE_BUILD_TYPE ?= online
 
 PURE_VARIANTS_LICENSE_SERVER ?= http://localhost:8080
 
+# Build architecture: amd64 or arm64
 BUILD_ARCHITECTURE ?= amd64
 
-DOCKER_BUILD_FLAGS ?=
+DOCKER_BUILD_FLAGS ?= --platform linux/$(BUILD_ARCHITECTURE)
 DOCKER_RUN_FLAGS ?= --add-host=host.docker.internal:host-gateway --rm
 
 # If set to 1, we will push the images to the specified registry
@@ -145,7 +146,14 @@ base:
 capella/base: SHELL=./capella_loop.sh
 capella/base: base
 	envsubst < capella/.dockerignore.template > capella/.dockerignore
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(CAPELLA_DOCKERIMAGES_REVISION) --build-arg BUILD_TYPE=$(CAPELLA_BUILD_TYPE) --build-arg CAPELLA_VERSION=$$CAPELLA_VERSION --build-arg INSTALL_OLD_GTK_VERSION=$(INSTALL_OLD_GTK_VERSION) capella
+	docker build $(DOCKER_BUILD_FLAGS) \
+		-t $(DOCKER_PREFIX)$@:$$DOCKER_TAG \
+		--build-arg BUILD_ARCHITECTURE=$(BUILD_ARCHITECTURE) \
+		--build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(CAPELLA_DOCKERIMAGES_REVISION) \
+		--build-arg BUILD_TYPE=$(CAPELLA_BUILD_TYPE) \
+		--build-arg CAPELLA_VERSION=$$CAPELLA_VERSION \
+		--build-arg INSTALL_OLD_GTK_VERSION=$(INSTALL_OLD_GTK_VERSION) \
+		capella
 	rm capella/.dockerignore
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
