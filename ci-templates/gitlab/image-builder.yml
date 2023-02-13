@@ -101,11 +101,11 @@ base:
   script:
     - *prepare
     - *docker
-    - >
-      docker build $DOCKER_BUILD_ARGS
-        -t $DOCKER_REGISTRY/base2:$DOCKER_TAG
-        --build-arg UID=$UID_ENV
-        --build-arg BASE_IMAGE=$BASE_IMAGE
+    - |
+      docker build $DOCKER_BUILD_ARGS \
+        -t $DOCKER_REGISTRY/base2:$DOCKER_TAG \
+        --build-arg UID=$UID_ENV \
+        --build-arg BASE_IMAGE=$BASE_IMAGE \
         base
     - *push
 
@@ -126,13 +126,13 @@ capella/base:
     - mv ../capella.tar.gz ./capella/versions/$CAPELLA_VERSION/$BUILD_ARCHITECTURE/capella.tar.gz
     - mv ../dropins/* ./capella/versions/$CAPELLA_VERSION/dropins/
     - mv ../../libs/* ./capella/libs/
-    - >
-      docker build $DOCKER_BUILD_ARGS
-        -t $DOCKER_REGISTRY/capella/base:$DOCKER_TAG
-        --build-arg BUILD_TYPE=offline
-        --build-arg CAPELLA_VERSION=$CAPELLA_VERSION
-        --build-arg INJECT_PACKAGES=true
-        --build-arg BASE_IMAGE=$BASE_IMAGE
+    - |
+      docker build $DOCKER_BUILD_ARGS \
+        -t $DOCKER_REGISTRY/capella/base:$DOCKER_TAG \
+        --build-arg BUILD_TYPE=offline \
+        --build-arg CAPELLA_VERSION=$CAPELLA_VERSION \
+        --build-arg INJECT_PACKAGES=true \
+        --build-arg BASE_IMAGE=$BASE_IMAGE \
         capella
     - *push
 
@@ -150,10 +150,10 @@ capella/cli:
   script:
     - *prepare
     - *docker
-    - >
-      docker build $DOCKER_BUILD_ARGS
-      -t $DOCKER_REGISTRY/capella/cli:$DOCKER_TAG
-      --build-arg BASE_IMAGE=$BASE_IMAGE
+    - |
+      docker build $DOCKER_BUILD_ARGS \
+      -t $DOCKER_REGISTRY/capella/cli:$DOCKER_TAG \
+      --build-arg BASE_IMAGE=$BASE_IMAGE \
       cli
     - *push
 
@@ -171,10 +171,10 @@ capella/remote:
   script:
     - *prepare
     - *docker
-    - >
-      docker build $DOCKER_BUILD_ARGS
-      -t $DOCKER_REGISTRY/capella/remote:$DOCKER_TAG
-      --build-arg BASE_IMAGE=$BASE_IMAGE
+    - |
+      docker build $DOCKER_BUILD_ARGS \
+      -t $DOCKER_REGISTRY/capella/remote:$DOCKER_TAG \
+      --build-arg BASE_IMAGE=$BASE_IMAGE \
       remote
     - *push
 
@@ -193,10 +193,10 @@ t4c/client/base:
     - *prepare
     - *docker
     - mv ../updateSite/* t4c/updateSite/$CAPELLA_VERSION/
-    - >
-      docker build $DOCKER_BUILD_ARGS
-      -t $DOCKER_REGISTRY/t4c/client/base:$DOCKER_TAG
-      --build-arg CAPELLA_VERSION=$CAPELLA_VERSION
+    - |
+      docker build $DOCKER_BUILD_ARGS \
+      -t $DOCKER_REGISTRY/t4c/client/base:$DOCKER_TAG \
+      --build-arg CAPELLA_VERSION=$CAPELLA_VERSION \
       --build-arg BASE_IMAGE=$BASE_IMAGE t4c
     - *push
 
@@ -214,9 +214,9 @@ t4c/client/backup:
   script:
     - *prepare
     - *docker
-    - >
-      docker build $DOCKER_BUILD_ARGS
-      -t $DOCKER_REGISTRY/t4c/client/backup:$DOCKER_TAG
+    - |
+      docker build $DOCKER_BUILD_ARGS \
+      -t $DOCKER_REGISTRY/t4c/client/backup:$DOCKER_TAG \
       --build-arg BASE_IMAGE=$BASE_IMAGE backups
     - *push
 
@@ -236,9 +236,9 @@ t4c/client/exporter:
   script:
     - *prepare
     - *docker
-    - >
-      docker build $DOCKER_BUILD_ARGS
-      -t $DOCKER_REGISTRY/t4c/client/exporter:$DOCKER_TAG
+    - |
+      docker build $DOCKER_BUILD_ARGS \
+      -t $DOCKER_REGISTRY/t4c/client/exporter:$DOCKER_TAG \
       --build-arg BASE_IMAGE=$BASE_IMAGE
       exporter
     - *push
@@ -257,9 +257,9 @@ t4c/client/remote:
   script:
     - *prepare
     - *docker
-    - >
-      docker build $DOCKER_BUILD_ARGS
-      -t $DOCKER_REGISTRY/t4c/client/remote:$DOCKER_TAG
+    - |
+      docker build $DOCKER_BUILD_ARGS \
+      -t $DOCKER_REGISTRY/t4c/client/remote:$DOCKER_TAG \
       --build-arg BASE_IMAGE=$BASE_IMAGE
       remote
     - *push
@@ -280,11 +280,11 @@ t4c/client/remote/pure-variants:
     - *docker
     - mv ../../pure-variants/dependencies/* pure-variants/dependencies/
     - mv ../../pure-variants/updateSite/* pure-variants/updateSite/
-    - >
-      docker build $DOCKER_BUILD_ARGS
-      -t $DOCKER_REGISTRY/t4c/client/remote/pure-variants:$DOCKER_TAG
-      --build-arg BUILD_TYPE=offline
-      --build-arg BASE_IMAGE=$BASE_IMAGE
+    - |
+      docker build $DOCKER_BUILD_ARGS \
+      -t $DOCKER_REGISTRY/t4c/client/remote/pure-variants:$DOCKER_TAG \
+      --build-arg BUILD_TYPE=offline \
+      --build-arg BASE_IMAGE=$BASE_IMAGE \
       pure-variants
     - *push
 
@@ -303,11 +303,11 @@ capella/ease:
     - *prepare
     - *docker
     - *ease
-    - >
-      docker build $DOCKER_BUILD_ARGS
-      -t $DOCKER_REGISTRY/capella/ease:$DOCKER_TAG
-      --build-arg BUILD_TYPE=offline
-      --build-arg BASE_IMAGE=$BASE_IMAGE
+    - |
+      docker build $DOCKER_BUILD_ARGS \
+      -t $DOCKER_REGISTRY/capella/ease:$DOCKER_TAG \
+      --build-arg BUILD_TYPE=offline \
+      --build-arg BASE_IMAGE=$BASE_IMAGE \
       ease
     - *push
 
@@ -325,10 +325,10 @@ capella/ease/remote:
   script:
     - *prepare
     - *docker
-    - >
-      docker build $DOCKER_BUILD_ARGS
-      -t $DOCKER_REGISTRY/capella/ease/remote:$DOCKER_TAG
-      --build-arg BASE_IMAGE=$BASE_IMAGE
+    - |
+      docker build $DOCKER_BUILD_ARGS \
+      -t $DOCKER_REGISTRY/capella/ease/remote:$DOCKER_TAG \
+      --build-arg BASE_IMAGE=$BASE_IMAGE \
       remote
     - *push
 
@@ -346,10 +346,10 @@ capella/readonly:
   script:
     - *prepare
     - *docker
-    - >
-      docker build $DOCKER_BUILD_ARGS
-      -t $DOCKER_REGISTRY/capella/readonly:$DOCKER_TAG
-      --build-arg BASE_IMAGE=$BASE_IMAGE
+    - |
+      docker build $DOCKER_BUILD_ARGS \
+      -t $DOCKER_REGISTRY/capella/readonly:$DOCKER_TAG \
+      --build-arg BASE_IMAGE=$BASE_IMAGE \
       readonly
     - *push
 
@@ -368,10 +368,10 @@ t4c/client/ease:
     - *prepare
     - *docker
     - *ease
-    - >
-      docker build $DOCKER_BUILD_ARGS
-      -t $DOCKER_REGISTRY/t4c/client/ease:$DOCKER_TAG
-      --build-arg BUILD_TYPE=offline
+    - |
+      docker build $DOCKER_BUILD_ARGS \
+      -t $DOCKER_REGISTRY/t4c/client/ease:$DOCKER_TAG \
+      --build-arg BUILD_TYPE=offline \
       --build-arg BASE_IMAGE=$BASE_IMAGE ease
     - *push
 
@@ -389,10 +389,10 @@ t4c/client/ease/remote:
   script:
     - *prepare
     - *docker
-    - >
-      docker build $DOCKER_BUILD_ARGS
-      -t $IMAGE:$DOCKER_TAG
-      --build-arg BASE_IMAGE=$BASE_IMAGE
+    - |
+      docker build $DOCKER_BUILD_ARGS \
+      -t $IMAGE:$DOCKER_TAG \
+      --build-arg BASE_IMAGE=$BASE_IMAGE \
       remote
     - *push
 
@@ -412,10 +412,10 @@ t4c/client/ease/remote/debug:
     - *docker
     - mkdir -p ease/debug/libs
     - mv ../ease/debug/code.deb ease/debug/libs/code.deb
-    - >
-      docker build $DOCKER_BUILD_ARGS
-      -t $IMAGE:$DOCKER_TAG
-      --build-arg NETWORK_ACCESS=restricted
-      --build-arg BASE_IMAGE=$BASE_IMAGE
+    - |
+      docker build $DOCKER_BUILD_ARGS \
+      -t $IMAGE:$DOCKER_TAG \
+      --build-arg NETWORK_ACCESS=restricted \
+      --build-arg BASE_IMAGE=$BASE_IMAGE \
       ease/debug
     - *push
