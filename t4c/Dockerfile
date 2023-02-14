@@ -11,6 +11,8 @@ ENV SHELL=/bin/bash
 
 # Install T4C
 COPY ./updateSite/$CAPELLA_VERSION /opt/updateSite
+COPY patch_t4c.sh /opt/scripts/patch_t4c.sh
+RUN chmod +x /opt/scripts/patch_t4c.sh
 WORKDIR /opt/updateSite
 RUN chmod +r $(ls /opt/updateSite/*.zip)
 
@@ -25,19 +27,7 @@ RUN T4C_ZIP=$(find . -type f -iname "com.thalesgroup.mde.melody.team.license.upd
     -installIU com.thalesgroup.mde.melody.collab.feature.feature.group,com.thalesgroup.mde.melody.collab.maintenance.feature.feature.group,com.thalesgroup.mde.melody.collab.licbranding.feature.feature.group && \
     chown -R techuser /opt/capella/configuration
 
-RUN T4C_PATCH_ZIP=$(find . -type f -iname "com.thalesgroup.mde.melody.team.license.update.featurepatch-*.zip" | head -n 1 | cut -c 3-); \
-    if [[ -n $T4C_PATCH_ZIP ]]; \
-    then \
-    /opt/capella/capella \
-    -consoleLog \
-    -application org.eclipse.equinox.p2.director \
-    -profile DefaultProfile \
-    -tag InstallTeamForCapella \
-    -noSplash \
-    -repository jar:file:///opt/updateSite/$T4C_PATCH_ZIP!/ \
-    -installIU com.thalesgroup.mde.melody.collab.featurepatch.feature.group && \
-    chown -R techuser /opt/capella/configuration; \
-    fi
+RUN /opt/scripts/patch_t4c.sh
 
 USER root
 
