@@ -263,7 +263,7 @@ The remote images allow to extend the
 - Capella base image (`capella/base`) or
 - the T4C base image (`t4c/client/base`)
 
-with an RDP server, a metrics endpoint to measure the container activity and a fileservice that serves the current workspace structure.
+with an RDP server, a metrics endpoint to measure the container activity.
 
 It is a basic Linux server with an [Openbox](http://openbox.org/) installation.
 
@@ -470,7 +470,6 @@ docker run -d \
     -e T4C_SERVER_PORT=$T4C_SERVER_PORT \
     -e T4C_REPOSITORIES=$T4C_REPOSITORIES \
     -e RMT_PASSWORD=$RMT_PASSWORD \
-    -e FILESERVICE_PASSWORD=$FILESERVICE_PASSWORD \
     -e T4C_USERNAME=$T4C_USERNAME \
     -e AUTOSTART_CAPELLA=$AUTOSTART_CAPELLA \
     -e RESTART_CAPELLA=$RESTART_CAPELLA \
@@ -483,7 +482,6 @@ Please replace the followings variables:
 - `$RMT_PASSWORD` is the password for remote connections (for the login via RDP).
 - `$T4C_LICENCE_SECRET` to your TeamForCapella licence secret.
 - `$T4C_USERNAME` is the username that is suggested when connecting to t4c.
-- `$FILESERVICE_PASSWORD` with the password for the fileservice, which is used as basic authentication password.
 - `AUTOSTART_CAPELLA` defines the auto-start behaviour of Capella. When set to 1 (default), Capella will be started as soon
   as an RDP connection has been established to the running container.
 - `RESTART_CAPELLA` defines the restart behaviour of Capella. When set to 1 (default) and when `AUTOSTART_CAPELLA=1`,

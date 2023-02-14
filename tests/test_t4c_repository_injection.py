@@ -16,7 +16,6 @@ log.setLevel("DEBUG")
 default_env = {
     "T4C_LICENCE_SECRET": "",
     "RMT_PASSWORD": "my_long_password",
-    "FILESERVICE_PASSWORD": "password",
     "T4C_USERNAME": "techuser",
 }
 

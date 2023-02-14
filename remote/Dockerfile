@@ -56,10 +56,6 @@ RUN pip install prometheus-client
 
 COPY metrics.py .metrics.py
 
-# Run fileservice endpoint
-COPY fastapi /opt/fastapi
-RUN pip install /opt/fastapi
-
 ENV AUTOSTART_CAPELLA=1
 ENV RESTART_CAPELLA=1
 
