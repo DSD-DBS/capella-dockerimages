@@ -93,7 +93,7 @@ base:
   before_script:
     - *normalizeTag
   variables:
-    BASE_IMAGE: $DOCKER_REGISTRY/base
+    BASE_IMAGE: debian:bullseye
     IMAGE: $DOCKER_REGISTRY/base2
   script:
     - *prepare
@@ -195,7 +195,8 @@ t4c/client/base:
       docker build $DOCKER_BUILD_ARGS \
       -t $DOCKER_REGISTRY/t4c/client/base:$DOCKER_TAG \
       --build-arg CAPELLA_VERSION=$CAPELLA_VERSION \
-      --build-arg BASE_IMAGE=$BASE_IMAGE t4c
+      --build-arg BASE_IMAGE=$BASE_IMAGE \
+      t4c
     - *push
 
 t4c/client/backup:
@@ -215,7 +216,8 @@ t4c/client/backup:
     - |
       docker build $DOCKER_BUILD_ARGS \
       -t $DOCKER_REGISTRY/t4c/client/backup:$DOCKER_TAG \
-      --build-arg BASE_IMAGE=$BASE_IMAGE backups
+      --build-arg BASE_IMAGE=$BASE_IMAGE \
+      backups
     - *push
 
 t4c/client/exporter:
@@ -370,7 +372,8 @@ t4c/client/ease:
       docker build $DOCKER_BUILD_ARGS \
       -t $DOCKER_REGISTRY/t4c/client/ease:$DOCKER_TAG \
       --build-arg BUILD_TYPE=offline \
-      --build-arg BASE_IMAGE=$BASE_IMAGE ease
+      --build-arg BASE_IMAGE=$BASE_IMAGE \
+      ease
     - *push
 
 t4c/client/ease/remote:

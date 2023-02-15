@@ -84,8 +84,8 @@ where:
 - `$CAPELLA_VERSION` is the semantic Capella version, e.g., `6.0.0` or `5.2.0`
 - `$CAPELLA_DOCKER_IMAGES_REVISION` is the revision of this Github repository.
 
-  - All characters matching the regex `[^a-zA-Z0-9.]` will be replaces with `-`
   - Any branch or tag name is supported as revision
+  - All characters matching the regex `[^a-zA-Z0-9.]` will be replaces with `-`
 
 - `$GITLAB_IMAGE_BUILDER_REVISION` is the revision of the Gitlab repository, where the Gitlab CI template is included.
 
