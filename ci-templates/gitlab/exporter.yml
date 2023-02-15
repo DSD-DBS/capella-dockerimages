@@ -36,34 +36,34 @@ export-to-t4c:
     # ENTRYPOINT: null
 
     # Required: Hostname of T4C server
-    T4C_REPO_HOST: ${T4C_REPO_HOST}
+    # T4C_REPO_HOST: ${T4C_REPO_HOST}
 
     # Port of repository endpoint to the T4C server
     # Defaults to 2036
-    T4C_REPO_PORT: 2036
+    # T4C_REPO_PORT: 2036
 
     # Required: T4C project name
-    T4C_PROJECT_NAME: ${T4C_PROJECT_NAME}
+    # T4C_PROJECT_NAME: ${T4C_PROJECT_NAME}
 
     # Required: T4C repository name
-    T4C_REPO_NAME: ${T4C_REPO_NAME}
+    # T4C_REPO_NAME: ${T4C_REPO_NAME}
 
     # T4C username (for repository login)
     # The user needs access to the specific repository
-    T4C_USERNAME: ${T4C_USERNAME}
+    # T4C_USERNAME: ${T4C_USERNAME}
 
     # T4C password (for repository login)
-    T4C_PASSWORD: ${T4C_PASSWORD}
+    # T4C_PASSWORD: ${T4C_PASSWORD}
 
     # HTTP username
-    HTTP_LOGIN: ${HTTP_LOGIN}
+    # HTTP_LOGIN: ${HTTP_LOGIN}
 
     # HTTP password
-    HTTP_PASSWORD: ${HTTP_PASSWORD}
+    # HTTP_PASSWORD: ${HTTP_PASSWORD}
 
     # HTTP Port (port for REST API endpoint)
     # Defaults to 8080
-    HTTP_PORT: 8080
+    # HTTP_PORT: 8080
 
     # Log level. All Python `logging` levels are allowed.
     # Defaults to INFO
