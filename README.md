@@ -271,6 +271,9 @@ things.
    <feature patch zip file>,<install iu>,<tag>
    ```
 
+Please ensure that the `patch_info.csv` contains an empty line at the end otherwise
+the last feature patch might not be installed.
+
 ### 4. Docker images `capella/remote` and `t4c/client/remote`
 
 The remote images allow to extend the
