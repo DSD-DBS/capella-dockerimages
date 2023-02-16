@@ -32,6 +32,7 @@ This repository includes Docker files to build the following Docker images:
 | `capella/remote`<br>`t4c/client/remote`|The remote image will add an RDP server on top of any other image. This will provide the user the possibility to connect and work inside the container.|
 | `capella/readonly`|This image has capability to clone a Git repository, will load the project into the workspace and also offers RDP.|
 | `t4c/client/backup`|This extends the T4C client base image to import a model from T4C and export it to Git.|
+| `t4c/client/exporter`|This extends the T4C client base image to import a model from GIT and export it to T4C.|
 | `capella/remote/pure-variants`<br>`t4c/client/remote/pure-variants`|This extends the remote image with pure::variants support.|
 
 Important for building the Docker images is to strictly follow the sequence.
@@ -357,7 +358,19 @@ docker build -t t4c/client/backup \
     backup
 ```
 
-### 8. Docker images `capella/remote/pure-variants` and `t4c/client/remote/pure-variants`
+### 9. Docker image `t4c/client/exporter`
+
+The T4C client exporter image imports a model from a git repository and exports it to a T4C server.
+
+To build the image, please run:
+
+```zsh
+docker build -t t4c/client/exporter \
+    --build-arg BASE_IMAGE=t4c/client/base \
+    exporter
+```
+
+### 10. Docker images `capella/remote/pure-variants` and `t4c/client/remote/pure-variants`
 
 This Docker image adds the `pure::variants` Capella plugin and allows the definition of a pure variants license server during runtime.
 
@@ -377,7 +390,7 @@ This Docker image adds the `pure::variants` Capella plugin and allows the defini
        pure-variants
    ```
 
-#### 8.1 Download pure::variants dependencies
+#### 10.1 Download pure::variants dependencies
 
 This step is only needed if there is a restricted internet connection in your build environment.
 
@@ -696,6 +709,35 @@ Set the following values for the corresponding keys:
 - `T4C_PASSWORD`: T4C password that is used during the import.
 - `LOG_LEVEL`: your preferred logging level (all Python logging levels are supported).
 - `INCLUDE_COMMIT_HISTORY`: `true` or `false` to define if the T4C commit history should be exported. Important: Exporting the commit history can take a few hours for large models.
+
+### Exporter image
+
+Please run the following command to export from Git to T4C:
+
+```zsh
+docker run -d \
+  -e GIT_REPO_URL=https://github.com/example/example.git \
+  -e GIT_REPO_BRANCH=main \
+  -e GIT_USERNAME=user \
+  -e GIT_PASSWORD=password \
+  -e T4C_REPO_HOST=localhost \
+  -e T4C_REPO_PORT=2036 \
+  -e T4C_REPO_NAME=repoCapella \
+  -e T4C_PROJECT_NAME=test \
+  -e T4C_USERNAME=user \
+  -e T4C_PASSWORD=password \
+  -e HTTP_PORT=8080 \
+  -e HTTP_LOGIN=admin \
+  -e HTTP_PASSWORD=password \
+  -e LOG_LEVEL=DEBUG \
+  t4c/client/exporter
+```
+
+You can find the description for most of the values directly above and here are the additional ones:
+
+- `HTTP_PORT`: port to the T4C http server
+- `HTTP_LOGIN`: username for the REST API. At the moment administrator access is required
+- `HTTP_PASSWORD`: password for the REST API
 
 ## Additional notes
 
