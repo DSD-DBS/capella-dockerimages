@@ -259,8 +259,8 @@ run-capella/readonly-debug: capella/readonly
 		-e GIT_ENTRYPOINT=$(GIT_REPO_ENTRYPOINT) \
 		-e GIT_REVISION=$(GIT_REPO_BRANCH) \
 		-e GIT_DEPTH=$(GIT_REPO_DEPTH) \
-		-e GIT_USERNAME="" \
-		-e GIT_PASSWORD="" \
+		-e GIT_USERNAME="$(GIT_USERNAME)" \
+		-e GIT_PASSWORD="$(GIT_PASSWORD)" \
 		--entrypoint bash \
 		$(DOCKER_PREFIX)capella/readonly:$(DOCKER_TAG)
 
