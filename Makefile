@@ -16,11 +16,20 @@ T4C_SERVER_HOST ?= localhost
 # T4C server port
 T4C_SERVER_PORT ?= 2036
 
-# Predefined T4C username (for the connection dialog or for the importer)
+# Predefined T4C username
 T4C_USERNAME ?= admin
 
-# T4C password for the importer
+# T4C password
 T4C_PASSWORD ?= admin
+
+# T4C http port
+HTTP_PORT ?= 8080
+
+# T4C http username
+HTTP_LOGIN ?= admin
+
+# T4C http password
+HTTP_PASSWORD ?= password
 
 # Remote container rdp password
 RMT_PASSWORD ?= tmp_passwd2
@@ -312,6 +321,25 @@ run-t4c/client/backup: t4c/client/backup
 		-e GIT_PASSWORD="$(GIT_PASSWORD)" \
 		-e LOG_LEVEL="$(LOG_LEVEL)" \
 		$(DOCKER_PREFIX)t4c/client/backup:$(DOCKER_TAG)
+
+run-t4c/client/exporter: t4c/client/exporter
+	docker run $(DOCKER_RUN_FLAGS) \
+		-e GIT_REPO_URL="$(GIT_REPO_URL)" \
+		-e GIT_REPO_BRANCH="$(GIT_REPO_BRANCH)" \
+		-e GIT_USERNAME="$(GIT_USERNAME)" \
+		-e GIT_PASSWORD="$(GIT_PASSWORD)" \
+		-e T4C_REPO_HOST="$(T4C_SERVER_HOST)" \
+		-e T4C_REPO_PORT="$(T4C_SERVER_PORT)" \
+		-e T4C_REPO_NAME="$(T4C_IMPORTER_REPO)" \
+		-e T4C_PROJECT_NAME="$(T4C_IMPORTER_PROJECT)" \
+		-e T4C_USERNAME="$(T4C_USERNAME)" \
+		-e T4C_PASSWORD="$(T4C_PASSWORD)" \
+		-e HTTP_PORT="${HTTP_PORT}" \
+		-e HTTP_LOGIN="${HTTP_LOGIN}" \
+		-e HTTP_PASSWORD="${HTTP_PASSWORD}" \
+		-e LOG_LEVEL="$(LOG_LEVEL)" \
+		$(DOCKER_PREFIX)t4c/client/exporter:$(DOCKER_TAG)
+
 
 debug-t4c/client/backup: LOG_LEVEL=DEBUG
 debug-t4c/client/backup: DOCKER_RUN_FLAGS=-it --entrypoint="bash" -v $$(pwd)/backups/backup.py:/opt/capella/backup.py
