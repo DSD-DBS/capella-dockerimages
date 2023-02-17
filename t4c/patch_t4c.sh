@@ -17,3 +17,4 @@ then
         chown -R techuser /opt/capella/configuration;
     done < /opt/updateSite/patch_info.csv
 fi;
+exit 0;
