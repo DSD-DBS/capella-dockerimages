@@ -47,6 +47,9 @@ variables:
   T4C_CLIENT_EASE_REMOTE_DEBUG:
     value: "0"
     description: "Build the t4c/client/ease/remote/debug image?"
+  JUPYTER:
+    value: "1"
+    description: "Build the jupyter-notebook image?"
   CAPELLA_DOCKER_IMAGES_REVISION:
     value: "main"
     description: "Revision of the Capella Docker images Github repository (https://github.com/DSD-DBS/capella-dockerimages)"
@@ -421,4 +424,25 @@ t4c/client/ease/remote/debug:
       --build-arg NETWORK_ACCESS=restricted \
       --build-arg BASE_IMAGE=$BASE_IMAGE \
       ease/debug
+    - *push
+
+jupyter:
+  stage: build
+  needs:
+    - job: base
+      optional: true
+  rules:
+    - if: '$JUPYTER == "1"'
+      when: always
+  variables:
+    BASE_IMAGE: $DOCKER_REGISTRY/base2
+    IMAGE: $DOCKER_REGISTRY/jupyter-notebook
+  script:
+    - *prepare
+    - *docker
+    - |
+      docker build $DOCKER_BUILD_ARGS \
+      -t $IMAGE:$DOCKER_TAG \
+      --build-arg BASE_IMAGE=$BASE_IMAGE \
+      jupyter
     - *push
