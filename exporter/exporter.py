@@ -149,7 +149,7 @@ def run_exporter_script(model_dir: pathlib.Path) -> None:
                     raise RuntimeError(f"{ERROR_PREFIX} - Unknown host")
                 elif "No such user:" in line:
                     raise RuntimeError(f"{ERROR_PREFIX} - Unknown user")
-                elif "projects exports failed" in line:
+                elif "1 projects exports failed" in line:
                     raise RuntimeError(f"{ERROR_PREFIX} - Export failed")
 
     if (return_code := popen.returncode) != 0:
