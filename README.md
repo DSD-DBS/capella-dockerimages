@@ -257,6 +257,24 @@ plugins.
    docker build -t t4c/client/base --build-arg CAPELLA_VERSION=$CAPELLA_VERSION t4c
    ```
 
+#### Feature Patches
+
+It is possible to provide feature patches for our t4c base image that are installed
+after the initial installation. To install such feature patches, you have to do two
+things.
+
+1. The feature patch `.zip` file needs to be copied into the subdirectory `t4c/updateSite/$CAPELLA_VERSION`
+   of the present repository
+1. You have to create the `patch_info.csv` file inside the same subdirectory if not yet existing
+1. You have to add a new line to the `patch_info.csv` having the following format:
+
+   ```csv
+   <feature patch zip file>,<install iu>,<tag>
+   ```
+
+Please ensure that the `patch_info.csv` contains an empty line at the end otherwise
+the last feature patch might not be installed.
+
 ### 4. Docker images `capella/remote` and `t4c/client/remote`
 
 The remote images allow to extend the
