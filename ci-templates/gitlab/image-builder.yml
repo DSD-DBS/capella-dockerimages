@@ -444,5 +444,5 @@ jupyter:
       docker build $DOCKER_BUILD_ARGS \
       -t $IMAGE:$DOCKER_TAG \
       --build-arg BASE_IMAGE=$BASE_IMAGE \
-      jupyter
+      jupyter-notebook
     - *push
