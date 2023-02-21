@@ -56,6 +56,9 @@ variables:
   CAPELLA_VERSION:
     value: "6.0.0"
     description: "Capella version. Please make sure that a subdirectory with the name of the value exists. The value must be valid ASCII and may contain lowercase and uppercase letters, digits, underscores, periods and dashes."
+  JUPYTER_VERSION:
+    value: "python-3.11"
+    description: "Python version for the jupyter notebook."
   DOCKER_BUILD_ARGS: "--no-cache"
   BUILD_ARCHITECTURE: amd64
 
@@ -434,6 +437,8 @@ jupyter:
   rules:
     - if: '$JUPYTER == "1"'
       when: always
+  before_script:
+    - export DOCKER_TAG=$JUPYTER_VERSION-$(echo $CAPELLA_DOCKER_IMAGES_REVISION | sed 's/[^a-zA-Z0-9.]/-/g')-$CI_COMMIT_REF_NAME    
   variables:
     BASE_IMAGE: $DOCKER_REGISTRY/base2
     IMAGE: $DOCKER_REGISTRY/jupyter-notebook
