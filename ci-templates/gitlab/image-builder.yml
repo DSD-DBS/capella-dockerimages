@@ -442,7 +442,7 @@ jupyter:
     - *docker
     - |
       docker build $DOCKER_BUILD_ARGS \
-      -t $IMAGE:$DOCKER_TAG \
+      -t $IMAGE:python-3.11-$CI_COMMIT_REF_NAME \
       --build-arg BASE_IMAGE=$BASE_IMAGE \
       jupyter-notebook
-    - *push
+    - docker push $IMAGE:python-3.11-$CI_COMMIT_REF_NAME
