@@ -7,7 +7,11 @@ FROM $BASE_IMAGE
 RUN apt update && \
     apt install --yes --no-install-recommends \
     git \
-    git-lfs && \
+    git-lfs \
+    libgirepository1.0-dev \
+    libcairo2-dev \
+    gir1.2-pango-1.0 \
+    graphviz && \
     rm -rf /var/lib/apt/lists/*
 
 COPY docker-entrypoint.sh /
