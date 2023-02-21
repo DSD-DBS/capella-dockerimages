@@ -260,8 +260,8 @@ plugins.
 #### Feature Patches
 
 It is possible to provide feature patches for our t4c base image that are installed
-after the initial installation. To install such feature patches, you have to do two
-things.
+after the initial installation. To install such feature patches, you have to do the
+following things.
 
 1. The feature patch `.zip` file needs to be copied into the subdirectory `t4c/updateSite/$CAPELLA_VERSION`
    of the present repository
@@ -270,6 +270,14 @@ things.
 
    ```csv
    <feature patch zip file>,<install iu>,<tag>
+   ```
+
+   In case that you have one feature patch zip containing different things you want to
+   install you can provide multiple _install iu_, each with a whitespace seperated.
+   So in this case the `patch_info.csv` would contain a line with the following format:
+
+   ```csv
+   <feature patch zip file>,<install iu 1> <install iu 2> ... <install iu n>,<tag>
    ```
 
 Please ensure that the `patch_info.csv` contains an empty line at the end otherwise
