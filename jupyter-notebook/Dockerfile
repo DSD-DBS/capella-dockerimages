@@ -15,6 +15,7 @@ RUN apt update && \
     rm -rf /var/lib/apt/lists/*
 
 COPY docker-entrypoint.sh /
+COPY requirements_template.txt /etc/skel
 
 RUN chmod +x /docker-entrypoint.sh && \
     python3 -m pip install jupyterlab capellambse
