@@ -6,7 +6,7 @@ if [[ -n "/opt/updateSite/patch_info.csv" ]];
 then
     while IFS="," read -r t4c_patch_zip install_iu tag
     do
-        INSTALL_IU_JOIN=$(echo $install_iu | sed "s/ /, /g");
+        INSTALL_IU_JOIN=$(echo $install_iu | sed "s/ /,/g");
         /opt/capella/capella \
         -consoleLog \
         -application org.eclipse.equinox.p2.director \
