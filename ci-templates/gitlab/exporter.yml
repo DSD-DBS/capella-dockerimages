@@ -14,6 +14,7 @@ export-to-t4c:
   before_script:
     # Needed when model modifiers change the models in a row.
     # To avoid conflicts, reset the branch to the latest state.
+    - git config --global --add safe.directory $CI_BUILDS_DIR/model
     - git fetch
     - git reset --hard origin/$CI_COMMIT_BRANCH
   script:
