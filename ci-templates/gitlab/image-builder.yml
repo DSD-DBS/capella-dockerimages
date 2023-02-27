@@ -439,8 +439,8 @@ jupyter:
       when: always
   before_script:
     - export DOCKER_TAG=$JUPYTER_VERSION-$(echo $CAPELLA_DOCKER_IMAGES_REVISION | sed 's/[^a-zA-Z0-9.]/-/g')-$CI_COMMIT_REF_NAME
+    - export BASE_IMAGE=$BASE_IMAGE:$DOCKER_TAG
   variables:
-    BASE_IMAGE: $DOCKER_REGISTRY/base2
     IMAGE: $DOCKER_REGISTRY/jupyter-notebook
   script:
     - *prepare
