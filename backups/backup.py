@@ -167,8 +167,11 @@ def copy_exported_files_into_git_repo(model_dir: pathlib.Path) -> None:
             "/tmp/git",
         )
 
-    for file in model_dir.glob("*/*"):
-        shutil.copy2(file, target_directory)
+    shutil.copytree(
+        model_dir / urllib.parse.quote(os.environ["T4C_PROJECT_NAME"]),
+        target_directory,
+        dirs_exist_ok=True,
+    )
 
     if os.getenv("INCLUDE_COMMIT_HISTORY", "true") == "true":
         shutil.copy2(
