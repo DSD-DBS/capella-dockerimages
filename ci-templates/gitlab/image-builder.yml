@@ -435,19 +435,17 @@ jupyter:
     - job: base
       optional: true
   rules:
-    - if: '$JUPYTER == "1"'
+    - if: '$JUPYTER == "0"'
       when: always
-  before_script:
-    - export DOCKER_TAG=$JUPYTER_VERSION-$(echo $CAPELLA_DOCKER_IMAGES_REVISION | sed 's/[^a-zA-Z0-9.]/-/g')-$CI_COMMIT_REF_NAME
-    - export BASE_IMAGE=$BASE_IMAGE:$DOCKER_TAG
   variables:
-    IMAGE: $DOCKER_REGISTRY/jupyter-notebook
+    BASE_IMAGE: $DOCKER_REGISTRY/base2
+    IMAGE: $DOCKER_REGISTRY/jupyter-notebook:python-3.11-$CI_COMMIT_REF_NAME
   script:
     - *prepare
     - *docker
     - |
       docker build $DOCKER_BUILD_ARGS \
-      -t $IMAGE:python-3.11-$CI_COMMIT_REF_NAME \
+      -t $IMAGE \
       --build-arg BASE_IMAGE=$BASE_IMAGE \
       jupyter-notebook
-    - docker push $IMAGE:python-3.11-$CI_COMMIT_REF_NAME
+    - docker push $IMAGE
