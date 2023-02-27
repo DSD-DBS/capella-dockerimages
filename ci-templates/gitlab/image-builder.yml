@@ -48,7 +48,7 @@ variables:
     value: "0"
     description: "Build the t4c/client/ease/remote/debug image?"
   JUPYTER:
-    value: "1"
+    value: "0"
     description: "Build the jupyter-notebook image?"
   CAPELLA_DOCKER_IMAGES_REVISION:
     value: "main"
@@ -435,7 +435,7 @@ jupyter:
     - job: base
       optional: true
   rules:
-    - if: '$JUPYTER == "0"'
+    - if: '$JUPYTER == "1"'
       when: always
   variables:
     BASE_IMAGE: $DOCKER_REGISTRY/base2
