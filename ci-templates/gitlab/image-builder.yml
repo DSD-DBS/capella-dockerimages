@@ -67,8 +67,14 @@ default:
   tags:
     - docker
   before_script:
-    - &normalizeTag export DOCKER_TAG=$CAPELLA_VERSION-$(echo $CAPELLA_DOCKER_IMAGES_REVISION | sed 's/[^a-zA-Z0-9.]/-/g')-$CI_COMMIT_REF_NAME
-    - export BASE_IMAGE=$BASE_IMAGE:$DOCKER_TAG
+    - &baseImageTag export BASE_IMAGE_TAG=$(echo $CAPELLA_DOCKER_IMAGES_REVISION | sed 's/[^a-zA-Z0-9.]/-/g')-$CI_COMMIT_REF_NAME
+    - export DOCKER_TAG=$CAPELLA_VERSION-$BASE_IMAGE_TAG
+    - >
+      if [[ "$BASE_IMAGE" == "$DOCKER_REGISTRY/base2" ]]; then
+        export BASE_IMAGE=$BASE_IMAGE:$BASE_IMAGE_TAG;
+      else
+        export BASE_IMAGE=$BASE_IMAGE:$DOCKER_TAG;
+      fi
 
 .github: &github
   - git clone --recurse-submodules https://github.com/DSD-DBS/capella-dockerimages.git
@@ -96,17 +102,18 @@ base:
   rules:
     - if: '$BASE == "1"'
       when: always
-  before_script:
-    - *normalizeTag
   variables:
     BASE_IMAGE: debian:bullseye
     IMAGE: $DOCKER_REGISTRY/base2
+  before_script:
+    - *baseImageTag
+    - export DOCKER_TAG=$BASE_IMAGE_TAG
   script:
     - *prepare
     - *docker
     - |
       docker build $DOCKER_BUILD_ARGS \
-        -t $DOCKER_REGISTRY/base2:$DOCKER_TAG \
+        -t $IMAGE:$DOCKER_TAG \
         --build-arg UID=$UID_ENV \
         --build-arg BASE_IMAGE=$BASE_IMAGE \
         base
