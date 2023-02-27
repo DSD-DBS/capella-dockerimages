@@ -47,12 +47,18 @@ variables:
   T4C_CLIENT_EASE_REMOTE_DEBUG:
     value: "0"
     description: "Build the t4c/client/ease/remote/debug image?"
+  JUPYTER:
+    value: "0"
+    description: "Build the jupyter-notebook image?"
   CAPELLA_DOCKER_IMAGES_REVISION:
     value: "main"
     description: "Revision of the Capella Docker images Github repository (https://github.com/DSD-DBS/capella-dockerimages)"
   CAPELLA_VERSION:
     value: "6.0.0"
     description: "Capella version. Please make sure that a subdirectory with the name of the value exists. The value must be valid ASCII and may contain lowercase and uppercase letters, digits, underscores, periods and dashes."
+  JUPYTER_VERSION:
+    value: "python-3.11"
+    description: "Python version for the jupyter notebook."
   DOCKER_BUILD_ARGS: "--no-cache"
   BUILD_ARCHITECTURE: amd64
 
@@ -61,8 +67,14 @@ default:
   tags:
     - docker
   before_script:
-    - &normalizeTag export DOCKER_TAG=$CAPELLA_VERSION-$(echo $CAPELLA_DOCKER_IMAGES_REVISION | sed 's/[^a-zA-Z0-9.]/-/g')-$CI_COMMIT_REF_NAME
-    - export BASE_IMAGE=$BASE_IMAGE:$DOCKER_TAG
+    - &baseImageTag export BASE_IMAGE_TAG=$(echo $CAPELLA_DOCKER_IMAGES_REVISION | sed 's/[^a-zA-Z0-9.]/-/g')-$CI_COMMIT_REF_NAME
+    - export DOCKER_TAG=$CAPELLA_VERSION-$BASE_IMAGE_TAG
+    - >
+      if [[ "$BASE_IMAGE" == "$DOCKER_REGISTRY/base2" ]]; then
+        export BASE_IMAGE=$BASE_IMAGE:$BASE_IMAGE_TAG;
+      else
+        export BASE_IMAGE=$BASE_IMAGE:$DOCKER_TAG;
+      fi
 
 .github: &github
   - git clone --recurse-submodules https://github.com/DSD-DBS/capella-dockerimages.git
@@ -90,17 +102,18 @@ base:
   rules:
     - if: '$BASE == "1"'
       when: always
-  before_script:
-    - *normalizeTag
   variables:
     BASE_IMAGE: debian:bullseye
     IMAGE: $DOCKER_REGISTRY/base2
+  before_script:
+    - *baseImageTag
+    - export DOCKER_TAG=$BASE_IMAGE_TAG
   script:
     - *prepare
     - *docker
     - |
       docker build $DOCKER_BUILD_ARGS \
-        -t $DOCKER_REGISTRY/base2:$DOCKER_TAG \
+        -t $IMAGE:$DOCKER_TAG \
         --build-arg UID=$UID_ENV \
         --build-arg BASE_IMAGE=$BASE_IMAGE \
         base
@@ -421,4 +434,26 @@ t4c/client/ease/remote/debug:
       --build-arg NETWORK_ACCESS=restricted \
       --build-arg BASE_IMAGE=$BASE_IMAGE \
       ease/debug
+    - *push
+
+jupyter:
+  stage: build
+  needs:
+    - job: base
+      optional: true
+  rules:
+    - if: '$JUPYTER == "1"'
+      when: always
+  variables:
+    BASE_IMAGE: $DOCKER_REGISTRY/base2
+    IMAGE: $DOCKER_REGISTRY/jupyter-notebook
+  script:
+    - export DOCKER_TAG=python-3.11-$BASE_IMAGE_TAG
+    - *prepare
+    - *docker
+    - |
+      docker build $DOCKER_BUILD_ARGS \
+      -t $IMAGE:$DOCKER_TAG \
+      --build-arg BASE_IMAGE=$BASE_IMAGE \
+      jupyter-notebook
     - *push

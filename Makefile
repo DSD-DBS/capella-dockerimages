@@ -75,6 +75,7 @@ export DOCKER_TAG=$(CAPELLA_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
 
 # Should be 'latest', the branch name, the commit hash or a Git tag name
 export CAPELLA_DOCKERIMAGES_REVISION ?= latest
+export JUPYTER_NOTEBOOK_REVISION ?= python-3.11
 
 # UID which is used for the techuser in the Docker images
 export TECHUSER_UID = 1004370000
@@ -130,6 +131,7 @@ export MAKE_CURRENT_TARGET=$@
 
 all: \
 	base \
+	jupyter-notebook \
 	capella/base \
 	capella/cli \
 	capella/remote \
@@ -148,6 +150,10 @@ all: \
 base:
 	docker build $(DOCKER_BUILD_FLAGS) --build-arg UID=$(TECHUSER_UID) -t $(DOCKER_PREFIX)$@:$(CAPELLA_DOCKERIMAGES_REVISION) base
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) DOCKER_TAG=$(CAPELLA_DOCKERIMAGES_REVISION) IMAGENAME=$@ .push
+
+jupyter-notebook: base
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(JUPYTER_NOTEBOOK_REVISION) jupyter-notebook
+	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) DOCKER_TAG=$(JUPYTER_NOTEBOOK_REVISION) IMAGENAME=$@ .push
 
 capella/base: SHELL=./capella_loop.sh
 capella/base: base

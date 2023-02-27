@@ -34,6 +34,7 @@ This repository includes Docker files to build the following Docker images:
 | `t4c/client/backup`|This extends the T4C client base image to import a model from T4C and export it to Git.|
 | `t4c/client/exporter`|This extends the T4C client base image to import a model from GIT and export it to T4C.|
 | `capella/remote/pure-variants`<br>`t4c/client/remote/pure-variants`|This extends the remote image with pure::variants support.|
+| `jupyter-notebook`|A Jupyter notebook image based on the base image.|
 
 Important for building the Docker images is to strictly follow the sequence.
 The dependency graph for the images looks like:
@@ -443,6 +444,19 @@ pure-variants/dependencies
     └── org.eclipse.wst.validation_1.2.800.v201904082137.jar
 ```
 
+### 11. Docker mage `jupyter-notebook`
+
+The `jupyter-notebook` image provides a JupyterLab server that can run on the
+Collab-Manager environment.
+
+The image configured to connect to the same workspace shared volume as the Capella remote images.
+If the `notebooks/` folder on the shared volume contains a `requirements.txt` file, dependencies
+defined in that file will be installed before the server launches.
+
+```zsh
+docker build -t jupyter-notebook jupyter-notebook
+```
+
 ## Run the images
 
 ### Capella locally on X11 systems
@@ -764,6 +778,20 @@ You can find the description for most of the values directly above and here are 
 - `HTTP_PORT`: port to the T4C http server
 - `HTTP_LOGIN`: username for the REST API. At the moment administrator access is required
 - `HTTP_PASSWORD`: password for the REST API
+
+### JupyterLab server
+
+```zsh
+docker run -ti --rm -e NOTEBOOKS_DIR=/tmp/notebooks -p 8888:8888 jupyter-notebook
+```
+
+The following environment variables can be defined:
+
+- `JUPYTER_PORT`: The port to run the jupyter server on.
+- `NOTEBOOKS_DIR`: The working directory for JupyterLab.
+- `JUPYTER_BASE_URL`: A context path to access the jupyter server.
+  This allows you to run multiple server containers on the same domain.
+- `JUPYTER_TOKEN`: A token for accessing the environment.
 
 ## Additional notes
 

@@ -1,0 +1,6 @@
+# Use this file to define custom dependencis for your Jupyter workspace.
+# The format of the requirements file is described at
+#    https://pip.pypa.io/en/stable/reference/requirements-file-format/
+
+# numpy
+# pandas
