@@ -23,13 +23,15 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 COPY git_askpass.py /etc/git_askpass.py
-COPY backup.py /opt/scripts/backup.py
+RUN chmod 555 /etc/git_askpass.py
 
 ENV DISPLAY :99
 
 WORKDIR /opt/capella
 
 RUN chown -R techuser /opt/capella
+
+COPY backup.py /opt/scripts/backup.py
 
 USER techuser
 

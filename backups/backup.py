@@ -73,26 +73,50 @@ def run_importer_script() -> None:
             http_port,
         ]
 
-    with subprocess.Popen(
-        command, cwd="/opt/capella", stdout=subprocess.PIPE, text=True
-    ) as popen:
-        if popen.stdout:
-            for line in popen.stdout:
-                print(line, end="", flush=True)
-                if (
-                    "Team for Capella server unreachable" in line
-                    or "Name or service not known" in line
-                ):
-                    raise RuntimeError(
-                        f"{ERROR_PREFIX} - Team for Capella server unreachable"
-                    )
-                elif "1 copies failed" in line:
-                    raise RuntimeError(
-                        f"{ERROR_PREFIX} - Failed to copy to output folder ({OUTPUT_FOLDER})"
-                    )
+    stdout = ""
+    try:
+        popen = subprocess.Popen(
+            command, cwd="/opt/capella", stdout=subprocess.PIPE, text=True
+        )
+        assert popen.stdout
+        for line in popen.stdout:
+            stdout += line
+            print(line, end="")
+
+            # Failed imports still have exit code 0.
+            # In addition, the process hangs up when these log lines appear sometimes.
+            # This covers some of the error cases we experienced.
+
+            if (
+                "Team for Capella server unreachable" in line
+                or "Name or service not known" in line
+            ):
+                raise RuntimeError(
+                    f"{ERROR_PREFIX} - Team for Capella server unreachable"
+                )
+            if re.search(r"[1-9][0-9]* projects imports failed", line):
+                raise RuntimeError(
+                    f"{ERROR_PREFIX} - Backup failed. Please check the logs above."
+                )
+            if re.search(r"[1-9][0-9]* copies failed", line):
+                raise RuntimeError(
+                    f"{ERROR_PREFIX} - Failed to copy to output folder ({OUTPUT_FOLDER})"
+                )
+    finally:
+        if popen:
+            popen.terminate()
 
     if (return_code := popen.returncode) != 0:
         raise subprocess.CalledProcessError(return_code, command)
+
+    if not re.search(r"[1-9][0-9]* projects imports succeeded", stdout):
+        raise RuntimeError(
+            f"{ERROR_PREFIX} - '[1-9][0-9]* projects imports succeeded' not found in logs"
+        )
+    if not re.search(r"[1-9][0-9]* copies succeeded", stdout):
+        raise RuntimeError(
+            f"{ERROR_PREFIX} - '[1-9][0-9]* copies succeeded' not found in logs"
+        )
 
     log.info("Import of model from TeamForCapella server finished")
 
