@@ -446,13 +446,14 @@ jupyter:
       when: always
   variables:
     BASE_IMAGE: $DOCKER_REGISTRY/base2
-    IMAGE: $DOCKER_REGISTRY/jupyter-notebook:python-3.11-$CI_COMMIT_REF_NAME
+    IMAGE: $DOCKER_REGISTRY/jupyter-notebook
   script:
+    - export DOCKER_TAG=python-3.11-$BASE_IMAGE_TAG
     - *prepare
     - *docker
     - |
       docker build $DOCKER_BUILD_ARGS \
-      -t $IMAGE \
+      -t $IMAGE:$DOCKER_TAG \
       --build-arg BASE_IMAGE=$BASE_IMAGE \
       jupyter-notebook
-    - docker push $IMAGE
+    - *push
