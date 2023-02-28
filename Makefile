@@ -11,7 +11,7 @@ T4C_LICENCE_SECRET ?= XXX
 T4C_REPOSITORIES ?= testrepo
 
 # T4C server host
-T4C_SERVER_HOST ?= localhost
+T4C_SERVER_HOST ?= host.docker.internal
 
 # T4C server port
 T4C_SERVER_PORT ?= 2036
@@ -30,6 +30,9 @@ HTTP_LOGIN ?= admin
 
 # T4C http password
 HTTP_PASSWORD ?= password
+
+# Connection type to T4C server
+CONNECTION_TYPE ?= telnet
 
 # Remote container rdp password
 RMT_PASSWORD ?= tmp_passwd2
@@ -313,8 +316,7 @@ run-t4c/client/remote/pure-variants: t4c/client/remote/pure-variants
 		$(DOCKER_PREFIX)t4c/client/remote/pure-variants:$(DOCKER_TAG)
 
 run-t4c/client/backup: t4c/client/backup
-	docker run $(DOCKER_RUN_FLAGS) \
-		--network="host" \
+	docker run $(DOCKER_RUN_FLAGS) --rm -it \
 		-e GIT_REPO_URL="$(GIT_REPO_URL)" \
 		-e GIT_REPO_BRANCH="$(GIT_REPO_BRANCH)" \
 		-e T4C_REPO_HOST="$(T4C_SERVER_HOST)" \
@@ -325,7 +327,11 @@ run-t4c/client/backup: t4c/client/backup
 		-e T4C_PASSWORD="$(T4C_PASSWORD)" \
 		-e GIT_USERNAME="$(GIT_USERNAME)" \
 		-e GIT_PASSWORD="$(GIT_PASSWORD)" \
+		-e HTTP_LOGIN="$(HTTP_LOGIN)" \
+		-e HTTP_PASSWORD="$(HTTP_PASSWORD)" \
+		-e HTTP_PORT="$(HTTP_PORT)" \
 		-e LOG_LEVEL="$(LOG_LEVEL)" \
+		-e CONNECTION_TYPE="$(CONNECTION_TYPE)" \
 		$(DOCKER_PREFIX)t4c/client/backup:$(DOCKER_TAG)
 
 run-t4c/client/exporter: t4c/client/exporter
