@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
+import mimetypes
 import os
 import pathlib
 import re
@@ -156,7 +157,34 @@ def checkout_git_repository() -> pathlib.Path:
     return git_dir
 
 
-def copy_exported_files_into_git_repo(model_dir: pathlib.Path) -> None:
+def unmess_file_structure(model_dir: pathlib.Path) -> None:
+    """Sort images and airdfragments into folders
+
+    The importer application of TeamForCapella places all files into the project directory,
+    without sorting into the images and fragments directories.
+    This function sorts '*.airdfragment' files into the fragments directory.
+    Images with mimetype 'image/*' are copied into the images directory.
+    """
+
+    log.info("Start unmessing files...")
+
+    (model_dir / "images").mkdir(exist_ok=True)
+    (model_dir / "fragments").mkdir(exist_ok=True)
+
+    for file in model_dir.iterdir():
+        if file.is_file():
+            mimetype = mimetypes.guess_type(file)[0]
+            if file.suffix in (".airdfragment", ".capellafragment"):
+                file.rename(model_dir / "fragments" / file.name)
+            elif mimetype and mimetype.startswith("image/"):
+                file.rename(model_dir / "images" / file.name)
+
+    log.info("Finished unmessing files...")
+
+
+def copy_exported_files_into_git_repo(project_dir: pathlib.Path) -> None:
+    log.info("Start copying files...")
+
     if entrypoint := os.getenv("GIT_REPO_ENTRYPOINT", None):
         target_directory = pathlib.Path(
             "/tmp/git", str(pathlib.Path(entrypoint).parent).lstrip("/")
@@ -167,21 +195,28 @@ def copy_exported_files_into_git_repo(model_dir: pathlib.Path) -> None:
             "/tmp/git",
         )
 
+    model_dir = project_dir / urllib.parse.quote(
+        os.environ["T4C_PROJECT_NAME"]
+    )
+    unmess_file_structure(model_dir)
+
     shutil.copytree(
-        model_dir / urllib.parse.quote(os.environ["T4C_PROJECT_NAME"]),
+        model_dir,
         target_directory,
         dirs_exist_ok=True,
     )
 
     if os.getenv("INCLUDE_COMMIT_HISTORY", "true") == "true":
         shutil.copy2(
-            next(model_dir.glob("CommitHistory__*.activitymetadata")),
+            next(project_dir.glob("CommitHistory__*.activitymetadata")),
             target_directory / "CommitHistory.activitymetadata",
         )
         shutil.copy2(
-            next(model_dir.glob("CommitHistory__*.json*")),
+            next(project_dir.glob("CommitHistory__*.json*")),
             target_directory / "CommitHistory.json",
         )
+
+    log.info("Finished copying files...")
 
 
 def git_commit_and_push(git_dir: pathlib.Path) -> None:
@@ -268,8 +303,8 @@ def get_http_envs() -> tuple[str, str, str]:
 
 
 if __name__ == "__main__":
-    _model_dir = pathlib.Path(OUTPUT_FOLDER)
-    _model_dir.mkdir(exist_ok=True)
+    _project_dir = pathlib.Path(OUTPUT_FOLDER)
+    _project_dir.mkdir(exist_ok=True)
 
     run_importer_script()
 
@@ -278,7 +313,7 @@ if __name__ == "__main__":
         pass
     else:  # USE GIT
         _git_dir = checkout_git_repository()
-        copy_exported_files_into_git_repo(_model_dir)
+        copy_exported_files_into_git_repo(_project_dir)
         git_commit_and_push(_git_dir)
 
     log.info("Import of model from TeamForCapella server finished")
