@@ -5,18 +5,20 @@ variables:
   CAPELLA_DOCKER_IMAGES_REVISION: main
 
 export-to-t4c:
-  image: $DOCKER_REGISTRY/t4c/client/exporter:${CAPELLA_DOCKER_IMAGES_TAG}
+  image:
+    name: $DOCKER_REGISTRY/t4c/client/exporter:${CAPELLA_DOCKER_IMAGES_TAG}
+    entrypoint: [""]
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       when: always
   before_script:
     # Needed when model modifiers change the models in a row.
     # To avoid conflicts, reset the branch to the latest state.
+    - git config --global --add safe.directory $CI_BUILDS_DIR/model
     - git fetch
     - git reset --hard origin/$CI_COMMIT_BRANCH
   script:
-    # Script is required, but not used.
-    - echo "I'm sad because I'll never be executed :("
+    - xvfb-run python /opt/scripts/exporter.py
   variables:
     # Use local filehandler
     # Pulling of the Git repository is done by the Gitlab runner
