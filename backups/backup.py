@@ -76,6 +76,7 @@ def run_importer_script() -> None:
 
     stdout = ""
     try:
+        log.info("Running capella with command %s", command)
         popen = subprocess.Popen(
             command, cwd="/opt/capella", stdout=subprocess.PIPE, text=True
         )
@@ -105,10 +106,13 @@ def run_importer_script() -> None:
                 )
     finally:
         if popen:
+            log.info("Before terminate %s", popen.returncode)
             popen.terminate()
+            log.info("After terminate %s", popen.returncode)
 
     if (return_code := popen.returncode) != 0:
-        raise subprocess.CalledProcessError(return_code, command)
+        log.error("Capella run with command %s failed. Exit code: %d", command, return_code)
+        raise subprocess.CalledProcessError(return_code, " ".join(command))
 
     if not re.search(r"[1-9][0-9]* projects imports succeeded", stdout):
         raise RuntimeError(
