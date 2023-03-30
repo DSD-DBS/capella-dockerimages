@@ -82,7 +82,9 @@ def run_importer_script() -> None:
         assert popen.stdout
         for line in popen.stdout:
             stdout += line
-            print(line, end="")
+
+            # Flush is needed, otherwise the logs are delayed
+            print(line, end="", flush=True)
 
             # Failed imports still have exit code 0.
             # In addition, the process hangs up when these log lines appear sometimes.
@@ -105,19 +107,29 @@ def run_importer_script() -> None:
                 )
     finally:
         if popen:
+            stderr = popen.stderr.read()
             popen.terminate()
 
     if (return_code := popen.returncode) != 0:
-        raise subprocess.CalledProcessError(return_code, command)
+        log.exception("Command failed with stderr: '%s'", stderr)
+        raise RuntimeError(
+            f"Capella importer failed with exit code {return_code}"
+        )
 
-    if not re.search(r"[1-9][0-9]* projects imports succeeded", stdout):
-        raise RuntimeError(
-            f"{ERROR_PREFIX} - '[1-9][0-9]* projects imports succeeded' not found in logs"
-        )
-    if not re.search(r"[1-9][0-9]* copies succeeded", stdout):
-        raise RuntimeError(
-            f"{ERROR_PREFIX} - '[1-9][0-9]* copies succeeded' not found in logs"
-        )
+    if is_capella_5_x_x():
+        if not re.search(r"!MESSAGE [1-9][0-9]* Succeeded", stdout):
+            raise RuntimeError(
+                f"{ERROR_PREFIX} - '!MESSAGE [1-9][0-9]* Succeeded' not found in logs"
+            )
+    else:
+        if not re.search(r"[1-9][0-9]* projects imports succeeded", stdout):
+            raise RuntimeError(
+                f"{ERROR_PREFIX} - '[1-9][0-9]* projects imports succeeded' not found in logs"
+            )
+        if not re.search(r"[1-9][0-9]* copies succeeded", stdout):
+            raise RuntimeError(
+                f"{ERROR_PREFIX} - '[1-9][0-9]* copies succeeded' not found in logs"
+            )
 
     log.info("Import of model from TeamForCapella server finished")
 
