@@ -1,0 +1,65 @@
+# SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
+# SPDX-License-Identifier: Apache-2.0
+# yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
+
+derive:
+  rules:
+    - if: $CI_COMMIT_BRANCH
+
+  script: &script-derive
+    - |
+      if [[ -n $DERIVE_RESULTS ]]; then \
+        mapfile -d ";" -t derive_results < <(echo -n "$DERIVE_RESULTS"); \
+      else \
+        derive_results=(); \
+      fi
+
+    # Reset branch. This is helpful when chaining jobs
+    # and a previous job pushes changes that should be
+    # considered for the model badge generation.
+    - |
+      if [[ -n $CI_COMMIT_BRANCH ]]; then
+        git fetch;
+        git reset --hard origin/$CI_COMMIT_BRANCH;
+      fi
+
+    - pip install "capellambse[cli] @ git+https://github.com/DSD-DBS/py-capellambse.git@filtering-cli"
+    - |
+      python \
+        -m capellambse.extensions.filtering derive \
+        -m "${ENTRYPOINT:?}" \
+        -o derived-projects \
+        -p '{result.name}' \
+        "${derive_results[@]/#/--result=}" \
+        --exe="/opt/capella/capella"
+
+  artifacts:
+    paths:
+      - "derived-projects"
+
+  variables:
+    # The path to the model's entrypoint, i.e. the main AIRD file,
+    # relative to the repository root.
+    # Mandatory.
+    # ENTRYPOINT: ""
+
+    # Path to the 'capella' executable.
+    # Do not change it.
+    CAPELLA_EXECUTABLE: /opt/capella/capella
+
+    # Alternatively, set this to the name of a Docker image whose entrypoint is
+    # the Capella binary. CAPELLA_EXECUTABLE will be ignored.
+    # CAPELLA_DOCKERIMAGE: ""
+
+    # Limit the derivation to the listed results.
+    # A semicolon separated list of result names and/or their UUIDs.
+    # Default: Empty, which means derive all results in the model.
+    DERIVE_RESULTS: ""
+
+    # Display environment variable for Xvfb
+    # Do not change it.
+    DISPLAY: ":99"
+
+    # Request a specific capellambse version to be installed.
+    # Mandatory.
+    # CAPELLAMBSE_REVISION: ""
