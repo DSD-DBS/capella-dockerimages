@@ -3,10 +3,7 @@
 # yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
 
 derive:
-  rules:
-    - if: $CI_COMMIT_BRANCH
-
-  script: &script-derive
+  script:
     - |
       if [[ -n $DERIVE_RESULTS ]]; then \
         mapfile -d ";" -t derive_results < <(echo -n "$DERIVE_RESULTS"); \
@@ -22,7 +19,6 @@ derive:
         git fetch;
         git reset --hard origin/$CI_COMMIT_BRANCH;
       fi
-
     - pip install "capellambse[cli] @ git+https://github.com/DSD-DBS/py-capellambse.git@filtering-cli"
     - |
       python \
@@ -37,15 +33,15 @@ derive:
     paths:
       - "derived-projects"
 
+  image:
+    name: $DOCKER_REGISTRY/capella/cli:${CAPELLA_DOCKER_IMAGES_TAG}
+    entrypoint: [""]
+
   variables:
     # The path to the model's entrypoint, i.e. the main AIRD file,
     # relative to the repository root.
     # Mandatory.
     # ENTRYPOINT: ""
-
-    # Path to the 'capella' executable.
-    # Do not change it.
-    CAPELLA_EXECUTABLE: /opt/capella/capella
 
     # Alternatively, set this to the name of a Docker image whose entrypoint is
     # the Capella binary. CAPELLA_EXECUTABLE will be ignored.
