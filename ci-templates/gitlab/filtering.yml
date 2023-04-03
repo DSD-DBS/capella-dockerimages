@@ -5,10 +5,10 @@
 derive:
   script:
     - |
-      if [[ -n $DERIVE_RESULTS ]]; then \
-        mapfile -d ";" -t derive_results < <(echo -n "$DERIVE_RESULTS"); \
-      else \
-        derive_results=(); \
+      if [[ -n $DERIVE_RESULTS ]]; then
+        mapfile -d ";" -t derive_results < <(echo -n "$DERIVE_RESULTS");
+      else
+        derive_results=();
       fi
 
     # Reset branch. This is helpful when chaining jobs
@@ -21,12 +21,12 @@ derive:
       fi
     - pip install "capellambse[cli] @ git+https://github.com/DSD-DBS/py-capellambse.git@filtering-cli"
     - |
-      xvfb-run python \
-        -m capellambse.extensions.filtering derive \
-        -m "${ENTRYPOINT:?}" \
-        -o derived-projects \
-        -p '{result.name}' \
-        "${derive_results[@]/#/--result=}" \
+      xvfb-run python
+        -m capellambse.extensions.filtering derive
+        -m "${ENTRYPOINT:?}"
+        -o derived-projects
+        -p '{result.name}'
+        "${derive_results[@]/#/--result=}"
         --exe="/opt/capella/capella"
 
   artifacts:
