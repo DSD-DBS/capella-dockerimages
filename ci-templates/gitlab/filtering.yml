@@ -21,7 +21,7 @@ derive:
       fi
     - pip install "capellambse[cli] @ git+https://github.com/DSD-DBS/py-capellambse.git@filtering-cli"
     - |
-      python \
+      xvfb-run python \
         -m capellambse.extensions.filtering derive \
         -m "${ENTRYPOINT:?}" \
         -o derived-projects \
