@@ -32,7 +32,7 @@ derive:
       if [[ "${PUSH_DERIVED_MODELS:-1}" == "1" ]]; then
         for result in derived-project/*; do
           DERIVED_PROJECTS_DIR="$(pwd)";
-          cd result;
+          cd "$result";
           DERIVED_PROJECT_DIR="$(pwd)";
           DERVIED_BRANCH_NAME="derived/$result" | sed 's/[^a-zA-Z0-9.-_]/-/g';
           TMP_DIR=$(mktemp);
