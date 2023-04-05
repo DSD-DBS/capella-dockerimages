@@ -28,7 +28,6 @@ derive:
         -p '{result.name}'
         "${derive_results[@]/#/--result=}"
         --exe="/opt/capella/capella"
-
     - |
       if [[ "$PUSH_DERIVED_MODELS:-1" == "1" ]]; then
         for result in derived-project/*; do
@@ -47,7 +46,6 @@ derive:
           cd "$DERIVED_PROJECTS_DIR"
         done
       fi
-
   artifacts:
     paths:
       - "derived-projects"
