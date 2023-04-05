@@ -35,7 +35,7 @@ derive:
           cd "$result";
           DERIVED_PROJECT_DIR="$(pwd)";
           DERVIED_BRANCH_NAME="derived/$result" | sed 's/[^a-zA-Z0-9.-_]/-/g';
-          TMP_DIR=$(mktemp);
+          TMP_DIR=$(mktemp -d);
           git clone "https://${GIT_USERNAME:?}:${GIT_PASSWORD:?}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git" "$TMP_DIR";
           cd "$TMP_DIR";
           git switch "$DERVIED_BRANCH_NAME" || git switch --orphan "$DERVIED_BRANCH_NAME";
