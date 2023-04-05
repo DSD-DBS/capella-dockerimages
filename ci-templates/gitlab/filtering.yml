@@ -44,7 +44,8 @@ derive:
 
           cp -r "$DERIVED_PROJECT_DIR" "$TMP_DIR"
           git add .
-          git commit -m "feat: Add/update derived model '$result'"
+          git commit -m "feat: Add/update derived model '$result'
+          git push
           cd "$DERIVED_PROJECTS_DIR"
         done
       fi
