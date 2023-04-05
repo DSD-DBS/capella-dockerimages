@@ -29,6 +29,25 @@ derive:
         "${derive_results[@]/#/--result=}"
         --exe="/opt/capella/capella"
 
+    - |
+      if [[ "$PUSH_DERIVED_MODELS:-1" == "1" ]]; then
+        for result in derived-project/*; do
+          DERIVED_PROJECTS_DIR="$(pwd)";
+          cd result;
+          DERIVED_PROJECT_DIR="$(pwd)";
+          DERVIED_BRANCH_NAME="derived/$result" | sed 's/[^a-zA-Z0-9.-_]/-/g';
+          TMP_DIR=$(mktemp);
+          git clone "https://${GIT_USERNAME:?}:${GIT_PASSWORD:?}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git" "$TMP_DIR";
+          cd "$TMP_DIR";
+          git switch "$DERVIED_BRANCH_NAME" || git switch --orphan "$DERVIED_BRANCH_NAME";
+
+          cp -r "$DERIVED_PROJECT_DIR" "$TMP_DIR"
+          git add .
+          git commit -m "feat: Add/update derived model '$result'"
+          cd "$DERIVED_PROJECTS_DIR"
+        done
+      fi
+
   artifacts:
     paths:
       - "derived-projects"
