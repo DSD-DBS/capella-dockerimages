@@ -10,7 +10,7 @@ model-validation:
     - if [ ! -z $CI_COMMIT_BRANCH ]; then git reset --hard origin/$CI_COMMIT_BRANCH; fi
     - BUILD_DIR=$(pwd)
     - if [ ! -f ".project" ]; then echo "The model validator requires a '.project' file!" && exit 1; fi
-    - if [[ "$(dirname $ENTRYPOINT)" != "." ]]; then echo 'The model validator requires a "*.aird" in the root level of the repository!' && exit 1; fi
+    - if [[ "$(dirname "$ENTRYPOINT")" != "." ]]; then echo 'The model validator requires a "*.aird" in the root level of the repository!' && exit 1; fi
     - mkdir /tmp/project
     - cp -r . /tmp/project
     - cd /tmp
@@ -22,7 +22,7 @@ model-validation:
       -data "$(pwd)"
       -input "project/$ENTRYPOINT"
       -outputfolder "project/validation"
-    - cp /tmp/project/validation/project/$ENTRYPOINT/validation-results.html $BUILD_DIR
+    - cp "/tmp/project/validation/project/$ENTRYPOINT/validation-results.html" $BUILD_DIR
   artifacts:
     paths:
       - "validation-results.html"
