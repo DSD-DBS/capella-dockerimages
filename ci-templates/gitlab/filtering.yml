@@ -42,7 +42,7 @@ derive:
           cd "$TMP_DIR";
           git switch "$DERIVED_BRANCH_NAME" || git switch --orphan "$DERIVED_BRANCH_NAME";
 
-          cp -r "$DERIVED_PROJECT_DIR" "$TMP_DIR"
+          cp -r "$DERIVED_PROJECT_DIR/*/." "$TMP_DIR"
           git add .
           git commit -m "feat: Add/update derived model '$result'
           git push
