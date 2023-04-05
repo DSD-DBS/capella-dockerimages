@@ -29,7 +29,7 @@ derive:
         "${derive_results[@]/#/--result=}" \
         --exe="/opt/capella/capella"
     - |
-      if [[ "$PUSH_DERIVED_MODELS:-1" == "1" ]]; then
+      if [[ "${PUSH_DERIVED_MODELS:-1}" == "1" ]]; then
         for result in derived-project/*; do
           DERIVED_PROJECTS_DIR="$(pwd)";
           cd result;
