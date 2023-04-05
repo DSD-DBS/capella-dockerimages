@@ -30,7 +30,7 @@ derive:
         --exe="/opt/capella/capella"
     - |
       if [[ "${PUSH_DERIVED_MODELS:-1}" == "1" ]]; then
-        for result in derived-project/*; do
+        for result in derived-projects/*; do
           DERIVED_PROJECTS_DIR="$(pwd)";
           cd "$result";
           DERIVED_PROJECT_DIR="$(pwd)";
