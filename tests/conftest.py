@@ -41,10 +41,15 @@ GIT_USERNAME: str = "any"
 GIT_PASSWORD: str = "any"
 
 
+DOCKER_NETWORK: str = os.getenv("DOCKER_NETWORK", "host")
+
+
 @pytest.fixture(name="git_container")
 def fixture_git_container() -> containers.Container:
     with get_container(
-        image="local-git-server", ports={"80/tcp": None}
+        image="local-git-server",
+        image_tag_env="LOCAL_GIT_TAG",
+        ports={"80/tcp": None} if DOCKER_NETWORK == "host" else None,
     ) as container:
         wait_for_container(container, "server started")
         yield container
@@ -59,7 +64,9 @@ def fixture_git_ip_addr(git_container: containers.Containe) -> str:
 @pytest.fixture(name="git_http_port")
 def fixture_git_http_port(git_container: containers.Container) -> str:
     git_container.reload()
-    return git_container.ports["80/tcp"][0]["HostPort"]
+    if DOCKER_NETWORK == "host":
+        return git_container.ports["80/tcp"][0]["HostPort"]
+    return "80"
 
 
 @pytest.fixture(name="git_general_env")
@@ -190,6 +197,7 @@ def get_container(
         environment=environment,
         volumes=volumes,
         entrypoint=entrypoint,
+        network=DOCKER_NETWORK if DOCKER_NETWORK != "host" else None,
     )
 
     try:
