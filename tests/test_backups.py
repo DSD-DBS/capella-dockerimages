@@ -3,9 +3,12 @@
 
 from __future__ import annotations
 
+import fcntl
 import logging
 import os
 import pathlib
+import socket
+import struct
 import subprocess
 
 import conftest
@@ -43,7 +46,7 @@ def fixture_t4c_backup_container(
 
 
 @pytest.mark.parametrize(
-    "t4c_server_volumes,t4c_server_env,t4c_backup_local_env",
+    "t4c_server_container,t4c_server_env,t4c_backup_local_env",
     [
         pytest.param(
             {"init": True},
@@ -78,6 +81,7 @@ def fixture_t4c_backup_container(
 )
 def test_model_backup_happy(
     t4c_backup_container: containers.Container,
+    git_ip_addr: str,
     git_http_port: str,
     tmp_path: pathlib.Path,
 ):
@@ -89,18 +93,29 @@ def test_model_backup_happy(
     git_path = tmp_path / "test-git-data"
     git_path.mkdir()
 
+    if conftest.DOCKER_NETWORK == "host":
+        git_ip_addr = "127.0.0.1"
+
+    env = os.environ
+    env["no_proxy"] = os.getenv("no_proxy", "") + f",{git_ip_addr}"
+
     subprocess.run(
         [
             "git",
             "clone",
-            f"http://127.0.0.1:{git_http_port}/git/git-test-repo.git",
+            f"http://{git_ip_addr}:{git_http_port}/git/git-test-repo.git",
             git_path,
         ],
         check=True,
+        capture_output=True,
+        env=env,
     )
+
     try:
         subprocess.run(
-            ["git", "switch", "backup-test"], check=True, cwd=git_path
+            ["git", "switch", conftest.GIT_REPO_BRANCH],
+            check=True,
+            cwd=git_path,
         )
     except subprocess.CalledProcessError:
         log.debug("backup failed - backup-test branch does not exists")
@@ -113,7 +128,7 @@ def test_model_backup_happy(
 
 
 @pytest.mark.parametrize(
-    "t4c_server_volumes,t4c_server_env,t4c_backup_local_env",
+    "t4c_server_container,t4c_server_env,t4c_backup_local_env",
     [
         # CONNECTION_TYPE "unknown" is not allowed
         (

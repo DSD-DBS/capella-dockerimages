@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import pathlib
 import shutil
 import subprocess
@@ -28,8 +29,10 @@ SUBPROCESS_DEFAULT_ARGS: dict[str, t.Any] = {
 
 
 @pytest.fixture(name="init_git_server")
-def fixture_init_git_server(git_http_port: str, tmp_path: pathlib.Path):
-    _checkout_git_repository(git_http_port, tmp_path)
+def fixture_init_git_server(
+    git_ip_addr: str, git_http_port: str, tmp_path: pathlib.Path
+):
+    _checkout_git_repository(git_ip_addr, git_http_port, tmp_path)
     _copy_test_project_into_git_repo(tmp_path)
     _commit_and_push_git_repo(tmp_path)
     yield
@@ -133,14 +136,23 @@ def test_export_model_5_x_x_unhappy(
         conftest.wait_for_container(t4c_exporter_container, "Export finished")
 
 
-def _checkout_git_repository(server_port: str, path: pathlib.Path):
+def _checkout_git_repository(
+    git_ip_addr: str, git_http_port: str, path: pathlib.Path
+):
+    if conftest.DOCKER_NETWORK == "host":
+        git_ip_addr = "127.0.0.1"
+
+    env = os.environ
+    env["no_proxy"] = os.getenv("no_proxy", "") + f",{git_ip_addr}"
+
     subprocess.run(  # pylint: disable=subprocess-run-check
         [
             "git",
             "clone",
-            f"http://127.0.0.1:{server_port}/git/git-test-repo.git",
+            f"http://{git_ip_addr}:{git_http_port}/git/git-test-repo.git",
             path,
         ],
+        env=env,
         **SUBPROCESS_DEFAULT_ARGS,
     )
     subprocess.run(  # pylint: disable=subprocess-run-check
@@ -191,7 +203,14 @@ def _commit_and_push_git_repo(path: pathlib.Path):
     )
 
     subprocess.run(  # pylint: disable=subprocess-run-check
-        ["git", "commit", "--message", "test: Exporter test"],
+        [
+            "git",
+            "-c",
+            "commit.gpgsign=false",
+            "commit",
+            "--message",
+            "test: Exporter test",
+        ],
         **subprocess_shared_args,
     )
 

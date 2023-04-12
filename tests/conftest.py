@@ -5,13 +5,16 @@ from __future__ import annotations
 
 import collections.abc as cabc
 import contextlib
+import functools
 import logging
 import os
 import pathlib
 import re
-import shutil
+import tarfile
 import time
+import typing as t
 
+import chardet
 import docker
 import pytest
 import requests
@@ -22,7 +25,7 @@ log = logging.getLogger(__file__)
 log.setLevel("DEBUG")
 client = docker.from_env()
 
-timeout = 120  # Timeout in seconds
+timeout = 60  # Timeout in seconds
 
 
 HTTP_LOGIN: str = "admin"
@@ -80,27 +83,6 @@ def fixture_git_general_env(git_ip_addr: str) -> dict[str, str]:
     }
 
 
-@pytest.fixture(name="t4c_server_volumes")
-def fixture_t4c_server_volumes(
-    tmp_path: pathlib.Path,
-    request: pytest.FixtureRequest,
-) -> dict[str, dict[str, str]] | None:
-    if hasattr(request, "param") and request.param.get("init", False):
-        server_test_data_path: pathlib.Path = tmp_path / "test-server-data"
-
-        shutil.copytree(
-            src=pathlib.Path(__file__).parents[0]
-            / "t4c-server-test-data"
-            / "data"
-            / os.getenv("CAPELLA_VERSION", ""),
-            dst=server_test_data_path,
-        )
-
-        return create_volume(server_test_data_path, "/data")
-
-    return None
-
-
 @pytest.fixture(name="t4c_server_env")
 def fixture_t4c_server_env(request: pytest.FixtureRequest) -> dict[str, str]:
     env: dict[str, str] = {"REST_API_PASSWORD": "password"}
@@ -114,21 +96,42 @@ def fixture_t4c_server_env(request: pytest.FixtureRequest) -> dict[str, str]:
 @pytest.fixture(name="t4c_server_container")
 def fixture_t4c_server_container(
     t4c_server_env: dict[str, str],
-    t4c_server_volumes: dict[str, dict[str, str]] | None,
+    tmp_path: pathlib.Path,
+    request: pytest.FixtureRequest,
 ) -> containers.Container:
-    wait_for_message: str = (
-        "!MESSAGE Warmup done for repository"
-        if t4c_server_volumes
-        else "!MESSAGE CDO server started"
-    )
+    init = hasattr(request, "param") and request.param.get("init", False)
+    server_test_data_tar_path = tmp_path / "test-server-data.tar"
+
+    wait_for_message = "!MESSAGE CDO server started"
+    if init:
+        source_dir = (
+            pathlib.Path(__file__).parents[0]
+            / "t4c-server-test-data"
+            / "data"
+            / os.getenv("CAPELLA_VERSION", "")
+        )
+        with tarfile.open(
+            name=server_test_data_tar_path, mode="w"
+        ) as tar_file:
+            tar_file.add(name=source_dir, arcname="data")
+
+        wait_for_message = "!MESSAGE Warmup done for repository"
 
     with get_container(
         image="t4c/server/server",
+        image_tag_env="T4C_SERVER_TAG",
         environment=t4c_server_env,
         ports={"8080/tcp": None},
-        volumes=t4c_server_volumes,
+        entrypoint=["/bin/bash"],
     ) as container:
-        wait_for_container(container, wait_for_message)
+        if init:
+            # We can't just mount the test data as a volume as this will cause problems
+            # in our pipeline as we are running Docker in Docker (i.e., we would mount the
+            # volume on the host machine but not on the container running the job/test)
+            with open(file=server_test_data_tar_path, mode="rb") as tar_file:
+                client.api.put_archive(container.id, "/", tar_file)
+        _, stream = container.exec_run(cmd="/opt/startup.sh", stream=True)
+        wait_for_container(container, wait_for_message, stream=stream)
         yield container
 
 
@@ -181,13 +184,20 @@ def fixture_init_t4c_server_repo(t4c_http_port: str):
 @contextlib.contextmanager
 def get_container(
     image: str,
+    image_tag_env: str | None = None,
     ports: dict[str, int | None] | None = None,
     environment: dict[str, str] | None = None,
     volumes: dict[str, dict[str, str]] | None = None,
     entrypoint: list[str] | None = None,
 ) -> cabc.Iterator[containers.Container]:
     docker_prefix = os.getenv("DOCKER_PREFIX", "")
-    docker_tag = os.getenv("DOCKER_TAG", "latest")
+    if image_tag_env and (
+        image_tag_env_value := os.getenv(image_tag_env, None)
+    ):
+        docker_tag = image_tag_env_value
+    else:
+        docker_tag = os.getenv("DOCKER_TAG", "latest")
+
     image = f"{docker_prefix}{image}:{docker_tag}"
 
     container = client.containers.run(
@@ -197,6 +207,7 @@ def get_container(
         environment=environment,
         volumes=volumes,
         entrypoint=entrypoint,
+        tty=True,
         network=DOCKER_NETWORK if DOCKER_NETWORK != "host" else None,
     )
 
@@ -208,28 +219,49 @@ def get_container(
             container.remove()
 
 
-def wait_for_container(container: containers.Container, wait_for_message: str):
+def wait_for_container(
+    container: containers.Container,
+    wait_for_message: str,
+    stream: t.BinaryIO | None = None,
+):
     log_line = 0
-    for _ in range(int(timeout / 2)):
-        log.info("Wait until %s", wait_for_message)
+    start_time = time.time()
 
-        splitted_logs = container.logs().decode().splitlines()
-        log.debug("Current log: %s", "\n".join(splitted_logs[log_line:]))
-        log_line = len(splitted_logs)
+    if not stream:
+        stream = container.logs(stream=True)
 
-        if wait_for_message in container.logs().decode():
-            log.info("Found log line %s", wait_for_message)
-            break
-        container.reload()
-        if container.status == "exited":
-            log.error("Log from container: %s", container.logs().decode())
-            raise RuntimeError("Container exited unexpectedly")
+    if stream:
+        decoded_output: str = ""
+        for data in stream:
+            encoding = chardet.detect(data)["encoding"]
 
-        time.sleep(2)
+            if encoding:
+                _data = data.decode(encoding)
+                decoded_output = decoded_output + _data
+                splitted_output = decoded_output.splitlines()
 
-    else:
-        log.error("Log from container: %s", container.logs().decode())
-        raise TimeoutError("Timeout while waiting for model loading")
+                if "\n" in _data:
+                    log.info("Wait until %s", wait_for_message)
+
+                    log.debug(
+                        "Current output: %s",
+                        "\n".join(splitted_output[log_line:]),
+                    )
+                    log_line = len(splitted_output)
+
+                    if wait_for_message in decoded_output:
+                        log.info("Found log line %s", wait_for_message)
+                        log.debug("Whole log: %s", "\n".join(splitted_output))
+                        return
+
+                    container.reload()
+                    if container.status == "exited":
+                        log.error("Log from container: %s", decoded_output)
+                        raise RuntimeError("Container exited unexpectedly")
+
+            if time.time() - start_time > timeout:
+                log.error("Log from container: %s", decoded_output)
+                raise TimeoutError("Timeout while waiting for model loading")
 
 
 def is_capella_5_x_x() -> bool:
