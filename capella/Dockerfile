@@ -92,6 +92,10 @@ RUN chmod +x capella/capella && \
 
 # Install Dropins for Capella
 COPY ./versions/${CAPELLA_VERSION}/dropins /opt/capella/dropins
+ARG CAPELLA_DROPINS=""
+COPY install_dropins.py /opt/install_dropins.py
+COPY ./versions/${CAPELLA_VERSION}/dropins.yml /opt/dropins.yml
+RUN pip install PyYAML && python install_dropins.py
 
 # Eclipse settings
 RUN mkdir -p /opt/capella/configuration/.settings; \

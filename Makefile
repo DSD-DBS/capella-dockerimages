@@ -73,6 +73,10 @@ export CAPELLA_VERSIONS ?= 5.0.0 5.2.0 6.0.0
 # Capella version used to run containers
 export CAPELLA_VERSION ?= 6.0.0
 
+# Comma-separated list of dropins to download & add, doesn't affect copied & mounted dropins
+# See available options in documentation.
+CAPELLA_DROPINS ?= CapellaXHTMLDocGen,DiagramStyler,PVMT,Filtering,Requirements,SubsystemTransition,TextualEditor
+
 # Only use when "capella_loop.sh" is NOT used
 export DOCKER_TAG_SCHEMA ?= $$CAPELLA_VERSION-$$CAPELLA_DOCKERIMAGES_REVISION
 
@@ -167,6 +171,7 @@ capella/base: base
 		--build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(CAPELLA_DOCKERIMAGES_REVISION) \
 		--build-arg BUILD_TYPE=$(CAPELLA_BUILD_TYPE) \
 		--build-arg CAPELLA_VERSION=$$CAPELLA_VERSION \
+		--build-arg "CAPELLA_DROPINS=$(CAPELLA_DROPINS)" \
 		--build-arg INSTALL_OLD_GTK_VERSION=$(INSTALL_OLD_GTK_VERSION) \
 		capella
 	rm capella/.dockerignore
@@ -242,6 +247,10 @@ t4c/client/exporter: t4c/client/base
 capella/builder:
 	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(CAPELLA_DOCKERIMAGES_REVISION) builder
 	docker run -it -e CAPELLA_VERSION=$(CAPELLA_VERSION) -v $$(pwd)/builder/output/$(CAPELLA_VERSION):/output -v $$(pwd)/builder/m2_cache:/root/.m2/repository $(DOCKER_PREFIX)$@:$(CAPELLA_DOCKERIMAGES_REVISION)
+
+run-capella/base: capella/base
+	docker run $(DOCKER_RUN_FLAGS) \
+		$(DOCKER_PREFIX)capella/base:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
 
 run-capella/readonly: capella/readonly
 	docker run $(DOCKER_RUN_FLAGS) \
@@ -351,6 +360,8 @@ run-t4c/client/exporter: t4c/client/exporter
 		-e LOG_LEVEL="$(LOG_LEVEL)" \
 		$(DOCKER_PREFIX)t4c/client/exporter:$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
 
+debug-capella/base: DOCKER_RUN_FLAGS=-it --entrypoint="bash"
+debug-capella/base: run-capella/base
 
 debug-t4c/client/backup: LOG_LEVEL=DEBUG
 debug-t4c/client/backup: DOCKER_RUN_FLAGS=-it --entrypoint="bash" -v $$(pwd)/backups/backup.py:/opt/capella/backup.py

@@ -69,5 +69,5 @@ jobs:
       - name: Push
         run: |
           for image in ${{ env.images }}
-          do docker push "${{ env.registry }}$image:${{ matrix.capella_version }}-${{ matrix.dropins.name }}-${{ steps.tag.outputs.branch }}
+          do docker push "${{ env.registry }}$image:${{ matrix.capella_version }}-${{ matrix.dropins.name }}-${{ steps.tag.outputs.branch }}"
           done
