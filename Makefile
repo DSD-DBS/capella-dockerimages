@@ -71,10 +71,10 @@ METRICS_PORT ?= 9118
 export CAPELLA_VERSIONS ?= 5.0.0 5.2.0 6.0.0
 
 # Capella version used to run containers
-CAPELLA_VERSION ?= 6.0.0
+export CAPELLA_VERSION ?= 6.0.0
 
-# Only used when "capella_loop.sh" is NOT used
-export DOCKER_TAG=$(CAPELLA_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
+# Only use when "capella_loop.sh" is NOT used
+export DOCKER_TAG_SCHEMA ?= $$CAPELLA_VERSION-$$CAPELLA_DOCKERIMAGES_REVISION
 
 # Should be 'latest', the branch name, the commit hash or a Git tag name
 export CAPELLA_DOCKERIMAGES_REVISION ?= latest
@@ -109,8 +109,6 @@ DOCKER_REGISTRY ?= localhost:12345
 
 # Log level when running Docker containers
 LOG_LEVEL ?= DEBUG
-
-GIT_SHA = $(shell git rev-parse --short HEAD)
 
 # If this option is set to 1, all tests that require a running t4c server
 # will be executed. To run these tests, you need a Makefile in
@@ -150,10 +148,12 @@ all: \
 	t4c/client/backup \
 	t4c/client/exporter
 
+base: SHELL=/bin/bash
 base:
 	docker build $(DOCKER_BUILD_FLAGS) --build-arg UID=$(TECHUSER_UID) -t $(DOCKER_PREFIX)$@:$(CAPELLA_DOCKERIMAGES_REVISION) base
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) DOCKER_TAG=$(CAPELLA_DOCKERIMAGES_REVISION) IMAGENAME=$@ .push
 
+base: SHELL=/bin/bash
 jupyter-notebook: base
 	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(JUPYTER_NOTEBOOK_REVISION) jupyter-notebook
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) DOCKER_TAG=$(JUPYTER_NOTEBOOK_REVISION) IMAGENAME=$@ .push
@@ -239,7 +239,6 @@ t4c/client/exporter: t4c/client/base
 	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BUILD_ARCHITECTURE=$(BUILD_ARCHITECTURE) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG --build-arg CAPELLA_VERSION=$$CAPELLA_VERSION exporter
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
-
 capella/builder:
 	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(CAPELLA_DOCKERIMAGES_REVISION) builder
 	docker run -it -e CAPELLA_VERSION=$(CAPELLA_VERSION) -v $$(pwd)/builder/output/$(CAPELLA_VERSION):/output -v $$(pwd)/builder/m2_cache:/root/.m2/repository $(DOCKER_PREFIX)$@:$(CAPELLA_DOCKERIMAGES_REVISION)
@@ -254,7 +253,7 @@ run-capella/readonly: capella/readonly
 		-e GIT_DEPTH=$(GIT_REPO_DEPTH) \
 		-e GIT_USERNAME="" \
 		-e GIT_PASSWORD="" \
-		$(DOCKER_PREFIX)capella/readonly:$(DOCKER_TAG)
+		$(DOCKER_PREFIX)capella/readonly:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
 
 run-capella/readonly-debug: capella/readonly
 	docker run $(DOCKER_RUN_FLAGS) \
@@ -271,7 +270,7 @@ run-capella/readonly-debug: capella/readonly
 		-e GIT_USERNAME="$(GIT_USERNAME)" \
 		-e GIT_PASSWORD="$(GIT_PASSWORD)" \
 		--entrypoint bash \
-		$(DOCKER_PREFIX)capella/readonly:$(DOCKER_TAG)
+		$(DOCKER_PREFIX)capella/readonly:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
 
 run-t4c/client/remote-legacy: t4c/client/remote
 	docker rm /t4c-client-remote || true
@@ -286,7 +285,7 @@ run-t4c/client/remote-legacy: t4c/client/remote
 		-p $(FILESYSTEM_PORT):8000 \
 		-p $(METRICS_PORT):9118 \
 		--name t4c-client-remote-legacy \
-		$(DOCKER_PREFIX)t4c/client/remote:$(DOCKER_TAG)
+		$(DOCKER_PREFIX)t4c/client/remote:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
 
 run-t4c/client/remote-json: t4c/client/remote
 	docker rm /t4c-client-remote-json || true
@@ -299,7 +298,7 @@ run-t4c/client/remote-json: t4c/client/remote
 		-p $(FILESYSTEM_PORT):8000 \
 		-p $(METRICS_PORT):9118 \
 		--name t4c-client-remote-json \
-		$(DOCKER_PREFIX)t4c/client/remote:$(DOCKER_TAG)
+		$(DOCKER_PREFIX)t4c/client/remote:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
 
 run-t4c/client/remote/pure-variants: t4c/client/remote/pure-variants
 	docker run $(DOCKER_RUN_FLAGS) \
@@ -313,7 +312,7 @@ run-t4c/client/remote/pure-variants: t4c/client/remote/pure-variants
 		-p $(FILESYSTEM_PORT):8000 \
 		-p $(METRICS_PORT):9118 \
 		--rm \
-		$(DOCKER_PREFIX)t4c/client/remote/pure-variants:$(DOCKER_TAG)
+		$(DOCKER_PREFIX)t4c/client/remote/pure-variants:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
 
 run-t4c/client/backup: t4c/client/backup
 	docker run $(DOCKER_RUN_FLAGS) --rm -it \
@@ -332,7 +331,7 @@ run-t4c/client/backup: t4c/client/backup
 		-e HTTP_PORT="$(HTTP_PORT)" \
 		-e LOG_LEVEL="$(LOG_LEVEL)" \
 		-e CONNECTION_TYPE="$(CONNECTION_TYPE)" \
-		$(DOCKER_PREFIX)t4c/client/backup:$(DOCKER_TAG)
+		$(DOCKER_PREFIX)t4c/client/backup:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
 
 run-t4c/client/exporter: t4c/client/exporter
 	docker run $(DOCKER_RUN_FLAGS) \
@@ -350,7 +349,7 @@ run-t4c/client/exporter: t4c/client/exporter
 		-e HTTP_LOGIN="${HTTP_LOGIN}" \
 		-e HTTP_PASSWORD="${HTTP_PASSWORD}" \
 		-e LOG_LEVEL="$(LOG_LEVEL)" \
-		$(DOCKER_PREFIX)t4c/client/exporter:$(DOCKER_TAG)
+		$(DOCKER_PREFIX)t4c/client/exporter:$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
 
 
 debug-t4c/client/backup: LOG_LEVEL=DEBUG

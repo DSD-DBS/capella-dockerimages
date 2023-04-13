@@ -56,6 +56,7 @@ jobs:
           DOCKER_PREFIX="${{ env.registry }}"
           CAPELLA_DOCKERIMAGES_REVISION="${{ steps.tag.outputs.branch }}"
           CAPELLA_DROPINS="${{ matrix.dropins.dropins }}"
+          DOCKER_TAG_SCHEMA='${CAPELLA_VERSION}'-${{ matrix.dropins.name }}-'${CAPELLA_DOCKERIMAGES_REVISION}'
           DOCKER_BUILD_FLAGS="--label git-short-sha=${{ steps.tag.outputs.sha }}"
       - name: Install test dependencies
         run: |
