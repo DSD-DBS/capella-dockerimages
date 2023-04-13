@@ -21,7 +21,7 @@ dropins:
       # - "com.thalesgroup.vpd.property.contextualexplorer.feature.feature.group" # PVMT ContextualExplorer extension (requires org.eclipse.amalgam.explorer.contextual.ui)
   Filtering:
     github: "https://github.com/eclipse/capella-filtering"
-    eclipseRepository: "jar:https://download.eclipse.org/capella/addons/filtering/updates/releases/1.5.2/iltering-updateSite-1.5.2.202111091404.zip!/"
+    eclipseRepository: "jar:https://download.eclipse.org/capella/addons/filtering/updates/releases/1.5.2/Filtering-updateSite-1.5.2.202111091404.zip!/"
     installIU:
       - "org.polarsys.capella.filtering.feature.feature.group"
       # - "org.polarsys.capella.filtering.cdo.feature.feature.group"
