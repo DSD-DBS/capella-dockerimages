@@ -107,7 +107,7 @@ def run_importer_script() -> None:
                 )
     finally:
         if popen:
-            stderr = popen.stderr.read()
+            stderr = popen.stderr.read() if popen.stderr else None
             popen.terminate()
 
     if (return_code := popen.returncode) != 0:
