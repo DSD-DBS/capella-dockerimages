@@ -18,9 +18,6 @@ def load_dropins() -> dict[str, t.Any]:
 def extract_repositories_and_installIUs(
     dropins: dict[str, t.Any]
 ) -> tuple[list[str], list[str]]:
-    repositories = []
-    install_iu = []
-
     for dropin_slug in os.getenv("CAPELLA_DROPINS", "").split(","):
         if not dropin_slug:
             continue
@@ -32,13 +29,10 @@ def extract_repositories_and_installIUs(
 
         dropin = dropins[dropin_slug]
 
-        repositories.append(dropin["eclipseRepository"])
-        install_iu += dropin["installIU"]
-
-    return repositories, install_iu
+        install_update_sites(dropin["eclipseRepository"], dropin["installIU"])
 
 
-def install_update_sites(repositories: list[str], install_ui: list[str]):
+def install_update_sites(repository: str, install_ui: list[str]):
     subprocess.run(
         [
             "/opt/capella/capella",
@@ -47,7 +41,7 @@ def install_update_sites(repositories: list[str], install_ui: list[str]):
             "org.eclipse.equinox.p2.director",
             "-noSplash",
             "-repository",
-            ",".join(repositories),
+            repository,
             "-installIU",
             ",".join(install_ui),
         ],
@@ -57,7 +51,7 @@ def install_update_sites(repositories: list[str], install_ui: list[str]):
 
 if __name__ == "__main__":
     dropins = load_dropins()
-    repositories, install_ui = extract_repositories_and_installIUs(dropins)
+    extract_repositories_and_installIUs(dropins)
 
-    if repositories:
-        install_update_sites(repositories, install_ui)
+    # if repositories:
+    #     install_update_sites(repositories, install_ui)
