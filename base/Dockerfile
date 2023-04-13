@@ -15,6 +15,7 @@ RUN apt-get update && \
     locales \
     python3 \
     python3-pip \
+    git-lfs \
     unzip \
     zip && \
     rm -rf /var/lib/apt/lists/*
