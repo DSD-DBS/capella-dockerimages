@@ -116,7 +116,7 @@ def run_importer_script() -> None:
             f"Capella importer failed with exit code {return_code}"
         )
 
-    if is_capella_5_x_x():
+    if is_capella_5_0_x():
         if not re.search(r"!MESSAGE [1-9][0-9]* Succeeded", stdout):
             raise RuntimeError(
                 f"{ERROR_PREFIX} - '!MESSAGE [1-9][0-9]* Succeeded' not found in logs"
@@ -299,6 +299,10 @@ def get_connection_type() -> str:
 
 def is_capella_5_x_x() -> bool:
     return bool(re.match(r"5.[0-9]+.[0-9]+", os.getenv("CAPELLA_VERSION", "")))
+
+
+def is_capella_5_0_x() -> bool:
+    return bool(re.match(r"5.0.[0-9]+", os.getenv("CAPELLA_VERSION", "")))
 
 
 def get_http_envs() -> tuple[str, str, str]:
