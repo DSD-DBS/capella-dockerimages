@@ -74,11 +74,11 @@ def run_importer_script() -> None:
             http_port,
         ]
 
+    stderr = None
     stdout = ""
-    try:
-        popen = subprocess.Popen(
-            command, cwd="/opt/capella", stdout=subprocess.PIPE, text=True
-        )
+    with subprocess.Popen(
+        command, cwd="/opt/capella", stdout=subprocess.PIPE, text=True
+    ) as popen:
         assert popen.stdout
         for line in popen.stdout:
             stdout += line
@@ -105,10 +105,10 @@ def run_importer_script() -> None:
                 raise RuntimeError(
                     f"{ERROR_PREFIX} - Failed to copy to output folder ({OUTPUT_FOLDER})"
                 )
-    finally:
-        if popen:
-            stderr = popen.stderr.read() if popen.stderr else None
-            popen.terminate()
+
+        if popen.stderr:
+            stderr = ""
+            stderr += popen.stderr.read()
 
     if (return_code := popen.returncode) != 0:
         log.exception("Command failed with stderr: '%s'", stderr)
