@@ -59,18 +59,10 @@ variables:
   JUPYTER_VERSION:
     value: "python-3.11"
     description: "Python version for the jupyter notebook."
-  T4C_SERVER_REGISTRY:
-    value: ""
-    description: "Registry where you can find the t4c server image"
-  T4C_SERVER_TAG:
-    value: "$CAPELLA_VERSION-main"
-    description: "Tag that is used for the t4c server image"
-  T4C_SERVER_TEST_DATA_REPO:
-    value: ""
-    description: "Link to the t4c test data repo needed to run the backup tests"
-  LOCAL_GIT_BASE_IMAGE:
-    value: "debian:bullseye"
-    description: "Specifies the base images used to build the local git server needed to run the tests"
+  T4C_SERVER_REGISTRY: "" # Registry where you can find the t4c server image
+  T4C_SERVER_TAG: "$CAPELLA_VERSION-main" # Tag that is used for the t4c server image
+  T4C_SERVER_TEST_DATA_REPO: "" # Link to the t4c test data repo needed to run the backup tests
+  LOCAL_GIT_BASE_IMAGE: "debian:bullseye" # Specifies the base images used to build the local git server needed to run the tests
   DOCKER_BUILD_ARGS: "--no-cache"
   BUILD_ARCHITECTURE: amd64
   PURE_VARIANTS_VERSION: "6.0.0"
@@ -126,7 +118,8 @@ default:
   - export DOCKER_PREFIX=$T4C_SERVER_REGISTRY/
   - export T4C_SERVER_TAG=$T4C_SERVER_TAG
   - export LOCAL_GIT_TAG=latest
-  - export DOCKER_NETWORK=bridge
+  - apt update && apt -y install jq
+  - export DOCKER_NETWORK=$(docker inspect -f "{{json .NetworkSettings.Networks }}" $(docker ps -q -f "label=com.gitlab.gitlab-runner.job.id=$CI_JOB_ID" -f "label=com.gitlab.gitlab-runner.type=build") | jq -r 'keys[0]' | head -n 1)
   - *local-git-server
   - *prepare-tests
   - git clone $T4C_SERVER_TEST_DATA_REPO
