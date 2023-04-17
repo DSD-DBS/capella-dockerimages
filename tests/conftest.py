@@ -224,7 +224,6 @@ def wait_for_container(
     wait_for_message: str,
     stream: t.BinaryIO | None = None,
 ):
-    log_line = 0
     start_time = time.time()
 
     if not stream:
@@ -232,26 +231,22 @@ def wait_for_container(
 
     if stream:
         decoded_output: str = ""
+        log.info("Wait until %s", wait_for_message)
         for data in stream:
             encoding = chardet.detect(data)["encoding"]
 
             if encoding:
                 _data = data.decode(encoding)
                 decoded_output = decoded_output + _data
-                splitted_output = decoded_output.splitlines()
 
                 if "\n" in _data:
-                    log.info("Wait until %s", wait_for_message)
-
-                    log.debug(
-                        "Current output: %s",
-                        "\n".join(splitted_output[log_line:]),
-                    )
-                    log_line = len(splitted_output)
-
                     if wait_for_message in decoded_output:
-                        log.info("Found log line %s", wait_for_message)
-                        log.debug("Whole log: %s", "\n".join(splitted_output))
+                        log.info(
+                            "Found log line %s in %d seconds",
+                            wait_for_message,
+                            time.time() - start_time,
+                        )
+                        log.debug("Whole log: %s", decoded_output)
                         return
 
                     container.reload()
