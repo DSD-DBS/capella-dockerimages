@@ -59,6 +59,18 @@ variables:
   JUPYTER_VERSION:
     value: "python-3.11"
     description: "Python version for the jupyter notebook."
+  T4C_SERVER_REGISTRY:
+    value: ""
+    description: "Registry where you can find the t4c server image"
+  T4C_SERVER_TAG:
+    value: "$CAPELLA_VERSION-main"
+    description: "Tag that is used for the t4c server image"
+  T4C_SERVER_TEST_DATA_REPO:
+    value: ""
+    description: "Link to the t4c test data repo needed to run the backup tests"
+  LOCAL_GIT_BASE_IMAGE:
+    value: "debian:bullseye"
+    description: "Specifies the base images used to build the local git server needed to run the tests"
   DOCKER_BUILD_ARGS: "--no-cache"
   BUILD_ARCHITECTURE: amd64
   PURE_VARIANTS_VERSION: "6.0.0"
@@ -96,6 +108,28 @@ default:
 .prepare: &prepare
   - cd $CAPELLA_VERSION
   - *github
+
+.local-git-server: &local-git-server
+  - |
+    docker build $DOCKER_BUILD_ARGS \
+      -t $T4C_SERVER_REGISTRY/local-git-server \
+      --build-arg BASE_IMAGE=$LOCAL_GIT_BASE_IMAGE \
+      tests/local-git-server
+
+.prepare-tests: &prepare-tests
+  - python -m venv .venv
+  - pip install -e '.[dev]'
+  - source .venv/bin/activate
+  - cd tests
+
+.prepare-t4c-server-tests: &prepare-t4c-server-tests
+  - export DOCKER_PREFIX=$T4C_SERVER_REGISTRY/
+  - export T4C_SERVER_TAG=$T4C_SERVER_TAG
+  - export LOCAL_GIT_TAG=latest
+  - export DOCKER_NETWORK=bridge
+  - *local-git-server
+  - *prepare-tests
+  - git clone $T4C_SERVER_TEST_DATA_REPO
 
 base:
   stage: build
@@ -233,6 +267,8 @@ t4c/client/backup:
       --build-arg BASE_IMAGE=$BASE_IMAGE \
       --build-arg CAPELLA_VERSION=$CAPELLA_VERSION \
       backups
+    - *prepare-t4c-server-tests
+    - pytest -o log_cli=true -s -m t4c_server test_backups.py
     - *push
 
 t4c/client/exporter:
