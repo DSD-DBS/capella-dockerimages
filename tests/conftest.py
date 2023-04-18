@@ -228,35 +228,35 @@ def wait_for_container(
 
     if not stream:
         stream = container.logs(stream=True)
+    assert stream
 
-    if stream:
-        decoded_output: str = ""
-        log.info("Wait until %s", wait_for_message)
-        for data in stream:
-            encoding = chardet.detect(data)["encoding"]
+    decoded_output: str = ""
+    log.info("Wait until log line: %s", wait_for_message)
+    for data in stream:
+        encoding = chardet.detect(data)["encoding"]
 
-            if encoding:
-                _data = data.decode(encoding)
-                decoded_output = decoded_output + _data
+        if encoding:
+            _data = data.decode(encoding)
+            decoded_output = decoded_output + _data
 
-                if "\n" in _data:
-                    if wait_for_message in decoded_output:
-                        log.info(
-                            "Found log line %s in %d seconds",
-                            wait_for_message,
-                            time.time() - start_time,
-                        )
-                        log.debug("Whole log: %s", decoded_output)
-                        return
+            if "\n" in _data:
+                if wait_for_message in decoded_output:
+                    log.info(
+                        "Found log line %s in %d seconds",
+                        wait_for_message,
+                        time.time() - start_time,
+                    )
+                    log.debug("Whole log:\n%s", decoded_output)
+                    return
 
-                    container.reload()
-                    if container.status == "exited":
-                        log.error("Log from container: %s", decoded_output)
-                        raise RuntimeError("Container exited unexpectedly")
+        if time.time() - start_time > timeout:
+            log.error("Log from container:\n%s", decoded_output)
+            raise TimeoutError("Timeout while waiting for model loading")
 
-            if time.time() - start_time > timeout:
-                log.error("Log from container: %s", decoded_output)
-                raise TimeoutError("Timeout while waiting for model loading")
+    container.reload()
+    if container.status == "exited":
+        log.error("Log from container:\n%s", decoded_output)
+        raise RuntimeError("Container exited unexpectedly")
 
 
 def is_capella_5_x_x() -> bool:
