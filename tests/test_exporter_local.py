@@ -107,9 +107,7 @@ def import_model(model_dir: pathlib.Path, env: dict[str, str]):
         image="t4c/client/backup",
         environment=env,
     ) as container:
-        conftest.wait_for_container(
-            container, "Import of model from TeamForCapella server finished"
-        )
+        conftest.wait_for_container(container, "Backup of model finished")
         strm, _ = conftest.client.api.get_archive(container.id, "/tmp/model/")
 
         with open(file=model_tar_path, mode="wb") as tar_file:

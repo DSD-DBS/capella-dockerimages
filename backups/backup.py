@@ -332,4 +332,4 @@ if __name__ == "__main__":
         copy_exported_files_into_git_repo(_project_dir)
         git_commit_and_push(_git_dir)
 
-    log.info("Import of model from TeamForCapella server finished")
+    log.info("Backup of model finished")

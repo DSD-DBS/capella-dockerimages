@@ -3,12 +3,9 @@
 
 from __future__ import annotations
 
-import fcntl
 import logging
 import os
 import pathlib
-import socket
-import struct
 import subprocess
 
 import conftest
@@ -86,8 +83,7 @@ def test_model_backup_happy(
     tmp_path: pathlib.Path,
 ):
     conftest.wait_for_container(
-        t4c_backup_container,
-        "Import of model from TeamForCapella server finished",
+        t4c_backup_container, "Backup of model finished"
     )
 
     git_path = tmp_path / "test-git-data"
@@ -116,6 +112,7 @@ def test_model_backup_happy(
             ["git", "switch", conftest.GIT_REPO_BRANCH],
             check=True,
             cwd=git_path,
+            capture_output=True,
         )
     except subprocess.CalledProcessError:
         log.debug("backup failed - backup-test branch does not exists")
@@ -152,6 +149,5 @@ def test_model_backup_happy(
 def test_model_backup_unhappy(t4c_backup_container):
     with pytest.raises(RuntimeError):
         conftest.wait_for_container(
-            t4c_backup_container,
-            "Import of model from TeamForCapella server finished",
+            t4c_backup_container, "Backup of model finished"
         )
