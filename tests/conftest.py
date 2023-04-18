@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import collections.abc as cabc
 import contextlib
-import functools
 import logging
 import os
 import pathlib
@@ -202,13 +201,14 @@ def get_container(
 
     container = client.containers.run(
         image=image,
-        detach=True,
         ports=ports,
         environment=environment,
         volumes=volumes,
         entrypoint=entrypoint,
-        tty=True,
         network=DOCKER_NETWORK if DOCKER_NETWORK != "host" else None,
+        labels={"capella-dockerimages-pytest-container": "true"},
+        detach=True,
+        tty=True,
     )
 
     try:
