@@ -4,7 +4,7 @@
 name: Deploy documentation
 on:
   push:
-    branches: ["main", "mkdocs"]
+    branches: ["main"]
 jobs:
   deploy:
     runs-on: ubuntu-latest
