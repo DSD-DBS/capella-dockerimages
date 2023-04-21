@@ -23,7 +23,7 @@ If you need another image, please follow the [`Build images locally`](#build-ima
 To get started, please clone this repository and include all submodules:
 
 ```zsh
-git clone --recurse-submodules https://github.com/DSD-DBS/capella-dockerimages.git
+git clone https://github.com/DSD-DBS/capella-dockerimages.git
 ```
 
 ### Build images with GNU Make
