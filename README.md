@@ -27,7 +27,7 @@ This repository provides Docker images for the followings tools:
     [SWT-Bot](https://www.eclipse.org/swtbot/)
 - [Jupyter Notebook](https://jupyter.org/)
 
-In general, we are providing images to run the applications in a containerized environment and to automate processes around the tools.
+In general, we are providing images to run applications in a containerized environment and to automate processes around the tools.
 
 This repository includes Docker files to build the following Docker images:
 
@@ -39,6 +39,7 @@ This repository includes Docker files to build the following Docker images:
 | `t4c/client/base`|This extends the Capella base image with the T4C client and the dependencies.|
 | `capella/ease`<br>`t4c/client/ease`|This extends the Capella or T4C client base image with EASE and SWTBot functionality. You can mount every Python script and execute it in a container environment. |
 | `capella/remote`<br>`t4c/client/remote`|The remote image will add an RDP server on top of any other image. This will provide the user the possibility to connect and work inside the container.|
+| `capella/cli`<br>`t4c/client/cli`|Image with (headless) CLI interface for Capella. It spawns a virtual display, which is needed by Capella.|
 | `capella/readonly`|This image has capability to clone a Git repository, will load the project into the workspace and also offers RDP.|
 | `t4c/client/backup`|This extends the T4C client base image to import a model from T4C and export it to Git.|
 | `t4c/client/exporter`|This extends the T4C client base image to import a model from GIT and export it to T4C.|
