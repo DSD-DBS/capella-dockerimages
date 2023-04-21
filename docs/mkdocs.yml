@@ -1,0 +1,69 @@
+# SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
+# SPDX-License-Identifier: Apache-2.0
+
+site_name: MBSE Docker images
+theme:
+  name: material
+  palette:
+    scheme: slate
+    primary: indigo
+    accent: light blue
+  features:
+    - content.code.copy
+nav:
+  - Introduction: index.md
+  - Base: base.md
+  - CI/CD templates:
+      - Index: ci-templates/index.md
+      - Gitlab:
+          - Diagram cache: ci-templates/gitlab/diagram-cache.md
+          - Image builder: ci-templates/gitlab/image-builder.md
+          - Model validation: ci-templates/gitlab/model-validation.md
+          - T4C export: ci-templates/gitlab/t4c-export.md
+  - Jupyter Notebooks: jupyter/index.md
+  - Capella:
+      - Introduction: capella/introduction.md
+      - Base: capella/base.md
+      - Remote: remote.md
+      - CLI: capella/cli.md
+      - EASE: ease.md
+      - Read-only: capella/readonly.md
+      - "pure::variants": capella/pure-variants.md
+      - Build from source: capella/build-from-source.md
+      - Team4Capella client:
+          - Introduction: capella/t4c/introduction.md
+          - Base: capella/t4c/base.md
+          - Exporter: capella/t4c/exporter.md
+          - Importer: capella/t4c/importer.md
+          - Remote: remote.md
+          - EASE: ease.md
+  - Remote: remote.md
+
+repo_url: https://github.com/DSD-DBS/capella-dockerimages
+edit_uri: edit/master/docs/docs
+
+markdown_extensions:
+  - meta
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - abbr
+  - pymdownx.snippets
+  - attr_list
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+extra:
+  generator: false
+
+copyright: Copyright &copy; 2022-2023 DB Netz AG
