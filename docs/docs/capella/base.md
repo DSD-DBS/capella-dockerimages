@@ -3,7 +3,7 @@
  ~ SPDX-License-Identifier: Apache-2.0
  -->
 
-# Capella Base
+# Capella base
 
 <!-- prettier-ignore -->
 !!! info
@@ -170,7 +170,7 @@ Capella should start after a few seconds.
 
 ### In a remote container (RDP)
 
-Please follow the instructions on the [remote] page. When running the image, add the following variables to the `docker run` command:
+Please follow the instructions on the [remote](../remote.md) page. When running the image, add the following variables to the `docker run` command:
 
 ```zsh
     -e AUTOSTART_CAPELLA=$AUTOSTART_CAPELLA \

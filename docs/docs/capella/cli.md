@@ -3,6 +3,8 @@
  ~ SPDX-License-Identifier: Apache-2.0
  -->
 
+# Capella CLI
+
 <!-- prettier-ignore -->
 !!! info
     The Docker image name for this image is `capella/cli` / `t4c/client/cli`
@@ -22,7 +24,7 @@ Capella provides some [CLI interfaces](https://github.com/eclipse/capella/blob/m
 ## Use the prebuilt image
 
 ```
-docker run ghcr.io/dsd-dbs/capella-dockerimages/capella/ease:$TAG
+docker run ghcr.io/dsd-dbs/capella-dockerimages/capella/cli:$TAG
 ```
 
 where `$TAG` is the Docker tag. For more information, have a look at our [tagging schema](introduction.md#tagging-schema-for-prebuilt-images).

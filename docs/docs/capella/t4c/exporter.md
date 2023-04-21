@@ -3,7 +3,7 @@
  ~ SPDX-License-Identifier: Apache-2.0
  -->
 
-# T4C client exporter
+# TeamForCapella client exporter
 
 <!-- prettier-ignore -->
 !!! info

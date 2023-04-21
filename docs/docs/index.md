@@ -48,9 +48,7 @@ Then, just run the following command:
 make <image-name>
 ```
 
-to build the image and it's dependencies.
-
-or
+to build the image and it's dependencies or
 
 ```sh
 make run-<image-name>
@@ -105,7 +103,7 @@ Each highlighted color indicates the Dockerfile which is used to build the image
 :material-checkbox-blank-circle:{ style="color: #8feb34 " } [Capella Base](capella/base.md)<br>
 :material-checkbox-blank-circle:{ style="color: #f8fc03 " } [Capella CLI](capella/cli.md)<br>
 :material-checkbox-blank-circle:{ style="color: #34cceb " } [T4C Client Base](capella/t4c/base.md) <br>
-:material-checkbox-blank-circle:{ style="color: #eb3477 " } [EASE](capella/ease.md) <br>
+:material-checkbox-blank-circle:{ style="color: #eb3477 " } [EASE](ease.md) <br>
 :material-checkbox-blank-circle:{ style="color: #f2f1a7 " } [Remote](remote.md) <br>
 :material-checkbox-blank-circle:{ style="color: #d0a7f2 " } [Capella read-only](capella/readonly.md) <br>
 :material-checkbox-blank-circle:{ style="color: #62f5f2 " } [pure::variants](capella/pure-variants.md) <br>

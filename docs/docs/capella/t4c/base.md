@@ -3,6 +3,8 @@
  ~ SPDX-License-Identifier: Apache-2.0
  -->
 
+# TeamForCapella client base
+
 <!-- prettier-ignore -->
 !!! info
     The Docker image name for this image is `t4c/client/base`
@@ -16,23 +18,24 @@ plugins.
 
 #### Download TeamForCapella bundle
 
+<!-- prettier-ignore -->
 1. Download a Team for Capella client for Linux from
    <https://www.obeosoft.com/en/team-for-capella-download>
 
-   Note that the T4C client version must match the version for Capella itself.
+    Note that the T4C client version must match the version for Capella itself.
    To obtain a Linux T4C client version below 5.2 you may want to contact
    [Obeo](https://www.obeosoft.com/en/team-for-capella-download) to get a bundle.
 
 1. Extract the downloaded archive. The extracted folder comes with a `.zip` file
    containing the T4C client:
 
-   ```text
-   $ tree -L 2 TeamForCapella-5.0.0-linux.gtk.x86_64
-   TeamForCapella-5.0.0-linux.gtk.x86_64
-   ├── (...)
-   └── updateSite
-       └── com.thalesgroup.mde.melody.team.license.update-5.0.0-202012091024.zip
-   ```
+    ```text
+    $ tree -L 2 TeamForCapella-5.0.0-linux.gtk.x86_64
+    TeamForCapella-5.0.0-linux.gtk.x86_64
+    ├── (...)
+    └── updateSite
+        └── com.thalesgroup.mde.melody.team.license.update-5.0.0-202012091024.zip
+    ```
 
 1. That `.zip` file needs to be copied into the subdirectory `t4c/updateSite/$CAPELLA_VERSION`
    of the present repository.

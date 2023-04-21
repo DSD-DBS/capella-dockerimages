@@ -46,12 +46,12 @@ pure-variants/dependencies
 
 #### Download the `pure::variants` archive
 
-1. Download the pure::variants updateSite from the pure::variants download site: <https://www.pure-systems.com/pvde-update/> (access restricted, license needed).
-   The version on the [public website](https://www.pure-systems.com/pv-update/) is not sufficient (it's missing important plugins).
+1.  Download the pure::variants updateSite from the pure::variants download site: <https://www.pure-systems.com/pvde-update/> (access restricted, license needed).
+    The version on the [public website](https://www.pure-systems.com/pv-update/) is not sufficient (it's missing important plugins).
 
-   Please select: "pure::variants Archived Update Site with all Extensions" for Linux (Tux).
+    Please select: "pure::variants Archived Update Site with all Extensions" for Linux (Tux).
 
-1. Place the zip-file into `pure-variants/updateSite`.
+1.  Place the zip-file into `pure-variants/updateSite`.
 
 ### Build it manually with Docker
 
@@ -60,13 +60,12 @@ pure-variants/dependencies
    ```zsh
    docker build -t t4c/client/remote/pure-variants \
        --build-arg CAPELLA_VERSION=$CAPELLA_VERSION \
-       --build-arg
        pure-variants
    ```
 
 ## Run the container
 
-To run the `pure-variants` images, please follow the instructions to run the [Capella base](../base.md) or [T4C client base image](../t4c/base.md), but consider the following differences:
+To run the `pure-variants` images, please follow the instructions to run the [Capella base](./base.md) or [T4C client base image](./t4c/base.md), but consider the following differences:
 
 - Add the environment variable `$PURE_VARIANTS_LICENSE_SERVER` to the `docker run` command. The value is the same as set in the Capella GUI when running a normal installation, e.g. `http://localhost:8080`.
 - Bind the directory containing the `license.lic` file to `/inputs/pure-variants/` inside the container.
@@ -74,5 +73,5 @@ To run the `pure-variants` images, please follow the instructions to run the [Ca
   docker run -d \
       -p $RDP_EXTERNAL_PORT:3389 \
       -e RMT_PASSWORD=$RMT_PASSWORD \
-      $BASE_IMAGE/remote
+      $BASE_IMAGE/remote/pure-variants
   ```

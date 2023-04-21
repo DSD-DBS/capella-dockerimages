@@ -40,7 +40,9 @@ There are two options available for read-only containers.
 The first option supports multiple repositories, but you need to JSON-serizalize it.
 With the second option, you can provide the details as environment variables directly.
 
-Running the Capella read-only container is analogous to the Capella base container. Please run the [instructions of the Capella base container](../base.md#run-the-container), but add the `$EASE_LOG_LOCATION` environment variable during `docker run` (optional). The value should be the absolute path to log file. Defaults to `/proc/1/fd/1` (Docker logs) if not provided.
+Running the Capella read-only container is analogous to the Capella base container. Please run the [instructions of the Capella base container](../base.md#run-the-container).
+
+Optionally, if you want to change the log location of EASE, add the `$EASE_LOG_LOCATION` environment variable and provide a path to a file as value during `docker run`. The value should be the absolute path to log file. Defaults to `/proc/1/fd/1` (i.e., Docker container logs) if not provided.
 
 In addition, choose one of the following two options and consider the differences.
 
@@ -68,8 +70,6 @@ The JSON string has to be provided as value to the environment variable with the
 ```zsh
     -e GIT_REPOS_JSON=$GIT_REPOS_JSON
 ```
-
-Please replace the `GIT_REPOS_JSON` with the JSON-string (described above).
 
 ### Provide repository details in separate environment variables
 
