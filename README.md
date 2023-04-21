@@ -45,8 +45,3 @@ This repository includes Docker files to build the following Docker images:
 | `t4c/client/exporter`|This extends the T4C client base image to import a model from GIT and export it to T4C.|
 | `capella/remote/pure-variants`<br>`t4c/client/remote/pure-variants`|This extends the remote image with pure::variants support.|
 | `jupyter-notebook`|A Jupyter notebook image based on the base image.|
-
-### Use our CI templates
-
-You can find the list of supported CI/CD instances and instructions here:
-[CI templates README](./ci-templates/README.md)
