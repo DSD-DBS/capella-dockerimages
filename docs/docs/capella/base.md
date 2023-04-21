@@ -32,11 +32,11 @@ Download a Capella Linux binary `zip` or `tar.gz` archive. You can get a release
 directly from Eclipse. Visit <https://github.com/eclipse/capella/releases>, select a
 version and follow the hyperlink labelled `Product` to find a binary release for Linux.
 
-Place the downloaded archive in the subdirectory `capella/versions/$CAPELLA_VERSION` of the present
+Place the downloaded archive in the subdirectory `capella/versions/$CAPELLA_VERSION/$ARCHITECTURE` of the present
 repository and ensure that the end result is either
 
-- `capella/versions/$CAPELLA_VERSION/capella.tar.gz` or
-- `capella/versions/$CAPELLA_VERSION/capella.zip`.
+- `capella/versions/$CAPELLA_VERSION/$ARCHITECTURE/capella.tar.gz` or
+- `capella/versions/$CAPELLA_VERSION/$ARCHITECTURE/capella.zip`.
 
 Check that the archive has a structure similar to the following coming with a top level
 directory named `capella` and several sub directories and files in it.

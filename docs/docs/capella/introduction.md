@@ -7,6 +7,11 @@
 
 Currently, we support Capella versions `5.0.0`, `5.2.0` and `6.0.0`.
 
+## Supported architectures
+
+Currently, we support amd64 for all supported Capella version.
+In addition, we added support for arm64 starting with Capella `6.0.0`.
+
 ## Tagging schema for prebuilt images
 
 The Capella related images are tagged using the following schema:
