@@ -68,6 +68,29 @@ To customise the Capella client you can
 1. apply any modifications (e. g. installation of plugins and/ or dropins) to it, and
 1. compress the modified folder `capella` to get a `capella.zip` or `capella.tar.gz` again.
 
+##### Install dropins
+
+As alternative to the solution presented above, we provide an interface to install dropins easily.
+
+You have to pass a comma-separated list of dropin names as `CAPELLA_DROPINS` build argument to the `docker build` command:
+
+```zsh
+--build-arg CAPELLA_DROPINS="CapellaXHTMLDocGen,DiagramStyler,PVMT,Filtering,Requirements,SubsystemTransition"
+```
+
+Supported dropins are:
+
+- [CapellaXHTMLDocGen](https://github.com/eclipse/capella-xhtml-docgen)
+- [DiagramStyler](https://github.com/eclipse/capella/wiki/PVMT)
+- [PVMT](https://github.com/eclipse/capella/wiki/PVMT)
+- [Filtering](https://github.com/eclipse/capella-filtering)
+- [Requirements](https://github.com/eclipse/capella-requirements-vp)
+- [SubsystemTransition](https://github.com/eclipse/capella-sss-transition)
+- [TextualEditor](https://github.com/eclipse/capella-textual-editor)
+
+The dropins are registered in the `capella/versions/$CAPELLA_VERSION/dropins.yml` file.
+If you're missing a dropin in the list, feel free to open a PR.
+
 #### Optional: Workaround of pinned library versions to remove incompatibilities
 
 **Note:**

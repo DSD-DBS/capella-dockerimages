@@ -5,7 +5,7 @@ name: Build & push images
 on:
   push:
   pull_request:
-    branches: [main, staging]
+    branches: ["main"]
 
 env:
   registry: ghcr.io/dsd-dbs/capella-dockerimages/
