@@ -61,12 +61,15 @@ def fixture_t4c_exporter_git_env(
 @pytest.fixture(name="t4c_exporter_container")
 def fixture_t4c_exporter_container(
     t4c_exporter_git_env: dict[str, str],
+    t4c_ip_addr: str,
     t4c_http_port: str,
     init_t4c_server_repo: None,  # pylint: disable=unused-argument
     init_git_server: None,  # pylint: disable=unused-argument
 ) -> containers.Container:
     if conftest.is_capella_6_x_x():
-        assert not conftest.get_projects_of_t4c_repository(t4c_http_port)
+        assert not conftest.get_projects_of_t4c_repository(
+            t4c_ip_addr, t4c_http_port
+        )
 
     with conftest.get_container(
         image="t4c/client/exporter", environment=t4c_exporter_git_env
@@ -79,7 +82,9 @@ def fixture_t4c_exporter_container(
     reason="Exporter does not work for capella 5.x.x",
 )
 def test_export_model_happy(
-    t4c_exporter_container: containers.Container, t4c_http_port: str
+    t4c_exporter_container: containers.Container,
+    t4c_ip_addr: str,
+    t4c_http_port: str,
 ):
     conftest.wait_for_container(
         t4c_exporter_container,
@@ -88,7 +93,7 @@ def test_export_model_happy(
 
     t4c_projects: list[
         dict[str, str]
-    ] = conftest.get_projects_of_t4c_repository(t4c_http_port)
+    ] = conftest.get_projects_of_t4c_repository(t4c_ip_addr, t4c_http_port)
 
     assert len(t4c_projects) == 1
 

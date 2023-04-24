@@ -5,6 +5,8 @@ import json
 import logging
 import pathlib
 import re
+import tarfile
+import time
 
 import conftest
 import pytest
@@ -65,9 +67,7 @@ def fixture_container_success(
         },
     }[success_mode]
     with conftest.get_container(
-        image="t4c/client/remote",
-        environment=env,
-        volumes=conftest.create_volume(tmp_path, "/opt/capella/configuration"),
+        image="t4c/client/remote", environment=env
     ) as container:
         yield container
 
@@ -123,7 +123,33 @@ def test_repositories_seeding(
         container_success, "INFO success: xrdp-sesman entered RUNNING state"
     )
 
-    path = tmp_path / "fr.obeo.dsl.viewpoint.collab" / "repository.properties"
+    conftest.extract_container_dir_to_local_dir(
+        container_success.id, "/opt/capella/configuration", tmp_path
+    )
+
+    # We can't just mount the test data as a volume as this will cause problems
+    # in our pipeline as we are running Docker in Docker (i.e., we would mount the
+    # volume on the host machine but not on the container running the job/test)
+    # TODO: Check whether we can move stuff in a function here (there is at least one place where we do it the same way)
+    # configuration_tar_path = tmp_path / "configuration.tar"
+    # strm, _ = conftest.client.api.get_archive(
+    #     container_success.id, "/opt/capella/configuration"
+    # )
+
+    # with open(file=configuration_tar_path, mode="wb") as tar_file:
+    #     for chunk in strm:
+    #         tar_file.write(chunk)
+
+    # with tarfile.open(name=configuration_tar_path, mode="r") as tar_file:
+    #     for member in tar_file.getmembers():
+    #         tar_file.extract(member, path=tmp_path)
+
+    path = (
+        tmp_path
+        / "configuration"
+        / "fr.obeo.dsl.viewpoint.collab"
+        / "repository.properties"
+    )
     assert path.exists()
     file_content = path.read_text()
 

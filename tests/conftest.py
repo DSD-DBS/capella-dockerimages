@@ -103,17 +103,16 @@ def fixture_t4c_server_container(
 
     wait_for_message = "!MESSAGE CDO server started"
     if init:
-        source_dir = (
-            pathlib.Path(__file__).parents[0]
-            / "t4c-server-test-data"
-            / "data"
-            / os.getenv("CAPELLA_VERSION", "")
+        create_tarfile(
+            tar_file_path=server_test_data_tar_path,
+            source_dir=(
+                pathlib.Path(__file__).parents[0]
+                / "t4c-server-test-data"
+                / "data"
+                / os.getenv("CAPELLA_VERSION", "")
+            ),
+            arcname="data",
         )
-        with tarfile.open(
-            name=server_test_data_tar_path, mode="w"
-        ) as tar_file:
-            tar_file.add(name=source_dir, arcname="data")
-
         wait_for_message = "!MESSAGE Warmup done for repository"
 
     with get_container(
@@ -175,8 +174,8 @@ def fixture_t4c_exporter_env(
 
 
 @pytest.fixture(name="init_t4c_server_repo")
-def fixture_init_t4c_server_repo(t4c_http_port: str):
-    create_t4c_repository(t4c_http_port)
+def fixture_init_t4c_server_repo(t4c_ip_addr: str, t4c_http_port: str):
+    create_t4c_repository(t4c_ip_addr, t4c_http_port)
     yield
 
 
@@ -267,9 +266,14 @@ def is_capella_6_x_x() -> bool:
     return bool(re.match(r"6.[0-9]+.[0-9]+", os.getenv("CAPELLA_VERSION", "")))
 
 
-def get_projects_of_t4c_repository(t4c_http_port: str) -> list[dict[str, str]]:
+def get_projects_of_t4c_repository(
+    t4c_ip_addr: str, t4c_http_port: str
+) -> list[dict[str, str]]:
+    if DOCKER_NETWORK == "host":
+        t4c_ip_addr = "127.0.0.1"
+
     res = requests.get(
-        f"http://127.0.0.1:{t4c_http_port}/api/v1.0/projects/{T4C_REPO_NAME}",
+        f"http://{t4c_ip_addr}:{t4c_http_port}/api/v1.0/projects/{T4C_REPO_NAME}",
         auth=_get_basic_auth(),
         timeout=60,
     )
@@ -281,9 +285,12 @@ def get_projects_of_t4c_repository(t4c_http_port: str) -> list[dict[str, str]]:
 # 1. deamon-reload
 # 2. docker restart
 # Related to: https://github.com/moby/moby/issues/42442
-def create_t4c_repository(t4c_http_port: str):
+def create_t4c_repository(t4c_ip_addr: str, t4c_http_port: str):
+    if DOCKER_NETWORK == "host":
+        t4c_ip_addr = "127.0.0.1"
+
     res = requests.post(
-        f"http://127.0.0.1:{t4c_http_port}/api/v1.0/repositories",
+        f"http://{t4c_ip_addr}:{t4c_http_port}/api/v1.0/repositories",
         auth=_get_basic_auth(),
         timeout=60,
         json={
@@ -297,15 +304,29 @@ def create_t4c_repository(t4c_http_port: str):
     assert res.status_code == 201
 
 
-def create_volume(
-    path: str | pathlib.Path, mount_path: str | pathlib.Path
-) -> dict[str, dict[str, str]]:
-    return {
-        str(path): {
-            "bind": str(mount_path),
-            "model": "rw",
-        }
-    }
+def create_tarfile(
+    tar_file_path: str | pathlib.Path,
+    source_dir: str | pathlib.Path,
+    arcname: str,
+):
+    with tarfile.open(name=tar_file_path, mode="w") as tar_file:
+        tar_file.add(name=source_dir, arcname=arcname)
+
+
+def extract_container_dir_to_local_dir(
+    container_id: str, container_dir: str, target_dir: pathlib.Path
+):
+    target_dir.mkdir(parents=True, exist_ok=True)
+    tar_file_name = target_dir / (container_dir.split("/")[-1] + ".tar")
+
+    strm, _ = client.api.get_archive(container_id, container_dir)
+
+    with open(file=tar_file_name, mode="wb") as tar_file:
+        for chunk in strm:
+            tar_file.write(chunk)
+
+    with tarfile.open(name=tar_file_name, mode="r") as tar_file:
+        tar_file.extractall(path=target_dir)
 
 
 def _get_basic_auth() -> auth.HTTPBasicAuth:
