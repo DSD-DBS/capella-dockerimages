@@ -286,6 +286,8 @@ t4c/client/exporter:
       --build-arg BASE_IMAGE=$BASE_IMAGE \
       --build-arg CAPELLA_VERSION=$CAPELLA_VERSION \
       exporter
+    - *prepare-t4c-server-tests
+    - pytest -o log_cli=true -s -m t4c_server test_exporter_local.py test_exporter_git.py
     - *push
 
 t4c/client/remote:
