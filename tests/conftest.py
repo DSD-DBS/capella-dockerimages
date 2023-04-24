@@ -119,7 +119,7 @@ def fixture_t4c_server_container(
         image="t4c/server/server",
         image_tag_env="T4C_SERVER_TAG",
         environment=t4c_server_env,
-        ports={"8080/tcp": None},
+        ports={"8080/tcp": None} if DOCKER_NETWORK == "host" else None,
         entrypoint=["/bin/bash"],
     ) as container:
         if init:
@@ -144,7 +144,9 @@ def fixture_t4c_ip_addr(
 @pytest.fixture(name="t4c_http_port")
 def fixture_t4c_http_port(t4c_server_container: containers.Container) -> str:
     t4c_server_container.reload()
-    return t4c_server_container.ports["8080/tcp"][0]["HostPort"]
+    if DOCKER_NETWORK == "host":
+        return t4c_server_container.ports["8080/tcp"][0]["HostPort"]
+    return "8080"
 
 
 @pytest.fixture(name="t4c_general_env")
