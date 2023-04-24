@@ -274,6 +274,8 @@ def get_projects_of_t4c_repository(
     if DOCKER_NETWORK == "host":
         t4c_ip_addr = "127.0.0.1"
 
+    os.environ["no_proxy"] = os.getenv("no_proxy", "") + f",{t4c_ip_addr}"
+
     res = requests.get(
         f"http://{t4c_ip_addr}:{t4c_http_port}/api/v1.0/projects/{T4C_REPO_NAME}",
         auth=_get_basic_auth(),
@@ -290,6 +292,8 @@ def get_projects_of_t4c_repository(
 def create_t4c_repository(t4c_ip_addr: str, t4c_http_port: str):
     if DOCKER_NETWORK == "host":
         t4c_ip_addr = "127.0.0.1"
+
+    os.environ["no_proxy"] = os.getenv("no_proxy", "") + f",{t4c_ip_addr}"
 
     res = requests.post(
         f"http://{t4c_ip_addr}:{t4c_http_port}/api/v1.0/repositories",

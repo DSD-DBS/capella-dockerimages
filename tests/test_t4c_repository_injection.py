@@ -5,8 +5,6 @@ import json
 import logging
 import pathlib
 import re
-import tarfile
-import time
 
 import conftest
 import pytest
