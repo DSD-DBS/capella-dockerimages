@@ -22,12 +22,10 @@ jobs:
           - "6.0.0"
           - "6.1.0"
         dropins:
-          - name: "no" # no dropins
+          - name: "without-dropins" # without dropins
             dropins: ""
-          - name: "selected"
-            dropins: "CapellaXHTMLDocGen,DiagramStyler,Filtering,PVMT,Requirements,SubsystemTransition" # selected set of dropins
-          - name: "all"
-            dropins: "CapellaXHTMLDocGen,DiagramStyler,Filtering,PVMT,Requirements,SubsystemTransition" # all open source dropins
+          - name: "selected-dropins"
+            dropins: "CapellaXHTMLDocGen,DiagramStyler,PVMT,Filtering,Requirements,SubsystemTransition" # selected set of dropins
     name: Capella ${{ matrix.capella_version }} with ${{ matrix.dropins.name }} dropins
     steps:
       - name: Checkout repository
