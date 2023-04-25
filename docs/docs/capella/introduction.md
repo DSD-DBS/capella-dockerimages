@@ -7,7 +7,7 @@
 
 ## Supported versions
 
-Currently, we support Capella versions `5.0.0`, `5.2.0` and `6.0.0`.
+Currently, we support Capella versions `5.0.0`, `5.2.0`, `6.0.0`, and `6.1.0`.
 
 ## Supported architectures
 
