@@ -401,6 +401,8 @@ capella/readonly:
       -t $DOCKER_REGISTRY/capella/readonly:$DOCKER_TAG \
       --build-arg BASE_IMAGE=$BASE_IMAGE \
       readonly
+    - *prepare-tests
+    - pytest -o log_cli=true -s test_read_only.py
     - *push
 
 t4c/client/ease:
