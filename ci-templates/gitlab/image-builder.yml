@@ -309,6 +309,8 @@ t4c/client/remote:
       -t $DOCKER_REGISTRY/t4c/client/remote:$DOCKER_TAG \
       --build-arg BASE_IMAGE=$BASE_IMAGE \
       remote
+    - *prepare-tests
+    - pytest -o log_cli=true -s test_t4c_repository_injection.py
     - *push
 
 t4c/client/remote/pure-variants:
