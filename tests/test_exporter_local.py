@@ -8,7 +8,6 @@ import logging
 import os
 import pathlib
 import shutil
-import tarfile
 
 import capellambse
 import capellambse.decl
@@ -132,13 +131,10 @@ def export_model(model_dir: pathlib.Path, env: dict[str, str]):
         with open(file=model_tar, mode="rb") as tar_file:
             conftest.client.api.put_archive(container.id, "/tmp", tar_file)
 
-        _, stream = container.exec_run(
-            cmd="xvfb-run python /opt/scripts/exporter.py", stream=True
-        )
         conftest.wait_for_container(
             container,
             "Export of model to TeamForCapella server finished",
-            stream=stream,
+            cmd="xvfb-run python /opt/scripts/exporter.py",
         )
 
 

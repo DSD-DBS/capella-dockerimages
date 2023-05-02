@@ -6,12 +6,12 @@ from __future__ import annotations
 import collections.abc as cabc
 import contextlib
 import logging
+import multiprocessing
 import os
 import pathlib
 import re
 import tarfile
 import time
-import typing as t
 
 import chardet
 import docker
@@ -24,7 +24,7 @@ log = logging.getLogger(__file__)
 log.setLevel("DEBUG")
 client = docker.from_env()
 
-timeout = 60  # Timeout in seconds
+timeout = 120  # Timeout in seconds
 
 
 HTTP_LOGIN: str = "admin"
@@ -128,8 +128,7 @@ def fixture_t4c_server_container(
             # volume on the host machine but not on the container running the job/test)
             with open(file=server_test_data_tar_path, mode="rb") as tar_file:
                 client.api.put_archive(container.id, "/", tar_file)
-        _, stream = container.exec_run(cmd="/opt/startup.sh", stream=True)
-        wait_for_container(container, wait_for_message, stream=stream)
+        wait_for_container(container, wait_for_message, cmd="/opt/startup.sh")
         yield container
 
 
@@ -223,41 +222,74 @@ def get_container(
 def wait_for_container(
     container: containers.Container,
     wait_for_message: str,
-    stream: t.BinaryIO | None = None,
+    cmd: str | None = None,
 ):
     start_time = time.time()
 
-    if not stream:
+    manager = multiprocessing.Manager()
+    shared_list = manager.list()
+
+    create_log_process = multiprocessing.Process(
+        target=create_log_list,
+        args=(container.id, shared_list, cmd),
+    )
+
+    container.reload()
+    if container.status == "exited":
+        log.error("Log from container:\n%s", container.logs().decode())
+        raise RuntimeError("Container exited unexpectedly")
+
+    create_log_process.start()
+
+    log.info("Wait until log line: %s", wait_for_message)
+    while time.time() - start_time < timeout:
+        decoded_log = "".join(shared_list)
+
+        if wait_for_message in decoded_log:
+            log.info(
+                "Found log line %s in %d seconds",
+                wait_for_message,
+                time.time() - start_time,
+            )
+            log.debug("Whole log:\n%s", decoded_log)
+            create_log_process.kill()
+
+            return
+
+        container.reload()
+        if container.status == "exited":
+            log.error("Log from container:\n%s", decoded_log)
+            create_log_process.kill()
+            raise RuntimeError("Container exited unexpectedly")
+
+        time.sleep(2)
+
+    if time.time() - start_time > timeout:
+        log.error("Log from container:\n%s", decoded_log)
+        raise TimeoutError("Timeout while waiting for model loading")
+
+
+def create_log_list(container_id: int, shared_list, cmd: str | None = None):
+    container = client.containers.get(container_id=container_id)
+
+    if cmd:
+        _, stream = container.exec_run(cmd=cmd, stream=True)
+    else:
         stream = container.logs(stream=True)
+
     assert stream
 
-    decoded_output: str = ""
-    log.info("Wait until log line: %s", wait_for_message)
+    cur_line = ""
     for data in stream:
         encoding = chardet.detect(data)["encoding"]
 
         if encoding:
             _data = data.decode(encoding)
-            decoded_output = decoded_output + _data
+            cur_line = cur_line + _data
 
             if "\n" in _data:
-                if wait_for_message in decoded_output:
-                    log.info(
-                        "Found log line %s in %d seconds",
-                        wait_for_message,
-                        time.time() - start_time,
-                    )
-                    log.debug("Whole log:\n%s", decoded_output)
-                    return
-
-        if time.time() - start_time > timeout:
-            log.error("Log from container:\n%s", decoded_output)
-            raise TimeoutError("Timeout while waiting for model loading")
-
-    container.reload()
-    if container.status == "exited":
-        log.error("Log from container:\n%s", decoded_output)
-        raise RuntimeError("Container exited unexpectedly")
+                shared_list.append(cur_line)
+                cur_line = ""
 
 
 def is_capella_5_x_x() -> bool:
