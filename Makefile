@@ -74,7 +74,7 @@ export CAPELLA_VERSIONS ?= 5.0.0 5.2.0 6.0.0
 export CAPELLA_VERSION ?= 6.0.0
 
 # Comma-separated list of dropins to download & add, doesn't affect copied & mounted dropins
-# See available options in documentation.
+# See available options in documentation: https://dsd-dbs.github.io/capella-dockerimages/capella/base/#optional-customisation-of-the-capella-client
 CAPELLA_DROPINS ?= CapellaXHTMLDocGen,DiagramStyler,PVMT,Filtering,Requirements,SubsystemTransition,TextualEditor
 
 # Only use when "capella_loop.sh" is NOT used
