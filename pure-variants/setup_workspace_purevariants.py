@@ -35,11 +35,29 @@ def replace_config(path: pathlib.Path, key: str, value: str) -> None:
     path.write_text(file_content)
 
 
+def extract_pure_variants_major_version(version: str) -> str:
+    version = os.environ["PURE_VARIANTS_VERSION"]
+
+    pattern = r"[0-9]\.*[0-9]\.*[0-9]*"
+    if not re.match(pattern, version):
+        raise RuntimeError(
+            f"The value of $PURE_VARIANTS_VERSION doesn't match the pattern {pattern}"
+        )
+
+    return version.split(".")[0]
+
+
 def copy_license_file_to_right_location():
     source = pathlib.Path("/inputs/pure-variants/license.lic")
+
     if source.exists():
         LOGGER.info("License file was found.")
-        destination = pathlib.Path("/home/techuser/pure-variants-5/de.license")
+        major_version = extract_pure_variants_major_version(
+            os.environ["PURE_VARIANTS_VERSION"]
+        )
+        destination = pathlib.Path(
+            f"/home/techuser/pure-variants-{major_version}/de.license"
+        )
         destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(source, destination)
     else:

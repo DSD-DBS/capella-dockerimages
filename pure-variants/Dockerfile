@@ -19,20 +19,28 @@ ENV SHELL=/bin/bash
 
 USER root
 
-COPY ./updateSite /tmp/updateSite
+ARG PURE_VARIANTS_VERSION
+ENV PURE_VARIANTS_VERSION=${PURE_VARIANTS_VERSION}
+
+COPY ./versions/${PURE_VARIANTS_VERSION} /tmp/updateSite
 RUN mkdir /tmp/pure-variants && \
     unzip /tmp/updateSite/* -d /tmp/pure-variants && \
     rm -rf /tmp/updateSite
+
 COPY setup_workspace_purevariants.py /opt/setup/setup_workspace_purevariants.py
 
+USER techuser
 RUN /opt/capella/capella \
     -consoleLog \
     -application org.eclipse.equinox.p2.director \
     -noSplash \
     -repository ${REPOSITORY} \
     -repository file:///tmp/pure-variants \
-    -installIU com.ps.consul.eclipse.purevariants.capella.feature.group,com.ps.consul.eclipse.purevariants.emf.feature.mapping.feature.group,com.ps.consul.eclipse.purevariants.de.enterprise.feature.group && \
+    -installIU com.ps.consul.eclipse.purevariants.capella.feature.group,com.ps.consul.eclipse.purevariants.emf.feature.mapping.feature.group,com.ps.consul.eclipse.purevariants.de.enterprise.feature.group
+
+USER root
+RUN chmod +x /opt/capella/plugins/com.ps.consul.eclipse.core.linux_*/server/bin/variantsd && \
+    chmod +x /opt/capella/plugins/com.ps.consul.eclipse.core.linux_*/server/bin/finishInstallation.sh && \
     rm -rf /tmp/pure-variants
-RUN chown -R techuser /opt/capella/plugins
 
 USER techuser

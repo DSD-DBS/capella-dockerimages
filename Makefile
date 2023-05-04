@@ -73,6 +73,8 @@ export CAPELLA_VERSIONS ?= 5.0.0 5.2.0 6.0.0
 # Capella version used to run containers
 export CAPELLA_VERSION ?= 6.0.0
 
+AUTOSTART_CAPELLA ?= 1
+
 # Comma-separated list of dropins to download & add, doesn't affect copied & mounted dropins
 # See available options in documentation: https://dsd-dbs.github.io/capella-dockerimages/capella/base/#optional-customisation-of-the-capella-client
 CAPELLA_DROPINS ?= CapellaXHTMLDocGen,DiagramStyler,PVMT,Filtering,Requirements,SubsystemTransition,TextualEditor
@@ -83,6 +85,8 @@ export DOCKER_TAG_SCHEMA ?= $$CAPELLA_VERSION-$$CAPELLA_DOCKERIMAGES_REVISION
 # Should be 'latest', the branch name, the commit hash or a Git tag name
 export CAPELLA_DOCKERIMAGES_REVISION ?= latest
 export JUPYTER_NOTEBOOK_REVISION ?= python-3.11
+
+PURE_VARIANTS_VERSION ?= 6.0.0
 
 # UID which is used for the techuser in the Docker images
 export TECHUSER_UID = 1004370000
@@ -206,7 +210,12 @@ t4c/client/remote: t4c/client/base
 
 t4c/client/remote/pure-variants: SHELL=./capella_loop.sh
 t4c/client/remote/pure-variants: t4c/client/remote
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BUILD_TYPE=$(PURE_VARIANTS_BUILD_TYPE) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG pure-variants
+	docker build $(DOCKER_BUILD_FLAGS) \
+		-t $(DOCKER_PREFIX)$@:$$DOCKER_TAG \
+		--build-arg BUILD_TYPE=$(PURE_VARIANTS_BUILD_TYPE) \
+		--build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG \
+		--build-arg PURE_VARIANTS_VERSION=$(PURE_VARIANTS_VERSION) \
+		pure-variants
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
 capella/remote/pure-variants: SHELL=./capella_loop.sh
@@ -317,11 +326,14 @@ run-t4c/client/remote/pure-variants: t4c/client/remote/pure-variants
 		-e T4C_USERNAME=$(T4C_USERNAME) \
 		-e PURE_VARIANTS_LICENSE_SERVER=$(PURE_VARIANTS_LICENSE_SERVER) \
 		-v $$(pwd)/volumes/pure-variants:/inputs/pure-variants \
+		-v $$(pwd)/volumes/workspace:/workspace \
+		-e AUTOSTART_CAPELLA=$(AUTOSTART_CAPELLA) \
 		-p $(RDP_PORT):3389 \
 		-p $(FILESYSTEM_PORT):8000 \
 		-p $(METRICS_PORT):9118 \
 		--rm \
 		$(DOCKER_PREFIX)t4c/client/remote/pure-variants:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
+
 
 run-t4c/client/backup: t4c/client/backup
 	docker run $(DOCKER_RUN_FLAGS) --rm -it \
@@ -366,6 +378,10 @@ debug-capella/base: run-capella/base
 debug-t4c/client/backup: LOG_LEVEL=DEBUG
 debug-t4c/client/backup: DOCKER_RUN_FLAGS=-it --entrypoint="bash" -v $$(pwd)/backups/backup.py:/opt/capella/backup.py
 debug-t4c/client/backup: run-t4c/client/backup
+
+debug-t4c/client/remote/pure-variants: AUTOSTART_CAPELLA=0
+debug-t4c/client/remote/pure-variants: DOCKER_RUN_FLAGS=-it --entrypoint="bash"
+debug-t4c/client/remote/pure-variants: run-t4c/client/remote/pure-variants
 
 t4c/server/server: SHELL=./capella_loop.sh
 t4c/server/server:
