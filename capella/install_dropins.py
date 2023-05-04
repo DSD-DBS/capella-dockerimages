@@ -15,9 +15,7 @@ def load_dropins() -> dict[str, t.Any]:
     )["dropins"]
 
 
-def extract_repositories_and_installIUs(
-    dropins: dict[str, t.Any]
-) -> tuple[list[str], list[str]]:
+def extract_repositories_and_installIUs(dropins: dict[str, t.Any]) -> None:
     for dropin_slug in os.getenv("CAPELLA_DROPINS", "").split(","):
         if not dropin_slug:
             continue
@@ -52,6 +50,3 @@ def install_update_sites(repository: str, install_ui: list[str]):
 if __name__ == "__main__":
     dropins = load_dropins()
     extract_repositories_and_installIUs(dropins)
-
-    # if repositories:
-    #     install_update_sites(repositories, install_ui)
