@@ -22,9 +22,9 @@ jobs:
           - "6.0.0"
           - "6.1.0"
         dropins:
-          - name: "without-dropins" # without dropins
+          - name: "without" # without dropins
             dropins: ""
-          - name: "selected-dropins"
+          - name: "selected"
             dropins: "CapellaXHTMLDocGen,DiagramStyler,PVMT,Filtering,Requirements,SubsystemTransition" # selected set of dropins
     name: Capella ${{ matrix.capella_version }} with ${{ matrix.dropins.name }} dropins
     steps:
@@ -54,7 +54,7 @@ jobs:
           DOCKER_PREFIX="${{ env.registry }}"
           CAPELLA_DOCKERIMAGES_REVISION="${{ steps.tag.outputs.branch }}"
           CAPELLA_DROPINS="${{ matrix.dropins.dropins }}"
-          DOCKER_TAG_SCHEMA=${{ matrix.capella_version }}-${{ matrix.dropins.name }}-${{ steps.tag.outputs.branch }}
+          DOCKER_TAG_SCHEMA=${{ matrix.capella_version }}-${{ matrix.dropins.name }}-dropins-${{ steps.tag.outputs.branch }}
           DOCKER_BUILD_FLAGS="--label git-short-sha=${{ steps.tag.outputs.sha }}"
       - name: Install test dependencies
         run: |
@@ -62,10 +62,10 @@ jobs:
       - name: Run pytest
         run: >
           DOCKER_PREFIX="${{ env.registry }}"
-          DOCKER_TAG="${{ matrix.capella_version }}-${{ matrix.dropins.name }}-${{ steps.tag.outputs.branch }}"
+          DOCKER_TAG="${{ matrix.capella_version }}-${{ matrix.dropins.name }}-dropins-${{ steps.tag.outputs.branch }}"
           pytest -m "not (t4c_server or t4c)" tests
       - name: Push
         run: |
           for image in ${{ env.images }}
-          do docker push "${{ env.registry }}$image:${{ matrix.capella_version }}-${{ matrix.dropins.name }}-${{ steps.tag.outputs.branch }}"
+          do docker push "${{ env.registry }}$image:${{ matrix.capella_version }}-${{ matrix.dropins.name }}-dropins-${{ steps.tag.outputs.branch }}"
           done
