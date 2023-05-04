@@ -146,6 +146,10 @@ default:
   - cd papyrus/versions/$PAPYRUS_VERSION
   - *github
 
+.preparePapyrus: &preparePapyrus
+  - cd $PAPYRUS_VERSION
+  - *github
+
 .local-git-server: &local-git-server
   - |
     docker build $DOCKER_BUILD_ARGS \
