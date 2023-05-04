@@ -5,11 +5,11 @@ name: Build & push images
 on:
   push:
   pull_request:
-    branches: [main, staging]
+    branches: ["main"]
 
 env:
   registry: ghcr.io/dsd-dbs/capella-dockerimages/
-  images: capella/remote capella/readonly capella/ease capella/cli
+  images: capella/base capella/cli capella/remote capella/ease capella/readonly
 
 jobs:
   deploy-docker-images:
@@ -21,7 +21,12 @@ jobs:
           - "5.2.0"
           - "6.0.0"
           - "6.1.0"
-    name: Capella ${{ matrix.capella_version }}
+        dropins:
+          - name: "without" # without dropins
+            dropins: ""
+          - name: "selected"
+            dropins: "CapellaXHTMLDocGen,DiagramStyler,PVMT,Filtering,Requirements,SubsystemTransition" # selected set of dropins
+    name: Capella ${{ matrix.capella_version }} with ${{ matrix.dropins.name }} dropins
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -45,20 +50,22 @@ jobs:
       - name: Build
         run: >
           make ${{ env.images }}
-          CAPELLA_VERSIONS=${{ matrix.capella_version }}
-          DOCKER_PREFIX=${{ env.registry }}
-          CAPELLA_DOCKERIMAGES_REVISION=${{ steps.tag.outputs.branch }}
+          CAPELLA_VERSIONS="${{ matrix.capella_version }}"
+          DOCKER_PREFIX="${{ env.registry }}"
+          CAPELLA_DOCKERIMAGES_REVISION="${{ steps.tag.outputs.branch }}"
+          CAPELLA_DROPINS="${{ matrix.dropins.dropins }}"
+          DOCKER_TAG_SCHEMA=${{ matrix.capella_version }}-${{ matrix.dropins.name }}-dropins-${{ steps.tag.outputs.branch }}
           DOCKER_BUILD_FLAGS="--label git-short-sha=${{ steps.tag.outputs.sha }}"
       - name: Install test dependencies
         run: |
           pip install .
       - name: Run pytest
         run: >
-          DOCKER_PREFIX=${{ env.registry }}
-          DOCKER_TAG=${{ matrix.capella_version }}-${{ steps.tag.outputs.branch }}
+          DOCKER_PREFIX="${{ env.registry }}"
+          DOCKER_TAG="${{ matrix.capella_version }}-${{ matrix.dropins.name }}-dropins-${{ steps.tag.outputs.branch }}"
           pytest -m "not (t4c_server or t4c)" tests
       - name: Push
         run: |
           for image in ${{ env.images }}
-          do docker push ${{ env.registry }}$image:${{ matrix.capella_version }}-${{ steps.tag.outputs.branch }}
+          do docker push "${{ env.registry }}$image:${{ matrix.capella_version }}-${{ matrix.dropins.name }}-dropins-${{ steps.tag.outputs.branch }}"
           done

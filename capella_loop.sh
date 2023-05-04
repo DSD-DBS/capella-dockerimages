@@ -19,14 +19,14 @@ ASCII_RESET="\033[0m"
 
 for version in $CAPELLA_VERSIONS
 do
-    printf "${ASCII_BOLD}${ASCII_CYAN}Running target '$MAKE_CURRENT_TARGET' for Capella version $version...${ASCII_RESET}\n"
+    printf "${ASCII_BOLD}${ASCII_CYAN}Running target '$MAKE_CURRENT_TARGET' for Capella version $version...${ASCII_RESET}\n" >&2
     export CAPELLA_VERSION=$version
-    export DOCKER_TAG=$CAPELLA_VERSION-$CAPELLA_DOCKERIMAGES_REVISION
+    export DOCKER_TAG=$(echo "$DOCKER_TAG_SCHEMA" | envsubst)
     /bin/bash -euo pipefail "$@" || r=$?
     if [[ -z "$r" ]]; then
-        printf "${ASCII_BOLD}${ASCII_GREEN}Successfully ran target '$MAKE_CURRENT_TARGET' for Capella version $version.${ASCII_RESET}\n"
+        printf "${ASCII_BOLD}${ASCII_GREEN}Successfully ran target '$MAKE_CURRENT_TARGET' for Capella version $version.${ASCII_RESET}\n" >&2
     else
-        printf "${ASCII_BOLD}${ASCII_RED}Running target '$MAKE_CURRENT_TARGET' for Capella version $version failed. Please check the logs above.${ASCII_RESET}\n"
+        printf "${ASCII_BOLD}${ASCII_RED}Running target '$MAKE_CURRENT_TARGET' for Capella version $version failed. Please check the logs above.${ASCII_RESET}\n" >&2
         exit $r
     fi
 done

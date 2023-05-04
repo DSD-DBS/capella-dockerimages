@@ -1,0 +1,34 @@
+# SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
+# SPDX-License-Identifier: Apache-2.0
+
+dropins:
+  CapellaXHTMLDocGen:
+    github: "https://github.com/eclipse/capella-xhtml-docgen"
+    eclipseRepository: "https://download.eclipse.org/capella/addons/xhtmldocgen/updates/releases/6.1.0/"
+    installIU:
+      - "org.polarsys.capella.docgen.package.feature.feature.group"
+  DiagramStyler:
+    github: "https://github.com/eclipse/capella/wiki/PVMT"
+    eclipseRepository: "jar:https://artifactory.thalesdigital.io/ui/api/v1/download?repoKey=mvn-public&path=com%252Fthalesgroup%252Fmde%252Fcapella%252Fdiagramstyler%252Fcom.thalesgroup.mde.capella.diagramstyler.repository%252F60.3.1%252Fcom.thalesgroup.mde.capella.diagramstyler.repository-60.3.1.zip!/"
+    installIU:
+      - "com.thalesgroup.mde.capella.diagramstyler.feature.feature.group"
+  PVMT:
+    github: "https://github.com/eclipse/capella/wiki/PVMT"
+    eclipseRepository: "jar:https://artifactory.thalesdigital.io/ui/api/v1/download?repoKey=mvn-public&path=com%252Fthalesgroup%252Fvpd%252Fproperty%252Fcom.thalesgroup.vpd.property.repository%252F60.7.0%252Fcom.thalesgroup.vpd.property.repository-60.7.0.zip!/"
+    installIU:
+      - "com.thalesgroup.vpd.property.feature.feature.group"
+  Filtering:
+    github: "https://github.com/eclipse/capella-filtering"
+    eclipseRepository: "jar:https://download.eclipse.org/capella/addons/filtering/updates/releases/1.6.1/Filtering-updateSite-1.6.1.202303150855.zip!/"
+    installIU:
+      - "org.polarsys.capella.filtering.feature.feature.group"
+  Requirements:
+    github: "https://github.com/eclipse/capella-requirements-vp"
+    eclipseRepository: "jar:https://download.eclipse.org/capella/addons/requirements/updates/releases/0.13.1/Requirements-updateSite-0.13.1.202303011400.zip!/"
+    installIU:
+      - "org.polarsys.capella.vp.requirements.feature.feature.group"
+  SubsystemTransition:
+    github: "https://github.com/eclipse/capella-sss-transition"
+    eclipseRepository: "jar:https://download.eclipse.org/capella/addons/subsystemtransition/updates/releases/1.6.1/SubsystemTransition-updateSite-1.6.1.202302141252.zip!/"
+    installIU:
+      - "org.polarsys.capella.transition.system2subsystem.feature.feature.group"

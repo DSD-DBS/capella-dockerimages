@@ -91,7 +91,17 @@ RUN chmod +x capella/capella && \
     chown -R techuser /opt/capella
 
 # Install Dropins for Capella
+USER techuser
+
 COPY ./versions/${CAPELLA_VERSION}/dropins /opt/capella/dropins
+ARG CAPELLA_DROPINS=""
+COPY install_dropins.py /opt/install_dropins.py
+COPY ./versions/${CAPELLA_VERSION}/dropins.yml /opt/dropins.yml
+RUN echo '-Dorg.eclipse.equinox.p2.transport.ecf.retry=15' >> /opt/capella/capella.ini
+RUN echo '-Dorg.eclipse.ecf.provider.filetransfer.retrieve.readTimeout=10000' >> /opt/capella/capella.ini
+RUN pip install PyYAML && python install_dropins.py
+
+USER root
 
 # Eclipse settings
 RUN mkdir -p /opt/capella/configuration/.settings; \
