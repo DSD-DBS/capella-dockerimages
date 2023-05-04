@@ -40,6 +40,13 @@ production-capella:
       optional: true
   <<: *production
 
+production-papyrus:
+  extends: .papyrus
+  needs:
+    - job: production-base
+      optional: true
+  <<: *production
+
 staging-base:
   extends: .base
   <<: *staging
@@ -53,6 +60,13 @@ staging-jupyter:
 
 staging-capella:
   extends: .capella
+  needs:
+    - job: staging-base
+      optional: true
+  <<: *staging
+
+staging-papyrus:
+  extends: .papyrus
   needs:
     - job: staging-base
       optional: true

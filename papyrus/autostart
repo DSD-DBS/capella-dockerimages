@@ -1,0 +1,18 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# Autostart script for OpenBox
+
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+if [ "$AUTOSTART_PAPYRUS" = "1" ];
+then
+    if [ "$RESTART_PAPYRUS" = "1" ];
+    then
+        # Restart Papyrus automatically
+        ( while true; do /opt/Papyrus/papyrus -data /workspace > /var/log/papyrus.stdout.log 2> /var/log/papyrus.stderr.log; sleep 1; done ) &
+    else
+        /opt/Papyrus/papyrus -data /workspace > /var/log/papyrus.stdout.log 2> /var/log/papyrus.stderr.log &
+    fi
+fi
