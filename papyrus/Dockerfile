@@ -15,10 +15,7 @@ WORKDIR /opt/
 RUN tar -xf papyrus.tar.gz && \
     rm -rf papyrus.tar.gz
 
-# Set Permissions
-RUN chmod +x Papyrus/papyrus
-
-RUN  mkdir /workspace; \
+RUN mkdir /workspace; \
     # Disable Welcome Screen
     mkdir -p /workspace/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.ui.prefs; \
     # Set workspace permissions

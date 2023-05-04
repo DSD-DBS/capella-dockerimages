@@ -666,9 +666,9 @@ papyrus/remote:
     - *docker
     - |
       docker build $DOCKER_BUILD_ARGS \
-      -t ${IMAGE}:${DOCKER_TAG} \
-      --build-arg BASE_IMAGE=$BASE_IMAGE \
-      remote
+        -t ${IMAGE}:${DOCKER_TAG} \
+        --build-arg BASE_IMAGE=$BASE_IMAGE \
+        remote
     - *push
 
 jupyter:

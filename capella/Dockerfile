@@ -125,6 +125,8 @@ COPY replace_env_variables.sh /opt/setup/replace_env_variables.sh
 ENV ECLIPSE_INSTALLATION_PATH=/opt/capella
 ENV ECLIPSE_EXECUTABLE=/opt/capella/capella
 
+ENV AUTOSTART_CAPELLA=1
+ENV RESTART_CAPELLA=1
 COPY ./autostart /home/techuser/.config/openbox/autostart
 
 ENV BASE_TYPE=capella
