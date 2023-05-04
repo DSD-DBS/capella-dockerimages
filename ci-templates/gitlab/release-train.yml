@@ -55,3 +55,15 @@ variables:
 
     # Only build jupyter image
     JUPYTER: "1"
+
+.papyrus:
+  trigger:
+    project: "$IMAGE_BUILDER_GITLAB_REPOSITORY"
+    strategy: depend
+  variables:
+    CAPELLA_DOCKER_IMAGES_REVISION: $CAPELLA_DOCKER_IMAGES_REVISION
+    BUILD_FOR_LATEST_TAG: "1"
+
+    # Only build papyrus images
+    PAPYRUS_BASE: "1"
+    PAPYRUS_REMOTE: "1"

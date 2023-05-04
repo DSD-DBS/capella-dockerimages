@@ -114,10 +114,16 @@ RUN mkdir -p /opt/capella/configuration/.settings; \
     # Set workspace permissions
     chown -R techuser /workspace && \
     chown -R techuser /opt/capella/configuration && \
-    chown -R techuser /opt/capella/p2/org.eclipse.equinox.p2.engine/profileRegistry
+    chown -R techuser /opt/capella/p2/org.eclipse.equinox.p2.engine/profileRegistry && \
+    chown techuser /opt /opt/capella/capella.ini
+
 
 RUN echo '-Dosgi.configuration.area=file:/opt/capella/configuration' >> /opt/capella/capella.ini
 COPY setup_workspace.py /opt/setup/setup_welcome_screen.py
+COPY replace_env_variables.sh /opt/setup/replace_env_variables.sh
 
+ENV AUTOSTART_CAPELLA=1
+ENV RESTART_CAPELLA=1
+COPY ./autostart /home/techuser/.config/openbox/autostart
 
 ENV BASE_TYPE=capella

@@ -5,9 +5,11 @@
 
 # Image builder
 
-The image builder template builds all images supported by this repository, executes our tests on each builded images,
-and pushes them to any Docker registry. We use it in our automated deployment environment for our [Collaboration project](https://github.com/DSD-DBS/capella-collab-manager).
-We have restricted internet access in our build environment, so the Gitlab CI is optimized for restricted network access.
+The image builder template builds all images supported by this repository, executes our
+tests on each builded images, and pushes them to any Docker registry. We use it in our
+automated deployment environment for our [Collaboration project](https://github.com/DSD-DBS/capella-collab-manager).
+We have restricted internet access in our build environment,
+so the Gitlab CI template is optimized for restricted network access.
 
 Please add the following section to your `.gitlab-ci.yml`:
 
@@ -16,7 +18,11 @@ include:
   - remote: https://raw.githubusercontent.com/DSD-DBS/capella-dockerimages/${CAPELLA_DOCKER_IMAGES_REVISION}/ci-templates/gitlab/image-builder.yml
 ```
 
-The resulting images will be tagged in the following format:
+## Tagging of images
+
+### Capella
+
+The resulting Capella based images will be tagged in the following format:
 `$CAPELLA_VERSION-$CAPELLA_DOCKER_IMAGES_REVISION-$GITLAB_IMAGE_BUILDER_REVISION`, e.g., `6.0.0-v1.7.0-v1.0.0`.
 
 where:
@@ -31,6 +37,13 @@ where:
 
   - We use the [predefined Gitlab CI variable](https://docs.gitlab.com/ee/ci/variables/predefined_variables.html) `$CI_COMMIT_REF_NAME` to determine the name of the branch or tag.
   - This part can be used for your own versioning, e.g., when you have to patch the Capella archives, but the semantic version is still the same.
+
+### Papyrus
+
+The resulting Papyrus based images will be tagged in the following format:
+`$PAPYRUS_VERSION-$CAPELLA_DOCKER_IMAGES_REVISION-$GITLAB_IMAGE_BUILDER_REVISION`, e.g., `6.4.0-v1.7.0-v1.0.0`.
+
+## Variables
 
 In addition, you have to add the following environment variables on repository level.
 Make sure to enable the "Expand variable reference" flag.
@@ -47,6 +60,8 @@ Make sure to enable the "Expand variable reference" flag.
 - `T4C_SERVER_TEST_DATA_REPO`: Link to a Git repository containing t4c test data needed to run the backup tests.
   The repository needs to have the following structure: `/data/$CAPELLA_VERSION/repositories/test-repo`
 - `LOCAL_GIT_BASE_IMAGE`: Specifies the base image which is used to build the local git server for the pytest.
+
+## Repository tree
 
 The tree inside of your Gitlab repository should look like:
 
@@ -79,6 +94,10 @@ The tree inside of your Gitlab repository should look like:
 │           ├── dropins
 │           ├── ease
 │           └── updateSite
+├── papyrus
+│   └── versions
+│       └── 6.4.0
+│           └── papyrus.tar.gz
 └── pure-variants
     ├── dependencies
     └── updateSite

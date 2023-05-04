@@ -50,6 +50,12 @@ variables:
   JUPYTER:
     value: "0"
     description: "Build the jupyter-notebook image?"
+  PAPYRUS_BASE:
+    value: "0"
+    description: "Build the papyrus/base image?"
+  PAPYRUS_REMOTE:
+    value: "0"
+    description: "Build the papyrus/remote image?"
   CAPELLA_DOCKER_IMAGES_REVISION:
     value: "main"
     description: "Revision of the Capella Docker images Github repository (https://github.com/DSD-DBS/capella-dockerimages)"
@@ -62,6 +68,9 @@ variables:
   JUPYTER_VERSION:
     value: "python-3.11"
     description: "Python version for the jupyter notebook."
+  PAPYRUS_VERSION:
+    value: "6.4.0"
+    description: "Semantic version of Papyrus."
   ENVIRONMENT:
     value: "staging"
     description: "Specifies the environment. Make sure that all related environment variables are set on the repository level. More information in the documentation."
@@ -104,13 +113,13 @@ default:
   - DOCKER_REGISTRY_QUERY=DOCKER_REGISTRY_${ENVIRONMENT_UPPERCASE}
   - DOCKER_REGISTRY=${!DOCKER_REGISTRY_QUERY:?}
   - >
-      if [[ "$BUILD_FOR_LATEST_TAG" == "1" ]]; then
-        git fetch --tags;
-        IMAGE_BUILDER_REVISION=$(git describe --tags --abbrev=0);
-        git checkout "$IMAGE_BUILDER_REVISION";
-      else
-        IMAGE_BUILDER_REVISION="$CI_COMMIT_REF_NAME"
-      fi
+    if [[ "$BUILD_FOR_LATEST_TAG" == "1" ]]; then
+      git fetch --tags;
+      IMAGE_BUILDER_REVISION=$(git describe --tags --abbrev=0);
+      git checkout "$IMAGE_BUILDER_REVISION";
+    else
+      IMAGE_BUILDER_REVISION="$CI_COMMIT_REF_NAME"
+    fi
   - GENERAL_IMAGE_TAG=$(echo $CAPELLA_DOCKER_IMAGES_REVISION | sed 's/[^a-zA-Z0-9.]/-/g')-$IMAGE_BUILDER_REVISION
   - IMAGE=${DOCKER_REGISTRY}/$IMAGE
 
@@ -128,6 +137,13 @@ default:
   - export DOCKER_TAG=$CAPELLA_VERSION-$GENERAL_IMAGE_TAG
   - *resolve-base-image
   - cd capella/versions/$CAPELLA_VERSION
+  - *github
+
+.prepare-papyrus: &prepare-papyrus
+  - *prepare
+  - export DOCKER_TAG=$PAPYRUS_VERSION-$GENERAL_IMAGE_TAG
+  - *resolve-base-image
+  - cd papyrus/versions/$PAPYRUS_VERSION
   - *github
 
 .local-git-server: &local-git-server
@@ -148,7 +164,6 @@ default:
   - source .venv/bin/activate
   - pip install -e '.[dev]'
   - cd tests
-
 
 .prepare-t4c-server-tests: &prepare-t4c-server-tests
   - *prepare-tests-general
@@ -511,6 +526,50 @@ t4c/client/ease/remote/debug:
         --build-arg NETWORK_ACCESS=restricted \
         --build-arg BASE_IMAGE=$BASE_IMAGE \
         ease/debug
+    - *push
+
+papyrus/base:
+  stage: build
+  needs:
+    - job: base
+      optional: true
+  rules:
+    - if: '$PAPYRUS_BASE == "1"'
+      when: always
+  variables:
+    BASE_IMAGE: base2
+    IMAGE: papyrus/base
+  script:
+    - *prepare-papyrus
+    - *docker
+    - mv ../papyrus.tar.gz ./papyrus/versions/$PAPYRUS_VERSION/papyrus.tar.gz
+    - |
+      docker build $DOCKER_BUILD_ARGS \
+        -t ${IMAGE}:${DOCKER_TAG} \
+        --build-arg PAPYRUS_VERSION=$PAPYRUS_VERSION \
+        --build-arg BASE_IMAGE=$BASE_IMAGE \
+        papyrus
+    - *push
+
+papyrus/remote:
+  stage: build
+  needs:
+    - job: papyrus/base
+      optional: true
+  rules:
+    - if: '$PAPYRUS_REMOTE == "1"'
+      when: always
+  variables:
+    BASE_IMAGE: papyrus/base
+    IMAGE: papyrus/remote
+  script:
+    - *prepare-papyrus
+    - *docker
+    - |
+      docker build $DOCKER_BUILD_ARGS \
+        -t ${IMAGE}:${DOCKER_TAG} \
+        --build-arg BASE_IMAGE=$BASE_IMAGE \
+        remote
     - *push
 
 jupyter:
