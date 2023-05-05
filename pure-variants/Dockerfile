@@ -43,4 +43,9 @@ RUN chmod +x /opt/capella/plugins/com.ps.consul.eclipse.core.linux_*/server/bin/
     chmod +x /opt/capella/plugins/com.ps.consul.eclipse.core.linux_*/server/bin/finishInstallation.sh && \
     rm -rf /tmp/pure-variants
 
+# In some cases, the pure::variants server could not start with the error message:
+# Cannot run program `...`, failed to exec spawn helper, exit value: 1
+# This fixes the error by switching to the vfork launch mechanism
+RUN echo '-Djdk.lang.Process.launchMechanism=vfork' >> /opt/capella/capella.ini
+
 USER techuser
