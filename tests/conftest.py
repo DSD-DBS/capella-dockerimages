@@ -9,6 +9,7 @@ import logging
 import multiprocessing
 import os
 import pathlib
+import queue
 import re
 import tarfile
 import time
@@ -226,12 +227,10 @@ def wait_for_container(
 ):
     start_time = time.time()
 
-    manager = multiprocessing.Manager()
-    shared_list = manager.list()
+    log_queue: multiprocessing.Queue = multiprocessing.Queue()
 
     create_log_process = multiprocessing.Process(
-        target=create_log_list,
-        args=(container.id, shared_list, cmd),
+        target=create_log, args=(container.id, log_queue, cmd)
     )
 
     container.reload()
@@ -242,34 +241,39 @@ def wait_for_container(
     create_log_process.start()
 
     log.info("Wait until log line: %s", wait_for_message)
+    decoded_log = ""
     while time.time() - start_time < timeout:
-        decoded_log = "".join(shared_list)
+        try:
+            cur_line = log_queue.get(timeout=4)
+            decoded_log += cur_line
 
-        if wait_for_message in decoded_log:
-            log.info(
-                "Found log line %s in %d seconds",
-                wait_for_message,
-                time.time() - start_time,
-            )
-            log.debug("Whole log:\n%s", decoded_log)
-            create_log_process.kill()
+            if wait_for_message in decoded_log:
+                log.info(
+                    "Found log line %s in %d seconds",
+                    wait_for_message,
+                    time.time() - start_time,
+                )
+                log.debug("Whole log:\n%s", decoded_log)
+                create_log_process.terminate()
+                return
 
-            return
+        except queue.Empty:
+            pass
 
-        container.reload()
-        if container.status == "exited":
-            log.error("Log from container:\n%s", decoded_log)
-            create_log_process.kill()
-            raise RuntimeError("Container exited unexpectedly")
-
-        time.sleep(2)
+        if log_queue.empty():
+            container.reload()
+            if container.status == "exited":
+                log.error("Log from container:\n%s", decoded_log)
+                create_log_process.terminate()
+                raise RuntimeError("Container exited unexpectedly")
 
     if time.time() - start_time > timeout:
         log.error("Log from container:\n%s", decoded_log)
+        create_log_process.terminate()
         raise TimeoutError("Timeout while waiting for model loading")
 
 
-def create_log_list(container_id: int, shared_list, cmd: str | None = None):
+def create_log(container_id: int, log_queue, cmd: str | None = None):
     container = client.containers.get(container_id=container_id)
 
     if cmd:
@@ -288,7 +292,7 @@ def create_log_list(container_id: int, shared_list, cmd: str | None = None):
             cur_line = cur_line + _data
 
             if "\n" in _data:
-                shared_list.append(cur_line)
+                log_queue.put(cur_line)
                 cur_line = ""
 
 
