@@ -64,7 +64,7 @@ def test_export_locally(
     data_dir: pathlib.Path = pathlib.Path(__file__).parents[0] / "data"
 
     copy_model_files_to_directory(
-        model_dir=data_dir / conftest.T4C_PROJECT_NAME,
+        model_dir=data_dir / conftest.CAPELLA_VERSION,
         tar_dir=export_path,
     )
 

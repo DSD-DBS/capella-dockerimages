@@ -11,8 +11,11 @@ import os
 import pathlib
 import queue
 import re
+import shutil
+import subprocess
 import tarfile
 import time
+import typing as t
 
 import chardet
 import docker
@@ -45,6 +48,15 @@ GIT_PASSWORD: str = "any"
 
 
 DOCKER_NETWORK: str = os.getenv("DOCKER_NETWORK", "host")
+CAPELLA_VERSION: str = os.getenv("CAPELLA_VERSION", "")
+ENTRYPOINT: str = f"/{CAPELLA_VERSION}/test-project.aird"
+
+
+SUBPROCESS_DEFAULT_ARGS: dict[str, t.Any] = {
+    "check": True,
+    "text": True,
+    "capture_output": True,
+}
 
 
 @pytest.fixture(name="git_container")
@@ -59,7 +71,7 @@ def fixture_git_container() -> containers.Container:
 
 
 @pytest.fixture(name="git_ip_addr")
-def fixture_git_ip_addr(git_container: containers.Containe) -> str:
+def fixture_git_ip_addr(git_container: containers.Container) -> str:
     git_container.reload()
     return git_container.attrs["NetworkSettings"]["IPAddress"]
 
@@ -81,6 +93,18 @@ def fixture_git_general_env(git_ip_addr: str) -> dict[str, str]:
         "GIT_USERNAME": GIT_USERNAME,
         "GIT_PASSWORD": GIT_PASSWORD,
     }
+
+
+@pytest.fixture(name="init_git_server")
+def fixture_init_git_server(
+    git_ip_addr: str,
+    git_http_port: str,
+    tmp_path: pathlib.Path,
+):
+    checkout_git_repository(git_ip_addr, git_http_port, tmp_path)
+    copy_test_project_into_git_repo(tmp_path)
+    commit_and_push_git_repo(tmp_path)
+    yield
 
 
 @pytest.fixture(name="t4c_server_env")
@@ -110,7 +134,7 @@ def fixture_t4c_server_container(
                 pathlib.Path(__file__).parents[0]
                 / "t4c-server-test-data"
                 / "data"
-                / os.getenv("CAPELLA_VERSION", "")
+                / CAPELLA_VERSION
             ),
             arcname="data",
         )
@@ -297,11 +321,11 @@ def create_log(container_id: int, log_queue, cmd: str | None = None):
 
 
 def is_capella_5_x_x() -> bool:
-    return bool(re.match(r"5.[0-9]+.[0-9]+", os.getenv("CAPELLA_VERSION", "")))
+    return bool(re.match(r"5.[0-9]+.[0-9]+", CAPELLA_VERSION))
 
 
 def is_capella_6_x_x() -> bool:
-    return bool(re.match(r"6.[0-9]+.[0-9]+", os.getenv("CAPELLA_VERSION", "")))
+    return bool(re.match(r"6.[0-9]+.[0-9]+", CAPELLA_VERSION))
 
 
 def get_projects_of_t4c_repository(
@@ -369,6 +393,90 @@ def extract_container_dir_to_local_dir(
 
     with tarfile.open(name=tar_file_name, mode="r") as tar_file:
         tar_file.extractall(path=target_dir)
+
+
+def checkout_git_repository(
+    git_ip_addr: str, git_http_port: str, path: pathlib.Path
+):
+    if DOCKER_NETWORK == "host":
+        git_ip_addr = "127.0.0.1"
+
+    env = os.environ
+    env["no_proxy"] = f"{os.getenv('no_proxy', '')},{git_ip_addr}"
+
+    subprocess.run(  # pylint: disable=subprocess-run-check
+        [
+            "git",
+            "clone",
+            f"http://{git_ip_addr}:{git_http_port}/git/git-test-repo.git",
+            path,
+        ],
+        env=env,
+        **SUBPROCESS_DEFAULT_ARGS,
+    )
+    subprocess.run(  # pylint: disable=subprocess-run-check
+        ["git", "switch", "-c", GIT_REPO_BRANCH],
+        cwd=path,
+        **SUBPROCESS_DEFAULT_ARGS,
+    )
+
+
+def copy_test_project_into_git_repo(git_path: pathlib.Path):
+    target_dir: pathlib.Path = pathlib.Path(
+        git_path,
+        str(pathlib.Path(ENTRYPOINT).parent).lstrip("/"),
+    )
+    target_dir.mkdir(exist_ok=True, parents=True)
+
+    project_dir: pathlib.Path = (
+        pathlib.Path(__file__).parents[0] / "data" / CAPELLA_VERSION
+    )
+
+    for file in project_dir.glob("*"):
+        if not str(file).endswith("license"):
+            shutil.copy2(file, target_dir)
+
+
+def commit_and_push_git_repo(path: pathlib.Path):
+    subprocess_shared_args: dict[str, t.Any] = SUBPROCESS_DEFAULT_ARGS | {
+        "cwd": path
+    }
+
+    subprocess.run(  # pylint: disable=subprocess-run-check
+        ["git", "config", "user.email", GIT_EMAIL],
+        **subprocess_shared_args,
+    )
+
+    subprocess.run(  # pylint: disable=subprocess-run-check
+        ["git", "config", "user.name", GIT_USERNAME],
+        **subprocess_shared_args,
+    )
+
+    subprocess.run(  # pylint: disable=subprocess-run-check
+        ["git", "add", "."], **subprocess_shared_args
+    )
+
+    subprocess.run(  # pylint: disable=subprocess-run-check
+        [
+            "git",
+            "-c",
+            "commit.gpgsign=false",
+            "commit",
+            "--message",
+            "test: Exporter test",
+        ],
+        **subprocess_shared_args,
+    )
+
+    subprocess.run(  # pylint: disable=subprocess-run-check
+        ["git", "push", "origin", GIT_REPO_BRANCH],
+        env={
+            "GIT_USERNAME": GIT_USERNAME,
+            "GIT_PASSWORD": GIT_PASSWORD,
+            "GIT_ASKPASS": "/etc/git_askpass.py",
+        },
+        **subprocess_shared_args,
+    )
 
 
 def _get_basic_auth() -> auth.HTTPBasicAuth:

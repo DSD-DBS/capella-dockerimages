@@ -21,22 +21,31 @@ def fixture_mode_success(request: pytest.FixtureRequest) -> str:
 @pytest.fixture(
     name="container_success",
 )
-def fixture_container_success(mode_success: str) -> containers.Container:
+def fixture_container_success(
+    git_ip_addr: str,
+    init_git_server: None,  # pylint: disable=unused-argument
+    mode_success: str,
+) -> containers.Container:
+    repo_url = f"http://{git_ip_addr}:80/git/git-test-repo.git"
+    entrypoint_without_leading_slash = (
+        f"{conftest.CAPELLA_VERSION}/test-project.aird"
+    )
+
     env: dict[str, str] = {  # type: ignore
         "json": {
             "GIT_REPOS_JSON": json.dumps(
                 [
                     {
-                        "url": "https://github.com/DSD-DBS/py-capellambse.git",
-                        "revision": "master",
+                        "url": repo_url,
+                        "revision": conftest.GIT_REPO_BRANCH,
                         "depth": 1,
-                        "entrypoint": "tests/data/melodymodel/5_2/Melody Model Test.aird",
+                        "entrypoint": entrypoint_without_leading_slash,
                     },
                     {
-                        "url": "https://github.com/DSD-DBS/collab-platform-arch.git",
-                        "revision": "main",
+                        "url": repo_url,
+                        "revision": conftest.GIT_REPO_BRANCH,
                         "depth": 5,
-                        "entrypoint": "collab-platform-arch.aird",
+                        "entrypoint": entrypoint_without_leading_slash,
                     },
                 ]
             ),
@@ -46,19 +55,19 @@ def fixture_container_success(mode_success: str) -> containers.Container:
             "GIT_REPOS_JSON": json.dumps(
                 [
                     {
-                        "url": "https://github.com/DSD-DBS/py-capellambse.git",
-                        "revision": "master",
+                        "url": repo_url,
+                        "revision": conftest.GIT_REPO_BRANCH,
                         "depth": 1,
-                        "entrypoint": "/tests/data/melodymodel/5_2/Melody Model Test.aird",
+                        "entrypoint": conftest.ENTRYPOINT,
                     },
                 ]
             ),
         },
         "legacy": {
-            "GIT_URL": "https://github.com/DSD-DBS/collab-platform-arch.git",
-            "GIT_ENTRYPOINT": "collab-platform-arch.aird",
-            "GIT_REVISION": "main",
+            "GIT_URL": repo_url,
+            "GIT_REVISION": conftest.GIT_REPO_BRANCH,
             "GIT_DEPTH": 0,
+            "GIT_ENTRYPOINT": entrypoint_without_leading_slash,
         },
     }[mode_success] | {"RMT_PASSWORD": "password"}
     with conftest.get_container(
@@ -122,7 +131,7 @@ def test_model_loading_with_legacy_env(
 
 @pytest.mark.parametrize("mode_success", ["json"])
 def test_model_loading_with_json_env(workspace_result: containers.ExecResult):
-    assert len(lines(workspace_result.output)) == 3
+    assert len(lines(workspace_result.output)) == 2
 
 
 @pytest.mark.parametrize("mode_success", ["json2"])

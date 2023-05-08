@@ -49,7 +49,7 @@ jobs:
           echo "sha=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
       - name: Build
         run: >
-          make ${{ env.images }}
+          make ${{ env.images }} local-git-server
           CAPELLA_VERSIONS="${{ matrix.capella_version }}"
           DOCKER_PREFIX="${{ env.registry }}"
           CAPELLA_DOCKERIMAGES_REVISION="${{ steps.tag.outputs.branch }}"
@@ -63,6 +63,7 @@ jobs:
         run: >
           DOCKER_PREFIX="${{ env.registry }}"
           DOCKER_TAG="${{ matrix.capella_version }}-${{ matrix.dropins.name }}-dropins-${{ steps.tag.outputs.branch }}"
+          CAPELLA_VERSION="${{ matrix.capella_version }}"
           pytest -m "not (t4c_server or t4c)" tests
       - name: Push
         run: |

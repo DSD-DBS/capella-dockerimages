@@ -50,8 +50,8 @@ def fetch_projects_from_environment() -> list[dict[str, str]]:
                 "revision": git_repo_revision,
                 "depth": os.getenv("GIT_DEPTH"),
                 "entrypoint": os.getenv("GIT_ENTRYPOINT"),
-                "username": None,
-                "password": None,
+                "username": os.getenv("GIT_USERNAME", None),
+                "password": os.getenv("GIT_PASSWORD", None),
             }
         )
 

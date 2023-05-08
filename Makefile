@@ -390,7 +390,7 @@ t4c/server/server:
 local-git-server: SHELL=./capella_loop.sh
 local-git-server:
 	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg CAPELLA_VERSION=$$CAPELLA_VERSION tests/local-git-server
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push; \
+	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
 ifeq ($(RUN_TESTS_WITH_T4C_SERVER), 1)
 test: t4c/client/backup t4c/client/exporter local-git-server t4c/server/server
