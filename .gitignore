@@ -26,8 +26,8 @@ ease/extensions/*/*
 !ease/extensions/*/.gitkeep
 
 # Pure::variants
-pure-variants/updateSite/*
-!pure-variants/updateSite/.gitkeep
+pure-variants/versions/*/*
+!pure-variants/versions/*/.gitkeep
 pure-variants/dependencies/*
 !pure-variants/dependencies/.gitkeep
 

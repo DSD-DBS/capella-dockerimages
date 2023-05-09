@@ -55,6 +55,7 @@ RUN chmod 755 .startup.sh .config/openbox/autostart
 RUN pip install prometheus-client
 
 COPY metrics.py .metrics.py
+RUN chown techuser /home/techuser/.metrics.py
 
 ENV AUTOSTART_CAPELLA=1
 ENV RESTART_CAPELLA=1

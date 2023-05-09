@@ -51,7 +51,8 @@ pure-variants/dependencies
 
     Please select: "pure::variants Archived Update Site with all Extensions" for Linux (Tux).
 
-1.  Place the zip-file into `pure-variants/updateSite`.
+1.  Place the zip-file into `pure-variants/versions/$PURE_VARIANTS_VERSION`.
+    `$PURE_VARIANTS_VERSION` is the sematic version of pure::variants, e.g. `6.0.0`.
 
 ### Build it manually with Docker
 
@@ -60,6 +61,7 @@ pure-variants/dependencies
    ```zsh
    docker build -t t4c/client/remote/pure-variants \
        --build-arg CAPELLA_VERSION=$CAPELLA_VERSION \
+       --build-arg PURE_VARIANTS_VERSION=$PURE_VARIANTS_VERSION \
        pure-variants
    ```
 

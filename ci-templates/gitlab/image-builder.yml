@@ -61,6 +61,7 @@ variables:
     description: "Python version for the jupyter notebook."
   DOCKER_BUILD_ARGS: "--no-cache"
   BUILD_ARCHITECTURE: amd64
+  PURE_VARIANTS_VERSION: "6.0.0"
 
 default:
   image: $DOCKER_REGISTRY/base
@@ -294,12 +295,13 @@ t4c/client/remote/pure-variants:
     - *prepare
     - *docker
     - mv ../../pure-variants/dependencies/* pure-variants/dependencies/
-    - mv ../../pure-variants/updateSite/* pure-variants/updateSite/
+    - mv ../../pure-variants/updateSite/* pure-variants/versions/${PURE_VARIANTS_VERSION:?}
     - |
       docker build $DOCKER_BUILD_ARGS \
       -t $DOCKER_REGISTRY/t4c/client/remote/pure-variants:$DOCKER_TAG \
       --build-arg BUILD_TYPE=offline \
       --build-arg BASE_IMAGE=$BASE_IMAGE \
+      --build-arg PURE_VARIANTS_VERSION="$PURE_VARIANTS_VERSION" \
       pure-variants
     - *push
 
