@@ -25,9 +25,13 @@ TECHUSER_UID: str | int = os.getenv("TECHUSER_UID", "")
 
 @pytest.fixture(name="t4c_exporter_local_env")
 def fixture_t4c_exporter_local_env(
-    t4c_exporter_env: dict[str, str]
+    t4c_exporter_env: dict[str, str],
+    t4c_ip_addr: str,
 ) -> dict[str, str]:
-    return t4c_exporter_env | {"FILE_HANDLER": "local"}
+    return t4c_exporter_env | {
+        "FILE_HANDLER": "local",
+        "no_proxy": t4c_ip_addr,
+    }
 
 
 @pytest.fixture(name="model_export_import_diff_path")

@@ -22,9 +22,12 @@ pytestmark = pytest.mark.t4c_server
 def fixture_t4c_backup_local_env(
     git_general_env: dict[str, str],
     t4c_general_env: dict[str, str],
+    t4c_ip_addr: str,
     request: pytest.FixtureRequest,
 ) -> dict[str, str]:
     env: dict[str, str] = git_general_env | t4c_general_env
+
+    env["no_proxy"] = t4c_ip_addr
 
     if hasattr(request, "param"):
         env = env | request.param
