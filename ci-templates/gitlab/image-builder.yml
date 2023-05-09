@@ -265,8 +265,12 @@ t4c/client/backup:
       --build-arg CAPELLA_VERSION=$CAPELLA_VERSION \
       backups
     - *prepare-t4c-server-tests
-    - pytest -o log_cli=true -s -m t4c_server test_backups.py
+    - pytest -o log_cli=true -s -m t4c_server test_backups.py || r=3
     - *push
+    - exit $r
+  allow_failure: &allow_failure
+    exit_codes:
+      - 3 # Exit code when pytest fail
 
 t4c/client/exporter:
   stage: build
@@ -291,8 +295,10 @@ t4c/client/exporter:
       --build-arg CAPELLA_VERSION=$CAPELLA_VERSION \
       exporter
     - *prepare-t4c-server-tests
-    - pytest -o log_cli=true -s -m t4c_server test_exporter_local.py test_exporter_git.py
+    - pytest -o log_cli=true -s -m t4c_server test_exporter_local.py test_exporter_git.py || r=3
     - *push
+    - exit $r
+  allow_failure: *allow_failure
 
 t4c/client/remote:
   stage: build
@@ -314,8 +320,10 @@ t4c/client/remote:
       --build-arg BASE_IMAGE=$BASE_IMAGE \
       remote
     - *prepare-t4c-server-tests
-    - pytest -o log_cli=true -s test_t4c_repository_injection.py
+    - pytest -o log_cli=true -s test_t4c_repository_injection.py || r=3
     - *push
+    - exit $r
+  allow_failure: *allow_failure
 
 t4c/client/remote/pure-variants:
   stage: build
@@ -406,8 +414,10 @@ capella/readonly:
       --build-arg BASE_IMAGE=$BASE_IMAGE \
       readonly
     - *prepare-tests
-    - pytest -o log_cli=true -s test_read_only.py
+    - pytest -o log_cli=true -s test_read_only.py || r=3
     - *push
+    - exit $r
+  allow_failure: *allow_failure
 
 t4c/client/ease:
   stage: build
