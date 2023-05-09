@@ -23,12 +23,11 @@ def run_importer_script() -> None:
 
     connection_type: str = get_connection_type()
 
-    command: list[str] = ["/opt/capella/capella"]
-
-    if is_capella_5_x_x():
-        command.append("--launcher.suppressErrors")
-
-    command += [
+    command: list[str] = [
+        "/opt/capella/capella",
+        "--launcher.suppressErrors",
+        "-nosplash",
+        "-console",
         "-consoleLog",
         "-data",
         "workspace",
@@ -73,6 +72,8 @@ def run_importer_script() -> None:
             "-httpPort",
             http_port,
         ]
+
+    log.info("Executing the following command: %s", " ".join(command))
 
     stderr = None
     stdout = ""
