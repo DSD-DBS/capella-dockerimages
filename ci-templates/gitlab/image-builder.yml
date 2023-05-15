@@ -62,6 +62,9 @@ variables:
   JUPYTER_VERSION:
     value: "python-3.11"
     description: "Python version for the jupyter notebook."
+  ENVIRONMENT:
+    value: "staging"
+    description: "Specifies the environemnt. Ensure that there exists these variables: $DOCKER_REGISTRY_$ENVIRONMENT, $DOCKER_REGISTRY_$ENVIRONMNET_{USER,PASSWORD} where the environemnt is all uppercase (e.g., STAGING)"
   T4C_SERVER_REGISTRY: "" # Registry where you can find the t4c server image
   T4C_SERVER_TAG: "$CAPELLA_VERSION-main" # Tag that is used for the t4c server image
   T4C_SERVER_TEST_DATA_REPO: "" # Link to the t4c test data repo needed to run the backup tests
@@ -106,6 +109,7 @@ default:
   - docker pull $BASE_IMAGE
 
 .push: &push
+  - 'if [ "$ENVIRONMENT" = "production" -a -z "$CI_COMMIT_TAG" ]; then echo "You can only push to production when running the pipeline on a tag!" && exit 1; fi'
   - docker push $IMAGE:$DOCKER_TAG
 
 .ease: &ease
