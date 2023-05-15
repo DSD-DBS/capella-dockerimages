@@ -64,7 +64,7 @@ variables:
     description: "Python version for the jupyter notebook."
   ENVIRONMENT:
     value: "staging"
-    description: "Specifies the environemnt. Ensure that there exists these variables: $DOCKER_REGISTRY_$ENVIRONMENT, $DOCKER_REGISTRY_$ENVIRONMNET_{USER,PASSWORD} where the environemnt is all uppercase (e.g., STAGING)"
+    description: "Specifies the environment. Make sure that all related environment variables are set on the repository level. More information in the documentation."
   T4C_SERVER_REGISTRY: "" # Registry where you can find the t4c server image
   T4C_SERVER_TAG: "$CAPELLA_VERSION-main" # Tag that is used for the t4c server image
   T4C_SERVER_TEST_DATA_REPO: "" # Link to the t4c test data repo needed to run the backup tests
@@ -80,23 +80,6 @@ default:
   image: $DOCKER_REGISTRY/base
   tags:
     - docker
-  before_script:
-    - &imageBuilderRevision >
-      if [[ "$BUILD_FOR_LATEST_TAG" == "1" ]]; then
-        git fetch --tags;
-        IMAGE_BUILDER_REVISION=$(git describe --tags --abbrev=0);
-        git checkout "$IMAGE_BUILDER_REVISION";
-      else
-        IMAGE_BUILDER_REVISION="$CI_COMMIT_REF_NAME"
-      fi
-    - &baseImageTag export BASE_IMAGE_TAG=$(echo $CAPELLA_DOCKER_IMAGES_REVISION | sed 's/[^a-zA-Z0-9.]/-/g')-$IMAGE_BUILDER_REVISION
-    - export DOCKER_TAG=$CAPELLA_VERSION-$BASE_IMAGE_TAG
-    - >
-      if [[ "$BASE_IMAGE" == "$DOCKER_REGISTRY/base2" ]]; then
-        export BASE_IMAGE=$BASE_IMAGE:$BASE_IMAGE_TAG;
-      else
-        export BASE_IMAGE=$BASE_IMAGE:$DOCKER_TAG;
-      fi
 
 .github: &github
   - git clone https://github.com/DSD-DBS/capella-dockerimages.git
@@ -105,7 +88,9 @@ default:
 
 .docker: &docker
   - docker info
-  - echo $DOCKER_REGISTRY_PASSWORD | docker login -u $DOCKER_REGISTRY_USER --password-stdin $DOCKER_REGISTRY
+  - DOCKER_REGISTRY_USER_QUERY=DOCKER_REGISTRY_USER_${ENVIRONMENT_UPPERCASE}
+  - DOCKER_REGISTRY_PASSWORD_QUERY=DOCKER_REGISTRY_PASSWORD_${ENVIRONMENT_UPPERCASE}
+  - echo ${!DOCKER_REGISTRY_PASSWORD_QUERY:?} | docker login -u ${!DOCKER_REGISTRY_USER_QUERY:?} --password-stdin $DOCKER_REGISTRY
   - docker pull $BASE_IMAGE
 
 .push: &push
@@ -116,18 +101,46 @@ default:
   - cp -R ../ease/extensions/* ease/extensions/
 
 .prepare: &prepare
-  - cd $CAPELLA_VERSION
+  - ENVIRONMENT_UPPERCASE=$(echo ${ENVIRONMENT:?} | tr '[:lower:]' '[:upper:]')
+  - DOCKER_REGISTRY_QUERY=DOCKER_REGISTRY_${ENVIRONMENT_UPPERCASE}
+  - DOCKER_REGISTRY=${!DOCKER_REGISTRY_QUERY:?}
+  - >
+      if [[ "$BUILD_FOR_LATEST_TAG" == "1" ]]; then
+        git fetch --tags;
+        IMAGE_BUILDER_REVISION=$(git describe --tags --abbrev=0);
+        git checkout "$IMAGE_BUILDER_REVISION";
+      else
+        IMAGE_BUILDER_REVISION="$CI_COMMIT_REF_NAME"
+      fi
+  - GENERAL_IMAGE_TAG=$(echo $CAPELLA_DOCKER_IMAGES_REVISION | sed 's/[^a-zA-Z0-9.]/-/g')-$IMAGE_BUILDER_REVISION
+  - IMAGE=${DOCKER_REGISTRY}/$IMAGE
+
+.resolve-base-image: &resolve-base-image
+  - BASE_IMAGE=${DOCKER_REGISTRY}/${BASE_IMAGE}
+  - >
+    if [[ "$BASE_IMAGE" == "$DOCKER_REGISTRY/base2" ]]; then
+      BASE_IMAGE=$BASE_IMAGE:$GENERAL_IMAGE_TAG;
+    else
+      BASE_IMAGE=$BASE_IMAGE:$DOCKER_TAG;
+    fi
+
+.prepare-capella: &prepare-capella
+  - *prepare
+  - export DOCKER_TAG=$CAPELLA_VERSION-$GENERAL_IMAGE_TAG
+  - *resolve-base-image
+  - cd capella/versions/$CAPELLA_VERSION
   - *github
 
 .local-git-server: &local-git-server
   - |
     docker build $DOCKER_BUILD_ARGS \
-      -t $T4C_SERVER_REGISTRY/local-git-server \
+      -t local-git-server \
       --build-arg BASE_IMAGE=$LOCAL_GIT_BASE_IMAGE \
       tests/local-git-server
 
 .prepare-tests-general: &prepare-tests-general
   - export LOCAL_GIT_TAG=latest
+  - export DOCKER_PREFIX=${DOCKER_REGISTRY:?}/
   - apt-get update && apt-get -y install jq
   # This command lists docker containers, identifies the current job and writes the network ID of the current container into the DOCKER_NETWORK variable.
   - export DOCKER_NETWORK=$(docker inspect -f "{{json .NetworkSettings.Networks }}" $(docker ps -q -f "label=com.gitlab.gitlab-runner.job.id=$CI_JOB_ID" -f "label=com.gitlab.gitlab-runner.type=build") | jq -r 'keys[0]' | head -n 1)
@@ -137,15 +150,10 @@ default:
   - pip install -e '.[dev]'
   - cd tests
 
-.prepare-tests: &prepare-tests
-  - *prepare-tests-general
-  - export DOCKER_PREFIX=$DOCKER_REGISTRY/
 
 .prepare-t4c-server-tests: &prepare-t4c-server-tests
   - *prepare-tests-general
-  - export DOCKER_PREFIX=$T4C_SERVER_REGISTRY/
-  - export T4C_SERVER_TAG=$T4C_SERVER_TAG
-  - GIT_PASSWORD=$T4C_SERVER_TEST_DATA_REPO_TOKEN git clone $T4C_SERVER_TEST_DATA_REPO
+  - GIT_PASSWORD=${T4C_SERVER_TEST_DATA_REPO_TOKEN:?} git clone ${T4C_SERVER_TEST_DATA_REPO:?}
 
 base:
   stage: build
@@ -155,18 +163,17 @@ base:
       when: always
   variables:
     BASE_IMAGE: debian:bullseye
-    IMAGE: $DOCKER_REGISTRY/base2
-  before_script:
-    - *imageBuilderRevision
-    - *baseImageTag
-    - export DOCKER_TAG=$BASE_IMAGE_TAG
+    IMAGE: base2
   script:
     - *prepare
+    - DOCKER_TAG=$GENERAL_IMAGE_TAG
+    - *github
     - *docker
+    - UID_QUERY=UID_${ENVIRONMENT_UPPERCASE}
     - |
       docker build $DOCKER_BUILD_ARGS \
         -t $IMAGE:$DOCKER_TAG \
-        --build-arg UID=$UID_ENV \
+        --build-arg UID=${!UID_QUERY} \
         --build-arg BASE_IMAGE=$BASE_IMAGE \
         base
     - *push
@@ -180,14 +187,14 @@ capella/base:
     - if: '$CAPELLA_BASE == "1"'
       when: always
   variables:
-    BASE_IMAGE: $DOCKER_REGISTRY/base2
-    IMAGE: $DOCKER_REGISTRY/capella/base
+    BASE_IMAGE: base2
+    IMAGE: capella/base
   script:
-    - *prepare
+    - *prepare-capella
     - *docker
     - mv ../capella.tar.gz ./capella/versions/$CAPELLA_VERSION/$BUILD_ARCHITECTURE/capella.tar.gz
     - mv ../dropins/* ./capella/versions/$CAPELLA_VERSION/dropins/
-    - mv ../../libs/* ./capella/libs/
+    - mv ../../../libs/* ./capella/libs/
     - |
       docker build $DOCKER_BUILD_ARGS \
         -t $DOCKER_REGISTRY/capella/base:$DOCKER_TAG \
@@ -208,14 +215,14 @@ capella/cli:
     - if: '$CAPELLA_CLI == "1"'
       when: always
   variables:
-    BASE_IMAGE: $DOCKER_REGISTRY/capella/base
-    IMAGE: $DOCKER_REGISTRY/capella/cli
+    BASE_IMAGE: capella/base
+    IMAGE: capella/cli
   script:
-    - *prepare
+    - *prepare-capella
     - *docker
     - |
       docker build $DOCKER_BUILD_ARGS \
-        -t $DOCKER_REGISTRY/capella/cli:$DOCKER_TAG \
+        -t $IMAGE:$DOCKER_TAG \
         --build-arg BASE_IMAGE=$BASE_IMAGE \
         cli
     - *push
@@ -229,10 +236,10 @@ capella/remote:
     - if: '$CAPELLA_REMOTE == "1"'
       when: always
   variables:
-    BASE_IMAGE: $DOCKER_REGISTRY/capella/base
-    IMAGE: $DOCKER_REGISTRY/capella/remote
+    BASE_IMAGE: capella/base
+    IMAGE: capella/remote
   script:
-    - *prepare
+    - *prepare-capella
     - *docker
     - |
       docker build $DOCKER_BUILD_ARGS \
@@ -250,10 +257,10 @@ t4c/client/base:
     - if: '$T4C_CLIENT_BASE == "1"'
       when: always
   variables:
-    BASE_IMAGE: $DOCKER_REGISTRY/capella/base
-    IMAGE: $DOCKER_REGISTRY/t4c/client/base
+    BASE_IMAGE: capella/base
+    IMAGE: t4c/client/base
   script:
-    - *prepare
+    - *prepare-capella
     - *docker
     - mv ../updateSite/* t4c/updateSite/$CAPELLA_VERSION/
     - |
@@ -273,16 +280,16 @@ t4c/client/backup:
     - if: '$T4C_CLIENT_BACKUP == "1"'
       when: always
   variables:
-    BASE_IMAGE: $DOCKER_REGISTRY/t4c/client/base
-    IMAGE: $DOCKER_REGISTRY/t4c/client/backup
+    BASE_IMAGE: t4c/client/base
+    IMAGE: t4c/client/backup
   script:
-    - *prepare
+    - *prepare-capella
     - *docker
     - |
       docker build $DOCKER_BUILD_ARGS \
         -t $DOCKER_REGISTRY/t4c/client/backup:$DOCKER_TAG \
         --build-arg BASE_IMAGE=$BASE_IMAGE \
-        --build-arg CAPELLA_VERSION=$CAPELLA_VERSION \
+        --build-arg CAPELLA_VERSION=${CAPELLA_VERSION:?} \
         backups
     - *prepare-t4c-server-tests
     - pytest -o log_cli=true -s -m t4c_server test_backups.py || r=3
@@ -303,10 +310,10 @@ t4c/client/exporter:
     - if: '$T4C_CLIENT_EXPORTER == "1"'
       when: always
   variables:
-    BASE_IMAGE: $DOCKER_REGISTRY/t4c/client/base
-    IMAGE: $DOCKER_REGISTRY/t4c/client/exporter
+    BASE_IMAGE: t4c/client/base
+    IMAGE: t4c/client/exporter
   script:
-    - *prepare
+    - *prepare-capella
     - *docker
     - |
       docker build $DOCKER_BUILD_ARGS \
@@ -329,17 +336,17 @@ t4c/client/remote:
     - if: '$T4C_CLIENT_REMOTE == "1"'
       when: always
   variables:
-    BASE_IMAGE: $DOCKER_REGISTRY/t4c/client/base
-    IMAGE: $DOCKER_REGISTRY/t4c/client/remote
+    BASE_IMAGE: t4c/client/base
+    IMAGE: t4c/client/remote
   script:
-    - *prepare
+    - *prepare-capella
     - *docker
     - |
       docker build $DOCKER_BUILD_ARGS \
         -t $DOCKER_REGISTRY/t4c/client/remote:$DOCKER_TAG \
         --build-arg BASE_IMAGE=$BASE_IMAGE \
         remote
-    - *prepare-tests
+    - *prepare-tests-general
     - pytest -o log_cli=true -s test_t4c_repository_injection.py || r=3
     - *push
     - exit $r
@@ -354,13 +361,13 @@ t4c/client/remote/pure-variants:
     - if: '$T4C_CLIENT_REMOTE_PURE_VARIANTS == "1"'
       when: always
   variables:
-    BASE_IMAGE: $DOCKER_REGISTRY/t4c/client/remote
-    IMAGE: $DOCKER_REGISTRY/t4c/client/remote/pure-variants
+    BASE_IMAGE: t4c/client/remote
+    IMAGE: t4c/client/remote/pure-variants
   script:
-    - *prepare
+    - *prepare-capella
     - *docker
-    - mv ../../pure-variants/dependencies/* pure-variants/dependencies/
-    - mv ../../pure-variants/updateSite/* pure-variants/versions/${PURE_VARIANTS_VERSION:?}
+    - mv ../../../../pure-variants/dependencies/* pure-variants/dependencies/
+    - mv ../../../../pure-variants/updateSite/* pure-variants/versions/${PURE_VARIANTS_VERSION:?}
     - |
       docker build $DOCKER_BUILD_ARGS \
       -t $DOCKER_REGISTRY/t4c/client/remote/pure-variants:$DOCKER_TAG \
@@ -379,10 +386,10 @@ capella/ease:
     - if: '$CAPELLA_EASE == "1"'
       when: always
   variables:
-    BASE_IMAGE: $DOCKER_REGISTRY/capella/base
-    IMAGE: $DOCKER_REGISTRY/capella/ease
+    BASE_IMAGE: capella/base
+    IMAGE: capella/ease
   script:
-    - *prepare
+    - *prepare-capella
     - *docker
     - *ease
     - |
@@ -402,10 +409,10 @@ capella/ease/remote:
     - if: '$CAPELLA_EASE_REMOTE == "1"'
       when: always
   variables:
-    BASE_IMAGE: $DOCKER_REGISTRY/capella/ease
-    IMAGE: $DOCKER_REGISTRY/capella/ease/remote
+    BASE_IMAGE: capella/ease
+    IMAGE: capella/ease/remote
   script:
-    - *prepare
+    - *prepare-capella
     - *docker
     - |
       docker build $DOCKER_BUILD_ARGS \
@@ -423,17 +430,17 @@ capella/readonly:
     - if: '$CAPELLA_READONLY == "1"'
       when: always
   variables:
-    BASE_IMAGE: $DOCKER_REGISTRY/capella/ease/remote
-    IMAGE: $DOCKER_REGISTRY/capella/readonly
+    BASE_IMAGE: capella/ease/remote
+    IMAGE: capella/readonly
   script:
-    - *prepare
+    - *prepare-capella
     - *docker
     - |
       docker build $DOCKER_BUILD_ARGS \
         -t $DOCKER_REGISTRY/capella/readonly:$DOCKER_TAG \
         --build-arg BASE_IMAGE=$BASE_IMAGE \
         readonly
-    - *prepare-tests
+    - *prepare-tests-general
     - pytest -o log_cli=true -s test_read_only.py || r=3
     - *push
     - exit $r
@@ -448,10 +455,10 @@ t4c/client/ease:
     - if: '$T4C_CLIENT_EASE == "1"'
       when: always
   variables:
-    BASE_IMAGE: $DOCKER_REGISTRY/t4c/client/base
-    IMAGE: $DOCKER_REGISTRY/t4c/client/ease
+    BASE_IMAGE: t4c/client/base
+    IMAGE: t4c/client/ease
   script:
-    - *prepare
+    - *prepare-capella
     - *docker
     - *ease
     - |
@@ -471,10 +478,10 @@ t4c/client/ease/remote:
     - if: '$T4C_CLIENT_EASE_REMOTE == "1"'
       when: always
   variables:
-    BASE_IMAGE: $DOCKER_REGISTRY/t4c/client/ease
-    IMAGE: $DOCKER_REGISTRY/t4c/client/ease/remote
+    BASE_IMAGE: t4c/client/ease
+    IMAGE: t4c/client/ease/remote
   script:
-    - *prepare
+    - *prepare-capella
     - *docker
     - |
       docker build $DOCKER_BUILD_ARGS \
@@ -492,10 +499,10 @@ t4c/client/ease/remote/debug:
     - if: '$T4C_CLIENT_EASE_REMOTE_DEBUG == "1"'
       when: always
   variables:
-    BASE_IMAGE: $DOCKER_REGISTRY/t4c/client/ease/remote
-    IMAGE: $DOCKER_REGISTRY/t4c/client/ease/remote/debug
+    BASE_IMAGE: t4c/client/ease/remote
+    IMAGE: t4c/client/ease/remote/debug
   script:
-    - *prepare
+    - *prepare-capella
     - *docker
     - mkdir -p ease/debug/libs
     - mv ../ease/debug/code.deb ease/debug/libs/code.deb
@@ -516,11 +523,13 @@ jupyter:
     - if: '$JUPYTER == "1"'
       when: always
   variables:
-    BASE_IMAGE: $DOCKER_REGISTRY/base2
-    IMAGE: $DOCKER_REGISTRY/jupyter-notebook
+    BASE_IMAGE: base2
+    IMAGE: jupyter-notebook
   script:
-    - export DOCKER_TAG=python-3.11-$BASE_IMAGE_TAG
     - *prepare
+    - DOCKER_TAG=python-3.11-$GENERAL_IMAGE_TAG
+    - *resolve-base-image
+    - *github
     - *docker
     - |
       docker build $DOCKER_BUILD_ARGS \
