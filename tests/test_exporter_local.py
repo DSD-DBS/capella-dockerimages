@@ -123,14 +123,14 @@ def export_model(model_dir: pathlib.Path, env: dict[str, str]):
     model_tar = model_dir / "model.tar"
 
     conftest.create_tarfile(
-        tar_file_path=model_tar, source_dir=model_dir, arcname="data"
+        destination_path=model_tar, source_dir=model_dir, arcname="data"
     )
 
     with conftest.get_container(
         image="t4c/client/exporter", environment=env, entrypoint=["/bin/bash"]
     ) as container:
         # We can't just mount the test data as a volume as this will cause problems
-        # in our pipeline as we are running Docker in Docker (i.e., we would mount the
+        # when as we are running Docker in Docker (i.e., we would mount the
         # volume on the host machine but not on the container running the job/test)
         with open(file=model_tar, mode="rb") as tar_file:
             conftest.client.api.put_archive(container.id, "/tmp", tar_file)

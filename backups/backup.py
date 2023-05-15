@@ -135,7 +135,7 @@ def run_importer_script() -> None:
     log.info("Import of model from TeamForCapella server finished")
 
 
-def checkout_git_repository() -> pathlib.Path:
+def clone_git_repository() -> pathlib.Path:
     git_dir = pathlib.Path("/tmp/git")
     git_dir.mkdir(exist_ok=True)
 
@@ -329,7 +329,7 @@ if __name__ == "__main__":
     if file_handler == "local":
         pass
     else:  # USE GIT
-        _git_dir = checkout_git_repository()
+        _git_dir = clone_git_repository()
         copy_exported_files_into_git_repo(_project_dir)
         git_commit_and_push(_git_dir)
 

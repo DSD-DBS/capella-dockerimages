@@ -96,7 +96,7 @@ def test_model_backup_happy(
         git_ip_addr = "127.0.0.1"
 
     env = os.environ
-    env["no_proxy"] = os.getenv("no_proxy", "") + f",{git_ip_addr}"
+    env["no_proxy"] = f"{os.getenv('no_proxy', '')},{git_ip_addr}"
 
     subprocess.run(
         [

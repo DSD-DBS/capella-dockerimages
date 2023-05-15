@@ -52,18 +52,11 @@ CAPELLA_VERSION: str = os.getenv("CAPELLA_VERSION", "")
 ENTRYPOINT: str = f"/{CAPELLA_VERSION}/test-project.aird"
 
 
-SUBPROCESS_DEFAULT_ARGS: dict[str, t.Any] = {
-    "check": True,
-    "text": True,
-    "capture_output": True,
-}
-
-
 @pytest.fixture(name="git_container")
 def fixture_git_container() -> containers.Container:
     with get_container(
         image="local-git-server",
-        image_tag_env="LOCAL_GIT_TAG",
+        image_tag=os.getenv("LOCAL_GIT_TAG", None),
         ports={"80/tcp": None} if DOCKER_NETWORK == "host" else None,
     ) as container:
         wait_for_container(container, "server started")
@@ -101,7 +94,7 @@ def fixture_init_git_server(
     git_http_port: str,
     tmp_path: pathlib.Path,
 ):
-    checkout_git_repository(git_ip_addr, git_http_port, tmp_path)
+    clone_git_repository(git_ip_addr, git_http_port, tmp_path)
     copy_test_project_into_git_repo(tmp_path)
     commit_and_push_git_repo(tmp_path)
     yield
@@ -129,7 +122,7 @@ def fixture_t4c_server_container(
     wait_for_message = "!MESSAGE CDO server started"
     if init:
         create_tarfile(
-            tar_file_path=server_test_data_tar_path,
+            destination_path=server_test_data_tar_path,
             source_dir=(
                 pathlib.Path(__file__).parents[0]
                 / "t4c-server-test-data"
@@ -142,14 +135,14 @@ def fixture_t4c_server_container(
 
     with get_container(
         image="t4c/server/server",
-        image_tag_env="T4C_SERVER_TAG",
+        image_tag=os.getenv("T4C_SERVER_TAG", None),
         environment=t4c_server_env,
         ports={"8080/tcp": None} if DOCKER_NETWORK == "host" else None,
         entrypoint=["/bin/bash"],
     ) as container:
         if init:
             # We can't just mount the test data as a volume as this will cause problems
-            # in our pipeline as we are running Docker in Docker (i.e., we would mount the
+            # when as we are running Docker in Docker (i.e., we would mount the
             # volume on the host machine but not on the container running the job/test)
             with open(file=server_test_data_tar_path, mode="rb") as tar_file:
                 client.api.put_archive(container.id, "/", tar_file)
@@ -208,19 +201,15 @@ def fixture_init_t4c_server_repo(t4c_ip_addr: str, t4c_http_port: str):
 @contextlib.contextmanager
 def get_container(
     image: str,
-    image_tag_env: str | None = None,
+    image_tag: str | None = None,
     ports: dict[str, int | None] | None = None,
     environment: dict[str, str] | None = None,
     volumes: dict[str, dict[str, str]] | None = None,
     entrypoint: list[str] | None = None,
 ) -> cabc.Iterator[containers.Container]:
     docker_prefix = os.getenv("DOCKER_PREFIX", "")
-    if image_tag_env and (
-        image_tag_env_value := os.getenv(image_tag_env, None)
-    ):
-        docker_tag = image_tag_env_value
-    else:
-        docker_tag = os.getenv("DOCKER_TAG", "latest")
+
+    docker_tag = image_tag or os.getenv("DOCKER_TAG", "latest")
 
     image = f"{docker_prefix}{image}:{docker_tag}"
 
@@ -253,8 +242,8 @@ def wait_for_container(
 
     log_queue: multiprocessing.Queue = multiprocessing.Queue()
 
-    create_log_process = multiprocessing.Process(
-        target=create_log, args=(container.id, log_queue, cmd)
+    fetch_log_process = multiprocessing.Process(
+        target=fetch_logs, args=(container.id, log_queue, cmd)
     )
 
     container.reload()
@@ -262,14 +251,13 @@ def wait_for_container(
         log.error("Log from container:\n%s", container.logs().decode())
         raise RuntimeError("Container exited unexpectedly")
 
-    create_log_process.start()
+    fetch_log_process.start()
 
     log.info("Wait until log line: %s", wait_for_message)
     decoded_log = ""
     while time.time() - start_time < timeout:
         try:
-            cur_line = log_queue.get(timeout=4)
-            decoded_log += cur_line
+            decoded_log += log_queue.get(timeout=4)
 
             if wait_for_message in decoded_log:
                 log.info(
@@ -278,26 +266,26 @@ def wait_for_container(
                     time.time() - start_time,
                 )
                 log.debug("Whole log:\n%s", decoded_log)
-                create_log_process.terminate()
+                fetch_log_process.terminate()
                 return
 
         except queue.Empty:
-            pass
-
-        if log_queue.empty():
-            container.reload()
-            if container.status == "exited":
-                log.error("Log from container:\n%s", decoded_log)
-                create_log_process.terminate()
-                raise RuntimeError("Container exited unexpectedly")
+            if log_queue.empty():
+                container.reload()
+                if container.status == "exited":
+                    log.error("Log from container:\n%s", decoded_log)
+                    fetch_log_process.terminate()
+                    raise RuntimeError("Container exited unexpectedly")
 
     if time.time() - start_time > timeout:
         log.error("Log from container:\n%s", decoded_log)
-        create_log_process.terminate()
-        raise TimeoutError("Timeout while waiting for model loading")
+        fetch_log_process.terminate()
+        raise TimeoutError(
+            f"Timeout while waiting for container '{container.name}' with image '{container.image}'"
+        )
 
 
-def create_log(container_id: int, log_queue, cmd: str | None = None):
+def fetch_logs(container_id: int, log_queue, cmd: str | None = None):
     container = client.containers.get(container_id=container_id)
 
     if cmd:
@@ -308,16 +296,19 @@ def create_log(container_id: int, log_queue, cmd: str | None = None):
     assert stream
 
     cur_line = ""
-    for data in stream:
-        encoding = chardet.detect(data)["encoding"]
+    for chunk in stream:
+        encoding = chardet.detect(chunk)["encoding"]
 
         if encoding:
-            _data = data.decode(encoding)
-            cur_line = cur_line + _data
+            chunk_decoded = chunk.decode(encoding)
+            cur_line += chunk_decoded
 
-            if "\n" in _data:
+            if "\n" in chunk_decoded:
                 log_queue.put(cur_line)
                 cur_line = ""
+        else:
+            log.error("Encoding for %s is unknown", chunk)
+    log_queue.put(cur_line)
 
 
 def is_capella_5_x_x() -> bool:
@@ -371,11 +362,11 @@ def create_t4c_repository(t4c_ip_addr: str, t4c_http_port: str):
 
 
 def create_tarfile(
-    tar_file_path: str | pathlib.Path,
+    destination_path: str | pathlib.Path,
     source_dir: str | pathlib.Path,
     arcname: str,
 ):
-    with tarfile.open(name=tar_file_path, mode="w") as tar_file:
+    with tarfile.open(name=destination_path, mode="w") as tar_file:
         tar_file.add(name=source_dir, arcname=arcname)
 
 
@@ -385,17 +376,17 @@ def extract_container_dir_to_local_dir(
     target_dir.mkdir(parents=True, exist_ok=True)
     tar_file_name = target_dir / (container_dir.split("/")[-1] + ".tar")
 
-    strm, _ = client.api.get_archive(container_id, container_dir)
+    stream, _ = client.api.get_archive(container_id, container_dir)
 
     with open(file=tar_file_name, mode="wb") as tar_file:
-        for chunk in strm:
+        for chunk in stream:
             tar_file.write(chunk)
 
     with tarfile.open(name=tar_file_name, mode="r") as tar_file:
         tar_file.extractall(path=target_dir)
 
 
-def checkout_git_repository(
+def clone_git_repository(
     git_ip_addr: str, git_http_port: str, path: pathlib.Path
 ):
     if DOCKER_NETWORK == "host":
@@ -412,12 +403,16 @@ def checkout_git_repository(
             path,
         ],
         env=env,
-        **SUBPROCESS_DEFAULT_ARGS,
+        check=True,
+        text=True,
+        capture_output=True,
     )
     subprocess.run(  # pylint: disable=subprocess-run-check
         ["git", "switch", "-c", GIT_REPO_BRANCH],
         cwd=path,
-        **SUBPROCESS_DEFAULT_ARGS,
+        check=True,
+        text=True,
+        capture_output=True,
     )
 
 
@@ -438,22 +433,28 @@ def copy_test_project_into_git_repo(git_path: pathlib.Path):
 
 
 def commit_and_push_git_repo(path: pathlib.Path):
-    subprocess_shared_args: dict[str, t.Any] = SUBPROCESS_DEFAULT_ARGS | {
-        "cwd": path
-    }
-
     subprocess.run(  # pylint: disable=subprocess-run-check
         ["git", "config", "user.email", GIT_EMAIL],
-        **subprocess_shared_args,
+        cwd=path,
+        check=True,
+        text=True,
+        capture_output=True,
     )
 
     subprocess.run(  # pylint: disable=subprocess-run-check
         ["git", "config", "user.name", GIT_USERNAME],
-        **subprocess_shared_args,
+        cwd=path,
+        check=True,
+        text=True,
+        capture_output=True,
     )
 
     subprocess.run(  # pylint: disable=subprocess-run-check
-        ["git", "add", "."], **subprocess_shared_args
+        ["git", "add", "."],
+        cwd=path,
+        check=True,
+        text=True,
+        capture_output=True,
     )
 
     subprocess.run(  # pylint: disable=subprocess-run-check
@@ -465,7 +466,10 @@ def commit_and_push_git_repo(path: pathlib.Path):
             "--message",
             "test: Exporter test",
         ],
-        **subprocess_shared_args,
+        cwd=path,
+        check=True,
+        text=True,
+        capture_output=True,
     )
 
     subprocess.run(  # pylint: disable=subprocess-run-check
@@ -475,7 +479,10 @@ def commit_and_push_git_repo(path: pathlib.Path):
             "GIT_PASSWORD": GIT_PASSWORD,
             "GIT_ASKPASS": "/etc/git_askpass.py",
         },
-        **subprocess_shared_args,
+        cwd=path,
+        check=True,
+        text=True,
+        capture_output=True,
     )
 
 

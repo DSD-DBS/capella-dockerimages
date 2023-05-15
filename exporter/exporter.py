@@ -27,7 +27,7 @@ def check_capella_version():
         )
 
 
-def checkout_git_repository() -> pathlib.Path:
+def clone_git_repository() -> pathlib.Path:
     git_dir = pathlib.Path("/tmp/git")
     git_dir.mkdir(exist_ok=True)
 
@@ -167,7 +167,7 @@ if __name__ == "__main__":
     if file_handler == "local":
         _root_path = pathlib.Path(os.getenv("ROOT_PATH", "/tmp/data"))
     else:  # USE GIT
-        _root_path = checkout_git_repository()
+        _root_path = clone_git_repository()
 
     _model_dir = determine_model_dir(root_path=_root_path)
 

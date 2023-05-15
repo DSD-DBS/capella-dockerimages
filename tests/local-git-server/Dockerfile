@@ -23,4 +23,4 @@ RUN git config --local http.receivepack true
 
 WORKDIR /
 
-CMD ["lighttpd", "-D", "-f", "/etc/lighttpd/lighttpd.conf"]
+ENTRYPOINT ["lighttpd", "-D", "-f", "/etc/lighttpd/lighttpd.conf"]
