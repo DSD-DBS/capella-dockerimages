@@ -3,40 +3,40 @@
 
 variables:
   BASE:
-    value: "1"
+    value: "0"
     description: "Build the base image?"
   CAPELLA_BASE:
-    value: "1"
+    value: "0"
     description: "Build the capella/base image?"
   CAPELLA_CLI:
-    value: "1"
+    value: "0"
     description: "Build the capella/cli image?"
   CAPELLA_REMOTE:
     value: "0"
     description: "Build the capella/remote image?"
   T4C_CLIENT_BASE:
-    value: "1"
+    value: "0"
     description: "Build the t4c/client/base image?"
   T4C_CLIENT_BACKUP:
-    value: "1"
+    value: "0"
     description: "Build the t4c/client/backup image?"
   T4C_CLIENT_EXPORTER:
-    value: "1"
+    value: "0"
     description: "Build the t4c/client/exporter image?"
   T4C_CLIENT_REMOTE:
-    value: "1"
+    value: "0"
     description: "Build the t4c/client/remote image?"
   T4C_CLIENT_REMOTE_PURE_VARIANTS:
-    value: "1"
+    value: "0"
     description: "Build the t4c/client/remote/pure-variants image?"
   CAPELLA_EASE:
-    value: "1"
+    value: "0"
     description: "Build the capella/ease image?"
   CAPELLA_EASE_REMOTE:
-    value: "1"
+    value: "0"
     description: "Build the capella/ease/remote image?"
   CAPELLA_READONLY:
-    value: "1"
+    value: "0"
     description: "Build the capella/readonly image?"
   T4C_CLIENT_EASE:
     value: "0"
@@ -56,6 +56,9 @@ variables:
   CAPELLA_VERSION:
     value: "6.0.0"
     description: "Capella version. Please make sure that a subdirectory with the name of the value exists. The value must be valid ASCII and may contain lowercase and uppercase letters, digits, underscores, periods and dashes."
+  BUILD_FOR_LATEST_TAG:
+    value: "0"
+    description: "Fetch the latest tag for the image builder repository and use it as revision. If 0, '$CI_COMMIT_REF_NAME' will be used."
   JUPYTER_VERSION:
     value: "python-3.11"
     description: "Python version for the jupyter notebook."
@@ -75,7 +78,15 @@ default:
   tags:
     - docker
   before_script:
-    - &baseImageTag export BASE_IMAGE_TAG=$(echo $CAPELLA_DOCKER_IMAGES_REVISION | sed 's/[^a-zA-Z0-9.]/-/g')-$CI_COMMIT_REF_NAME
+    - &imageBuilderRevision >
+      if [[ "$BUILD_FOR_LATEST_TAG" == "1" ]]; then
+        git fetch --tags;
+        IMAGE_BUILDER_REVISION=$(git describe --tags --abbrev=0);
+        git checkout "$IMAGE_BUILDER_REVISION";
+      else
+        IMAGE_BUILDER_REVISION="$CI_COMMIT_REF_NAME"
+      fi
+    - &baseImageTag export BASE_IMAGE_TAG=$(echo $CAPELLA_DOCKER_IMAGES_REVISION | sed 's/[^a-zA-Z0-9.]/-/g')-$IMAGE_BUILDER_REVISION
     - export DOCKER_TAG=$CAPELLA_VERSION-$BASE_IMAGE_TAG
     - >
       if [[ "$BASE_IMAGE" == "$DOCKER_REGISTRY/base2" ]]; then
@@ -91,7 +102,7 @@ default:
 
 .docker: &docker
   - docker info
-  - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY
+  - echo $DOCKER_REGISTRY_PASSWORD | docker login -u $DOCKER_REGISTRY_USER --password-stdin $DOCKER_REGISTRY
   - docker pull $BASE_IMAGE
 
 .push: &push
@@ -142,6 +153,7 @@ base:
     BASE_IMAGE: debian:bullseye
     IMAGE: $DOCKER_REGISTRY/base2
   before_script:
+    - *imageBuilderRevision
     - *baseImageTag
     - export DOCKER_TAG=$BASE_IMAGE_TAG
   script:
