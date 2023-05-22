@@ -5,8 +5,8 @@
 
 # Image builder
 
-The image builder template builds all images supported by this repository and pushes them to any Docker registry.
-We use it in our automated deployment environment for our [Collaboration project](https://github.com/DSD-DBS/capella-collab-manager).
+The image builder template builds all images supported by this repository, executes our tests on each builded images,
+and pushes them to any Docker registry. We use it in our automated deployment environment for our [Collaboration project](https://github.com/DSD-DBS/capella-collab-manager).
 We have restricted internet access in our build environment, so the Gitlab CI is optimized for restricted network access.
 
 Please add the following section to your `.gitlab-ci.yml`:
@@ -41,6 +41,11 @@ Make sure to enable the "Expand variable reference" flag.
   - `DOCKER_REGISTRY`: The URL to the Docker registry
   - `DOCKER_REGISTRY_USER`: Username of a techuser with push permission to the Docker registry
   - `DOCKER_REGISTRY_PASSWORD`: Corresponding password of the techuser
+- `T4C_SERVER_REGISTRY`: Docker registry which contains the required t4c server image
+- `T4C_SERVER_TAG`: Docker tag that is used for the t4c server image
+- `T4C_SERVER_TEST_DATA_REPO`: Link to a Git repository containing t4c test data needed to run the backup tests.
+  The repository needs to have the following structure: `/data/$CAPELLA_VERSION/repositories/test-repo`
+- `LOCAL_GIT_BASE_IMAGE`: Specifies the base image which is used to build the local git server for the pytest.
 
 The tree inside of your Gitlab repository should look like:
 
