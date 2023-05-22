@@ -22,9 +22,12 @@ pytestmark = pytest.mark.t4c_server
 def fixture_t4c_backup_local_env(
     git_general_env: dict[str, str],
     t4c_general_env: dict[str, str],
+    t4c_ip_addr: str,
     request: pytest.FixtureRequest,
 ) -> dict[str, str]:
     env: dict[str, str] = git_general_env | t4c_general_env
+
+    env["no_proxy"] = t4c_ip_addr
 
     if hasattr(request, "param"):
         env = env | request.param
@@ -43,7 +46,7 @@ def fixture_t4c_backup_container(
 
 
 @pytest.mark.parametrize(
-    "t4c_server_volumes,t4c_server_env,t4c_backup_local_env",
+    "t4c_server_container,t4c_server_env,t4c_backup_local_env",
     [
         pytest.param(
             {"init": True},
@@ -78,29 +81,41 @@ def fixture_t4c_backup_container(
 )
 def test_model_backup_happy(
     t4c_backup_container: containers.Container,
+    git_ip_addr: str,
     git_http_port: str,
     tmp_path: pathlib.Path,
 ):
     conftest.wait_for_container(
-        t4c_backup_container,
-        "Import of model from TeamForCapella server finished",
+        t4c_backup_container, "Backup of model finished"
     )
 
     git_path = tmp_path / "test-git-data"
     git_path.mkdir()
 
+    if conftest.DOCKER_NETWORK == "host":
+        git_ip_addr = "127.0.0.1"
+
+    env = os.environ
+    env["no_proxy"] = f"{os.getenv('no_proxy', '')},{git_ip_addr}"
+
     subprocess.run(
         [
             "git",
             "clone",
-            f"http://127.0.0.1:{git_http_port}/git/git-test-repo.git",
+            f"http://{git_ip_addr}:{git_http_port}/git/git-test-repo.git",
             git_path,
         ],
         check=True,
+        capture_output=True,
+        env=env,
     )
+
     try:
         subprocess.run(
-            ["git", "switch", "backup-test"], check=True, cwd=git_path
+            ["git", "switch", conftest.GIT_REPO_BRANCH],
+            check=True,
+            cwd=git_path,
+            capture_output=True,
         )
     except subprocess.CalledProcessError:
         log.debug("backup failed - backup-test branch does not exists")
@@ -113,7 +128,7 @@ def test_model_backup_happy(
 
 
 @pytest.mark.parametrize(
-    "t4c_server_volumes,t4c_server_env,t4c_backup_local_env",
+    "t4c_server_container,t4c_server_env,t4c_backup_local_env",
     [
         # CONNECTION_TYPE "unknown" is not allowed
         (
@@ -137,6 +152,5 @@ def test_model_backup_happy(
 def test_model_backup_unhappy(t4c_backup_container):
     with pytest.raises(RuntimeError):
         conftest.wait_for_container(
-            t4c_backup_container,
-            "Import of model from TeamForCapella server finished",
+            t4c_backup_container, "Backup of model finished"
         )

@@ -1,0 +1,26 @@
+# SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
+# SPDX-License-Identifier: Apache-2.0
+
+
+variables:
+  CLEANUP:
+    value: "0"
+    description: "Clean all test docker containers"
+
+# To address the issue of legacy or remaining containers resulting from a cancelled
+# or timed-out pipeline, we require an additional CI template. This is because
+# the "after_script" keyword in GitLab only works for successful job cases,
+# but not for unsuccessful ones. This is particularly relevant when we cancel
+# a pipeline while running the Pytests, which can lead to leftover containers.
+# Although there is some ongoing work to tackle this issue, it may only apply to
+# the cancelled job case. We are keeping an eye on this development,
+# which can be followed at: https://gitlab.com/gitlab-org/gitlab/-/issues/387230.
+# When this feature becomes available, we might consider switching over to it.
+remove-containers-by-labels:
+  stage: build
+  rules:
+    - if: '$CLEANUP == "1"'
+      when: always
+  script:
+    - TEST_CONTAINERS=$(docker ps --filter "label=capella-dockerimages-pytest-container=true" -q)
+    - if [[ -n $TEST_CONTAINERS ]]; then docker stop $TEST_CONTAINERS; docker rm $TEST_CONTAINERS; else exit 0; fi;

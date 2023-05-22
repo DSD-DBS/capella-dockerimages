@@ -59,9 +59,16 @@ variables:
   JUPYTER_VERSION:
     value: "python-3.11"
     description: "Python version for the jupyter notebook."
+  T4C_SERVER_REGISTRY: "" # Registry where you can find the t4c server image
+  T4C_SERVER_TAG: "$CAPELLA_VERSION-main" # Tag that is used for the t4c server image
+  T4C_SERVER_TEST_DATA_REPO: "" # Link to the t4c test data repo needed to run the backup tests
+  LOCAL_GIT_BASE_IMAGE: "debian:bullseye" # Specifies the base images used to build the local git server needed to run the tests
   DOCKER_BUILD_ARGS: "--no-cache"
   BUILD_ARCHITECTURE: amd64
   PURE_VARIANTS_VERSION: "6.0.0"
+
+stages:
+  - build
 
 default:
   image: $DOCKER_REGISTRY/base
@@ -96,6 +103,34 @@ default:
 .prepare: &prepare
   - cd $CAPELLA_VERSION
   - *github
+
+.local-git-server: &local-git-server
+  - |
+    docker build $DOCKER_BUILD_ARGS \
+      -t $T4C_SERVER_REGISTRY/local-git-server \
+      --build-arg BASE_IMAGE=$LOCAL_GIT_BASE_IMAGE \
+      tests/local-git-server
+
+.prepare-tests-general: &prepare-tests-general
+  - export LOCAL_GIT_TAG=latest
+  - apt-get update && apt-get -y install jq
+  # This command lists docker containers, identifies the current job and writes the network ID of the current container into the DOCKER_NETWORK variable.
+  - export DOCKER_NETWORK=$(docker inspect -f "{{json .NetworkSettings.Networks }}" $(docker ps -q -f "label=com.gitlab.gitlab-runner.job.id=$CI_JOB_ID" -f "label=com.gitlab.gitlab-runner.type=build") | jq -r 'keys[0]' | head -n 1)
+  - *local-git-server
+  - python -m venv .venv
+  - source .venv/bin/activate
+  - pip install -e '.[dev]'
+  - cd tests
+
+.prepare-tests: &prepare-tests
+  - *prepare-tests-general
+  - export DOCKER_PREFIX=$DOCKER_REGISTRY/
+
+.prepare-t4c-server-tests: &prepare-t4c-server-tests
+  - *prepare-tests-general
+  - export DOCKER_PREFIX=$T4C_SERVER_REGISTRY/
+  - export T4C_SERVER_TAG=$T4C_SERVER_TAG
+  - GIT_PASSWORD=$T4C_SERVER_TEST_DATA_REPO_TOKEN git clone $T4C_SERVER_TEST_DATA_REPO
 
 base:
   stage: build
@@ -164,9 +199,9 @@ capella/cli:
     - *docker
     - |
       docker build $DOCKER_BUILD_ARGS \
-      -t $DOCKER_REGISTRY/capella/cli:$DOCKER_TAG \
-      --build-arg BASE_IMAGE=$BASE_IMAGE \
-      cli
+        -t $DOCKER_REGISTRY/capella/cli:$DOCKER_TAG \
+        --build-arg BASE_IMAGE=$BASE_IMAGE \
+        cli
     - *push
 
 capella/remote:
@@ -185,9 +220,9 @@ capella/remote:
     - *docker
     - |
       docker build $DOCKER_BUILD_ARGS \
-      -t $DOCKER_REGISTRY/capella/remote:$DOCKER_TAG \
-      --build-arg BASE_IMAGE=$BASE_IMAGE \
-      remote
+        -t $DOCKER_REGISTRY/capella/remote:$DOCKER_TAG \
+        --build-arg BASE_IMAGE=$BASE_IMAGE \
+        remote
     - *push
 
 t4c/client/base:
@@ -207,10 +242,10 @@ t4c/client/base:
     - mv ../updateSite/* t4c/updateSite/$CAPELLA_VERSION/
     - |
       docker build $DOCKER_BUILD_ARGS \
-      -t $DOCKER_REGISTRY/t4c/client/base:$DOCKER_TAG \
-      --build-arg CAPELLA_VERSION=$CAPELLA_VERSION \
-      --build-arg BASE_IMAGE=$BASE_IMAGE \
-      t4c
+        -t $DOCKER_REGISTRY/t4c/client/base:$DOCKER_TAG \
+        --build-arg CAPELLA_VERSION=$CAPELLA_VERSION \
+        --build-arg BASE_IMAGE=$BASE_IMAGE \
+        t4c
     - *push
 
 t4c/client/backup:
@@ -229,11 +264,17 @@ t4c/client/backup:
     - *docker
     - |
       docker build $DOCKER_BUILD_ARGS \
-      -t $DOCKER_REGISTRY/t4c/client/backup:$DOCKER_TAG \
-      --build-arg BASE_IMAGE=$BASE_IMAGE \
-      --build-arg CAPELLA_VERSION=$CAPELLA_VERSION \
-      backups
+        -t $DOCKER_REGISTRY/t4c/client/backup:$DOCKER_TAG \
+        --build-arg BASE_IMAGE=$BASE_IMAGE \
+        --build-arg CAPELLA_VERSION=$CAPELLA_VERSION \
+        backups
+    - *prepare-t4c-server-tests
+    - pytest -o log_cli=true -s -m t4c_server test_backups.py || r=3
     - *push
+    - exit $r
+  allow_failure: &allow_failure
+    exit_codes:
+      - 3 # Exit code when pytest fail
 
 t4c/client/exporter:
   stage: build
@@ -253,11 +294,15 @@ t4c/client/exporter:
     - *docker
     - |
       docker build $DOCKER_BUILD_ARGS \
-      -t $DOCKER_REGISTRY/t4c/client/exporter:$DOCKER_TAG \
-      --build-arg BASE_IMAGE=$BASE_IMAGE \
-      --build-arg CAPELLA_VERSION=$CAPELLA_VERSION \
-      exporter
+        -t $DOCKER_REGISTRY/t4c/client/exporter:$DOCKER_TAG \
+        --build-arg BASE_IMAGE=$BASE_IMAGE \
+        --build-arg CAPELLA_VERSION=$CAPELLA_VERSION \
+        exporter
+    - *prepare-t4c-server-tests
+    - pytest -o log_cli=true -s -m t4c_server test_exporter_local.py test_exporter_git.py || r=3
     - *push
+    - exit $r
+  allow_failure: *allow_failure
 
 t4c/client/remote:
   stage: build
@@ -275,10 +320,14 @@ t4c/client/remote:
     - *docker
     - |
       docker build $DOCKER_BUILD_ARGS \
-      -t $DOCKER_REGISTRY/t4c/client/remote:$DOCKER_TAG \
-      --build-arg BASE_IMAGE=$BASE_IMAGE \
-      remote
+        -t $DOCKER_REGISTRY/t4c/client/remote:$DOCKER_TAG \
+        --build-arg BASE_IMAGE=$BASE_IMAGE \
+        remote
+    - *prepare-tests
+    - pytest -o log_cli=true -s test_t4c_repository_injection.py || r=3
     - *push
+    - exit $r
+  allow_failure: *allow_failure
 
 t4c/client/remote/pure-variants:
   stage: build
@@ -322,10 +371,10 @@ capella/ease:
     - *ease
     - |
       docker build $DOCKER_BUILD_ARGS \
-      -t $DOCKER_REGISTRY/capella/ease:$DOCKER_TAG \
-      --build-arg BUILD_TYPE=offline \
-      --build-arg BASE_IMAGE=$BASE_IMAGE \
-      ease
+        -t $DOCKER_REGISTRY/capella/ease:$DOCKER_TAG \
+        --build-arg BUILD_TYPE=offline \
+        --build-arg BASE_IMAGE=$BASE_IMAGE \
+        ease
     - *push
 
 capella/ease/remote:
@@ -344,9 +393,9 @@ capella/ease/remote:
     - *docker
     - |
       docker build $DOCKER_BUILD_ARGS \
-      -t $DOCKER_REGISTRY/capella/ease/remote:$DOCKER_TAG \
-      --build-arg BASE_IMAGE=$BASE_IMAGE \
-      remote
+        -t $DOCKER_REGISTRY/capella/ease/remote:$DOCKER_TAG \
+        --build-arg BASE_IMAGE=$BASE_IMAGE \
+        remote
     - *push
 
 capella/readonly:
@@ -365,10 +414,14 @@ capella/readonly:
     - *docker
     - |
       docker build $DOCKER_BUILD_ARGS \
-      -t $DOCKER_REGISTRY/capella/readonly:$DOCKER_TAG \
-      --build-arg BASE_IMAGE=$BASE_IMAGE \
-      readonly
+        -t $DOCKER_REGISTRY/capella/readonly:$DOCKER_TAG \
+        --build-arg BASE_IMAGE=$BASE_IMAGE \
+        readonly
+    - *prepare-tests
+    - pytest -o log_cli=true -s test_read_only.py || r=3
     - *push
+    - exit $r
+  allow_failure: *allow_failure
 
 t4c/client/ease:
   stage: build
@@ -387,10 +440,10 @@ t4c/client/ease:
     - *ease
     - |
       docker build $DOCKER_BUILD_ARGS \
-      -t $DOCKER_REGISTRY/t4c/client/ease:$DOCKER_TAG \
-      --build-arg BUILD_TYPE=offline \
-      --build-arg BASE_IMAGE=$BASE_IMAGE \
-      ease
+        -t $DOCKER_REGISTRY/t4c/client/ease:$DOCKER_TAG \
+        --build-arg BUILD_TYPE=offline \
+        --build-arg BASE_IMAGE=$BASE_IMAGE \
+        ease
     - *push
 
 t4c/client/ease/remote:
@@ -409,9 +462,9 @@ t4c/client/ease/remote:
     - *docker
     - |
       docker build $DOCKER_BUILD_ARGS \
-      -t $IMAGE:$DOCKER_TAG \
-      --build-arg BASE_IMAGE=$BASE_IMAGE \
-      remote
+        -t $IMAGE:$DOCKER_TAG \
+        --build-arg BASE_IMAGE=$BASE_IMAGE \
+        remote
     - *push
 
 t4c/client/ease/remote/debug:
@@ -432,10 +485,10 @@ t4c/client/ease/remote/debug:
     - mv ../ease/debug/code.deb ease/debug/libs/code.deb
     - |
       docker build $DOCKER_BUILD_ARGS \
-      -t $IMAGE:$DOCKER_TAG \
-      --build-arg NETWORK_ACCESS=restricted \
-      --build-arg BASE_IMAGE=$BASE_IMAGE \
-      ease/debug
+        -t $IMAGE:$DOCKER_TAG \
+        --build-arg NETWORK_ACCESS=restricted \
+        --build-arg BASE_IMAGE=$BASE_IMAGE \
+        ease/debug
     - *push
 
 jupyter:
@@ -455,7 +508,7 @@ jupyter:
     - *docker
     - |
       docker build $DOCKER_BUILD_ARGS \
-      -t $IMAGE:$DOCKER_TAG \
-      --build-arg BASE_IMAGE=$BASE_IMAGE \
-      jupyter-notebook
+        -t $IMAGE:$DOCKER_TAG \
+        --build-arg BASE_IMAGE=$BASE_IMAGE \
+        jupyter-notebook
     - *push

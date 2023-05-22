@@ -4,10 +4,6 @@
 from __future__ import annotations
 
 import logging
-import pathlib
-import shutil
-import subprocess
-import typing as t
 
 import conftest
 import pytest
@@ -18,22 +14,6 @@ log.setLevel("DEBUG")
 
 pytestmark = pytest.mark.t4c_server
 
-ENTRYPOINT: str = "/test-project/test-project.aird"
-
-SUBPROCESS_DEFAULT_ARGS: dict[str, t.Any] = {
-    "check": True,
-    "text": True,
-    "capture_output": True,
-}
-
-
-@pytest.fixture(name="init_git_server")
-def fixture_init_git_server(git_http_port: str, tmp_path: pathlib.Path):
-    _checkout_git_repository(git_http_port, tmp_path)
-    _copy_test_project_into_git_repo(tmp_path)
-    _commit_and_push_git_repo(tmp_path)
-    yield
-
 
 @pytest.fixture(name="t4c_exporter_git_env")
 def fixture_t4c_exporter_git_env(
@@ -42,7 +22,9 @@ def fixture_t4c_exporter_git_env(
     request: pytest.FixtureRequest,
 ) -> dict[str, str]:
     env: dict[str, str] = (
-        t4c_exporter_env | git_general_env | {"ENTRYPOINT": ENTRYPOINT}
+        t4c_exporter_env
+        | git_general_env
+        | {"ENTRYPOINT": conftest.ENTRYPOINT}
     )
 
     if hasattr(request, "param"):
@@ -58,12 +40,15 @@ def fixture_t4c_exporter_git_env(
 @pytest.fixture(name="t4c_exporter_container")
 def fixture_t4c_exporter_container(
     t4c_exporter_git_env: dict[str, str],
+    t4c_ip_addr: str,
     t4c_http_port: str,
     init_t4c_server_repo: None,  # pylint: disable=unused-argument
     init_git_server: None,  # pylint: disable=unused-argument
 ) -> containers.Container:
     if conftest.is_capella_6_x_x():
-        assert not conftest.get_projects_of_t4c_repository(t4c_http_port)
+        assert not conftest.get_projects_of_t4c_repository(
+            t4c_ip_addr, t4c_http_port
+        )
 
     with conftest.get_container(
         image="t4c/client/exporter", environment=t4c_exporter_git_env
@@ -76,7 +61,9 @@ def fixture_t4c_exporter_container(
     reason="Exporter does not work for capella 5.x.x",
 )
 def test_export_model_happy(
-    t4c_exporter_container: containers.Container, t4c_http_port: str
+    t4c_exporter_container: containers.Container,
+    t4c_ip_addr: str,
+    t4c_http_port: str,
 ):
     conftest.wait_for_container(
         t4c_exporter_container,
@@ -85,7 +72,7 @@ def test_export_model_happy(
 
     t4c_projects: list[
         dict[str, str]
-    ] = conftest.get_projects_of_t4c_repository(t4c_http_port)
+    ] = conftest.get_projects_of_t4c_repository(t4c_ip_addr, t4c_http_port)
 
     assert len(t4c_projects) == 1
 
@@ -131,76 +118,3 @@ def test_export_model_5_x_x_unhappy(
 ):
     with pytest.raises(RuntimeError):
         conftest.wait_for_container(t4c_exporter_container, "Export finished")
-
-
-def _checkout_git_repository(server_port: str, path: pathlib.Path):
-    subprocess.run(  # pylint: disable=subprocess-run-check
-        [
-            "git",
-            "clone",
-            f"http://127.0.0.1:{server_port}/git/git-test-repo.git",
-            path,
-        ],
-        **SUBPROCESS_DEFAULT_ARGS,
-    )
-    subprocess.run(  # pylint: disable=subprocess-run-check
-        ["git", "switch", "-c", conftest.GIT_REPO_BRANCH],
-        cwd=path,
-        **SUBPROCESS_DEFAULT_ARGS,
-    )
-
-
-def _copy_test_project_into_git_repo(git_path: pathlib.Path):
-    target_dir: pathlib.Path = pathlib.Path(
-        git_path,
-        str(pathlib.Path(ENTRYPOINT).parent).lstrip("/"),
-    )
-    target_dir.mkdir(exist_ok=True, parents=True)
-
-    project_dir: pathlib.Path = (
-        pathlib.Path(__file__).parents[0] / "data" / "test-project"
-    )
-
-    for file in project_dir.glob("*"):
-        if not str(file).endswith("license"):
-            shutil.copy2(file, target_dir)
-
-
-def _commit_and_push_git_repo(path: pathlib.Path):
-    subprocess_shared_args: dict[str, t.Any] = SUBPROCESS_DEFAULT_ARGS | {
-        "cwd": path
-    }
-
-    subprocess.run(  # pylint: disable=subprocess-run-check
-        [
-            "git",
-            "config",
-            "user.email",
-            conftest.GIT_EMAIL,
-        ],
-        **subprocess_shared_args,
-    )
-
-    subprocess.run(  # pylint: disable=subprocess-run-check
-        ["git", "config", "user.name", conftest.GIT_USERNAME],
-        **subprocess_shared_args,
-    )
-
-    subprocess.run(  # pylint: disable=subprocess-run-check
-        ["git", "add", "."], **subprocess_shared_args
-    )
-
-    subprocess.run(  # pylint: disable=subprocess-run-check
-        ["git", "commit", "--message", "test: Exporter test"],
-        **subprocess_shared_args,
-    )
-
-    subprocess.run(  # pylint: disable=subprocess-run-check
-        ["git", "push", "origin", conftest.GIT_REPO_BRANCH],
-        env={
-            "GIT_USERNAME": conftest.GIT_USERNAME,
-            "GIT_PASSWORD": conftest.GIT_PASSWORD,
-            "GIT_ASKPASS": "/etc/git_askpass.py",
-        },
-        **subprocess_shared_args,
-    )

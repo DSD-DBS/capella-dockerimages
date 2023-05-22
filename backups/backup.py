@@ -23,12 +23,11 @@ def run_importer_script() -> None:
 
     connection_type: str = get_connection_type()
 
-    command: list[str] = ["/opt/capella/capella"]
-
-    if is_capella_5_x_x():
-        command.append("--launcher.suppressErrors")
-
-    command += [
+    command: list[str] = [
+        "/opt/capella/capella",
+        "--launcher.suppressErrors",
+        "-nosplash",
+        "-console",
         "-consoleLog",
         "-data",
         "workspace",
@@ -73,6 +72,8 @@ def run_importer_script() -> None:
             "-httpPort",
             http_port,
         ]
+
+    log.info("Executing the following command: %s", " ".join(command))
 
     stderr = None
     stdout = ""
@@ -134,7 +135,7 @@ def run_importer_script() -> None:
     log.info("Import of model from TeamForCapella server finished")
 
 
-def checkout_git_repository() -> pathlib.Path:
+def clone_git_repository() -> pathlib.Path:
     git_dir = pathlib.Path("/tmp/git")
     git_dir.mkdir(exist_ok=True)
 
@@ -328,8 +329,8 @@ if __name__ == "__main__":
     if file_handler == "local":
         pass
     else:  # USE GIT
-        _git_dir = checkout_git_repository()
+        _git_dir = clone_git_repository()
         copy_exported_files_into_git_repo(_project_dir)
         git_commit_and_push(_git_dir)
 
-    log.info("Import of model from TeamForCapella server finished")
+    log.info("Backup of model finished")

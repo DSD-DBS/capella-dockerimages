@@ -8,8 +8,6 @@ import logging
 import os
 import pathlib
 import shutil
-import tarfile
-import time
 
 import capellambse
 import capellambse.decl
@@ -27,9 +25,13 @@ TECHUSER_UID: str | int = os.getenv("TECHUSER_UID", "")
 
 @pytest.fixture(name="t4c_exporter_local_env")
 def fixture_t4c_exporter_local_env(
-    t4c_exporter_env: dict[str, str]
+    t4c_exporter_env: dict[str, str],
+    t4c_ip_addr: str,
 ) -> dict[str, str]:
-    return t4c_exporter_env | {"FILE_HANDLER": "local"}
+    return t4c_exporter_env | {
+        "FILE_HANDLER": "local",
+        "no_proxy": t4c_ip_addr,
+    }
 
 
 @pytest.fixture(name="model_export_import_diff_path")
@@ -66,7 +68,7 @@ def test_export_locally(
     data_dir: pathlib.Path = pathlib.Path(__file__).parents[0] / "data"
 
     copy_model_files_to_directory(
-        model_dir=data_dir / conftest.T4C_PROJECT_NAME,
+        model_dir=data_dir / conftest.CAPELLA_VERSION,
         tar_dir=export_path,
     )
 
@@ -101,24 +103,15 @@ def test_export_locally(
 
 
 def import_model(model_dir: pathlib.Path, env: dict[str, str]):
-    model_tar_path: pathlib.Path = model_dir / "imported_model.tar"
-
     with conftest.get_container(
         image="t4c/client/backup",
         environment=env,
     ) as container:
-        conftest.wait_for_container(
-            container, "Import of model from TeamForCapella server finished"
+        conftest.wait_for_container(container, "Backup of model finished")
+
+        conftest.extract_container_dir_to_local_dir(
+            container.id, "/tmp/model/", model_dir
         )
-        strm, _ = conftest.client.api.get_archive(container.id, "/tmp/model/")
-
-        with open(file=model_tar_path, mode="wb") as tar_file:
-            for chunk in strm:
-                tar_file.write(chunk)
-
-        with tarfile.open(name=model_tar_path, mode="r") as tar_file:
-            for member in tar_file.getmembers():
-                tar_file.extract(member, path=model_dir)
 
         shutil.copytree(
             model_dir / "model" / conftest.T4C_PROJECT_NAME,
@@ -127,15 +120,26 @@ def import_model(model_dir: pathlib.Path, env: dict[str, str]):
 
 
 def export_model(model_dir: pathlib.Path, env: dict[str, str]):
+    model_tar = model_dir / "model.tar"
+
+    conftest.create_tarfile(
+        destination_path=model_tar, source_dir=model_dir, arcname="data"
+    )
+
     with conftest.get_container(
-        image="t4c/client/exporter",
-        volumes=conftest.create_volume(model_dir, "/tmp/data"),
-        environment=env,
+        image="t4c/client/exporter", environment=env, entrypoint=["/bin/bash"]
     ) as container:
+        # We can't just mount the test data as a volume as this will cause problems
+        # when as we are running Docker in Docker (i.e., we would mount the
+        # volume on the host machine but not on the container running the job/test)
+        with open(file=model_tar, mode="rb") as tar_file:
+            conftest.client.api.put_archive(container.id, "/tmp", tar_file)
+
         conftest.wait_for_container(
-            container, "Export of model to TeamForCapella server finished"
+            container,
+            "Export of model to TeamForCapella server finished",
+            cmd="xvfb-run python /opt/scripts/exporter.py",
         )
-        time.sleep(4)
 
 
 def copy_model_files_to_directory(

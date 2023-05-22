@@ -65,9 +65,7 @@ def fixture_container_success(
         },
     }[success_mode]
     with conftest.get_container(
-        image="t4c/client/remote",
-        environment=env,
-        volumes=conftest.create_volume(tmp_path, "/opt/capella/configuration"),
+        image="t4c/client/remote", environment=env
     ) as container:
         yield container
 
@@ -123,7 +121,16 @@ def test_repositories_seeding(
         container_success, "INFO success: xrdp-sesman entered RUNNING state"
     )
 
-    path = tmp_path / "fr.obeo.dsl.viewpoint.collab" / "repository.properties"
+    conftest.extract_container_dir_to_local_dir(
+        container_success.id, "/opt/capella/configuration", tmp_path
+    )
+
+    path = (
+        tmp_path
+        / "configuration"
+        / "fr.obeo.dsl.viewpoint.collab"
+        / "repository.properties"
+    )
     assert path.exists()
     file_content = path.read_text()
 
