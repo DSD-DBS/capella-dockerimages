@@ -528,6 +528,50 @@ t4c/client/ease/remote/debug:
         ease/debug
     - *push
 
+eclipse/base:
+  stage: build
+  needs:
+    - job: base
+      optional: true
+  rules:
+    - if: '$ECLIPSE_BASE == "1"'
+      when: always
+  variables:
+    BASE_IMAGE: base2
+    IMAGE: eclipse/base
+  script:
+    - *prepare-eclipse
+    - *docker
+    - mv ../eclipse.tar.gz ./eclipse/versions/$ECLIPSE_VERSION/$BUILD_ARCHITECTURE/eclipse.tar.gz
+    - |
+      docker build $DOCKER_BUILD_ARGS \
+        -t ${IMAGE}:${DOCKER_TAG} \
+        --build-arg ECLIPSE_VERSION=${ECLIPSE_VERSION} \
+        --build-arg BASE_IMAGE=${BASE_IMAGE} \
+        eclipse
+    - *push
+
+eclipse/remote:
+  stage: build
+  needs:
+    - job: eclipse/base
+      optional: true
+  rules:
+    - if: '$ECLIPSE_REMOTE == "1"'
+      when: always
+  variables:
+    BASE_IMAGE: eclipse/base
+    IMAGE: eclipse/remote
+  script:
+    - *prepare-eclipse
+    - *docker
+    - |
+      docker build $DOCKER_BUILD_ARGS \
+        -t ${IMAGE}:${DOCKER_TAG} \
+        --build-arg BASE_IMAGE=$BASE_IMAGE \
+        remote
+    - *push
+
 papyrus/base:
   stage: build
   needs:

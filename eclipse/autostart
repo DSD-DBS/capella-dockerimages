@@ -1,0 +1,18 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# Autostart script for OpenBox
+
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+if [ "$AUTOSTART_ECLIPSE" = "1" ];
+then
+    if [ "$RESTART_ECLIPSE" = "1" ];
+    then
+        # Restart Eclipse automatically
+        ( while true; do /opt/eclipse/eclipse -data /workspace > /var/log/eclipse.stdout.log 2> /var/log/eclipse.stderr.log; sleep 1; done ) &
+    else
+        /opt/eclipse/eclipse -data /workspace > /var/log/eclipse.stdout.log 2> /var/log/eclipse.stderr.log &
+    fi
+fi

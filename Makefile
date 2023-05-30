@@ -84,6 +84,8 @@ export DOCKER_TAG_SCHEMA ?= $$CAPELLA_VERSION-$$CAPELLA_DOCKERIMAGES_REVISION
 
 PAPYRUS_VERSION ?= 6.4.0
 
+ECLIPSE_VERSION ?= 4.27
+
 # Should be 'latest', the branch name, the commit hash or a Git tag name
 export CAPELLA_DOCKERIMAGES_REVISION ?= latest
 export JUPYTER_NOTEBOOK_REVISION ?= python-3.11
@@ -195,6 +197,14 @@ papyrus/base: base
 		papyrus
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
+eclipse/base: base
+	docker build $(DOCKER_BUILD_FLAGS) \
+		-t $(DOCKER_PREFIX)$@:$$DOCKER_TAG \
+		--build-arg BUILD_ARCHITECTURE=$(BUILD_ARCHITECTURE) \
+		--build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(CAPELLA_DOCKERIMAGES_REVISION) \
+		--build-arg ECLIPSE_VERSION=$(ECLIPSE_VERSION) \
+		eclipse
+	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
 capella/cli: SHELL=./capella_loop.sh
 capella/cli: capella/base
@@ -208,6 +218,14 @@ capella/remote: capella/base
 
 papyrus/remote: DOCKER_TAG=$(PAPYRUS_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
 papyrus/remote: papyrus/base
+	docker build $(DOCKER_BUILD_FLAGS) \
+		-t $(DOCKER_PREFIX)$@:$$DOCKER_TAG \
+		--build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG \
+		remote
+	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
+
+eclipse/remote: DOCKER_TAG=$(ECLIPSE_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
+eclipse/remote: eclipse/base
 	docker build $(DOCKER_BUILD_FLAGS) \
 		-t $(DOCKER_PREFIX)$@:$$DOCKER_TAG \
 		--build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG \
@@ -299,6 +317,15 @@ run-papyrus/remote: papyrus/remote
 		-p $(RDP_PORT):3389 \
 		-p $(METRICS_PORT):9118 \
 		$(DOCKER_PREFIX)papyrus/remote:$(DOCKER_TAG)
+
+run-eclipse/remote: DOCKER_TAG=$(ECLIPSE_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
+run-eclipse/remote: eclipse/remote
+	docker run \
+		-e RMT_PASSWORD=$(RMT_PASSWORD) \
+		-p $(RDP_PORT):3389 \
+		-p $(METRICS_PORT):9118 \
+		$(DOCKER_PREFIX)eclipse/remote:$(DOCKER_TAG)
+
 
 run-capella/readonly: capella/readonly
 	docker run $(DOCKER_RUN_FLAGS) \
