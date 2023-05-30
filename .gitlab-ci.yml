@@ -1,0 +1,59 @@
+include: "/ci-templates/gitlab/release-train.yml"
+
+.staging: &staging
+  rules:
+    # For commits on the main branch, build for the staging environment
+    - if: '$CI_COMMIT_REF_NAME == "main"'
+    - when: manual
+  variables:
+    ENVIRONMENT: staging
+    CAPELLA_DOCKER_IMAGES_REVISION: "$CI_COMMIT_REF_NAME"
+    IMAGE_BUILDER_GITLAB_REPOSITORY: "$IMAGE_BUILDER_GITLAB_REPOSITORY"
+    BUILD_FOR_LATEST_TAG: "0"
+    DOCKER_BUILD_ARGS: "" # Enable Docker build cache
+
+.production: &production
+  rules:
+    # For tags, build for the production environment
+    - if: "$CI_COMMIT_TAG != null"
+  variables:
+    ENVIRONMENT: production
+    CAPELLA_DOCKER_IMAGES_REVISION: "$CI_COMMIT_REF_NAME"
+    IMAGE_BUILDER_GITLAB_REPOSITORY: "$IMAGE_BUILDER_GITLAB_REPOSITORY"
+    BUILD_FOR_LATEST_TAG: "1"
+
+production-base:
+  extends: .base
+  <<: *production
+
+production-jupyter:
+  extends: .jupyter
+  needs:
+    - job: production-base
+      optional: true
+  <<: *production
+
+production-capella:
+  extends: .capella
+  needs:
+    - job: production-base
+      optional: true
+  <<: *production
+
+staging-base:
+  extends: .base
+  <<: *staging
+
+staging-jupyter:
+  extends: .jupyter
+  needs:
+    - job: staging-base
+      optional: true
+  <<: *staging
+
+staging-capella:
+  extends: .capella
+  needs:
+    - job: staging-base
+      optional: true
+  <<: *staging
