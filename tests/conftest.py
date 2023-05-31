@@ -56,6 +56,7 @@ ENTRYPOINT: str = f"/{CAPELLA_VERSION}/test-project.aird"
 def fixture_git_container() -> containers.Container:
     with get_container(
         image="local-git-server",
+        image_prefix="",
         image_tag=os.getenv("LOCAL_GIT_TAG", None),
         ports={"80/tcp": None} if DOCKER_NETWORK == "host" else None,
     ) as container:
@@ -133,8 +134,12 @@ def fixture_t4c_server_container(
         )
         wait_for_message = "!MESSAGE Warmup done for repository"
 
+    if image_prefix := os.getenv("T4C_SERVER_REGISTRY", None):
+        image_prefix += "/"
+
     with get_container(
         image="t4c/server/server",
+        image_prefix=image_prefix,
         image_tag=os.getenv("T4C_SERVER_TAG", None),
         environment=t4c_server_env,
         ports={"8080/tcp": None} if DOCKER_NETWORK == "host" else None,
@@ -201,14 +206,14 @@ def fixture_init_t4c_server_repo(t4c_ip_addr: str, t4c_http_port: str):
 @contextlib.contextmanager
 def get_container(
     image: str,
+    image_prefix: str | None = None,
     image_tag: str | None = None,
     ports: dict[str, int | None] | None = None,
     environment: dict[str, str] | None = None,
     volumes: dict[str, dict[str, str]] | None = None,
     entrypoint: list[str] | None = None,
 ) -> cabc.Iterator[containers.Container]:
-    docker_prefix = os.getenv("DOCKER_PREFIX", "")
-
+    docker_prefix = image_prefix or os.getenv("DOCKER_PREFIX", "")
     docker_tag = image_tag or os.getenv("DOCKER_TAG", "latest")
 
     image = f"{docker_prefix}{image}:{docker_tag}"
