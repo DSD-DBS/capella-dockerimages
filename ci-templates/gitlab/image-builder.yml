@@ -94,7 +94,6 @@ default:
   - docker pull $BASE_IMAGE
 
 .push: &push
-  - 'if [ "$ENVIRONMENT" = "production" -a -z "$CI_COMMIT_TAG" ]; then echo "You can only push to production when running the pipeline on a tag!" && exit 1; fi'
   - docker push $IMAGE:$DOCKER_TAG
 
 .ease: &ease

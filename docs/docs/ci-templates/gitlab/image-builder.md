@@ -36,7 +36,7 @@ In addition, you have to add the following environment variables on repository l
 Make sure to enable the "Expand variable reference" flag.
 
 - `CAPELLA_DOCKER_IMAGES_REVISION`: Revision of this Github repository.
-- `ENVIRONMENT`: Specifies the environemnt. We have included a safety gate, such that you are only able to push to the "production" environment on tags. In addition, you need to have the following variables for each environment:
+- `ENVIRONMENT`: Specifies the environment. In addition, you need to have the following variables for each environment:
   - `UID_${ENVIRONMENT}`: The user ID which will be used for the technical user.
   - Variables related to the Docker registry (all parameters are passed to `docker login`):
     - `DOCKER_REGISTRY_${ENVIRONMENT}`: The URL to the Docker registry
