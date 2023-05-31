@@ -27,4 +27,7 @@ COPY ./autostart /home/techuser/.config/openbox/autostart
 ENV AUTOSTART_PAPYRUS=1
 ENV RESTART_PAPYRUS=1
 
+ENV ECLIPSE_INSTALLATION_PATH=/opt/Papyrus
+ENV ECLIPSE_EXECUTABLE=/opt/Papyrus/papyrus
+
 ENV BASE_TYPE=papyrus
