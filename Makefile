@@ -90,7 +90,7 @@ ECLIPSE_VERSION ?= 4.27
 export CAPELLA_DOCKERIMAGES_REVISION ?= latest
 export JUPYTER_NOTEBOOK_REVISION ?= python-3.11
 
-PURE_VARIANTS_VERSION ?= 6.0.0
+PURE_VARIANTS_VERSION ?= 6.0.1
 
 # UID which is used for the techuser in the Docker images
 export TECHUSER_UID = 1004370000
@@ -231,6 +231,16 @@ eclipse/remote: eclipse/base
 		remote
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
+eclipse/remote/pure-variants: DOCKER_TAG=$(ECLIPSE_VERSION)-$(PURE_VARIANTS_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
+eclipse/remote/pure-variants: eclipse/remote
+	docker build $(DOCKER_BUILD_FLAGS) \
+		-t $(DOCKER_PREFIX)$@:$$DOCKER_TAG \
+		--build-arg BUILD_TYPE=$(PURE_VARIANTS_BUILD_TYPE) \
+		--build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(ECLIPSE_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION) \
+		--build-arg PURE_VARIANTS_VERSION=$(PURE_VARIANTS_VERSION) \
+		pure-variants
+	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
+
 t4c/client/base: SHELL=./capella_loop.sh
 t4c/client/base: capella/base
 	envsubst < t4c/.dockerignore.template > t4c/.dockerignore
@@ -317,6 +327,19 @@ run-eclipse/remote: eclipse/remote
 		-p $(RDP_PORT):3389 \
 		-p $(METRICS_PORT):9118 \
 		$(DOCKER_PREFIX)eclipse/remote:$(DOCKER_TAG)
+
+run-eclipse/remote/pure-variants: DOCKER_TAG=$(ECLIPSE_VERSION)-$(PURE_VARIANTS_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
+run-eclipse/remote/pure-variants: eclipse/remote/pure-variants
+	docker run $(DOCKER_RUN_FLAGS) \
+		-e RMT_PASSWORD=$(RMT_PASSWORD) \
+		-e PURE_VARIANTS_LICENSE_SERVER=$(PURE_VARIANTS_LICENSE_SERVER) \
+		-v $$(pwd)/volumes/pure-variants:/inputs/pure-variants \
+		-v $$(pwd)/volumes/workspace:/workspace \
+		-v $$(pwd)/pure-variants/versions:/opt/versions \
+		-p $(RDP_PORT):3389 \
+		-p $(METRICS_PORT):9118 \
+		--rm \
+		$(DOCKER_PREFIX)eclipse/remote/pure-variants:$(DOCKER_TAG)
 
 
 run-capella/readonly: capella/readonly

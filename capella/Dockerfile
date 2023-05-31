@@ -122,6 +122,8 @@ RUN echo '-Dosgi.configuration.area=file:/opt/capella/configuration' >> /opt/cap
 COPY setup_workspace.py /opt/setup/setup_welcome_screen.py
 COPY replace_env_variables.sh /opt/setup/replace_env_variables.sh
 
+ENV ECLIPSE_INSTALLATION_PATH=/opt/capella
+ENV ECLIPSE_EXECUTABLE=/opt/capella/capella
 
 COPY ./autostart /home/techuser/.config/openbox/autostart
 

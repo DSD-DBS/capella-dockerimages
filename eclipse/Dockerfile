@@ -24,11 +24,15 @@ RUN  mkdir /workspace; \
     mkdir -p /workspace/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.ui.prefs; \
     # Set workspace permissions
     chown -R techuser /workspace && \
-    chmod +x eclipse/eclipse
+    chmod +x eclipse/eclipse && \
+    chown -R techuser /opt/eclipse
 
 COPY ./autostart /home/techuser/.config/openbox/autostart
 
 ENV AUTOSTART_ECLIPSE=1
 ENV RESTART_ECLIPSE=1
+
+ENV ECLIPSE_INSTALLATION_PATH=/opt/eclipse
+ENV ECLIPSE_EXECUTABLE=/opt/eclipse/eclipse
 
 ENV BASE_TYPE=eclipse

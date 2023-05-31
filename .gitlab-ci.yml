@@ -47,6 +47,13 @@ production-papyrus:
       optional: true
   <<: *production
 
+production-eclipse:
+  extends: .eclipse
+  needs:
+    - job: production-base
+      optional: true
+  <<: *production
+
 staging-base:
   extends: .base
   <<: *staging
@@ -67,6 +74,13 @@ staging-capella:
 
 staging-papyrus:
   extends: .papyrus
+  needs:
+    - job: staging-base
+      optional: true
+  <<: *staging
+
+staging-eclipse:
+  extends: .eclipse
   needs:
     - job: staging-base
       optional: true
