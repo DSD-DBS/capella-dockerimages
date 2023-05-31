@@ -36,11 +36,12 @@ In addition, you have to add the following environment variables on repository l
 Make sure to enable the "Expand variable reference" flag.
 
 - `CAPELLA_DOCKER_IMAGES_REVISION`: Revision of this Github repository.
-- `UID_ENV`: The user ID which will be used for the technical user.
-- Variables related to the Docker registry (all parameters are passed to `docker login`):
-  - `DOCKER_REGISTRY`: The URL to the Docker registry
-  - `DOCKER_REGISTRY_USER`: Username of a techuser with push permission to the Docker registry
-  - `DOCKER_REGISTRY_PASSWORD`: Corresponding password of the techuser
+- `ENVIRONMENT`: Specifies the environemnt. We have included a safety gate, such that you are only able to push to the "production" environment on tags. In addition, you need to have the following variables for each environment:
+  - `UID_${ENVIRONMENT}`: The user ID which will be used for the technical user.
+  - Variables related to the Docker registry (all parameters are passed to `docker login`):
+    - `DOCKER_REGISTRY_${ENVIRONMENT}`: The URL to the Docker registry
+    - `DOCKER_REGISTRY_USER_${ENVIRONMENT}`: Username of a techuser with push permission to the Docker registry
+    - `DOCKER_REGISTRY_PASSWORD_${ENVIRONMENT}`: Corresponding password of the techuser
 - `T4C_SERVER_REGISTRY`: Docker registry which contains the required t4c server image
 - `T4C_SERVER_TAG`: Docker tag that is used for the t4c server image
 - `T4C_SERVER_TEST_DATA_REPO`: Link to a Git repository containing t4c test data needed to run the backup tests.
@@ -50,27 +51,34 @@ Make sure to enable the "Expand variable reference" flag.
 The tree inside of your Gitlab repository should look like:
 
 ```zsh
-├── 5.0.0
-│   ├── capella.tar.gz
-│   ├── dropins
-│   ├── ease
-│   └── updateSite
-├── 5.2.0
-│   ├── capella.tar.gz
-│   ├── dropins
-│   ├── ease
-│   └── updateSite
-├── 6.0.0
-│   ├── capella.tar.gz
-│   ├── dropins
-│   ├── ease
-│   └── updateSite
-├── libs
-│   ├── libicu66_66.1-2ubuntu2_amd64.deb
-│   ├── libjavascriptcoregtk-4.0-18_2.28.1-1_amd64.deb
-│   ├── libjpeg-turbo8_2.0.3-0ubuntu1.20.04.1_amd64.deb
-│   ├── libjpeg8_8c-2ubuntu8_amd64.deb
-│   └── libwebkit2gtk-4.0-37_2.28.1-1_amd64.deb
+├── capella
+│   ├── libs
+│   │   ├── libicu66_66.1-2ubuntu2_amd64.deb
+│   │   ├── libjavascriptcoregtk-4.0-18_2.28.1-1_amd64.deb
+│   │   ├── libjpeg-turbo8_2.0.3-0ubuntu1.20.04.1_amd64.deb
+│   │   ├── libjpeg8_8c-2ubuntu8_amd64.deb
+│   │   └── libwebkit2gtk-4.0-37_2.28.1-1_amd64.deb
+│   └── versions
+│       ├── 5.0.0
+│       │   ├── capella.tar.gz
+│       │   ├── dropins
+│       │   ├── ease
+│       │   └── updateSite
+│       ├── 5.2.0
+│       │   ├── capella.tar.gz
+│       │   ├── dropins
+│       │   ├── ease
+│       │   └── updateSite
+│       ├── 6.0.0
+│       │   ├── capella.tar.gz
+│       │   ├── dropins
+│       │   ├── ease
+│       │   └── updateSite
+│       └── 6.1.0
+│           ├── capella.tar.gz
+│           ├── dropins
+│           ├── ease
+│           └── updateSite
 └── pure-variants
     ├── dependencies
     └── updateSite
