@@ -20,6 +20,8 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     obconf \
     gettext-base \
     xprintidle \
+    x11vnc \
+    xvfb \
     nitrogen && rm -rf /var/lib/apt/lists/*
 
 COPY rc.xml /etc/xdg/openbox/rc.xml

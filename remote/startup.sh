@@ -24,4 +24,8 @@ done
 # Replace environment variables in capella.ini, e.g. licences
 envsubst < /opt/capella/capella.ini > /tmp/capella.ini && mv /tmp/capella.ini /opt/capella/capella.ini;
 
+mkdir ~/.vnc
+echo $RMT_PASSWORD > ~/.vnc/passwdfile
+
+Xvfb :99 -screen 0 1920x1080x8 -nolisten tcp &
 exec supervisord

@@ -64,6 +64,9 @@ GIT_PASSWORD ?= password
 # Preferred RDP port on your host system
 RDP_PORT ?= 3390
 
+# Preferred VNC port on your host system
+VNC_PORT ?= 5900
+
 # Preferred metrics port on your host system
 METRICS_PORT ?= 9118
 
@@ -260,6 +263,14 @@ capella/builder:
 run-capella/base: capella/base
 	docker run $(DOCKER_RUN_FLAGS) \
 		$(DOCKER_PREFIX)capella/base:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
+
+run-capella/remote: capella/remote
+	docker run $(DOCKER_RUN_FLAGS) \
+		-e RMT_PASSWORD=$(RMT_PASSWORD) \
+		-p $(RDP_PORT):3389 \
+		-p $(VNC_PORT):5900 \
+		-p $(METRICS_PORT):9118 \
+		$(DOCKER_PREFIX)capella/remote:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
 
 run-capella/readonly: capella/readonly
 	docker run $(DOCKER_RUN_FLAGS) \
