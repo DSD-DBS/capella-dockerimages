@@ -8,9 +8,6 @@ variables:
   CAPELLA_BASE:
     value: "0"
     description: "Build the capella/base image?"
-  CAPELLA_CLI:
-    value: "0"
-    description: "Build the capella/cli image?"
   CAPELLA_REMOTE:
     value: "0"
     description: "Build the capella/remote image?"
@@ -255,27 +252,6 @@ capella/base:
         --build-arg BUILD_ARCHITECTURE="$BUILD_ARCHITECTURE" \
         --build-arg BASE_IMAGE=$BASE_IMAGE \
         capella
-    - *push
-
-capella/cli:
-  stage: build
-  needs:
-    - job: capella/base
-      optional: true
-  rules:
-    - if: '$CAPELLA_CLI == "1"'
-      when: always
-  variables:
-    BASE_IMAGE: capella/base
-    IMAGE: capella/cli
-  script:
-    - *prepare-capella
-    - *docker
-    - |
-      docker build $DOCKER_BUILD_ARGS \
-        -t $IMAGE:$DOCKER_TAG \
-        --build-arg BASE_IMAGE=$BASE_IMAGE \
-        cli
     - *push
 
 capella/remote:
