@@ -7,7 +7,7 @@
 
 <!-- prettier-ignore -->
 !!! info
-    The Docker image name for this image is `capella/cli` / `t4c/client/cli`
+    The Docker image name for this image is `capella/base` / `t4c/client/base`
 
 The CLI images are meant to have a containerised Capella (with and without a
 Team for Capella client) that can be run headless (as command line interface).
@@ -24,7 +24,7 @@ Capella provides some [CLI interfaces](https://github.com/eclipse/capella/blob/m
 ## Use the prebuilt image
 
 ```
-docker run ghcr.io/dsd-dbs/capella-dockerimages/capella/cli:$TAG
+docker run ghcr.io/dsd-dbs/capella-dockerimages/capella/base:$TAG
 ```
 
 where `$TAG` is the Docker tag. For more information, have a look at our [tagging schema](introduction.md#tagging-schema-for-prebuilt-images).
@@ -35,20 +35,17 @@ Please check the [`Run the container`](#run-the-container) section for more info
 
 ### Build it manually with Docker
 
-You can build a CLI image with the following command,
-whereby you replace `$BASE` with `capella` or `t4c/client`.
+You can build a CLI image with the following command.
 
 ```zsh
-docker build -t $BASE/cli --build-arg BASE_IMAGE=$BASE/base cli
+docker build -t capella/base capella
 ```
 
 ## Run the container
 
 ```zsh
-docker run $BASE/cli -nosplash -consolelog -application APPLICATION -appid APPID [...]
+docker run capella/base -nosplash -consolelog -application APPLICATION -appid APPID [...]
 ```
-
-with `$BASE` being one out of `capella` or `t4c/client`.
 
 ### Example to export representations (diagrams) as SVG images
 
@@ -62,7 +59,7 @@ Exported diagrams will appear on the host machine at
 ```zsh
 docker run --rm -it \
   -v /path/to/model:/model \
-  capella/cli \
+  capella/base \
   -nosplash \
   -consolelog \
   -application org.polarsys.capella.core.commandline.core \
