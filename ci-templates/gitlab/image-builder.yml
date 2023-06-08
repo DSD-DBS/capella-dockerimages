@@ -573,11 +573,13 @@ eclipse/base:
     - *prepare-eclipse
     - *docker
     - mv ../eclipse.tar.gz ./eclipse/versions/$ECLIPSE_VERSION/$BUILD_ARCHITECTURE/eclipse.tar.gz
+    - mv ../../../egit/* ./eclipse/egit/
     - |
       docker build $DOCKER_BUILD_ARGS \
         -t ${IMAGE}:${DOCKER_TAG} \
         --build-arg ECLIPSE_VERSION=${ECLIPSE_VERSION} \
         --build-arg BASE_IMAGE=${BASE_IMAGE} \
+        --build-arg BUILD_TYPE=offline \
         eclipse
     - *push
 
