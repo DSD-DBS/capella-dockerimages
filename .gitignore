@@ -7,6 +7,8 @@ capella/versions/*/*/capella.tar.gz
 capella/versions/*/*/capella.zip
 capella/versions/*/dropins/*
 !capella/versions/*/dropins/.gitkeep
+capella/versions/*/patches/*
+!capella/versions/*/patches/.gitkeep
 capella/.dockerignore
 capella/libs/*
 

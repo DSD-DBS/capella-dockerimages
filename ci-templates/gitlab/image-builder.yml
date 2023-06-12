@@ -234,6 +234,7 @@ capella/base:
     - *docker
     - mv ../capella.tar.gz ./capella/versions/$CAPELLA_VERSION/$BUILD_ARCHITECTURE/capella.tar.gz
     - mv ../dropins/* ./capella/versions/$CAPELLA_VERSION/dropins/
+    - mv ../patches/* ./capella/versions/$CAPELLA_VERSION/patches/
     - mv ../../../libs/* ./capella/libs/
     - |
       docker build $DOCKER_BUILD_ARGS \
