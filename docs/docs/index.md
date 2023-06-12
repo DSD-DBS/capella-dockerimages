@@ -14,7 +14,6 @@ For license reasons, we are only able to provide the following prebuilt public i
 - [`base`](base.md)
 - [`capella/base`](capella/base.md) (without dropins or plugins)
 - [`capella/readonly`](capella/readonly.md)
-- [`capella/cli`](capella/cli.md)
 
 If you need another image, please follow the [`Build images locally`](#build-images-locally) or [`Build images in a CI/CD environment`](#build-images-in-a-cicd-environment) instructions.
 
