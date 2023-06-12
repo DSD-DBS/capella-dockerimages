@@ -141,6 +141,7 @@ export DOCKER_BUILDKIT=1
 export MAKE_CURRENT_TARGET=$@
 
 .ONESHELL:
+SHELL=/bin/bash
 
 all: \
 	base \
