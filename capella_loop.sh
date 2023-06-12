@@ -5,7 +5,7 @@
 set -e
 
 # This tries to represent a matrix build
-# When a Make target uses this shell, the target is run for each CAPELLA_VERSION
+# When a Make target uses this shell, the target runs for each CAPELLA_VERSION
 # Please make sure to use environment variables instead of Make variables in the targets.
 # This applies to the following variables:
 # - $$CAPELLA_VERSION instead of $(CAPELLA_VERSION)
