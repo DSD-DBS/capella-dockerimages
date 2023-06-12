@@ -82,6 +82,8 @@ CAPELLA_DROPINS ?= CapellaXHTMLDocGen,DiagramStyler,PVMT,Filtering,Requirements,
 # Only use when "capella_loop.sh" is NOT used
 export DOCKER_TAG_SCHEMA ?= $$CAPELLA_VERSION-$$CAPELLA_DOCKERIMAGES_REVISION
 
+PAPYRUS_VERSION ?= 6.4.0
+
 # Should be 'latest', the branch name, the commit hash or a Git tag name
 export CAPELLA_DOCKERIMAGES_REVISION ?= latest
 export JUPYTER_NOTEBOOK_REVISION ?= python-3.11
@@ -159,7 +161,10 @@ all: \
 
 base: SHELL=/bin/bash
 base:
-	docker build $(DOCKER_BUILD_FLAGS) --build-arg UID=$(TECHUSER_UID) -t $(DOCKER_PREFIX)$@:$(CAPELLA_DOCKERIMAGES_REVISION) base
+	docker build $(DOCKER_BUILD_FLAGS) \
+		--build-arg UID=$(TECHUSER_UID) \
+		-t $(DOCKER_PREFIX)$@:$(CAPELLA_DOCKERIMAGES_REVISION) \
+		base
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) DOCKER_TAG=$(CAPELLA_DOCKERIMAGES_REVISION) IMAGENAME=$@ .push
 
 base: SHELL=/bin/bash
@@ -182,6 +187,15 @@ capella/base: base
 	rm capella/.dockerignore
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
+papyrus/base: base
+	docker build $(DOCKER_BUILD_FLAGS) \
+		-t $(DOCKER_PREFIX)$@:$$DOCKER_TAG \
+		--build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(CAPELLA_DOCKERIMAGES_REVISION) \
+		--build-arg PAPYRUS_VERSION=$(PAPYRUS_VERSION) \
+		papyrus
+	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
+
+
 capella/cli: SHELL=./capella_loop.sh
 capella/cli: capella/base
 	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG cli
@@ -190,6 +204,14 @@ capella/cli: capella/base
 capella/remote: SHELL=./capella_loop.sh
 capella/remote: capella/base
 	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG remote
+	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
+
+papyrus/remote: DOCKER_TAG=$(PAPYRUS_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
+papyrus/remote: papyrus/base
+	docker build $(DOCKER_BUILD_FLAGS) \
+		-t $(DOCKER_PREFIX)$@:$$DOCKER_TAG \
+		--build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG \
+		remote
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
 t4c/client/base: SHELL=./capella_loop.sh
@@ -269,6 +291,15 @@ run-capella/remote: capella/remote
 		-p $(METRICS_PORT):9118 \
 		$(DOCKER_PREFIX)capella/remote:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
 
+run-papyrus/remote: DOCKER_TAG=$(PAPYRUS_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
+run-papyrus/remote: papyrus/remote
+	docker run \
+		--platform linux/amd64 \
+		-e RMT_PASSWORD=$(RMT_PASSWORD) \
+		-p $(RDP_PORT):3389 \
+		-p $(METRICS_PORT):9118 \
+		$(DOCKER_PREFIX)papyrus/remote:$(DOCKER_TAG)
+
 run-capella/readonly: capella/readonly
 	docker run $(DOCKER_RUN_FLAGS) \
 		-p $(RDP_PORT):3389 \
@@ -308,7 +339,6 @@ run-t4c/client/remote-legacy: t4c/client/remote
 		-e RMT_PASSWORD=$(RMT_PASSWORD) \
 		-e T4C_USERNAME=$(T4C_USERNAME) \
 		-p $(RDP_PORT):3389 \
-		-p $(FILESYSTEM_PORT):8000 \
 		-p $(METRICS_PORT):9118 \
 		--name t4c-client-remote-legacy \
 		$(DOCKER_PREFIX)t4c/client/remote:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
@@ -321,7 +351,6 @@ run-t4c/client/remote-json: t4c/client/remote
 		-e RMT_PASSWORD=$(RMT_PASSWORD) \
 		-e T4C_USERNAME=$(T4C_USERNAME) \
 		-p $(RDP_PORT):3389 \
-		-p $(FILESYSTEM_PORT):8000 \
 		-p $(METRICS_PORT):9118 \
 		--name t4c-client-remote-json \
 		$(DOCKER_PREFIX)t4c/client/remote:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
@@ -337,7 +366,6 @@ run-t4c/client/remote/pure-variants: t4c/client/remote/pure-variants
 		-v $$(pwd)/volumes/workspace:/workspace \
 		-e AUTOSTART_CAPELLA=$(AUTOSTART_CAPELLA) \
 		-p $(RDP_PORT):3389 \
-		-p $(FILESYSTEM_PORT):8000 \
 		-p $(METRICS_PORT):9118 \
 		--rm \
 		$(DOCKER_PREFIX)t4c/client/remote/pure-variants:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)

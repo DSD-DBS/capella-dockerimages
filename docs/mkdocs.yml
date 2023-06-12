@@ -38,6 +38,8 @@ nav:
           - Importer: capella/t4c/importer.md
           - Remote: remote.md
           - EASE: ease.md
+  - Papyrus:
+      - Base: papyrus/base.md
   - Remote: remote.md
 
 repo_url: https://github.com/DSD-DBS/capella-dockerimages

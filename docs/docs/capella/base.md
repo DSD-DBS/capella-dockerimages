@@ -65,7 +65,7 @@ capella
 To customise the Capella client you can
 
 1. extract the downloaded archive,
-1. apply any modifications (e. g. installation of plugins and/ or dropins) to it, and
+1. apply any modifications (e.g., installation of plugins and/ or dropins) to it, and
 1. compress the modified folder `capella` to get a `capella.zip` or `capella.tar.gz` again.
 
 ##### Install dropins

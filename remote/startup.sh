@@ -17,11 +17,15 @@ fi
 
 # Run preparation scripts
 for filename in /opt/setup/*.py; do
-    echo "Executing script '$filename'..."
+    [ -e "$filename" ] || continue
+    echo "Executing Python script '$filename'..."
     python3 $filename
 done
 
-# Replace environment variables in capella.ini, e.g. licences
-envsubst < /opt/capella/capella.ini > /tmp/capella.ini && mv /tmp/capella.ini /opt/capella/capella.ini;
+for filename in /opt/setup/*.sh; do
+    [ -e "$filename" ] || continue
+    echo "Executing shell script '$filename'..."
+    /bin/bash $filename
+done
 
 exec supervisord

@@ -31,6 +31,9 @@ pure-variants/versions/*/*
 pure-variants/dependencies/*
 !pure-variants/dependencies/.gitkeep
 
+# Papyrus
+papyrus/versions/*/papyrus.tar.gz
+
 # Tests
 tests/t4c-server-test-data
 

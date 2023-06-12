@@ -40,25 +40,19 @@ RUN id techuser || useradd -l -m -u 1001000000 techuser && echo "techuser:tmp_pa
 
 # Set permissions
 RUN mkdir -p /run/xrdp/sockdir && \
-    chown techuser /opt /opt/capella/capella.ini && \
     chown -R techuser /etc/xrdp /run/xrdp /var/log/xrdp* && \
-    chown techuser /var/log && \
-    chown -R techuser /opt/capella/configuration
+    chown techuser /var/log
 
 WORKDIR /home/techuser
 
 COPY startup.sh .startup.sh
-COPY autostart .config/openbox/autostart
-RUN chmod 755 .startup.sh .config/openbox/autostart
+RUN chmod 755 .startup.sh /home/techuser/.config/openbox/autostart
 
 # Prepare idletime metric endpoint
 RUN pip install prometheus-client
 
 COPY metrics.py .metrics.py
 RUN chown techuser /home/techuser/.metrics.py
-
-ENV AUTOSTART_CAPELLA=1
-ENV RESTART_CAPELLA=1
 
 USER techuser
 ENTRYPOINT [ "/home/techuser/.startup.sh" ]
