@@ -90,6 +90,9 @@ RUN chmod +x capella/capella && \
     chmod -R +x capella/jre/lib && \
     chown -R techuser /opt/capella
 
+COPY patch.sh /opt/patch.sh
+RUN chmod +x /opt/patch.sh
+
 # Install Dropins for Capella
 USER techuser
 
@@ -100,6 +103,9 @@ COPY ./versions/${CAPELLA_VERSION}/dropins.yml /opt/dropins.yml
 RUN echo '-Dorg.eclipse.equinox.p2.transport.ecf.retry=15' >> /opt/capella/capella.ini
 RUN echo '-Dorg.eclipse.ecf.provider.filetransfer.retrieve.readTimeout=10000' >> /opt/capella/capella.ini
 RUN pip install PyYAML && python install_dropins.py
+
+COPY ./versions/${CAPELLA_VERSION}/patches /opt/patches
+RUN PATCH_DIR=/opt/patches /opt/patch.sh
 
 USER root
 
