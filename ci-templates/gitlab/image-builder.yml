@@ -56,6 +56,15 @@ variables:
   PAPYRUS_REMOTE:
     value: "0"
     description: "Build the papyrus/remote image?"
+  ECLIPSE_BASE:
+    value: "0"
+    description: "Build the eclipse/base image?"
+  ECLIPSE_REMOTE:
+    value: "0"
+    description: "Build the eclipse/remote image?"
+  ECLIPSE_REMOTE_PURE_VARIANTS:
+    value: "0"
+    description: "Build the eclipse/remote/pure-variants image?"
   CAPELLA_DOCKER_IMAGES_REVISION:
     value: "main"
     description: "Revision of the Capella Docker images Github repository (https://github.com/DSD-DBS/capella-dockerimages)"
@@ -71,6 +80,9 @@ variables:
   PAPYRUS_VERSION:
     value: "6.4.0"
     description: "Semantic version of Papyrus."
+  ECLIPSE_VERSION:
+    value: "4.27"
+    description: "Semantic version of Eclipse."
   ENVIRONMENT:
     value: "staging"
     description: "Specifies the environment. Make sure that all related environment variables are set on the repository level. More information in the documentation."
@@ -80,7 +92,7 @@ variables:
   LOCAL_GIT_BASE_IMAGE: "debian:bullseye" # Specifies the base images used to build the local git server needed to run the tests
   DOCKER_BUILD_ARGS: "--no-cache"
   BUILD_ARCHITECTURE: amd64
-  PURE_VARIANTS_VERSION: "6.0.0"
+  PURE_VARIANTS_VERSION: "6.0.1"
 
 stages:
   - build
@@ -93,7 +105,7 @@ default:
 .github: &github
   - git clone https://github.com/DSD-DBS/capella-dockerimages.git
   - cd capella-dockerimages
-  - git checkout $CAPELLA_DOCKER_IMAGES_REVISION
+  - git checkout $CAPELLA_DOCKER_IMAGES_REVISION --
 
 .docker: &docker
   - docker info
@@ -144,6 +156,20 @@ default:
   - export DOCKER_TAG=$PAPYRUS_VERSION-$GENERAL_IMAGE_TAG
   - *resolve-base-image
   - cd papyrus/versions/$PAPYRUS_VERSION
+  - *github
+
+.prepare-eclipse: &prepare-eclipse
+  - *prepare
+  - export DOCKER_TAG=$ECLIPSE_VERSION-$GENERAL_IMAGE_TAG
+  - *resolve-base-image
+  - cd eclipse/versions/$ECLIPSE_VERSION
+  - *github
+
+.prepare-eclipse-pv: &prepare-eclipse-pv
+  - *prepare
+  - export DOCKER_TAG=$ECLIPSE_VERSION-$PURE_VARIANTS_VERSION-$GENERAL_IMAGE_TAG
+  - BASE_IMAGE="${DOCKER_REGISTRY}/${BASE_IMAGE}:$ECLIPSE_VERSION-$GENERAL_IMAGE_TAG"
+  - cd pure-variants
   - *github
 
 .local-git-server: &local-git-server
@@ -526,6 +552,75 @@ t4c/client/ease/remote/debug:
         --build-arg NETWORK_ACCESS=restricted \
         --build-arg BASE_IMAGE=$BASE_IMAGE \
         ease/debug
+    - *push
+
+eclipse/base:
+  stage: build
+  needs:
+    - job: base
+      optional: true
+  rules:
+    - if: '$ECLIPSE_BASE == "1"'
+      when: always
+  variables:
+    BASE_IMAGE: base2
+    IMAGE: eclipse/base
+  script:
+    - *prepare-eclipse
+    - *docker
+    - mv ../eclipse.tar.gz ./eclipse/versions/$ECLIPSE_VERSION/$BUILD_ARCHITECTURE/eclipse.tar.gz
+    - |
+      docker build $DOCKER_BUILD_ARGS \
+        -t ${IMAGE}:${DOCKER_TAG} \
+        --build-arg ECLIPSE_VERSION=${ECLIPSE_VERSION} \
+        --build-arg BASE_IMAGE=${BASE_IMAGE} \
+        eclipse
+    - *push
+
+eclipse/remote:
+  stage: build
+  needs:
+    - job: eclipse/base
+      optional: true
+  rules:
+    - if: '$ECLIPSE_REMOTE == "1"'
+      when: always
+  variables:
+    BASE_IMAGE: eclipse/base
+    IMAGE: eclipse/remote
+  script:
+    - *prepare-eclipse
+    - *docker
+    - |
+      docker build $DOCKER_BUILD_ARGS \
+        -t ${IMAGE}:${DOCKER_TAG} \
+        --build-arg BASE_IMAGE=$BASE_IMAGE \
+        remote
+    - *push
+
+eclipse/remote/pure-variants:
+  stage: build
+  needs:
+    - job: eclipse/remote
+      optional: true
+  rules:
+    - if: '$ECLIPSE_REMOTE_PURE_VARIANTS == "1"'
+      when: always
+  variables:
+    BASE_IMAGE: eclipse/remote
+    IMAGE: eclipse/remote/pure-variants
+  script:
+    - *prepare-eclipse-pv
+    - *docker
+    - mv ../dependencies/* pure-variants/dependencies/
+    - mv ../updateSite/* pure-variants/versions/${PURE_VARIANTS_VERSION:?}
+    - |
+      docker build $DOCKER_BUILD_ARGS \
+        -t ${IMAGE}:${DOCKER_TAG} \
+        --build-arg BUILD_TYPE=offline \
+        --build-arg BASE_IMAGE=${BASE_IMAGE} \
+        --build-arg PURE_VARIANTS_VERSION="$PURE_VARIANTS_VERSION" \
+        pure-variants
     - *push
 
 papyrus/base:

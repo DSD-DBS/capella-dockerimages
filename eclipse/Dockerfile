@@ -8,26 +8,30 @@ ENV DEBIAN_FRONTEND=noninteractive
 SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 ENV SHELL=/bin/bash
 
-ARG PAPYRUS_VERSION
-COPY ./versions/${PAPYRUS_VERSION}/papyrus.tar.gz /opt/
+RUN apt-get update && apt-get install -y openjdk-17-jre
+
+ARG ECLIPSE_VERSION
+ARG BUILD_ARCHITECTURE=amd64
+COPY ./versions/${ECLIPSE_VERSION}/${BUILD_ARCHITECTURE}/eclipse.tar.gz /opt/
 
 WORKDIR /opt/
-RUN tar -xf papyrus.tar.gz && \
-    rm -rf papyrus.tar.gz
+RUN tar -xf eclipse.tar.gz && \
+    rm -rf eclipse.tar.gz
 
 RUN mkdir /workspace; \
     # Disable Welcome Screen
     mkdir -p /workspace/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.ui.prefs; \
     # Set workspace permissions
     chown -R techuser /workspace && \
-    chmod +x Papyrus/papyrus
+    chmod +x eclipse/eclipse && \
+    chown -R techuser /opt/eclipse
 
 COPY ./autostart /home/techuser/.config/openbox/autostart
 
-ENV AUTOSTART_PAPYRUS=1
-ENV RESTART_PAPYRUS=1
+ENV AUTOSTART_ECLIPSE=1
+ENV RESTART_ECLIPSE=1
 
-ENV ECLIPSE_INSTALLATION_PATH=/opt/Papyrus
-ENV ECLIPSE_EXECUTABLE=/opt/Papyrus/papyrus
+ENV ECLIPSE_INSTALLATION_PATH=/opt/eclipse
+ENV ECLIPSE_EXECUTABLE=/opt/eclipse/eclipse
 
-ENV BASE_TYPE=papyrus
+ENV BASE_TYPE=eclipse

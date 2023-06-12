@@ -19,7 +19,7 @@ The image has been tested with the following versions:
 
 - 6.4.0 (2023-03 release)
 
-The only supported build architecture is amd64.QEMU
+The only supported build architecture is amd64.
 To build and run the image on other build architectures, use QEMU or Rosetta.
 
 ## Use the prebuilt image
@@ -39,7 +39,7 @@ the "Latest Released RCP".
 Place the downloaded archive in the subdirectory `papyrus/versions/$PAPYRUS_VERSION` of the present
 repository and ensure that the end result is either
 
-- `papyrus/versions/$PAPYRUS_VERSION/papyrus.zip`.
+- `papyrus/versions/$PAPYRUS_VERSION/papyrus.tar.gz`.
 
 where `PAPYRUS_VERSION` refers to the semantic version of Papyrus, e.g. `6.4.0` for the 2023-03 release.
 

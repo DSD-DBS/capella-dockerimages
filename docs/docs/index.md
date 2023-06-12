@@ -69,32 +69,43 @@ The full dependency graph for the images looks like:
 
 ```mermaid
 flowchart LR
-    A(base) --> B(capella/base)
-    A(base) --> L(jupyter-notebook)
-    B(capella/base) --> C(t4c/client/base)
-    B(capella/base) --> D(capella/ease)
-    B(capella/base) --> M(capella/cli)
-    C(t4c/client/base) --> E(t4c/client/ease)
-    C(t4c/client/base) --> N(t4c/client/exporter)
-    C(t4c/client/base) --> O(t4c/client/backup)
-    B(capella/base) --> F(capella/remote) --> K(capella/remote/pure-variants)
-    C(t4c/client/base) --> G(t4c/client/remote) --> J(t4c/client/remote/pure-variants)
-    D(capella/ease) --> H(capella/ease/remote) --> I(capella/readonly)
-    style A fill:#ebb134,color:#000000
-    style B fill:#8feb34,color:#000000
-    style C fill:#34cceb,color:#000000
-    style D fill:#eb3477,color:#ffffff
-    style E fill:#eb3477,color:#ffffff
-    style F fill:#f2f1a7,color:#000000
-    style G fill:#f2f1a7,color:#000000
-    style H fill:#f2f1a7,color:#000000
-    style I fill:#d0a7f2,color:#000000
-    style J fill:#62f5f2,color:#000000
-    style K fill:#62f5f2,color:#000000
-    style L fill:#f5626c,color:#ffffff
-    style M fill:#f8fc03,color:#000000
-    style N fill:#2b2659,color:#ffffff
-    style O fill:#1703fc,color:#ffffff
+    BASE(base) --> CAPELLA_BASE(capella/base)
+    BASE(base) --> JUPYTER(jupyter-notebook)
+    BASE(base) --> PAPYRUS_BASE(papyrus/base) --> PAPYRUS_REMOTE(papyrus/remote)
+    BASE(base) --> ECLIPSE_BASE(eclipse/base) --> ECLIPSE_REMOTE(eclipse/remote) --> ECLIPSE_REMOTE_PURE_VARIANTS(eclipse/remote/pure-variants)
+    CAPELLA_BASE(capella/base) --> T4C_CLIENT_BASE(t4c/client/base)
+    CAPELLA_BASE(capella/base) --> CAPELLA_EASE(capella/ease)
+    CAPELLA_BASE(capella/base) --> CAPELLA_CLI(capella/cli)
+    T4C_CLIENT_BASE(t4c/client/base) --> T4C_CLIENT_EASE(t4c/client/ease)
+    T4C_CLIENT_BASE(t4c/client/base) --> T4C_CLIENT_EXPORTER(t4c/client/exporter)
+    T4C_CLIENT_BASE(t4c/client/base) --> T4C_CLIENT_BACKUP(t4c/client/backup)
+    CAPELLA_BASE(capella/base) --> CAPELLA_REMOTE(capella/remote) --> CAPELLA_REMOTE_PURE_VARIANTS(capella/remote/pure-variants)
+    T4C_CLIENT_BASE(t4c/client/base) --> T4C_CLIENT_REMOTE(t4c/client/remote) --> T4C_CLIENT_REMOTE_PURE_VARIANTS(t4c/client/remote/pure-variants)
+    CAPELLA_EASE(capella/ease) --> CAPELLA_EASE_REMOTE(capella/ease/remote) --> CAPELLA_READONLY(capella/readonly)
+
+    style BASE fill:#77a32e,color:#000000
+    style CAPELLA_BASE fill:#27e87f,color:#000000
+    style JUPYTER fill:#5161ea,color:#000000
+    style PAPYRUS_BASE fill:#9adef0,color:#000000
+    style ECLIPSE_BASE fill:#241839,color:#ffffff
+    style T4C_CLIENT_BASE fill:#472f3f,color:#ffffff
+    style CAPELLA_CLI fill:#e5a694,color:#000000
+    style T4C_CLIENT_EXPORTER fill:#5938ac,color:#ffffff
+    style T4C_CLIENT_BACKUP fill:#8426d4,color:#ffffff
+
+    style CAPELLA_EASE fill:#ae17e7,color:#000000
+    style T4C_CLIENT_EASE fill:#ae17e7,color:#000000
+
+    style CAPELLA_REMOTE fill:#e3ab74,color:#000000
+    style T4C_CLIENT_REMOTE fill:#e3ab74,color:#000000
+    style CAPELLA_EASE_REMOTE fill:#e3ab74,color:#000000
+    style ECLIPSE_REMOTE fill:#e3ab74,color:#000000
+    style PAPYRUS_REMOTE fill:#e3ab74,color:#000000
+
+    style CAPELLA_REMOTE_PURE_VARIANTS fill:#a64d79,color:#000000
+    style T4C_CLIENT_REMOTE_PURE_VARIANTS fill:#a64d79,color:#000000
+    style ECLIPSE_REMOTE_PURE_VARIANTS fill:#a64d79,color:#000000
+
 ```
 
 Each highlighted color indicates the Dockerfile which is used to build the image:
@@ -106,7 +117,7 @@ Each highlighted color indicates the Dockerfile which is used to build the image
 :material-checkbox-blank-circle:{ style="color: #eb3477 " } [EASE](ease.md) <br>
 :material-checkbox-blank-circle:{ style="color: #f2f1a7 " } [Remote](remote.md) <br>
 :material-checkbox-blank-circle:{ style="color: #d0a7f2 " } [Capella read-only](capella/readonly.md) <br>
-:material-checkbox-blank-circle:{ style="color: #62f5f2 " } [pure::variants](capella/pure-variants.md) <br>
+:material-checkbox-blank-circle:{ style="color: #62f5f2 " } [pure::variants](pure-variants.md) <br>
 :material-checkbox-blank-circle:{ style="color: #f5626c " } [Jupyter notebook](jupyter/index.md) <br>
 
 **Make sure that all `docker` commands are executed in the root directory of the repository.**

@@ -17,6 +17,7 @@ nav:
       - Index: ci-templates/index.md
       - Gitlab:
           - Diagram cache: ci-templates/gitlab/diagram-cache.md
+          - Release train: ci-templates/gitlab/release-train.md
           - Image builder: ci-templates/gitlab/image-builder.md
           - Model validation: ci-templates/gitlab/model-validation.md
           - T4C export: ci-templates/gitlab/t4c-export.md
@@ -29,7 +30,7 @@ nav:
       - CLI: capella/cli.md
       - EASE: ease.md
       - Read-only: capella/readonly.md
-      - "pure::variants": capella/pure-variants.md
+      - "pure::variants": pure-variants.md
       - Build from source: capella/build-from-source.md
       - Team4Capella client:
           - Introduction: capella/t4c/introduction.md
@@ -40,6 +41,9 @@ nav:
           - EASE: ease.md
   - Papyrus:
       - Base: papyrus/base.md
+  - Eclipse:
+      - Base: eclipse/base.md
+      - "pure::variants": pure-variants.md
   - Remote: remote.md
 
 repo_url: https://github.com/DSD-DBS/capella-dockerimages
