@@ -233,8 +233,18 @@ capella/base:
     - *prepare-capella
     - *docker
     - mv ../capella.tar.gz ./capella/versions/$CAPELLA_VERSION/$BUILD_ARCHITECTURE/capella.tar.gz
-    - mv ../dropins/* ./capella/versions/$CAPELLA_VERSION/dropins/
-    - mv ../patches/* ./capella/versions/$CAPELLA_VERSION/patches/
+    - >
+      if [[ -n "$(find ../dropins -maxdepth 0 -type f)" ]]; then
+        mv ../dropins/* ./capella/versions/$CAPELLA_VERSION/dropins/
+      else
+        echo "No files to move in dropins"
+      fi
+    - >
+      if [[ -n "$(find ../patches -maxdepth 0 -type f)" ]]; then
+        mv ../patches/* ./capella/versions/$CAPELLA_VERSION/patches/
+      else
+        echo "No files to move in patches"
+      fi
     - mv ../../../libs/* ./capella/libs/
     - |
       docker build $DOCKER_BUILD_ARGS \
