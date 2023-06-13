@@ -213,8 +213,17 @@ def get_container(
     volumes: dict[str, dict[str, str]] | None = None,
     entrypoint: list[str] | None = None,
 ) -> cabc.Iterator[containers.Container]:
-    docker_prefix = image_prefix or os.getenv("DOCKER_PREFIX", "")
-    docker_tag = image_tag or os.getenv("DOCKER_TAG", "latest")
+    docker_prefix = (
+        image_prefix
+        if image_prefix is not None
+        else os.getenv("DOCKER_PREFIX", "")
+    )
+
+    docker_tag = (
+        image_tag
+        if image_tag is not None
+        else os.getenv("DOCKER_TAG", "latest")
+    )
 
     image = f"{docker_prefix}{image}:{docker_tag}"
 

@@ -49,7 +49,7 @@ jobs:
           echo "sha=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
       - name: Build
         run: >
-          make ${{ env.images }} local-git-server
+          make ${{ env.images }}
           CAPELLA_VERSIONS="${{ matrix.capella_version }}"
           DOCKER_PREFIX="${{ env.registry }}"
           CAPELLA_DOCKERIMAGES_REVISION="${{ steps.tag.outputs.branch }}"
@@ -58,12 +58,14 @@ jobs:
           DOCKER_BUILD_FLAGS="--label git-short-sha=${{ steps.tag.outputs.sha }}"
       - name: Install test dependencies
         run: |
+          docker build $DOCKER_BUILD_ARGS -t local-git-server tests/local-git-server
           pip install .
       - name: Run pytest
         run: >
           DOCKER_PREFIX="${{ env.registry }}"
           DOCKER_TAG="${{ matrix.capella_version }}-${{ matrix.dropins.name }}-dropins-${{ steps.tag.outputs.branch }}"
           CAPELLA_VERSION="${{ matrix.capella_version }}"
+          LOCAL_GIT_TAG="latest"
           pytest -m "not (t4c_server or t4c)" tests
       - name: Push
         run: |
