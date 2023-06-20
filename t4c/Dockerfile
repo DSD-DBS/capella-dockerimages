@@ -9,6 +9,27 @@ ARG CAPELLA_VERSION=""
 SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 ENV SHELL=/bin/bash
 
+USER root
+
+ARG BUILD_ARCHITECTURE=amd64
+ADD https://github.com/krallin/tini/releases/download/v0.19.0/tini-$BUILD_ARCHITECTURE /tini
+RUN chmod +x /tini
+
+RUN apt-get update && \
+    apt-get install -y git-lfs xvfb && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY git_askpass.py /etc/git_askpass.py
+RUN chmod 555 /etc/git_askpass.py
+
+ENV DISPLAY :99
+
+WORKDIR /opt/capella
+
+RUN chown -R techuser /opt/capella
+
+COPY backup.py /opt/scripts/backup.py
+
 # Install T4C
 COPY ./updateSite/$CAPELLA_VERSION /opt/updateSite
 WORKDIR /opt/updateSite
@@ -37,3 +58,5 @@ RUN chown techuser /opt/capella/capella.ini && \
 
 WORKDIR /opt
 ENV BASE_TYPE=t4c
+
+ENTRYPOINT [ "/tini", "--", "xvfb-run", "python", "/opt/scripts/backup.py" ]
