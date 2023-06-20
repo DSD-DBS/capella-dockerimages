@@ -443,6 +443,7 @@ run-t4c/client/exporter: t4c/client/exporter
 		-e GIT_REPO_BRANCH="$(GIT_REPO_BRANCH)" \
 		-e GIT_USERNAME="$(GIT_USERNAME)" \
 		-e GIT_PASSWORD="$(GIT_PASSWORD)" \
+		-e ENTRYPOINT="$(GIT_REPO_ENTRYPOINT)" \
 		-e T4C_REPO_HOST="$(T4C_SERVER_HOST)" \
 		-e T4C_REPO_PORT="$(T4C_SERVER_PORT)" \
 		-e T4C_REPO_NAME="$(T4C_IMPORTER_REPO)" \
@@ -453,7 +454,7 @@ run-t4c/client/exporter: t4c/client/exporter
 		-e HTTP_LOGIN="${HTTP_LOGIN}" \
 		-e HTTP_PASSWORD="${HTTP_PASSWORD}" \
 		-e LOG_LEVEL="$(LOG_LEVEL)" \
-		$(DOCKER_PREFIX)t4c/client/exporter:$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
+		$(DOCKER_PREFIX)t4c/client/exporter:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
 
 debug-capella/base: DOCKER_RUN_FLAGS=-it --entrypoint="bash"
 debug-capella/base: run-capella/base
