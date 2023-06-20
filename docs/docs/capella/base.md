@@ -17,7 +17,7 @@ Team for Capella client) that can be run headless (as command line interface).
 
 <!-- prettier-ignore -->
 !!! info
-    The functionalirt for running capella as a commanline app used to be part of
+    The functionality for running capella as a command-line app used to be part of
     the `capella/cli` image. An image with this name is no longer built. Use
     `capella/base` instead.
 
