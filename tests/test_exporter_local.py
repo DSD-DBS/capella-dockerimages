@@ -126,7 +126,10 @@ def export_model(model_dir: pathlib.Path, env: dict[str, str]):
     )
 
     with conftest.get_container(
-        image="t4c/client/exporter", environment=env, entrypoint=["/bin/bash"]
+        image="t4c/client/base",
+        environment=env,
+        entrypoint=["/bin/bash"],
+        command="export",
     ) as container:
         # We can't just mount the test data as a volume as this will cause problems
         # when as we are running Docker in Docker (i.e., we would mount the
@@ -137,7 +140,7 @@ def export_model(model_dir: pathlib.Path, env: dict[str, str]):
         conftest.wait_for_container(
             container,
             "Export of model to TeamForCapella server finished",
-            cmd="xvfb-run python /opt/scripts/exporter.py",
+            cmd="xvfb-run python /opt/scripts/export.py",
         )
 
 

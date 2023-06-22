@@ -28,6 +28,7 @@ WORKDIR /opt/capella
 RUN chown -R techuser /opt/capella
 
 COPY backup.py /opt/scripts/backup.py
+COPY export.py /opt/scripts/export.py
 
 # Install T4C
 COPY ./updateSite/$CAPELLA_VERSION /opt/updateSite

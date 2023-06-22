@@ -8,6 +8,10 @@ case ${1:-startup} in
     xvfb-run python /opt/scripts/backup.py
     ;;
 
+  export)
+    xvfb-run python /opt/scripts/export.py
+    ;;
+
   startup)
     ./startup.sh
     ;;
