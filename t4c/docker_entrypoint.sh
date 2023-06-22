@@ -13,11 +13,11 @@ case ${1:-startup} in
     ;;
 
   startup)
-    ./startup.sh
+    /startup.sh
     ;;
 
   *)
-    echo Unknown command: \"$1\" > &2
+    echo Unknown command: $1 >&2
     exit 1
     ;;
 esac
