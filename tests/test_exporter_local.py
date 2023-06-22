@@ -104,8 +104,7 @@ def test_export_locally(
 
 def import_model(model_dir: pathlib.Path, env: dict[str, str]):
     with conftest.get_container(
-        image="t4c/client/backup",
-        environment=env,
+        image="t4c/client/base", environment=env, command="backup"
     ) as container:
         conftest.wait_for_container(container, "Backup of model finished")
 

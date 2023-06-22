@@ -155,7 +155,6 @@ all: \
 	t4c/client/ease \
 	capella/ease/remote \
 	capella/readonly \
-	t4c/client/backup \
 	t4c/client/exporter
 
 base: SHELL=/bin/bash
@@ -401,7 +400,7 @@ run-t4c/client/remote/pure-variants: t4c/client/remote/pure-variants
 		$(DOCKER_PREFIX)t4c/client/remote/pure-variants:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
 
 
-run-t4c/client/backup: t4c/client/backup
+run-t4c/client/backup: t4c/client/base
 	docker run $(DOCKER_RUN_FLAGS) --rm -it \
 		-e GIT_REPO_URL="$(GIT_REPO_URL)" \
 		-e GIT_REPO_BRANCH="$(GIT_REPO_BRANCH)" \
@@ -418,7 +417,7 @@ run-t4c/client/backup: t4c/client/backup
 		-e HTTP_PORT="$(HTTP_PORT)" \
 		-e LOG_LEVEL="$(LOG_LEVEL)" \
 		-e CONNECTION_TYPE="$(CONNECTION_TYPE)" \
-		$(DOCKER_PREFIX)t4c/client/backup:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
+		$(DOCKER_PREFIX)t4c/client/base:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst) backup
 
 run-t4c/client/exporter: t4c/client/exporter
 	docker run $(DOCKER_RUN_FLAGS) \

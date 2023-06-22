@@ -18,6 +18,9 @@ RUN apt-get update && \
 COPY git_askpass.py /etc/git_askpass.py
 RUN chmod 555 /etc/git_askpass.py
 
+COPY docker_entrypoint.sh /docker_entrypoint.sh
+RUN chmod 555 /docker_entrypoint.sh
+
 ENV DISPLAY :99
 
 WORKDIR /opt/capella
@@ -55,4 +58,4 @@ RUN chown techuser /opt/capella/capella.ini && \
 WORKDIR /opt
 ENV BASE_TYPE=t4c
 
-ENTRYPOINT [ "/tini", "--", "xvfb-run", "python", "/opt/scripts/backup.py" ]
+ENTRYPOINT [ "/tini", "--", "/docker_entrypoint,sh" ]

@@ -212,6 +212,7 @@ def get_container(
     environment: dict[str, str] | None = None,
     volumes: dict[str, dict[str, str]] | None = None,
     entrypoint: list[str] | None = None,
+    command: str | list[str] | None = None,
 ) -> cabc.Iterator[containers.Container]:
     docker_prefix = (
         image_prefix
@@ -229,6 +230,7 @@ def get_container(
 
     container = client.containers.run(
         image=image,
+        command=command,
         ports=ports,
         environment=environment,
         volumes=volumes,
