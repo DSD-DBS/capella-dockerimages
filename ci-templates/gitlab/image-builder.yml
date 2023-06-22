@@ -14,9 +14,6 @@ variables:
   T4C_CLIENT_BASE:
     value: "0"
     description: "Build the t4c/client/base image?"
-  T4C_CLIENT_BACKUP:
-    value: "0"
-    description: "Build the t4c/client/backup image?"
   T4C_CLIENT_EXPORTER:
     value: "0"
     description: "Build the t4c/client/exporter image?"
@@ -296,28 +293,6 @@ t4c/client/base:
         --build-arg CAPELLA_VERSION=$CAPELLA_VERSION \
         --build-arg BASE_IMAGE=$BASE_IMAGE \
         t4c
-    - *push
-
-t4c/client/backup:
-  stage: build
-  needs:
-    - job: t4c/client/base
-      optional: true
-  rules:
-    - if: '$T4C_CLIENT_BACKUP == "1"'
-      when: always
-  variables:
-    BASE_IMAGE: t4c/client/base
-    IMAGE: t4c/client/backup
-  script:
-    - *prepare-capella
-    - *docker
-    - |
-      docker build $DOCKER_BUILD_ARGS \
-        -t $DOCKER_REGISTRY/t4c/client/backup:$DOCKER_TAG \
-        --build-arg BASE_IMAGE=$BASE_IMAGE \
-        --build-arg CAPELLA_VERSION=${CAPELLA_VERSION:?} \
-        backups
     - *prepare-t4c-server-tests
     - pytest -o log_cli=true -s -m t4c_server test_backups.py || r=3
     - *push
