@@ -11,10 +11,6 @@ ENV SHELL=/bin/bash
 
 USER root
 
-ARG BUILD_ARCHITECTURE=amd64
-ADD https://github.com/krallin/tini/releases/download/v0.19.0/tini-$BUILD_ARCHITECTURE /tini
-RUN chmod +x /tini
-
 RUN apt-get update && \
     apt-get install -y git-lfs xvfb && \
     rm -rf /var/lib/apt/lists/*
