@@ -75,8 +75,6 @@ flowchart LR
     CAPELLA_BASE(capella/base) --> T4C_CLIENT_BASE(t4c/client/base)
     CAPELLA_BASE(capella/base) --> CAPELLA_EASE(capella/ease)
     T4C_CLIENT_BASE(t4c/client/base) --> T4C_CLIENT_EASE(t4c/client/ease)
-    T4C_CLIENT_BASE(t4c/client/base) --> T4C_CLIENT_EXPORTER(t4c/client/exporter)
-    T4C_CLIENT_BASE(t4c/client/base) --> T4C_CLIENT_BACKUP(t4c/client/backup)
     CAPELLA_BASE(capella/base) --> CAPELLA_REMOTE(capella/remote) --> CAPELLA_REMOTE_PURE_VARIANTS(capella/remote/pure-variants)
     T4C_CLIENT_BASE(t4c/client/base) --> T4C_CLIENT_REMOTE(t4c/client/remote) --> T4C_CLIENT_REMOTE_PURE_VARIANTS(t4c/client/remote/pure-variants)
     CAPELLA_EASE(capella/ease) --> CAPELLA_EASE_REMOTE(capella/ease/remote) --> CAPELLA_READONLY(capella/readonly)
@@ -87,9 +85,6 @@ flowchart LR
     style PAPYRUS_BASE fill:#9adef0,color:#000000
     style ECLIPSE_BASE fill:#241839,color:#ffffff
     style T4C_CLIENT_BASE fill:#472f3f,color:#ffffff
-    style CAPELLA_CLI fill:#e5a694,color:#000000
-    style T4C_CLIENT_EXPORTER fill:#5938ac,color:#ffffff
-    style T4C_CLIENT_BACKUP fill:#8426d4,color:#ffffff
 
     style CAPELLA_EASE fill:#ae17e7,color:#000000
     style T4C_CLIENT_EASE fill:#ae17e7,color:#000000
@@ -119,7 +114,7 @@ Each highlighted color indicates the Dockerfile which is used to build the image
 
 **Make sure that all `docker` commands are executed in the root directory of the repository.**
 
-For each image, you'll find documentation how to build & run the image manually.
+For each image, you'll fibackupnd documentation how to build & run the image manually.
 
 ## Build images in a CI/CD environment
 

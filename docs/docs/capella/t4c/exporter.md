@@ -7,7 +7,7 @@
 
 <!-- prettier-ignore -->
 !!! info
-    The Docker image name for this image is `t4c/client/exporter`
+    The Docker image name for this image is `t4c/client/base`
 
 <!-- prettier-ignore -->
 !!! info
@@ -19,13 +19,7 @@ The T4C client exporter image imports a model from a git repository and exports 
 
 ### Build it manually with Docker
 
-To build the image, please run:
-
-```zsh
-docker build -t t4c/client/exporter \
-    --build-arg BASE_IMAGE=t4c/client/base \
-    exporter
-```
+Build instructions are the same as the [T4C client base](base.md) image.
 
 ## Run the container
 
@@ -47,7 +41,7 @@ docker run -d \
   -e HTTP_LOGIN=admin \
   -e HTTP_PASSWORD=password \
   -e LOG_LEVEL=DEBUG \
-  t4c/client/exporter
+  t4c/client/base export
 ```
 
 You can find the description for most of the values in the run instructions of the [importer](./importer.md#run-the-container). These are the additional ones:
