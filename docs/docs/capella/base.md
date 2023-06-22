@@ -12,6 +12,15 @@
 The Capella base image installs a selected Capella client version. The Capella client can be downloaded and can optionally be customised prior to building the Docker
 image or can be downloaded automatically in the Docker image.
 
+The images are meant to have a containerised Capella (with or without a
+Team for Capella client) that can be run headless (as command line interface).
+
+<!-- prettier-ignore -->
+!!! info
+    The functionality for running capella as a command-line app used to be part of
+    the `capella/cli` image. An image with this name is no longer built. Use
+    `capella/base` instead.
+
 ## Use the prebuilt image
 
 ```
@@ -207,3 +216,29 @@ Please replace the followings variables:
 - `RESTART_CAPELLA` defines the restart behaviour of Capella. When set to 1 (default) and when `AUTOSTART_CAPELLA=1`,
   Capella will be re-started as soon as it has been exited (after clean quits as
   well as crashs).
+
+### Example to export representations (diagrams) as SVG images
+
+Replace `/path/to/model` and `<PROJECT_NAME>` to pass any local Capella
+model. Set the project name so that it fits your Capella project name for the
+model as it is given in the file `/path/to/model/.project`.
+
+Exported diagrams will appear on the host machine at
+`/path/to/model/diagrams`.
+
+```zsh
+docker run --rm -it \
+  -v /path/to/model:/model \
+  capella/base \
+  -nosplash \
+  -consolelog \
+  -application org.polarsys.capella.core.commandline.core \
+  -appid org.polarsys.capella.exportRepresentations \
+  -data /workspace \
+  -import /model \
+  -input "/all" \
+  -imageFormat SVG \
+  -exportDecorations \
+  -outputfolder /<PROJECT_NAME>/diagrams \
+  -forceoutputfoldercreation
+```

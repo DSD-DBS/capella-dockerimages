@@ -3,7 +3,7 @@
 
 model-validation:
   image:
-    name: $DOCKER_REGISTRY/capella/cli:${CAPELLA_DOCKER_IMAGES_TAG}
+    name: $DOCKER_REGISTRY/capella/base:${CAPELLA_DOCKER_IMAGES_TAG}
     entrypoint: [""]
   script:
     - git fetch
@@ -31,6 +31,6 @@ model-validation:
     # Do not modify the value!
     DISPLAY: ":99"
 
-    # Docker tag, which is used for the capella/cli image.
+    # Docker tag, which is used for the capella/base image.
     # Defaults to ${CAPELLA_VERSION}-${CAPELLA_DOCKER_IMAGES_REVISION} if not defined
     CAPELLA_DOCKER_IMAGES_TAG: ${CAPELLA_VERSION}-${CAPELLA_DOCKER_IMAGES_REVISION}

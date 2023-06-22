@@ -14,7 +14,6 @@ For license reasons, we are only able to provide the following prebuilt public i
 - [`base`](base.md)
 - [`capella/base`](capella/base.md) (without dropins or plugins)
 - [`capella/readonly`](capella/readonly.md)
-- [`capella/cli`](capella/cli.md)
 
 If you need another image, please follow the [`Build images locally`](#build-images-locally) or [`Build images in a CI/CD environment`](#build-images-in-a-cicd-environment) instructions.
 
@@ -75,7 +74,6 @@ flowchart LR
     BASE(base) --> ECLIPSE_BASE(eclipse/base) --> ECLIPSE_REMOTE(eclipse/remote) --> ECLIPSE_REMOTE_PURE_VARIANTS(eclipse/remote/pure-variants)
     CAPELLA_BASE(capella/base) --> T4C_CLIENT_BASE(t4c/client/base)
     CAPELLA_BASE(capella/base) --> CAPELLA_EASE(capella/ease)
-    CAPELLA_BASE(capella/base) --> CAPELLA_CLI(capella/cli)
     T4C_CLIENT_BASE(t4c/client/base) --> T4C_CLIENT_EASE(t4c/client/ease)
     T4C_CLIENT_BASE(t4c/client/base) --> T4C_CLIENT_EXPORTER(t4c/client/exporter)
     T4C_CLIENT_BASE(t4c/client/base) --> T4C_CLIENT_BACKUP(t4c/client/backup)
@@ -112,7 +110,6 @@ Each highlighted color indicates the Dockerfile which is used to build the image
 
 :material-checkbox-blank-circle:{ style="color: #ebb134 " } [Base](base.md) <br>
 :material-checkbox-blank-circle:{ style="color: #8feb34 " } [Capella Base](capella/base.md)<br>
-:material-checkbox-blank-circle:{ style="color: #f8fc03 " } [Capella CLI](capella/cli.md)<br>
 :material-checkbox-blank-circle:{ style="color: #34cceb " } [T4C Client Base](capella/t4c/base.md) <br>
 :material-checkbox-blank-circle:{ style="color: #eb3477 " } [EASE](ease.md) <br>
 :material-checkbox-blank-circle:{ style="color: #f2f1a7 " } [Remote](remote.md) <br>

@@ -146,10 +146,8 @@ all: \
 	base \
 	jupyter-notebook \
 	capella/base \
-	capella/cli \
 	capella/remote \
 	t4c/client/base \
-	t4c/client/cli \
 	t4c/client/remote \
 	t4c/client/remote/pure-variants \
 	capella/remote/pure-variants \
@@ -205,11 +203,6 @@ eclipse/base: base
 		eclipse
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
-capella/cli: SHELL=./capella_loop.sh
-capella/cli: capella/base
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG cli
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
-
 capella/remote: SHELL=./capella_loop.sh
 capella/remote: capella/base
 	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG remote
@@ -245,11 +238,6 @@ t4c/client/base: capella/base
 	envsubst < t4c/.dockerignore.template > t4c/.dockerignore
 	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG --build-arg CAPELLA_VERSION=$$CAPELLA_VERSION t4c
 	rm t4c/.dockerignore
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
-
-t4c/client/cli: SHELL=./capella_loop.sh
-t4c/client/cli: t4c/client/base
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG cli
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
 t4c/client/remote: SHELL=./capella_loop.sh

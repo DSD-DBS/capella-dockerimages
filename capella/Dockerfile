@@ -42,7 +42,9 @@ ONBUILD COPY libs /tmp/libs
 ONBUILD RUN apt-get update && \
     apt-get install -y \
     libjavascriptcoregtk-4.0-18 \
-    libwebkit2gtk-4.0-37; \
+    libwebkit2gtk-4.0-37 \
+    xdg-utils \
+    xvfb && \
     rm -rf /var/lib/apt/lists/*;
 
 FROM old_gtk_${INSTALL_OLD_GTK_VERSION} as base_new
@@ -136,5 +138,8 @@ ENV ECLIPSE_INSTALLATION_PATH=/opt/capella
 ENV ECLIPSE_EXECUTABLE=/opt/capella/capella
 
 COPY ./autostart /home/techuser/.config/openbox/autostart
+
+COPY startup.sh /startup.sh
+ENTRYPOINT [ "/startup.sh" ]
 
 ENV BASE_TYPE=capella
