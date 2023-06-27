@@ -3,6 +3,8 @@
 # SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
 # SPDX-License-Identifier: Apache-2.0
 
+set -euo pipefail
+
 case ${1:-startup} in
   backup)
     xvfb-run python /opt/scripts/backup.py
