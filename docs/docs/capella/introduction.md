@@ -43,7 +43,7 @@ The Capella related images are tagged using the following schema:
 `$DROPINS_TYPE` is the name of the set of dropins.
 `$CAPELLA_DOCKER_IMAGES_REVISION` can be a tag or branch of this repository. In case of branches, all characters matching the regex `[^a-zA-Z0-9.]` will be replaced with `-`.
 
-We don't tag images with the `latest` tag. You may want to use `$CAPELLA_VERSION-main` for the latest version, but we recommend using tags for the best stability.
+We don't tag images with the `latest` tag. You may want to use `$CAPELLA_VERSION-selected-dropins-main` for the latest version, but we recommend using tags for the best stability.
 
 ## Tips
 
