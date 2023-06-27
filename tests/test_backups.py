@@ -40,7 +40,9 @@ def fixture_t4c_backup_container(
     t4c_backup_local_env: dict[str, str]
 ) -> containers.Container:
     with conftest.get_container(
-        image="t4c/client/backup", environment=t4c_backup_local_env
+        image="t4c/client/base",
+        environment=t4c_backup_local_env,
+        command="backup",
     ) as container:
         yield container
 

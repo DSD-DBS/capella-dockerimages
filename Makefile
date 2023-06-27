@@ -154,9 +154,7 @@ all: \
 	capella/ease \
 	t4c/client/ease \
 	capella/ease/remote \
-	capella/readonly \
-	t4c/client/backup \
-	t4c/client/exporter
+	capella/readonly
 
 base: SHELL=/bin/bash
 base:
@@ -279,16 +277,6 @@ capella/readonly: capella/ease/remote
 	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG readonly
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
-t4c/client/backup: SHELL=./capella_loop.sh
-t4c/client/backup: t4c/client/base
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BUILD_ARCHITECTURE=$(BUILD_ARCHITECTURE) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG --build-arg CAPELLA_VERSION=$$CAPELLA_VERSION backups
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
-
-t4c/client/exporter: SHELL=./capella_loop.sh
-t4c/client/exporter: t4c/client/base
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BUILD_ARCHITECTURE=$(BUILD_ARCHITECTURE) --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG --build-arg CAPELLA_VERSION=$$CAPELLA_VERSION exporter
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
-
 capella/builder:
 	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(CAPELLA_DOCKERIMAGES_REVISION) builder
 	docker run -it -e CAPELLA_VERSION=$(CAPELLA_VERSION) -v $$(pwd)/builder/output/$(CAPELLA_VERSION):/output -v $$(pwd)/builder/m2_cache:/root/.m2/repository $(DOCKER_PREFIX)$@:$(CAPELLA_DOCKERIMAGES_REVISION)
@@ -406,7 +394,7 @@ run-t4c/client/remote/pure-variants: t4c/client/remote/pure-variants
 		$(DOCKER_PREFIX)t4c/client/remote/pure-variants:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
 
 
-run-t4c/client/backup: t4c/client/backup
+run-t4c/client/backup: t4c/client/base
 	docker run $(DOCKER_RUN_FLAGS) --rm -it \
 		-e GIT_REPO_URL="$(GIT_REPO_URL)" \
 		-e GIT_REPO_BRANCH="$(GIT_REPO_BRANCH)" \
@@ -423,9 +411,9 @@ run-t4c/client/backup: t4c/client/backup
 		-e HTTP_PORT="$(HTTP_PORT)" \
 		-e LOG_LEVEL="$(LOG_LEVEL)" \
 		-e CONNECTION_TYPE="$(CONNECTION_TYPE)" \
-		$(DOCKER_PREFIX)t4c/client/backup:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
+		$(DOCKER_PREFIX)t4c/client/base:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst) backup
 
-run-t4c/client/exporter: t4c/client/exporter
+run-t4c/client/exporter: t4c/client/base
 	docker run $(DOCKER_RUN_FLAGS) \
 		-e GIT_REPO_URL="$(GIT_REPO_URL)" \
 		-e GIT_REPO_BRANCH="$(GIT_REPO_BRANCH)" \
@@ -442,7 +430,7 @@ run-t4c/client/exporter: t4c/client/exporter
 		-e HTTP_LOGIN="${HTTP_LOGIN}" \
 		-e HTTP_PASSWORD="${HTTP_PASSWORD}" \
 		-e LOG_LEVEL="$(LOG_LEVEL)" \
-		$(DOCKER_PREFIX)t4c/client/exporter:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
+		$(DOCKER_PREFIX)t4c/client/base:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst) export
 
 debug-capella/base: DOCKER_RUN_FLAGS=-it --entrypoint="bash"
 debug-capella/base: run-capella/base
@@ -465,7 +453,7 @@ local-git-server:
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
 ifeq ($(RUN_TESTS_WITH_T4C_SERVER), 1)
-test: t4c/client/backup t4c/client/exporter local-git-server t4c/server/server
+test: t4c/client/base local-git-server t4c/server/server
 endif
 
 ifeq ($(RUN_TESTS_WITH_T4C_CLIENT), 1)

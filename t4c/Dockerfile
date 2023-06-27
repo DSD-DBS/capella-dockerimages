@@ -5,9 +5,31 @@ ARG BASE_IMAGE=capella/base
 FROM ${BASE_IMAGE}
 
 ARG CAPELLA_VERSION=""
+ENV CAPELLA_VERSION=${CAPELLA_VERSION}
 
 SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 ENV SHELL=/bin/bash
+
+USER root
+
+RUN apt-get update && \
+    apt-get install -y git-lfs xvfb && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY git_askpass.py /etc/git_askpass.py
+RUN chmod 555 /etc/git_askpass.py
+
+COPY docker_entrypoint.sh /docker_entrypoint.sh
+RUN chmod 555 /docker_entrypoint.sh
+
+ENV DISPLAY :99
+
+WORKDIR /opt/capella
+
+RUN chown -R techuser /opt/capella
+
+COPY backup.py /opt/scripts/backup.py
+COPY export.py /opt/scripts/export.py
 
 # Install T4C
 COPY ./updateSite/$CAPELLA_VERSION /opt/updateSite
@@ -37,3 +59,5 @@ RUN chown techuser /opt/capella/capella.ini && \
 
 WORKDIR /opt
 ENV BASE_TYPE=t4c
+
+ENTRYPOINT [ "/tini", "--", "/docker_entrypoint.sh" ]

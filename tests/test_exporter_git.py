@@ -51,7 +51,9 @@ def fixture_t4c_exporter_container(
         )
 
     with conftest.get_container(
-        image="t4c/client/exporter", environment=t4c_exporter_git_env
+        image="t4c/client/base",
+        environment=t4c_exporter_git_env,
+        command="export",
     ) as container:
         yield container
 

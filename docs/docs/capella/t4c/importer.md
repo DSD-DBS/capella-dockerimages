@@ -7,7 +7,7 @@
 
 <!-- prettier-ignore -->
 !!! info
-    The Docker image name for this image is `t4c/client/backup`
+    The Docker image name for this image is `t4c/client/base`
 
 <!-- prettier-ignore -->
 !!! info
@@ -19,13 +19,7 @@ The T4C client backup image imports a model from a TeamForCapella server and exp
 
 ### Build it manually with Docker
 
-To build the image, please run:
-
-```zsh
-docker build -t t4c/client/backup \
-    --build-arg BASE_IMAGE=t4c/client/base \
-    backup
-```
+Build instructions are the same as the [T4C client base](base.md) image.
 
 ## Run the container
 
@@ -46,7 +40,7 @@ docker run -d \
   -e T4C_PASSWORD=password \
   -e LOG_LEVEL="DEBUG" \
   -e INCLUDE_COMMIT_HISTORY=false \
-  t4c/client/backup
+  t4c/client/base backup
 ```
 
 Set the following values for the corresponding keys:

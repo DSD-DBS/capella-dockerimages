@@ -139,7 +139,11 @@ ENV ECLIPSE_EXECUTABLE=/opt/capella/capella
 
 COPY ./autostart /home/techuser/.config/openbox/autostart
 
+ARG BUILD_ARCHITECTURE=amd64
+ADD https://github.com/krallin/tini/releases/download/v0.19.0/tini-$BUILD_ARCHITECTURE /tini
+RUN chmod +x /tini
+
 COPY startup.sh /startup.sh
-ENTRYPOINT [ "/startup.sh" ]
+ENTRYPOINT [ "tini", "--", "/startup.sh" ]
 
 ENV BASE_TYPE=capella

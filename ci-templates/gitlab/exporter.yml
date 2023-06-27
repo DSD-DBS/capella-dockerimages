@@ -6,7 +6,7 @@ variables:
 
 export-to-t4c:
   image:
-    name: $DOCKER_REGISTRY/t4c/client/exporter:${CAPELLA_DOCKER_IMAGES_TAG}
+    name: $DOCKER_REGISTRY/t4c/client/base:${CAPELLA_DOCKER_IMAGES_TAG}
     entrypoint: [""]
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
@@ -18,7 +18,7 @@ export-to-t4c:
     - git fetch
     - git reset --hard origin/$CI_COMMIT_BRANCH
   script:
-    - xvfb-run python /opt/scripts/exporter.py
+    - xvfb-run python /opt/scripts/export.py
   variables:
     # Use local filehandler
     # Pulling of the Git repository is done by the Gitlab runner
@@ -28,7 +28,7 @@ export-to-t4c:
     # Defaults to 6.0.0 if not defined
     # CAPELLA_VERSION: 6.0.0
 
-    # Docker tag, which is used for the t4c/client/exporter image.
+    # Docker tag, which is used for the t4c/client/base image.
     # Defaults to ${CAPELLA_VERSION}-${CAPELLA_DOCKER_IMAGES_REVISION} if not defined
     CAPELLA_DOCKER_IMAGES_TAG: ${CAPELLA_VERSION}-${CAPELLA_DOCKER_IMAGES_REVISION}
 
