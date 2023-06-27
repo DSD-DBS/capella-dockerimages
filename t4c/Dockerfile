@@ -5,6 +5,7 @@ ARG BASE_IMAGE=capella/base
 FROM ${BASE_IMAGE}
 
 ARG CAPELLA_VERSION=""
+ENV CAPELLA_VERSION=${CAPELLA_VERSION}
 
 SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 ENV SHELL=/bin/bash
