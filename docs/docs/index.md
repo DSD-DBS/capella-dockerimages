@@ -114,7 +114,7 @@ Each highlighted color indicates the Dockerfile which is used to build the image
 
 **Make sure that all `docker` commands are executed in the root directory of the repository.**
 
-For each image, you'll fibackupnd documentation how to build & run the image manually.
+For each image, you'll find documentation how to build & run the image manually.
 
 ## Build images in a CI/CD environment
 
