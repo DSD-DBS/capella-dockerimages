@@ -43,8 +43,6 @@ ONBUILD RUN apt-get update && \
     apt-get install -y \
     libjavascriptcoregtk-4.0-18 \
     libwebkit2gtk-4.0-37 \
-    xdg-utils \
-    xvfb && \
     rm -rf /var/lib/apt/lists/*;
 
 FROM old_gtk_${INSTALL_OLD_GTK_VERSION} as base_new
@@ -72,6 +70,12 @@ ONBUILD COPY ./versions/${CAPELLA_VERSION}/${BUILD_ARCHITECTURE}/capella.* /opt/
 FROM build_${BUILD_TYPE}
 
 ARG CAPELLA_VERSION
+
+RUN apt-get update && \
+    apt-get install -y \
+    xdg-utils \
+    xvfb && \
+    rm -rf /var/lib/apt/lists/*;
 
 RUN if [ -s capella.zip ]; then \
     # Install Capella using zip
@@ -144,6 +148,6 @@ ADD https://github.com/krallin/tini/releases/download/v0.19.0/tini-$BUILD_ARCHIT
 RUN chmod +x /tini
 
 COPY startup.sh /startup.sh
-ENTRYPOINT [ "tini", "--", "/startup.sh" ]
+ENTRYPOINT [ "/tini", "--", "/startup.sh" ]
 
 ENV BASE_TYPE=capella
