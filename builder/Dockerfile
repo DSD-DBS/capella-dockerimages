@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
 # SPDX-License-Identifier: Apache-2.0
 
-FROM python:3.11.1-bullseye
+FROM python:3.11.1-bookworm
 
 
 SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
