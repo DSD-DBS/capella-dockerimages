@@ -27,7 +27,7 @@ RUN git config --global user.name $GIT_USERNAME && \
 # Use Virtual Display
 ENV DISPLAY :99
 
-RUN pip install py4j
+RUN pip install --break-system-packages py4j
 
 # Offline build (fixed version)
 FROM prebuild as build_offline
@@ -90,7 +90,7 @@ USER root
 RUN rm -rf /tmp/extensions
 RUN echo "-Dorg.eclipse.swtbot.search.timeout=1000" >> /opt/capella/capella.ini
 
-RUN pip install pyease
+RUN pip install --break-system-packages pyease
 
 ENV EASE_WORKSPACE /workspace
 ENV EASE_SCRIPTS_LOCATION /opt/scripts

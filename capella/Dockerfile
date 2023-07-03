@@ -55,7 +55,7 @@ FROM base_new as build_online
 # https://github.com/moby/moby/issues/26533#issuecomment-246966836
 ONBUILD ARG CAPELLA_VERSION="5.2.0"
 ONBUILD COPY ./download_archive.py /opt/.download_archive.py
-ONBUILD RUN pip install requests lxml && \
+ONBUILD RUN pip install --break-system-packages requests lxml && \
     python .download_archive.py ${CAPELLA_VERSION};
 
 FROM base_new as build_offline
@@ -108,7 +108,7 @@ COPY install_dropins.py /opt/install_dropins.py
 COPY ./versions/${CAPELLA_VERSION}/dropins.yml /opt/dropins.yml
 RUN echo '-Dorg.eclipse.equinox.p2.transport.ecf.retry=15' >> /opt/capella/capella.ini
 RUN echo '-Dorg.eclipse.ecf.provider.filetransfer.retrieve.readTimeout=10000' >> /opt/capella/capella.ini
-RUN pip install PyYAML && python install_dropins.py
+RUN pip install --break-system-packages PyYAML && python install_dropins.py
 
 COPY ./versions/${CAPELLA_VERSION}/patches /opt/patches
 RUN PATCH_DIR=/opt/patches /opt/patch.sh
