@@ -9,13 +9,15 @@ FROM $BASE_IMAGE as prebuild
 SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 ENV SHELL=/bin/bash
 
+# Somehow OpenJDK does not install in one shot due to a (cyclic?) dependency on
+# package ca-certificates-java. Performing the install again fixes it.
 RUN apt-get update && \
     apt-get install -y \
-    openjdk-17-jre \
     xdg-utils \
     xvfb \
     dbus-x11 \
     git-lfs && \
+    ( apt install -y openjdk-17-jre || apt install -y openjdk-17-jre ) && \
     rm -rf /var/lib/apt/lists/*
 
 ARG GIT_EMAIL=contact@example.com
