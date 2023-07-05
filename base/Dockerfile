@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
 # SPDX-License-Identifier: Apache-2.0
 
-ARG BASE_IMAGE=debian:bookworm
+ARG BASE_IMAGE=debian:bookworm-slim
 FROM $BASE_IMAGE
 
 SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
