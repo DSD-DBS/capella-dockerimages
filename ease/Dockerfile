@@ -17,8 +17,7 @@ RUN apt-get update && \
     xvfb \
     dbus-x11 \
     git-lfs && \
-    ca-certificates-java \
-    openjdk-17-jre \
+    ( apt install -y openjdk-17-jre || apt install -y openjdk-17-jre ) && \
     rm -rf /var/lib/apt/lists/*
 
 ARG GIT_EMAIL=contact@example.com
