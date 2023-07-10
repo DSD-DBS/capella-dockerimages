@@ -33,9 +33,10 @@ COPY bg-saved.cfg /home/techuser/.config/nitrogen/bg-saved.cfg
 RUN pip install --break-system-packages supervisor
 COPY supervisord.conf /etc/supervisord.conf
 
-# Allow any user to start the RDP Server
-RUN sed -i 's/allowed_users=console/allowed_users=anybody/g' /etc/X11/Xwrapper.config
-
+# Allow any user to start the RDP server
+# Depending on the base image used, Xwrapper.config may (not) be available and has to be created.
+RUN sed -i 's/allowed_users=console/allowed_users=anybody/g' /etc/X11/Xwrapper.config \
+    || echo "allowed_users=anybody" > /etc/X11/Xwrapper.config
 RUN id techuser || useradd -l -m -u 1001000000 techuser && echo "techuser:tmp_passwd" | chpasswd
 
 # Set permissions
