@@ -18,7 +18,7 @@ COPY docker-entrypoint.sh /
 COPY requirements_template.txt /etc/skel
 
 RUN chmod +x /docker-entrypoint.sh && \
-    python3 -m pip install jupyterlab capellambse && \
+    python3 -m pip install --break-system-packages jupyterlab capellambse && \
     jupyter labextension disable @jupyterlab/extensionmanager-extension
 
 ENV JUPYTER_PORT=8888

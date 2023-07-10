@@ -50,7 +50,7 @@ docker build -t base --build-arg BASE_IMAGE=$CUSTOM_IMAGE base
 
 Make sure that your `$CUSTOM_IMAGE` is a Linux image that has the common tools installed
 and uses the `apt` / `apt-get` package manager. If this is not the case, the image
-can not be used. Our images were tested with the image `debian:bullseye`.
+can not be used. Our images were tested with the image `debian:bookworm`.
 
 If you like to set a custom `UID` for the user `techuser`, you can run:
 

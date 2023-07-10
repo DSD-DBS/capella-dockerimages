@@ -80,7 +80,7 @@ variables:
   T4C_SERVER_REGISTRY: "" # Registry where you can find the t4c server image
   T4C_SERVER_TAG: "$CAPELLA_VERSION-main" # Tag that is used for the t4c server image
   T4C_SERVER_TEST_DATA_REPO: "" # Link to the t4c test data repo needed to run the backup tests
-  LOCAL_GIT_BASE_IMAGE: "debian:bullseye" # Specifies the base images used to build the local git server needed to run the tests
+  LOCAL_GIT_BASE_IMAGE: "debian:bookworm" # Specifies the base images used to build the local git server needed to run the tests
   DOCKER_BUILD_ARGS: "--no-cache"
   BUILD_ARCHITECTURE: amd64
   PURE_VARIANTS_VERSION: "6.0.1"
@@ -193,7 +193,7 @@ base:
     - if: '$BASE == "1"'
       when: always
   variables:
-    BASE_IMAGE: debian:bullseye
+    BASE_IMAGE: debian:bookworm
     IMAGE: base2
   script:
     - *prepare

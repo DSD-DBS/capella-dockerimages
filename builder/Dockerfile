@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
 # SPDX-License-Identifier: Apache-2.0
 
-FROM python:3.11.1-bullseye
+FROM python:3.11.1-bookworm
 
 
 SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
@@ -10,7 +10,7 @@ ENV SHELL=/bin/bash
 RUN apt-get update && \
     apt-get install -y maven
 
-RUN pip install lxml
+RUN pip install --break-system-packages lxml
 
 COPY inject_architecture_into_pom.py /opt/inject_architecture_into_pom.py
 COPY build_capella_from_source.sh /opt/build_capella_from_source.sh
