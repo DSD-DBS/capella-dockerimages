@@ -149,12 +149,13 @@ Ubuntu `focal` repository (<https://packages.ubuntu.com/focal/libwebkit2gtk-4.0-
 
 First of all, you have to add the source to your `apt`-sources and add the apt keys.
 
-Recommendation: Spawn a Docker container and execute the steps inside the container.
+Recommendation: Spawn a `debian:bookworm` Docker container and execute the steps inside the container.
 
 ```zsh
-echo "deb http://de.archive.ubuntu.com/ubuntu/ focal main"
-apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32
-apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 871920D1991BC93C
+apt update && apt install -y gnupg
+echo "deb http://security.ubuntu.com/ubuntu focal-security main" >> /etc/apt/sources.list.d/focal.list
+apt-key adv --keyserver keyserver.ubuntu.com --recv-keys "3B4FE6ACC0B21F32"
+apt-key adv --keyserver keyserver.ubuntu.com --recv-keys "871920D1991BC93C"
 apt update
 ```
 
@@ -174,6 +175,9 @@ Please download all packages and place the files in the folder `capella/libs`:
 
 - `libwebkit2gtk-4.0-37_2.28.1-1_amd64.deb` <br />
   (Run `apt download libwebkit2gtk-4.0-37=2.28.1-1`)
+
+- `libwebp6_0.6.1-2ubuntu0.20.04.2_amd64.deb` <br />
+  (Run `apt download libwebp6=0.6.1-2ubuntu0.20.04.2`)
 
 ## Run the container
 

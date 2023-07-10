@@ -106,6 +106,9 @@ EASE_BUILD_TYPE ?= online
 
 PURE_VARIANTS_LICENSE_SERVER ?= http://localhost:8080
 
+# Inject libraries from the capella/libs directory
+INJECT_LIBS_CAPELLA ?= false
+
 # Build architecture: amd64 or arm64
 BUILD_ARCHITECTURE ?= amd64
 
@@ -179,6 +182,7 @@ capella/base: base
 		--build-arg BUILD_TYPE=$(CAPELLA_BUILD_TYPE) \
 		--build-arg CAPELLA_VERSION=$$CAPELLA_VERSION \
 		--build-arg "CAPELLA_DROPINS=$(CAPELLA_DROPINS)" \
+		--build-arg "INJECT_PACKAGES=$(INJECT_LIBS_CAPELLA)" \
 		--build-arg INSTALL_OLD_GTK_VERSION=$(INSTALL_OLD_GTK_VERSION) \
 		capella
 	rm capella/.dockerignore
