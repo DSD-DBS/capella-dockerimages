@@ -13,7 +13,7 @@ ENV SHELL=/bin/bash
 USER root
 
 RUN apt-get update && \
-    apt-get install -y git-lfs xvfb && \
+    apt-get install -y git-lfs xvfb xauth && \
     rm -rf /var/lib/apt/lists/*
 
 COPY git_askpass.py /etc/git_askpass.py
