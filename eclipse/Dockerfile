@@ -2,11 +2,24 @@
 # SPDX-License-Identifier: Apache-2.0
 
 ARG BASE_IMAGE=base
-FROM $BASE_IMAGE
+ARG BUILD_TYPE=online
+FROM $BASE_IMAGE as base
+
 ENV DEBIAN_FRONTEND=noninteractive
 
 SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 ENV SHELL=/bin/bash
+
+FROM base as build_online
+ONBUILD ENV EGIT_REPOSITORY=https://download.eclipse.org/egit/updates/
+
+FROM base as build_offline
+ONBUILD USER root
+ONBUILD ENV EGIT_REPOSITORY=file:/tmp/egit
+ONBUILD COPY ./egit /tmp/egit
+ONBUILD RUN chown -R techuser /tmp/egit
+
+FROM build_${BUILD_TYPE}
 
 RUN apt-get update && apt-get install -y openjdk-17-jre
 
@@ -25,6 +38,18 @@ RUN mkdir /workspace; \
     chown -R techuser /workspace && \
     chmod +x eclipse/eclipse && \
     chown -R techuser /opt/eclipse
+
+USER techuser
+
+# Install EGit (https://www.eclipse.org/egit/)
+RUN /opt/eclipse/eclipse \
+    -consoleLog \
+    -application org.eclipse.equinox.p2.director \
+    -noSplash \
+    -repository ${EGIT_REPOSITORY} \
+    -installIU "org.eclipse.egit,org.eclipse.egit.core,org.eclipse.egit.ui"
+
+USER root
 
 COPY ./autostart /home/techuser/.config/openbox/autostart
 
