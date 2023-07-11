@@ -5,6 +5,8 @@
 ARG BASE_IMAGE=debian:bookworm-slim
 FROM $BASE_IMAGE
 
+USER root
+
 SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 ENV SHELL=/bin/bash
 

@@ -73,6 +73,7 @@ ARG CAPELLA_VERSION
 
 RUN apt-get update && \
     apt-get install -y \
+    libxtst6 \
     xdg-utils \
     xvfb && \
     rm -rf /var/lib/apt/lists/*;
