@@ -17,7 +17,8 @@ RUN apt-get update && \
     xvfb \
     dbus-x11 \
     git-lfs && \
-    ( apt install -y openjdk-17-jre || apt install -y openjdk-17-jre ) && \
+    # https://forums.debian.net/viewtopic.php?t=151997
+    ( apt-get install -y openjdk-17-jre || apt-get install -y openjdk-17-jre ) && \
     rm -rf /var/lib/apt/lists/*
 
 ARG GIT_EMAIL=contact@example.com

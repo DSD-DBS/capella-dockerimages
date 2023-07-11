@@ -21,7 +21,8 @@ ONBUILD RUN chown -R techuser /tmp/egit
 
 FROM build_${BUILD_TYPE}
 
-RUN apt-get update && apt-get install -y openjdk-17-jre
+# https://forums.debian.net/viewtopic.php?t=151997
+RUN apt-get update && apt-get install -y openjdk-17-jre || apt-get install -y openjdk-17-jre
 
 ARG ECLIPSE_VERSION
 ARG BUILD_ARCHITECTURE=amd64
