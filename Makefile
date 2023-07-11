@@ -196,6 +196,7 @@ papyrus/base: base
 		papyrus
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
+eclipse/remote: DOCKER_TAG=$(ECLIPSE_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
 eclipse/base: base
 	docker build $(DOCKER_BUILD_FLAGS) \
 		-t $(DOCKER_PREFIX)$@:$$DOCKER_TAG \
