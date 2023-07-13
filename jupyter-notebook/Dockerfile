@@ -19,7 +19,10 @@ COPY requirements_template.txt /etc/skel
 
 RUN chmod +x /docker-entrypoint.sh && \
     python3 -m pip install --break-system-packages jupyterlab capellambse && \
-    jupyter labextension disable @jupyterlab/extensionmanager-extension
+    jupyter labextension disable "@jupyterlab/extensionmanager-extension" && \
+    jupyter labextension disable "@jupyterlab/apputils-extension:announcements"
+
+COPY jupyter_lab_config.py /home/techuser/.jupyter/jupyter_lab_config.py
 
 ENV JUPYTER_PORT=8888
 ENV NOTEBOOKS_DIR=/workspace/notebooks
