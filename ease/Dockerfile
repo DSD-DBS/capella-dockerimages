@@ -15,6 +15,7 @@ RUN apt-get update && \
     apt-get install -y \
     xdg-utils \
     xvfb \
+    xauth \
     dbus-x11 \
     git-lfs && \
     # https://forums.debian.net/viewtopic.php?t=151997
