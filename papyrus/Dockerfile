@@ -15,12 +15,15 @@ WORKDIR /opt/
 RUN tar -xf papyrus.tar.gz && \
     rm -rf papyrus.tar.gz
 
+ARG MEMORY_LIMIT=5500m
+
 RUN mkdir /workspace; \
     # Disable Welcome Screen
     mkdir -p /workspace/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.ui.prefs; \
     # Set workspace permissions
     chown -R techuser /workspace && \
-    chmod +x Papyrus/papyrus
+    chmod +x Papyrus/papyrus && \
+    sed -i "s/-Xmx[^ ]*/-Xmx$MEMORY_LIMIT/g" /opt/Papyrus/papyrus.ini
 
 COPY ./autostart /home/techuser/.config/openbox/autostart
 
