@@ -131,7 +131,7 @@ def test_model_loading_with_legacy_env(
 
 @pytest.mark.parametrize("mode_success", ["json"])
 def test_model_loading_with_json_env(workspace_result: containers.ExecResult):
-    assert len(lines(workspace_result.output)) == 2
+    assert len(lines(workspace_result.output)) == 3
 
 
 @pytest.mark.parametrize("mode_success", ["json2"])
