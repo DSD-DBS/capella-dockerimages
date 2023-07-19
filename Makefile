@@ -124,6 +124,10 @@ DOCKER_REGISTRY ?= localhost:12345
 # Log level when running Docker containers
 LOG_LEVEL ?= DEBUG
 
+# Path to a JSON file, which is used as input for the
+# make-run/capella/readonly target.
+READONLY_JSON_PATH ?= local/readonly.json
+
 # If this option is set to 1, all tests that require a running t4c server
 # will be executed. To run these tests, you need a Makefile in
 # t4c/server with a target t4c/server/server that builds the t4c server
@@ -336,25 +340,15 @@ run-capella/readonly: capella/readonly
 		-e GIT_ENTRYPOINT=$(GIT_REPO_ENTRYPOINT) \
 		-e GIT_REVISION=$(GIT_REPO_BRANCH) \
 		-e GIT_DEPTH=$(GIT_REPO_DEPTH) \
-		-e GIT_USERNAME="" \
-		-e GIT_PASSWORD="" \
-		$(DOCKER_PREFIX)capella/readonly:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
-
-run-capella/readonly-debug: capella/readonly
-	docker run $(DOCKER_RUN_FLAGS) \
-		-it \
-		-v /tmp/.X11-unix:/tmp/.X11-unix \
-		-v $$(pwd)/local/scripts:/opt/scripts/debug \
-		-e DISPLAY=:0 \
-		-p $(RDP_PORT):3389 \
-		-e RMT_PASSWORD=$(RMT_PASSWORD) \
-		-e GIT_URL=$(GIT_REPO_URL) \
-		-e GIT_ENTRYPOINT=$(GIT_REPO_ENTRYPOINT) \
-		-e GIT_REVISION=$(GIT_REPO_BRANCH) \
-		-e GIT_DEPTH=$(GIT_REPO_DEPTH) \
 		-e GIT_USERNAME="$(GIT_USERNAME)" \
 		-e GIT_PASSWORD="$(GIT_PASSWORD)" \
-		--entrypoint bash \
+		$(DOCKER_PREFIX)capella/readonly:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
+
+run-capella/readonly-json: capella/readonly
+	docker run $(DOCKER_RUN_FLAGS) \
+		-p $(RDP_PORT):3389 \
+		-e RMT_PASSWORD=$(RMT_PASSWORD) \
+		-e GIT_REPOS_JSON="$$(cat $(READONLY_JSON_PATH))" \
 		$(DOCKER_PREFIX)capella/readonly:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
 
 run-t4c/client/remote-legacy: t4c/client/remote
@@ -447,6 +441,22 @@ debug-t4c/client/backup: run-t4c/client/backup
 debug-t4c/client/remote/pure-variants: AUTOSTART_CAPELLA=0
 debug-t4c/client/remote/pure-variants: DOCKER_RUN_FLAGS=-it --entrypoint="bash"
 debug-t4c/client/remote/pure-variants: run-t4c/client/remote/pure-variants
+
+debug-capella/readonly: DOCKER_RUN_FLAGS=-it \
+							-e DISPLAY=:0 \
+							-v /tmp/.X11-unix:/tmp/.X11-unix \
+							-v $$(pwd)/local/scripts:/opt/scripts/debug \
+							-v $$(pwd)/readonly/load_models.py:/opt/scripts/load_models.py \
+							--entrypoint="bash"
+debug-capella/readonly: run-capella/readonly
+
+debug-capella/readonly-json: DOCKER_RUN_FLAGS=-it \
+							-e DISPLAY=:0 \
+							-v /tmp/.X11-unix:/tmp/.X11-unix \
+							-v $$(pwd)/local/scripts:/opt/scripts/debug \
+							-v $$(pwd)/readonly/load_models.py:/opt/scripts/load_models.py \
+							--entrypoint="bash"
+debug-capella/readonly-json: run-capella/readonly-json
 
 t4c/server/server: SHELL=./capella_loop.sh
 t4c/server/server:

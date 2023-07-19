@@ -6,7 +6,7 @@
 dynamic = ["version"]
 
 name = "capella-dockerimages-tests"
-requires-python = ">=3.9, <3.12"
+requires-python = ">=3.11, <3.12"
 license = { text = "Apache-2.0" }
 authors = [{ name = "DB Netz AG" }]
 dependencies = ["docker>=6.1.0", "pytest", "capellambse[decl]", "chardet"]
@@ -19,7 +19,7 @@ dev = ["black", "isort", "mypy", "pylint"]
 
 [tool.black]
 line-length = 79
-target-version = ["py39"]
+target-version = ["py311"]
 
 [tool.isort]
 profile = 'black'
@@ -31,7 +31,7 @@ no_implicit_optional = true
 show_error_codes = true
 warn_redundant_casts = true
 warn_unreachable = true
-python_version = "3.9"
+python_version = "3.11"
 
 [[tool.mypy.overrides]]
 # Untyped third party libraries
