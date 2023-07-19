@@ -192,6 +192,7 @@ capella/base: base
 	rm capella/.dockerignore
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
+papyrus/base: DOCKER_BUILD_FLAGS=--platform linux/amd64
 papyrus/base: base
 	docker build $(DOCKER_BUILD_FLAGS) \
 		-t $(DOCKER_PREFIX)$@:$$DOCKER_TAG \
@@ -216,6 +217,7 @@ capella/remote: capella/base
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
 papyrus/remote: DOCKER_TAG=$(PAPYRUS_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
+papyrus/remote: DOCKER_BUILD_FLAGS=--platform linux/amd64
 papyrus/remote: papyrus/base
 	docker build $(DOCKER_BUILD_FLAGS) \
 		-t $(DOCKER_PREFIX)$@:$$DOCKER_TAG \
