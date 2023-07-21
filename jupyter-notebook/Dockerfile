@@ -11,7 +11,9 @@ RUN apt update && \
     libgirepository1.0-dev \
     libcairo2-dev \
     gir1.2-pango-1.0 \
-    graphviz && \
+    graphviz \
+    nodejs \
+    npm && \
     rm -rf /var/lib/apt/lists/*
 
 COPY docker-entrypoint.sh /
