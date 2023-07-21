@@ -64,6 +64,9 @@ GIT_PASSWORD ?= password
 # Preferred RDP port on your host system
 RDP_PORT ?= 3390
 
+# External port for web-based containers
+WEB_PORT ?= 8888
+
 # Preferred metrics port on your host system
 METRICS_PORT ?= 9118
 
@@ -113,7 +116,7 @@ INJECT_LIBS_CAPELLA ?= false
 BUILD_ARCHITECTURE ?= amd64
 
 DOCKER_BUILD_FLAGS ?= --platform linux/$(BUILD_ARCHITECTURE)
-DOCKER_RUN_FLAGS ?= --add-host=host.docker.internal:host-gateway --rm
+DOCKER_RUN_FLAGS ?= --add-host=host.docker.internal:host-gateway --rm -it
 
 # If set to 1, we will push the images to the specified registry
 PUSH_IMAGES ?= 0
@@ -296,6 +299,14 @@ run-capella/base: capella/base
 	docker run $(DOCKER_RUN_FLAGS) \
 		$(DOCKER_PREFIX)capella/base:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
 
+run-jupyter-notebook: jupyter-notebook
+	docker run $(DOCKER_RUN_FLAGS) \
+		-p $(WEB_PORT):8888 \
+		-v $$(pwd)/volumes/workspace/notebooks:/tmp/notebooks \
+		-e NOTEBOOKS_DIR=/tmp/notebooks \
+		-e JUPYTER_BASE_URL=/ \
+		$(DOCKER_PREFIX)$<:$(JUPYTER_NOTEBOOK_REVISION)
+
 run-capella/remote: capella/remote
 	docker run $(DOCKER_RUN_FLAGS) \
 		-e RMT_PASSWORD=$(RMT_PASSWORD) \
@@ -355,7 +366,7 @@ run-capella/readonly-json: capella/readonly
 
 run-t4c/client/remote-legacy: t4c/client/remote
 	docker rm /t4c-client-remote || true
-	docker run -d $(DOCKER_RUN_FLAGS) \
+	docker run $(DOCKER_RUN_FLAGS) \
 		-e T4C_LICENCE_SECRET=$(T4C_LICENCE_SECRET) \
 		-e T4C_SERVER_HOST=$(T4C_SERVER_HOST) \
 		-e T4C_SERVER_PORT=$(T4C_SERVER_PORT) \
@@ -369,7 +380,7 @@ run-t4c/client/remote-legacy: t4c/client/remote
 
 run-t4c/client/remote-json: t4c/client/remote
 	docker rm /t4c-client-remote-json || true
-	docker run -d \
+	docker run $(DOCKER_RUN_FLAGS) \
 		-e T4C_LICENCE_SECRET=$(T4C_LICENCE_SECRET) \
 		-e T4C_JSON=$(T4C_JSON) \
 		-e RMT_PASSWORD=$(RMT_PASSWORD) \

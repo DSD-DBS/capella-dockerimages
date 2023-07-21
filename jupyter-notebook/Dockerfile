@@ -16,11 +16,21 @@ RUN apt update && \
 
 COPY docker-entrypoint.sh /
 COPY requirements_template.txt /etc/skel
+RUN chmod +x /docker-entrypoint.sh
 
-RUN chmod +x /docker-entrypoint.sh && \
-    python3 -m pip install --break-system-packages jupyterlab capellambse && \
+USER techuser
+
+# Activate virtual environment
+RUN python -m venv /home/techuser/.venv
+
+ENV _OLD_VIRTUAL_PATH="$PATH"
+ENV VIRTUAL_ENV=/home/techuser/.venv
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+RUN python3 -m pip install -r /etc/skel/requirements_template.txt jupyterlab  && \
     jupyter labextension disable "@jupyterlab/extensionmanager-extension" && \
-    jupyter labextension disable "@jupyterlab/apputils-extension:announcements"
+    jupyter labextension disable "@jupyterlab/apputils-extension:announcements" && \
+    mkdir /home/techuser/.jupyter && chown techuser /home/techuser/.jupyter
 
 COPY jupyter_lab_config.py /home/techuser/.jupyter/jupyter_lab_config.py
 
@@ -29,7 +39,6 @@ ENV NOTEBOOKS_DIR=/workspace/notebooks
 
 EXPOSE $JUPYTER_PORT
 
-USER techuser
 WORKDIR $HOME
 
 ENTRYPOINT "/docker-entrypoint.sh"
