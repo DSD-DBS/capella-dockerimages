@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
 # SPDX-License-Identifier: Apache-2.0
 
-name: 'Collab Manager: Diagram Cache'
+name: 'Generate diagram cache'
 description: 'An action to create and push a capella diagram cache'
 
 inputs:
@@ -27,8 +27,6 @@ inputs:
     description: 'Whether to push the diagram cache changes or not'
     required: false
     default: "true"
-  commit_branch:
-    description: 'The base branch to which the diagram cache belongs'
 
 runs:
   using: "composite"
@@ -44,21 +42,21 @@ runs:
       shell: bash
       run: >-
         python -m capellambse.diagram_cache
-        --model ${{ inputs.entry_point }}
+        --model "${{ inputs.entry_point }}"
         --output ./diagram_cache
         --index
-        --docker ghcr.io/dsd-dbs/capella-dockerimages/capella/base:{VERSION}-${{ inputs.capella_docker_images_dropins }}-dropins-${{ inputs.capella_docker_images_revision }}
+        --docker "ghcr.io/dsd-dbs/capella-dockerimages/capella/base:{VERSION}-${{ inputs.capella_docker_images_dropins }}-dropins-${{ inputs.capella_docker_images_revision }}"
     - name: Push diagram cache to orphan branch
       shell: bash
       run: |
-        DERIVED_BRANCH_NAME="$(echo diagram-cache/${{ inputs.commit_branch }})"
-        git switch "$DERIVED_BRANCH_NAME" || git switch --orphan "$DERIVED_BRANCH_NAME"
-        git reset
+        DERIVED_BRANCH_NAME="diagram-cache/${{ github.ref_name }}"
+        SHORT_COMMIT_SHA=$(git rev-parse --short "${{ github.sha }}")
+        git switch --orphan "$DERIVED_BRANCH_NAME"
         git add diagram_cache
-        if git diff --cached --exit-code &> /dev/null || [[ "$PUSH_DIAGRAM_CACHE" == "false" ]]; then exit 0; fi
+        if [[ "${{ inputs.push_diagram_cache }}" == "false" ]]; then exit 0; fi
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "capellambse[bot]"
-        git commit -m "${{ inputs.commit_msg }}"
+        git commit -m "${{ inputs.commit_msg }} for $SHORT_COMMIT_SHA"
         git push -o ci.skip --set-upstream origin $DERIVED_BRANCH_NAME --force
     - name: Archive diagram cache in artifacts
       uses: actions/upload-artifact@v3
