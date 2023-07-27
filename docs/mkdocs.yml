@@ -22,6 +22,8 @@ nav:
           - Model validation: ci-templates/gitlab/model-validation.md
           - T4C export: ci-templates/gitlab/t4c-export.md
           - Test container clean up: ci-templates/gitlab/cleanup.md
+      - Github:
+          - Diagram cache: ci-templates/github/diagram-cache.md
   - Jupyter Notebooks: jupyter/index.md
   - Capella:
       - Introduction: capella/introduction.md

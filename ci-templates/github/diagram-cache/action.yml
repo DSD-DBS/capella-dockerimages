@@ -1,0 +1,65 @@
+# SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
+# SPDX-License-Identifier: Apache-2.0
+
+name: 'Generate diagram cache'
+description: 'An action to create and push a capella diagram cache'
+
+inputs:
+  commit_msg:
+    description: 'The commit message for updating the diagram cache'
+    required: false
+    default: "docs: Update diagram cache"
+  entry_point:
+    description: 'The entry point of the used model'
+  capellambse_revision:
+    description: 'The revision of the py-capellambse package to install'
+    required: false
+    default: master
+  capella_docker_images_revision:
+    description: 'The revision of capella-dockerimages to use'
+    required: false
+    default:  main
+  capella_docker_images_dropins:
+    description: 'Please have a look at https://dsd-dbs.github.io/capella-dockerimages/capella/introduction/#supported-dropins'
+    required: false
+    default: selected
+  push_diagram_cache:
+    description: 'Whether to push the diagram cache changes or not'
+    required: false
+    default: "true"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v3
+      with:
+        python-version: 3.11
+    - name: Install capellambse
+      shell: bash
+      run: pip install "capellambse[cli]@git+https://github.com/DSD-DBS/py-capellambse.git@${{ inputs.capellambse_revision }}"
+    - name: Generate diagram cache
+      shell: bash
+      run: >-
+        python -m capellambse.diagram_cache
+        --model "${{ inputs.entry_point }}"
+        --output ./diagram_cache
+        --index
+        --docker "ghcr.io/dsd-dbs/capella-dockerimages/capella/base:{VERSION}-${{ inputs.capella_docker_images_dropins }}-dropins-${{ inputs.capella_docker_images_revision }}"
+    - name: Push diagram cache to orphan branch
+      shell: bash
+      run: |
+        DERIVED_BRANCH_NAME="diagram-cache/${{ github.ref_name }}"
+        SHORT_COMMIT_SHA=$(git rev-parse --short "${{ github.sha }}")
+        git switch --orphan "$DERIVED_BRANCH_NAME"
+        git add diagram_cache
+        if [[ "${{ inputs.push_diagram_cache }}" == "false" ]]; then exit 0; fi
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "capellambse[bot]"
+        git commit -m "${{ inputs.commit_msg }} for $SHORT_COMMIT_SHA"
+        git push -o ci.skip --set-upstream origin $DERIVED_BRANCH_NAME --force
+    - name: Archive diagram cache in artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: diagram_cache
+        path: diagram_cache
