@@ -1066,12 +1066,14 @@ c = get_config()  # noqa
 
 ## Supply overrides for the tornado.web.Application that the Jupyter server uses.
 #  Default: {}
-host = os.getenv("HOST")
 
-if host:
+# Origin host for the content security policy.
+csp_origin_host = os.getenv("CSP_ORIGIN_HOST")
+
+if csp_origin_host:
     c.ServerApp.tornado_settings = {
         "headers": {
-            "Content-Security-Policy": f"frame-ancestors self {host}",
+            "Content-Security-Policy": f"frame-ancestors self {csp_origin_host}",
         }
     }
 
