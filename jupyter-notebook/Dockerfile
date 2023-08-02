@@ -29,7 +29,7 @@ ENV _OLD_VIRTUAL_PATH="$PATH"
 ENV VIRTUAL_ENV=/home/techuser/.venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-RUN python3 -m pip install -r /etc/skel/requirements_template.txt jupyterlab  && \
+RUN python3 -m pip install -r /etc/skel/requirements_template.txt jupyterlab jupyter-collaboration && \
     jupyter labextension disable "@jupyterlab/extensionmanager-extension" && \
     jupyter labextension disable "@jupyterlab/apputils-extension:announcements" && \
     mkdir /home/techuser/.jupyter && chown techuser /home/techuser/.jupyter
