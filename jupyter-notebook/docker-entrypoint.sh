@@ -14,7 +14,7 @@ pip install -U -r "$NOTEBOOKS_DIR/requirements.txt" -r /etc/skel/requirements_te
 
 echo "---START_SESSION---"
 
-jupyter-lab --ip=0.0.0.0 \
+exec jupyter-lab --ip=0.0.0.0 \
     --port=$JUPYTER_PORT \
     --no-browser \
     --ServerApp.authenticate_prometheus=False \
