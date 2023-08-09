@@ -75,7 +75,9 @@ RUN apt-get update && \
     apt-get install -y \
     libxtst6 \
     xdg-utils \
-    xvfb && \
+    xvfb \
+    xauth \
+    dbus-x11 && \
     rm -rf /var/lib/apt/lists/*;
 
 RUN if [ -s capella.zip ]; then \
