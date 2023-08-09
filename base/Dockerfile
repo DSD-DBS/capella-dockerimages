@@ -19,6 +19,7 @@ RUN apt-get update && \
     python3-pip \
     python3-venv \
     git-lfs \
+    subversion \
     unzip \
     zip && \
     rm -rf /var/lib/apt/lists/*
