@@ -132,8 +132,8 @@ RUN mkdir -p /opt/capella/configuration/.settings; \
     mkdir -p /workspace/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.ui.prefs; \
     # Set workspace permissions
     chown -R techuser /workspace && \
-    chown -R techuser /opt/capella/configuration && \
-    chown -R techuser /opt/capella/p2/org.eclipse.equinox.p2.engine/profileRegistry && \
+    chmod -R 777 /opt/capella/configuration && \
+    chmod -R 777 /opt/capella/p2/org.eclipse.equinox.p2.engine/profileRegistry && \
     chown techuser /opt /opt/capella/capella.ini
 
 RUN echo '-Dosgi.configuration.area=file:/opt/capella/configuration' >> /opt/capella/capella.ini
