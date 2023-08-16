@@ -12,14 +12,8 @@ ENV SHELL=/bin/bash
 # Somehow OpenJDK does not install in one shot due to a (cyclic?) dependency on
 # package ca-certificates-java. Performing the install again fixes it.
 RUN apt-get update && \
-    apt-get install -y \
-    xdg-utils \
-    xvfb \
-    xauth \
-    dbus-x11 \
-    git-lfs && \
     # https://forums.debian.net/viewtopic.php?t=151997
-    ( apt-get install -y openjdk-17-jre || apt-get install -y openjdk-17-jre ) && \
+    apt-get install -y openjdk-17-jre || apt-get install -y openjdk-17-jre && \
     rm -rf /var/lib/apt/lists/*
 
 ARG GIT_EMAIL=contact@example.com
