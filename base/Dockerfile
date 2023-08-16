@@ -36,9 +36,22 @@ ENV LC_ALL="en_GB.UTF-8"
 
 # Create techuser with UID
 ARG UID=1001
-RUN useradd -l -m -u $UID techuser
-RUN echo "techuser:tmp_passwd" | chpasswd
+RUN useradd -l -m -u $UID techuser && \
+    echo "techuser:tmp_passwd" | chpasswd \
+    && chown techuser /home/techuser
 ENV HOME=/home/techuser
-RUN chown techuser /home/techuser
 
-RUN ln -sf $(which python3) /usr/bin/python
+
+# This in analogous to the virtualenv activate script
+# To allow deactivation of the virtualenv, we need to save the old PATH
+ENV _OLD_VIRTUAL_PATH="$PATH"
+ENV VIRTUAL_ENV=/opt/.venv
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+RUN ln -s $(which python3.11) /usr/bin/python && \
+    ln -sf $(which python3.11) /usr/bin/python3 && \
+    ln -sf $(which pip3.11) /usr/local/bin/pip && \
+    ln -sf $(which pip3.11) /usr/local/bin/pip3 && \
+    python -m venv /opt/.venv && \
+    chmod -R 777 /opt/.venv/bin/ && \
+    chmod -R 777 /opt/.venv/lib/python3.11/site-packages

@@ -30,7 +30,7 @@ COPY wallpaper.png /tmp/wallpaper.png
 COPY bg-saved.cfg /home/techuser/.config/nitrogen/bg-saved.cfg
 
 # Copy Supervisor Configuration
-RUN pip install --break-system-packages supervisor
+RUN pip install supervisor
 COPY supervisord.conf /etc/supervisord.conf
 
 # Allow any user to start the RDP server
@@ -50,7 +50,7 @@ COPY startup.sh .startup.sh
 RUN chmod 755 .startup.sh /home/techuser/.config/openbox/autostart
 
 # Prepare idletime metric endpoint
-RUN pip install --break-system-packages prometheus-client
+RUN pip install prometheus-client
 
 COPY metrics.py .metrics.py
 RUN chown techuser /home/techuser/.metrics.py
