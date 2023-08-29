@@ -4,8 +4,8 @@
 ARG BASE_IMAGE=base
 FROM $BASE_IMAGE
 
-RUN apt update && \
-    apt install --yes --no-install-recommends \
+RUN apt-get update && \
+    apt-get install --yes --no-install-recommends \
     git \
     git-lfs \
     libgirepository1.0-dev \

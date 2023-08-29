@@ -22,7 +22,7 @@ RUN if [ "$NETWORK_ACCESS" = "restricted" ]; then \
     | dd of=/usr/share/keyrings/vscodium-archive-keyring.gpg && \
     echo 'deb [ signed-by=/usr/share/keyrings/vscodium-archive-keyring.gpg ] https://download.vscodium.com/debs vscodium main' \
     | tee /etc/apt/sources.list.d/vscodium.list && \
-    apt-get update && apt install -y codium; \
+    apt-get update && apt-get install -y codium; \
     fi && \
     rm -rf /var/lib/apt/lists/* && \
     rm -r /tmp/libs;
