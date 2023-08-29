@@ -12,6 +12,33 @@ env:
   images: capella/base capella/remote capella/ease capella/readonly
 
 jobs:
+  lint-docker-files:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        docker_file:
+          - "base/Dockerfile"
+          - "builder/Dockerfile"
+          - "capella/Dockerfile"
+          - "ease/debug/Dockerfile"
+          - "ease/Dockerfile"
+          - "eclipse/Dockerfile"
+          - "jupyter-notebook/Dockerfile"
+          - "papyrus/Dockerfile"
+          - "pure-variants/Dockerfile"
+          - "readonly/Dockerfile"
+          - "remote/Dockerfile"
+          - "t4c/Dockerfile"
+          - "tests/local-git-server/Dockerfile"
+    name: Docker file ${{ matrix.docker_file }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: ${{ matrix.docker_file }}
+          override-info: DL3002,DL3006,DL3008
+          failure-threshold: warning
+
   deploy-docker-images:
     runs-on: ubuntu-latest
     strategy:
