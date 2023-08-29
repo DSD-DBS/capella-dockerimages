@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y wget
 ARG NETWORK_ACCESS=unrestricted
 
 COPY libs /tmp/libs
+# hadolint ignore=SC2046
 RUN if [ "$NETWORK_ACCESS" = "restricted" ]; then \
     apt-get update && \
     apt-get install -y $(find /tmp/libs -iname "*.deb"); \
