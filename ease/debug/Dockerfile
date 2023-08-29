@@ -6,6 +6,8 @@ FROM $BASE_IMAGE
 
 USER root
 
+SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
+
 RUN apt-get update && apt-get install -y wget
 ARG NETWORK_ACCESS=unrestricted
 
