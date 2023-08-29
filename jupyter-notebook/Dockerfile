@@ -43,4 +43,4 @@ EXPOSE $JUPYTER_PORT
 
 WORKDIR $HOME
 
-ENTRYPOINT "/docker-entrypoint.sh"
+ENTRYPOINT ["/docker-entrypoint.sh"]
