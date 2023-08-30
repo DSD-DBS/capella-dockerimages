@@ -1,0 +1,32 @@
+# SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
+# SPDX-License-Identifier: CC0-1.0
+name: 'Scan images with Trivy'
+description: 'Scan images with Trivy'
+inputs:
+  registry:
+    description: 'Docker registry'
+    required: true
+  images:
+    description: 'Image names to scan'
+    required: true
+  tag:
+    description: 'Image tag'
+    required: true
+  trivy-version:
+    description: 'Trivy version to use'
+    required: false
+    default: '0.44.1'
+runs:
+  using: composite
+  steps:
+    - name: Install Trivy
+      run: |
+        curl -OLs https://github.com/aquasecurity/trivy/releases/download/v${{ inputs.trivy-version }}/trivy_${{ inputs.trivy-version }}_Linux-64bit.deb
+        sudo dpkg -i trivy_${{ inputs.trivy-version }}_Linux-64bit.deb
+      shell: bash
+    - name: Scan images
+      run: |
+        for image in ${{ inputs.images }}
+        do trivy -q image "${{ inputs.registry }}$image:${{ inputs.tag }}"
+        done
+      shell: bash

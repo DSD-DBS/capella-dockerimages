@@ -68,6 +68,12 @@ jobs:
           CAPELLA_VERSION="${{ matrix.capella_version }}"
           LOCAL_GIT_TAG="latest"
           pytest -m "not (t4c_server or t4c)" tests
+      - name: Security scan
+        uses: ./.github/actions/trivy
+        with:
+          registry: ${{ env.registry }}
+          images: ${{ env.images }}
+          tag: ${{ steps.tag.outputs.tag }}
       - name: Push
         run: |
           for image in ${{ env.images }}
