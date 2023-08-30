@@ -47,6 +47,7 @@ jobs:
         run: |
           echo "branch=$(git rev-parse --abbrev-ref HEAD | sed 's/[^a-zA-Z0-9]/-/g')" >> "$GITHUB_OUTPUT"
           echo "sha=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+          echo "tag=${{ matrix.capella_version }}-${{ matrix.dropins.name }}-dropins-${{ steps.tag.outputs.branch }}" >> "$GITHUB_OUTPUT"
       - name: Build
         run: >
           make ${{ env.images }}
@@ -54,7 +55,7 @@ jobs:
           DOCKER_PREFIX="${{ env.registry }}"
           CAPELLA_DOCKERIMAGES_REVISION="${{ steps.tag.outputs.branch }}"
           CAPELLA_DROPINS="${{ matrix.dropins.dropins }}"
-          DOCKER_TAG_SCHEMA=${{ matrix.capella_version }}-${{ matrix.dropins.name }}-dropins-${{ steps.tag.outputs.branch }}
+          DOCKER_TAG_SCHEMA="${{ steps.tag.outputs.tag }}"
           DOCKER_BUILD_FLAGS="--label git-short-sha=${{ steps.tag.outputs.sha }}"
       - name: Install test dependencies
         run: |
@@ -63,12 +64,12 @@ jobs:
       - name: Run pytest
         run: >
           DOCKER_PREFIX="${{ env.registry }}"
-          DOCKER_TAG="${{ matrix.capella_version }}-${{ matrix.dropins.name }}-dropins-${{ steps.tag.outputs.branch }}"
+          DOCKER_TAG="${{ steps.tag.outputs.tag }}"
           CAPELLA_VERSION="${{ matrix.capella_version }}"
           LOCAL_GIT_TAG="latest"
           pytest -m "not (t4c_server or t4c)" tests
       - name: Push
         run: |
           for image in ${{ env.images }}
-          do docker push "${{ env.registry }}$image:${{ matrix.capella_version }}-${{ matrix.dropins.name }}-dropins-${{ steps.tag.outputs.branch }}"
+          do docker push "${{ env.registry }}$image:${{ steps.tag.outputs.tag }}"
           done
