@@ -12,35 +12,23 @@ env:
   images: capella/base capella/remote capella/ease capella/readonly
 
 jobs:
-  lint-docker-files:
+  lint:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        docker_file:
-          - "base/Dockerfile"
-          - "builder/Dockerfile"
-          - "capella/Dockerfile"
-          - "ease/debug/Dockerfile"
-          - "ease/Dockerfile"
-          - "eclipse/Dockerfile"
-          - "jupyter-notebook/Dockerfile"
-          - "papyrus/Dockerfile"
-          - "pure-variants/Dockerfile"
-          - "readonly/Dockerfile"
-          - "remote/Dockerfile"
-          - "t4c/Dockerfile"
-          - "tests/local-git-server/Dockerfile"
-    name: Docker file ${{ matrix.docker_file }}
     steps:
       - uses: actions/checkout@v3
-      - uses: hadolint/hadolint-action@v3.1.0
+      - uses: actions/setup-python@v4
         with:
-          dockerfile: ${{ matrix.docker_file }}
-          override-info: DL3002,DL3006,DL3008
-          failure-threshold: warning
+          python-version: "3.11"
+      - name: Install pre-commit
+        run: |-
+          python -m pip install pre-commit
+      - name: Run pre-commit
+        run: |-
+          pre-commit run --all-files
 
   deploy-docker-images:
     runs-on: ubuntu-latest
+    needs: [lint]
     strategy:
       matrix:
         capella_version:
