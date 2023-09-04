@@ -140,14 +140,11 @@ def clone_git_repository() -> pathlib.Path:
     git_dir.mkdir(exist_ok=True)
 
     log.debug("Cloning git repository...")
+    if pathlib.Path("/etc/git_askpass.py").is_file():
+        os.environ["GIT_ASKPASS"] = "/etc/git_askpass.py"
     subprocess.run(
         ["git", "clone", os.environ["GIT_REPO_URL"], "/tmp/git"],
         check=True,
-        env={
-            "GIT_USERNAME": os.getenv("GIT_USERNAME", ""),
-            "GIT_PASSWORD": os.getenv("GIT_PASSWORD", ""),
-            "GIT_ASKPASS": "/etc/git_askpass.py",
-        },
     )
     try:
         subprocess.run(
@@ -266,16 +263,13 @@ def git_commit_and_push(git_dir: pathlib.Path) -> None:
             check=True,
             cwd=git_dir,
         )
+        if pathlib.Path("/etc/git_askpass.py").is_file():
+            os.environ["GIT_ASKPASS"] = "/etc/git_askpass.py"
 
         subprocess.run(
             ["git", "push", "origin", os.environ["GIT_REPO_BRANCH"]],
             check=True,
             cwd=git_dir,
-            env={
-                "GIT_USERNAME": os.getenv("GIT_USERNAME", ""),
-                "GIT_PASSWORD": os.getenv("GIT_PASSWORD", ""),
-                "GIT_ASKPASS": "/etc/git_askpass.py",
-            },
         )
     else:
         log.warning("No changes, will not commit.")
