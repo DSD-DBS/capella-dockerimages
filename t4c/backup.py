@@ -23,6 +23,10 @@ def run_importer_script() -> None:
 
     connection_type: str = get_connection_type()
 
+    workspace_dir = pathlib.Path("/tmp/workspace")
+    shutil.rmtree(workspace_dir, ignore_errors=True)
+    workspace_dir.mkdir()
+
     command: list[str] = [
         "/opt/capella/capella",
         "--launcher.suppressErrors",
@@ -30,7 +34,7 @@ def run_importer_script() -> None:
         "-console",
         "-consoleLog",
         "-data",
-        "workspace",
+        str(workspace_dir),
         "-application",
         "com.thalesgroup.mde.melody.collab.importer",
         "-closeserverOnFailure",
@@ -137,7 +141,8 @@ def run_importer_script() -> None:
 
 def clone_git_repository() -> pathlib.Path:
     git_dir = pathlib.Path("/tmp/git")
-    git_dir.mkdir(exist_ok=True)
+    shutil.rmtree(git_dir, ignore_errors=True)
+    git_dir.mkdir()
 
     log.debug("Cloning git repository...")
     if pathlib.Path("/etc/git_askpass.py").is_file():
@@ -315,7 +320,8 @@ def get_http_envs() -> tuple[str, str, str]:
 
 if __name__ == "__main__":
     _project_dir = pathlib.Path(OUTPUT_FOLDER)
-    _project_dir.mkdir(exist_ok=True)
+    shutil.rmtree(_project_dir, ignore_errors=True)
+    _project_dir.mkdir()
 
     run_importer_script()
 
