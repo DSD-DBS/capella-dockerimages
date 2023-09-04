@@ -27,6 +27,6 @@ runs:
     - name: Scan images
       run: |
         for image in ${{ inputs.images }}
-        do trivy -q image "${{ inputs.registry }}$image:${{ inputs.tag }}"
+        do trivy -q image --severity HIGH,CRITICAL "${{ inputs.registry }}$image:${{ inputs.tag }}"
         done
       shell: bash
