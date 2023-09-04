@@ -199,6 +199,10 @@ def unmess_file_structure(model_dir: pathlib.Path) -> None:
 
 def copy_exported_files_into_git_repo(project_dir: pathlib.Path) -> None:
     log.info("Start copying files...")
+    model_dir = project_dir / urllib.parse.quote(
+        os.environ["T4C_PROJECT_NAME"]
+    )
+    unmess_file_structure(model_dir)
 
     if entrypoint := os.getenv("GIT_REPO_ENTRYPOINT", None):
         target_directory = pathlib.Path(
@@ -209,11 +213,6 @@ def copy_exported_files_into_git_repo(project_dir: pathlib.Path) -> None:
         target_directory = pathlib.Path(
             "/tmp/git",
         )
-
-    model_dir = project_dir / urllib.parse.quote(
-        os.environ["T4C_PROJECT_NAME"]
-    )
-    unmess_file_structure(model_dir)
 
     shutil.copytree(
         model_dir,
