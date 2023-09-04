@@ -12,7 +12,6 @@ mkdir -p "$NOTEBOOKS_DIR"
 test -f "$NOTEBOOKS_DIR/requirements.txt" || cp /etc/skel/requirements_template.txt "$NOTEBOOKS_DIR/requirements.txt"
 pip install -U -r "$NOTEBOOKS_DIR/requirements.txt" -r /etc/skel/requirements_template.txt 2>&1 | tee "$NOTEBOOKS_DIR/installlog.txt"
 
-mkdir -p "/shared"
 test -d "$NOTEBOOKS_DIR/shared" || ln -s /shared "$NOTEBOOKS_DIR/shared"
 
 echo "---START_SESSION---"
