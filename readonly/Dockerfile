@@ -9,7 +9,7 @@ ENV SHELL=/bin/bash
 
 USER root
 
-RUN pip install --break-system-packages lxml
+RUN pip install lxml
 COPY load_models.py /opt/scripts/load_models.py
 RUN chown -R techuser /opt/capella
 ENV EASE_LOG_LOCATION=/proc/1/fd/1

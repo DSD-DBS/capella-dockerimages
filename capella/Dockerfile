@@ -55,7 +55,7 @@ FROM base_new as build_online
 # https://github.com/moby/moby/issues/26533#issuecomment-246966836
 ONBUILD ARG CAPELLA_VERSION="5.2.0"
 ONBUILD COPY ./download_archive.py /opt/.download_archive.py
-ONBUILD RUN pip install --break-system-packages requests lxml && \
+ONBUILD RUN pip install requests lxml && \
     python .download_archive.py ${CAPELLA_VERSION};
 
 FROM base_new as build_offline
@@ -115,7 +115,7 @@ ARG MEMORY_LIMIT=5500m
 RUN echo '-Dorg.eclipse.equinox.p2.transport.ecf.retry=15' >> /opt/capella/capella.ini && \
     echo '-Dorg.eclipse.ecf.provider.filetransfer.retrieve.readTimeout=10000' >> /opt/capella/capella.ini && \
     sed -i "s/-Xmx[^ ]*/-Xmx$MEMORY_LIMIT/g" /opt/capella/capella.ini
-RUN pip install --break-system-packages PyYAML && python install_dropins.py
+RUN pip install PyYAML && python install_dropins.py
 
 COPY ./versions/${CAPELLA_VERSION}/patches /opt/patches
 RUN PATCH_DIR=/opt/patches /opt/patch.sh
