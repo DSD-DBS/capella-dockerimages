@@ -17,6 +17,17 @@ ERROR_PREFIX: str = "Import of model from TeamForCapella server failed"
 
 OUTPUT_FOLDER: str = "/tmp/model"
 
+if pathlib.Path(".env").is_file():
+    try:
+        import dotenv
+
+        dotenv.load_dotenv(".env")
+    except ImportError:
+        log.warning(
+            "Install the optional 'dev' project dependencies if you want "
+            "to load environment variables from the '.env' file!"
+        )
+
 
 def run_importer_script() -> None:
     log.debug("Import model from TeamForCapella server...")

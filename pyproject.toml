@@ -21,7 +21,7 @@ dependencies = [
 Homepage = "https://github.com/DSD-DBS/capella-dockerimages"
 
 [project.optional-dependencies]
-dev = ["black", "isort", "mypy", "pylint"]
+dev = ["black", "isort", "mypy", "pylint", "python-dotenv"]
 
 [tool.black]
 line-length = 79
