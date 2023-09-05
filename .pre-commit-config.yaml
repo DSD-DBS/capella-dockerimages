@@ -110,4 +110,3 @@ repos:
     rev: v2.12.0
     hooks:
       - id: hadolint-docker
-        args: ["--info", "DL3002", "--info", "DL3006", "--info", "DL3008", "--failure-threshold", "warning"]
