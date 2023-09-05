@@ -15,11 +15,10 @@ FROM base as old_gtk_true
 # Install WebKit with GTK
 ONBUILD COPY libs /tmp/libs
 ONBUILD ARG INJECT_PACKAGES=false
-# hadolint ignore=SC2046
-ONBUILD RUN if [[ "$INJECT_PACKAGES" = "true" ]]; then \
+ONBUILD RUN if [ "$INJECT_PACKAGES" = "true" ]; then \
     apt-get update && \
     # Inject old packages manually
-    apt-get install -y $(find /tmp/libs -iname "*.deb"); \
+    find /tmp/libs -iname "*.deb" -exec apt-get install -y {} \; ; \
     rm -rf /var/lib/apt/lists/*; \
     rm -r /tmp/libs; \
     else \
