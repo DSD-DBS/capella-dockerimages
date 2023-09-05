@@ -9,7 +9,7 @@ name = "capella-dockerimages-tests"
 requires-python = ">=3.11, <3.12"
 license = { text = "Apache-2.0" }
 authors = [{ name = "DB Netz AG" }]
-dependencies = ["docker>=6.1.0", "pytest", "capellambse[decl]", "chardet"]
+dependencies = ["docker>=6.1.0", "pytest", "capellambse[decl]", "chardet", "lxml"]
 
 [project.urls]
 Homepage = "https://github.com/DSD-DBS/capella-dockerimages"
@@ -36,7 +36,7 @@ python_version = "3.11"
 [[tool.mypy.overrides]]
 # Untyped third party libraries
 module = [
-  # ...
+  "lxml.*",
 ]
 ignore_missing_imports = true
 
@@ -54,6 +54,11 @@ add-ignore = [
   "D204", # 1 blank line required after class docstring  # auto-formatting
   "D211", # No blank lines allowed before class docstring  # auto-formatting
   "D213", # Multi-line docstring summary should start at the second line
+]
+
+[tool.pylint.master]
+extension-pkg-allow-list = [
+  "lxml.etree",
 ]
 
 [tool.pylint.messages_control]
