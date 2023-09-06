@@ -20,6 +20,7 @@ RUN apt-get update && \
     python3-venv \
     git-lfs \
     unzip \
+    vim \
     zip && \
     rm -rf /var/lib/apt/lists/*
 
