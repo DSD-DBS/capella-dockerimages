@@ -3,6 +3,14 @@
 # SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
 # SPDX-License-Identifier: Apache-2.0
 
+handle_exit() {
+    exit_status=$?
+    if [ $exit_status -ne 0 ]; then
+        echo "---FAILURE_PREPARE_WORKSPACE---"
+    fi
+}
+trap handle_exit EXIT
+
 set -euo pipefail
 
 echo "---START_PREPARE_WORKSPACE---"
