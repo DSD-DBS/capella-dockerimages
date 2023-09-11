@@ -36,8 +36,8 @@ COPY supervisord.conf /etc/supervisord.conf
 # Allow any user to start the RDP server
 # Depending on the base image used, Xwrapper.config may (not) be available and has to be created.
 RUN sed -i 's/allowed_users=console/allowed_users=anybody/g' /etc/X11/Xwrapper.config \
-    || echo "allowed_users=anybody" > /etc/X11/Xwrapper.config
-RUN id techuser || useradd -l -m -u 1001000000 techuser && echo "techuser:tmp_passwd" | chpasswd
+    || echo "allowed_users=anybody" > /etc/X11/Xwrapper.config && \
+    chmod 666 /etc/shadow
 
 # Set permissions
 RUN mkdir -p /run/xrdp/sockdir && \

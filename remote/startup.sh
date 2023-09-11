@@ -4,16 +4,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
 set -e
-if [ "$(whoami)" == "root" ];
+if [ "$(whoami)" == "root" ] || [ "$(whoami)" == "techuser" ];
 then
-    echo -e "$RMT_PASSWORD\n$RMT_PASSWORD" | passwd techuser;
-elif [ "$(whoami)" == "techuser" ];
-then
-    echo -e "tmp_passwd\n$RMT_PASSWORD\n$RMT_PASSWORD" | passwd;
+    line=$(grep techuser /etc/shadow);
+    echo ${line%%:*}:$(openssl passwd -6 -salt $(openssl rand -base64 16) $RMT_PASSWORD):${line#*:*:} > /etc/shadow;
 else
     echo "Only techuser and root are supported as users.";
     exit 1;
 fi
+
+unset RMT_PASSWORD
 
 # Run preparation scripts
 for filename in /opt/setup/*.py; do

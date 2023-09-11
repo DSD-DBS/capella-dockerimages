@@ -4,7 +4,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 set -ex
-echo -e "tmp_passwd\n$RMT_PASSWORD\n$RMT_PASSWORD" | passwd
+line=$(grep techuser /etc/shadow);
+echo ${line%%:*}:$(openssl passwd -6 -salt $(openssl rand -base64 16) $RMT_PASSWORD):${line#*:*:} > /etc/shadow;
 unset RMT_PASSWORD
 
 # Prepare Workspace
