@@ -12,6 +12,9 @@ SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 ENV SHELL=/bin/bash
 
 FROM base as old_gtk_true
+
+ONBUILD USER root
+
 # Install WebKit with GTK
 ONBUILD COPY libs /tmp/libs
 ONBUILD ARG INJECT_PACKAGES=false
@@ -38,6 +41,8 @@ ONBUILD RUN if [ "$INJECT_PACKAGES" = "true" ]; then \
     rm -rf /var/lib/apt/lists/*;
 
 FROM base as old_gtk_false
+
+ONBUILD USER root
 ONBUILD COPY libs /tmp/libs
 ONBUILD RUN apt-get update && \
     apt-get install -y \
@@ -157,3 +162,5 @@ COPY startup.sh /startup.sh
 ENTRYPOINT [ "/tini", "--", "/startup.sh" ]
 
 ENV BASE_TYPE=capella
+
+USER techuser

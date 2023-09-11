@@ -9,6 +9,8 @@ FROM $BASE_IMAGE as prebuild
 SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 ENV SHELL=/bin/bash
 
+USER root
+
 # Somehow OpenJDK does not install in one shot due to a (cyclic?) dependency on
 # package ca-certificates-java. Performing the install again fixes it.
 RUN apt-get update && \
@@ -27,6 +29,8 @@ ENV DISPLAY :99
 
 RUN pip install --no-cache-dir py4j==0.10.9.7
 
+USER techuser
+
 # Offline build (fixed version)
 FROM prebuild as build_offline
 ONBUILD COPY extensions /tmp/extensions
@@ -41,8 +45,6 @@ ONBUILD ENV EASE_REPOSITORY=https://download.eclipse.org/ease/release/latest/
 ONBUILD ENV SWTBOT_REPOSITORY=https://download.eclipse.org/technology/swtbot/releases/latest/
 
 FROM build_${BUILD_TYPE}
-
-USER techuser
 
 # Install EASE Dependencies
 # - org.py4j.feature.feature.group
@@ -109,4 +111,7 @@ RUN chmod +rx /etc/git_askpass.py
 
 COPY startup.sh /opt/startup.sh
 RUN chmod +x /opt/startup.sh
+
+USER techuser
+
 ENTRYPOINT [ "/opt/startup.sh" ]

@@ -55,3 +55,5 @@ RUN ln -s "$(which python3.11)" /usr/bin/python && \
     python -m venv /opt/.venv && \
     chmod -R 777 /opt/.venv/bin/ && \
     chmod -R 777 /opt/.venv/lib/python3.11/site-packages
+
+USER techuser

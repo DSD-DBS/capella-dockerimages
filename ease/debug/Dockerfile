@@ -25,3 +25,5 @@ RUN if [ "$NETWORK_ACCESS" = "restricted" ]; then \
     fi && \
     rm -rf /var/lib/apt/lists/* && \
     rm -r /tmp/libs;
+
+USER techuser

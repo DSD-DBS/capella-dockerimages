@@ -11,6 +11,7 @@ SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 ENV SHELL=/bin/bash
 
 FROM base as build_online
+ONBUILD USER root
 ONBUILD ENV EGIT_REPOSITORY=https://download.eclipse.org/egit/updates/
 
 FROM base as build_offline
@@ -64,3 +65,5 @@ ENV ECLIPSE_INSTALLATION_PATH=/opt/eclipse
 ENV ECLIPSE_EXECUTABLE=/opt/eclipse/eclipse
 
 ENV BASE_TYPE=eclipse
+
+USER techuser

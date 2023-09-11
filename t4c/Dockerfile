@@ -60,4 +60,6 @@ RUN chown techuser /opt/capella/capella.ini && \
 WORKDIR /opt
 ENV BASE_TYPE=t4c
 
+USER techuser
+
 ENTRYPOINT [ "/tini", "--", "/docker_entrypoint.sh" ]

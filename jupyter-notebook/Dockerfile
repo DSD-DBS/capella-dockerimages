@@ -4,6 +4,8 @@
 ARG BASE_IMAGE=base
 FROM $BASE_IMAGE
 
+USER root
+
 RUN apt-get update && \
     apt-get install --yes --no-install-recommends \
     git \

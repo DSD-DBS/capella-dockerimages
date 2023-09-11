@@ -4,6 +4,5 @@
 failure-threshold: warning
 override:
   info:
-    - DL3002
     - DL3006
     - DL3008
