@@ -3,6 +3,14 @@
 # SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
 # SPDX-License-Identifier: Apache-2.0
 
+handle_exit() {
+    exit_status=$?
+    if [ $exit_status -ne 0 ]; then
+        echo "---FAILURE_PREPARE_WORKSPACE---"
+    fi
+}
+trap handle_exit EXIT
+
 set -euo pipefail
 
 echo "---START_PREPARE_WORKSPACE---"
@@ -12,7 +20,6 @@ mkdir -p "$NOTEBOOKS_DIR"
 test -f "$NOTEBOOKS_DIR/requirements.txt" || cp /etc/skel/requirements_template.txt "$NOTEBOOKS_DIR/requirements.txt"
 pip install -U -r "$NOTEBOOKS_DIR/requirements.txt" -r /etc/skel/requirements_template.txt 2>&1 | tee "$NOTEBOOKS_DIR/installlog.txt"
 
-mkdir -p "/shared"
 test -d "$NOTEBOOKS_DIR/shared" || ln -s /shared "$NOTEBOOKS_DIR/shared"
 
 echo "---START_SESSION---"
