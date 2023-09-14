@@ -18,8 +18,8 @@ COPY lighttpd.conf /etc/lighttpd/lighttpd.conf
 RUN mkdir -p /var/www/git/git-test-repo.git
 
 WORKDIR /var/www/git/git-test-repo.git
-RUN git init -b main --bare
-RUN git config --local http.receivepack true
+RUN git init -b main --bare && \
+    git config --local http.receivepack true
 
 WORKDIR /
 

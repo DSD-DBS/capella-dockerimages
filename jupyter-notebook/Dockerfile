@@ -4,8 +4,10 @@
 ARG BASE_IMAGE=base
 FROM $BASE_IMAGE
 
-RUN apt update && \
-    apt install --yes --no-install-recommends \
+USER root
+
+RUN apt-get update && \
+    apt-get install --yes --no-install-recommends \
     git \
     git-lfs \
     libgirepository1.0-dev \
@@ -30,7 +32,7 @@ ENV _OLD_VIRTUAL_PATH="$PATH"
 ENV VIRTUAL_ENV=/home/techuser/.venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-RUN python3 -m pip install -r /etc/skel/requirements_template.txt jupyterlab jupyter-collaboration && \
+RUN python3 -m pip install --no-cache-dir -r /etc/skel/requirements_template.txt jupyterlab jupyter-collaboration && \
     jupyter labextension disable "@jupyterlab/extensionmanager-extension" && \
     jupyter labextension disable "@jupyterlab/apputils-extension:announcements" && \
     mkdir /home/techuser/.jupyter && chown techuser /home/techuser/.jupyter
@@ -44,4 +46,4 @@ EXPOSE $JUPYTER_PORT
 
 WORKDIR $HOME
 
-ENTRYPOINT "/docker-entrypoint.sh"
+ENTRYPOINT ["/docker-entrypoint.sh"]

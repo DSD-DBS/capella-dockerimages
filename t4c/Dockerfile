@@ -34,7 +34,7 @@ COPY export.py /opt/scripts/export.py
 # Install T4C
 COPY ./updateSite/$CAPELLA_VERSION /opt/updateSite
 WORKDIR /opt/updateSite
-RUN chmod +r $(ls /opt/updateSite/*.zip)
+RUN find /opt/updateSite -type f -name "*.zip" -exec chmod +r {} \;
 
 USER techuser
 ## Install T4C Plugins via the P2 API from Eclipse
@@ -59,5 +59,7 @@ RUN chown techuser /opt/capella/capella.ini && \
 
 WORKDIR /opt
 ENV BASE_TYPE=t4c
+
+USER techuser
 
 ENTRYPOINT [ "/tini", "--", "/docker_entrypoint.sh" ]
