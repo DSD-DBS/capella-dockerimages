@@ -14,8 +14,8 @@ import re
 import shutil
 import subprocess
 import tarfile
+import textwrap
 import time
-import typing as t
 
 import chardet
 import docker
@@ -449,57 +449,72 @@ def copy_test_project_into_git_repo(git_path: pathlib.Path):
 
 
 def commit_and_push_git_repo(path: pathlib.Path):
-    subprocess.run(  # pylint: disable=subprocess-run-check
-        ["git", "config", "user.email", GIT_EMAIL],
-        cwd=path,
-        check=True,
-        text=True,
-        capture_output=True,
-    )
+    try:
+        subprocess.run(  # pylint: disable=subprocess-run-check
+            ["git", "config", "user.email", GIT_EMAIL],
+            cwd=path,
+            check=True,
+            text=True,
+            capture_output=True,
+        )
 
-    subprocess.run(  # pylint: disable=subprocess-run-check
-        ["git", "config", "user.name", GIT_USERNAME],
-        cwd=path,
-        check=True,
-        text=True,
-        capture_output=True,
-    )
+        subprocess.run(  # pylint: disable=subprocess-run-check
+            ["git", "config", "user.name", GIT_USERNAME],
+            cwd=path,
+            check=True,
+            text=True,
+            capture_output=True,
+        )
 
-    subprocess.run(  # pylint: disable=subprocess-run-check
-        ["git", "add", "."],
-        cwd=path,
-        check=True,
-        text=True,
-        capture_output=True,
-    )
+        subprocess.run(  # pylint: disable=subprocess-run-check
+            ["git", "add", "."],
+            cwd=path,
+            check=True,
+            text=True,
+            capture_output=True,
+        )
 
-    subprocess.run(  # pylint: disable=subprocess-run-check
-        [
-            "git",
-            "-c",
-            "commit.gpgsign=false",
-            "commit",
-            "--message",
-            "test: Exporter test",
-        ],
-        cwd=path,
-        check=True,
-        text=True,
-        capture_output=True,
-    )
+        subprocess.run(  # pylint: disable=subprocess-run-check
+            [
+                "git",
+                "-c",
+                "commit.gpgsign=false",
+                "commit",
+                "--message",
+                "test: Exporter test",
+            ],
+            cwd=path,
+            check=True,
+            text=True,
+            capture_output=True,
+        )
 
-    subprocess.run(  # pylint: disable=subprocess-run-check
-        ["git", "push", "origin", GIT_REPO_BRANCH],
-        env={
-            "GIT_USERNAME": GIT_USERNAME,
-            "GIT_PASSWORD": GIT_PASSWORD,
-            "GIT_ASKPASS": "/etc/git_askpass.py",
-        },
-        cwd=path,
-        check=True,
-        text=True,
-        capture_output=True,
-    )
+        subprocess.run(  # pylint: disable=subprocess-run-check
+            ["git", "push", "origin", GIT_REPO_BRANCH],
+            env={
+                "GIT_USERNAME": GIT_USERNAME,
+                "GIT_PASSWORD": GIT_PASSWORD,
+                "GIT_ASKPASS": "/etc/git_askpass.py",
+            },
+            cwd=path,
+            check=True,
+            text=True,
+            capture_output=True,
+        )
+
+    except subprocess.CalledProcessError as err:
+        logging.error(
+            "Git command failed. See stacktrace below.\n%s\n%s",
+            textwrap.indent(
+                err.stdout,
+                "[STDOUT] ",
+            ),
+            textwrap.indent(
+                err.stderr,
+                "[STDERR] ",
+            ),
+        )
+        raise err
 
 
 def _get_basic_auth() -> auth.HTTPBasicAuth:

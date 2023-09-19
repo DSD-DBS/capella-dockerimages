@@ -1,10 +1,12 @@
 # SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
 # SPDX-License-Identifier: Apache-2.0
 
-ARG BASE_IMAGE=debian:bookworm
+ARG BASE_IMAGE=debian:bookworm-slim
 FROM $BASE_IMAGE
 
 EXPOSE 80
+
+USER root
 
 RUN apt-get update && \
     apt-get upgrade --yes && \
@@ -15,7 +17,9 @@ RUN apt-get update && \
 
 COPY lighttpd.conf /etc/lighttpd/lighttpd.conf
 
-RUN mkdir -p /var/www/git/git-test-repo.git
+RUN mkdir -p /var/www/git/git-test-repo.git && chown -R 1001 /var/www/git
+
+USER 1001
 
 WORKDIR /var/www/git/git-test-repo.git
 RUN git init -b main --bare && \
