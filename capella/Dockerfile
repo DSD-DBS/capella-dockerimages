@@ -18,10 +18,11 @@ ONBUILD USER root
 # Install WebKit with GTK
 ONBUILD COPY libs /tmp/libs
 ONBUILD ARG INJECT_PACKAGES=false
+# hadolint ignore=SC2046
 ONBUILD RUN if [ "$INJECT_PACKAGES" = "true" ]; then \
     apt-get update && \
     # Inject old packages manually
-    find /tmp/libs -iname "*.deb" -exec apt-get install -y {} \; ; \
+    apt-get install -y $(find /tmp/libs -iname "*.deb"); \
     rm -rf /var/lib/apt/lists/*; \
     rm -r /tmp/libs; \
     else \
