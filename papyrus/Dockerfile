@@ -8,6 +8,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 ENV SHELL=/bin/bash
 
+USER root
+
 ARG PAPYRUS_VERSION
 COPY ./versions/${PAPYRUS_VERSION}/papyrus.tar.gz /opt/
 
@@ -34,3 +36,5 @@ ENV ECLIPSE_INSTALLATION_PATH=/opt/Papyrus
 ENV ECLIPSE_EXECUTABLE=/opt/Papyrus/papyrus
 
 ENV BASE_TYPE=papyrus
+
+USER techuser
