@@ -425,6 +425,23 @@ run-t4c/client/backup: t4c/client/base
 		-e CONNECTION_TYPE="$(CONNECTION_TYPE)" \
 		$(DOCKER_PREFIX)t4c/client/base:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst) backup
 
+run-t4c/client/backup-local: t4c/client/base
+	docker run $(DOCKER_RUN_FLAGS) --rm -it \
+		-v $$(pwd)/volumes/backup:/tmp/model \
+		-e FILE_HANDLER=local \
+		-e T4C_REPO_HOST="$(T4C_SERVER_HOST)" \
+		-e T4C_REPO_PORT="$(T4C_SERVER_PORT)" \
+		-e T4C_REPO_NAME="$(T4C_IMPORTER_REPO)" \
+		-e T4C_PROJECT_NAME="$(T4C_IMPORTER_PROJECT)" \
+		-e T4C_USERNAME="$(T4C_USERNAME)" \
+		-e T4C_PASSWORD="$(T4C_PASSWORD)" \
+		-e HTTP_LOGIN="$(HTTP_LOGIN)" \
+		-e HTTP_PASSWORD="$(HTTP_PASSWORD)" \
+		-e HTTP_PORT="$(HTTP_PORT)" \
+		-e LOG_LEVEL="$(LOG_LEVEL)" \
+		-e CONNECTION_TYPE="$(CONNECTION_TYPE)" \
+		$(DOCKER_PREFIX)t4c/client/base:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst) backup
+
 run-t4c/client/exporter: t4c/client/base
 	docker run $(DOCKER_RUN_FLAGS) \
 		-e GIT_REPO_URL="$(GIT_REPO_URL)" \
