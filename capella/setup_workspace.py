@@ -10,6 +10,10 @@ import re
 logging.basicConfig(level=logging.DEBUG)
 LOGGER = logging.getLogger("Capella preparation")
 
+ECLIPSE_SETTINGS_BASE_PATH = pathlib.Path(
+    "/workspace/.metadata/.plugins/org.eclipse.core.runtime/.settings"
+)
+
 
 def replace_config(path: pathlib.Path, key: str, value: str) -> None:
     """This will replace the existing config or add the config (if it doesn't exist)"""
@@ -24,9 +28,33 @@ def replace_config(path: pathlib.Path, key: str, value: str) -> None:
         LOGGER.info("Set existing config %s to %s", key, value)
         file_content = re.sub(pattern, f"{key}={value}", file_content)
     else:
-        file_content += f"\n{key}={value}"
+        LOGGER.info("Add new config %s with value %s", key, value)
+        file_content_lines = file_content.splitlines()
+        if file_content_lines and file_content_lines[-1] != "":
+            file_content += "\n"
+        file_content += f"{key}={value}\n"
 
     path.write_text(file_content)
+
+
+def set_git_merge_mode():
+    """Set the default merge mode for Git to 'Last head (unmerged)'
+
+    The default merge strategy is set to "Working tree (pre-merged to 'Ours')"
+    in the Linux bundle. This strategy has caused problems with the EMF Diff/Merge tool.
+    In these cases, the Diff/Merge editor crashed with error messages like
+    IndexOutOfBoundsException and "Cannot compare models".
+    EMF Diff/Merge as shown to be much more stable when the option was set to "Last head (unmerged)"
+
+    The configuration is also available in the UI:
+    MacOS: Capella > Settings > Version Control (Team) > Git > Diff/Merge > Merge tool content
+    Linux: Windows > Preferences > Version Control (Team) > Git > Merge tool content
+    """
+    replace_config(
+        ECLIPSE_SETTINGS_BASE_PATH / "org.eclipse.egit.ui.prefs",
+        "merge_mode",
+        "2",
+    )
 
 
 if __name__ == "__main__":
@@ -39,12 +67,11 @@ if __name__ == "__main__":
         "false",
     )
 
-    eclipse_settings_base_path = pathlib.Path(
-        "/workspace/.metadata/.plugins/org.eclipse.core.runtime/.settings"
-    )
-    # Set default Git path to /workspace/git
+    # Set default EGit path to /workspace/git
     replace_config(
-        eclipse_settings_base_path / "org.eclipse.egit.core.prefs",
+        ECLIPSE_SETTINGS_BASE_PATH / "org.eclipse.egit.core.prefs",
         "core_defaultRepositoryDir",
         "/workspace/git",
     )
+
+    set_git_merge_mode()
