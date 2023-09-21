@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.4
+
 # SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
 # SPDX-License-Identifier: Apache-2.0
 
@@ -53,9 +55,13 @@ USER root
 
 COPY setup_workspace.py /opt/setup/setup_t4c_client.py
 
-RUN chown techuser /opt/capella/capella.ini && \
-    echo '-DOBEO_LICENSE_SERVER_CONFIGURATION=$T4C_LICENCE_SECRET' >> /opt/capella/capella.ini && \
-    echo '-Duser.name=$T4C_USERNAME' >> /opt/capella/capella.ini
+RUN cat >> /opt/capella/capella.ini <<EOT && chown techuser /opt/capella/capella.ini
+-DOBEO_LICENSE_SERVER_CONFIGURATION=\$T4C_LICENCE_SECRET
+-Duser.name=\$T4C_USERNAME
+-Dfr.obeo.dsl.viewpoint.collab.import.gmf.notation.keep.cdoid.as.xmiid=true
+-Dfr.obeo.dsl.viewpoint.collab.import.other.elements.keep.cdoid.as.xmiid=true
+EOT
+
 
 WORKDIR /opt
 ENV BASE_TYPE=t4c
