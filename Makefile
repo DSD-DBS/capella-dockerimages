@@ -174,10 +174,10 @@ base:
 		base
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) DOCKER_TAG=$(CAPELLA_DOCKERIMAGES_REVISION) IMAGENAME=$@ .push
 
-base: SHELL=/bin/bash
+jupyter-notebook: DOCKER_TAG=$(JUPYTER_NOTEBOOK_REVISION)
 jupyter-notebook: base
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(JUPYTER_NOTEBOOK_REVISION) jupyter-notebook
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) DOCKER_TAG=$(JUPYTER_NOTEBOOK_REVISION) IMAGENAME=$@ .push
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) jupyter-notebook
+	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) DOCKER_TAG=$(DOCKER_TAG) IMAGENAME=$@ .push
 
 capella/base: SHELL=./capella_loop.sh
 capella/base: base
@@ -195,24 +195,25 @@ capella/base: base
 	rm capella/.dockerignore
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
+papyrus/base: DOCKER_TAG=$(PAPYRUS_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
 papyrus/base: DOCKER_BUILD_FLAGS=--platform linux/amd64
 papyrus/base: base
 	docker build $(DOCKER_BUILD_FLAGS) \
-		-t $(DOCKER_PREFIX)$@:$$DOCKER_TAG \
+		-t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) \
 		--build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(CAPELLA_DOCKERIMAGES_REVISION) \
 		--build-arg PAPYRUS_VERSION=$(PAPYRUS_VERSION) \
 		papyrus
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
+	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) DOCKER_TAG=$(DOCKER_TAG) IMAGENAME=$@ .push
 
-eclipse/remote: DOCKER_TAG=$(ECLIPSE_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
+eclipse/base: DOCKER_TAG=$(ECLIPSE_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
 eclipse/base: base
 	docker build $(DOCKER_BUILD_FLAGS) \
-		-t $(DOCKER_PREFIX)$@:$$DOCKER_TAG \
+		-t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) \
 		--build-arg BUILD_ARCHITECTURE=$(BUILD_ARCHITECTURE) \
 		--build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(CAPELLA_DOCKERIMAGES_REVISION) \
 		--build-arg ECLIPSE_VERSION=$(ECLIPSE_VERSION) \
 		eclipse
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
+	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) DOCKER_TAG=$(DOCKER_TAG) IMAGENAME=$@ .push
 
 capella/remote: SHELL=./capella_loop.sh
 capella/remote: capella/base
@@ -223,27 +224,27 @@ papyrus/remote: DOCKER_TAG=$(PAPYRUS_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
 papyrus/remote: DOCKER_BUILD_FLAGS=--platform linux/amd64
 papyrus/remote: papyrus/base
 	docker build $(DOCKER_BUILD_FLAGS) \
-		-t $(DOCKER_PREFIX)$@:$$DOCKER_TAG \
-		--build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG \
+		-t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) \
+		--build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(DOCKER_TAG) \
 		remote
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
+	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) DOCKER_TAG=$(DOCKER_TAG) IMAGENAME=$@ .push
 
 eclipse/remote: DOCKER_TAG=$(ECLIPSE_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
 eclipse/remote: eclipse/base
 	docker build $(DOCKER_BUILD_FLAGS) \
-		-t $(DOCKER_PREFIX)$@:$$DOCKER_TAG \
-		--build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG \
+		-t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) \
+		--build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(DOCKER_TAG) \
 		remote
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
+	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) DOCKER_TAG=$(DOCKER_TAG) IMAGENAME=$@ .push
 
 eclipse/remote/pure-variants: DOCKER_TAG=$(ECLIPSE_VERSION)-$(PURE_VARIANTS_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
 eclipse/remote/pure-variants: eclipse/remote
 	docker build $(DOCKER_BUILD_FLAGS) \
-		-t $(DOCKER_PREFIX)$@:$$DOCKER_TAG \
+		-t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) \
 		--build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(ECLIPSE_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION) \
 		--build-arg PURE_VARIANTS_VERSION=$(PURE_VARIANTS_VERSION) \
 		pure-variants
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
+	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) DOCKER_TAG=$(DOCKER_TAG) IMAGENAME=$@ .push
 
 t4c/client/base: SHELL=./capella_loop.sh
 t4c/client/base: capella/base

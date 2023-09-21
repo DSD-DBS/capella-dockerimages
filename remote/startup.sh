@@ -7,8 +7,10 @@ set -exuo pipefail
 
 if [ "$(whoami)" == "root" ] || [ "$(whoami)" == "techuser" ];
 then
+    salt=$(openssl rand -base64 16)
+    password_hash=$(openssl passwd -6 -salt ${salt} "${RMT_PASSWORD:?}")
     line=$(grep techuser /etc/shadow);
-    echo ${line%%:*}:$(openssl passwd -6 -salt $(openssl rand -base64 16) "${RMT_PASSWORD:?}"):${line#*:*:} > /etc/shadow;
+    echo ${line%%:*}:${password_hash}:${line#*:*:} > /etc/shadow;
 else
     echo "Only techuser and root are supported as users.";
     exit 1;
