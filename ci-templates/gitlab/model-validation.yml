@@ -6,6 +6,8 @@ model-validation:
     name: $DOCKER_REGISTRY/capella/base:${CAPELLA_DOCKER_IMAGES_TAG}
     entrypoint: [""]
   script:
+    # As our containers run with techuser (non-root) git commands fail with dubious ownership, see <https://gitlab.com/gitlab-org/gitlab-runner/-/issues/29022> for the solution.
+    - git config --global --add safe.directory ${CI_PROJECT_DIR}
     - git fetch
     - if [ ! -z $CI_COMMIT_BRANCH ]; then git reset --hard origin/$CI_COMMIT_BRANCH; fi
     - BUILD_DIR=$(pwd)
