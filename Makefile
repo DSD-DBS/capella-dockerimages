@@ -310,6 +310,7 @@ run-jupyter-notebook: jupyter-notebook
 
 run-capella/remote: capella/remote
 	docker run $(DOCKER_RUN_FLAGS) \
+		-v $$(pwd)/volumes/workspace:/workspace \
 		-e RMT_PASSWORD=$(RMT_PASSWORD) \
 		-p $(RDP_PORT):3389 \
 		-p $(METRICS_PORT):9118 \

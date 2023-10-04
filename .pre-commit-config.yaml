@@ -47,7 +47,7 @@ repos:
       - id: insert-license
         name: Insert license headers (shell-style comments)
         files: '(?:^|/)(?:.*\.(?:py|sh|toml|ya?ml|cfg|ini)|Dockerfile|Makefile|nginx.conf)$'
-        exclude: '(?:^|/)\..+|^docs/Makefile$'
+        exclude: '(?:^|/)\..+|^docs/Makefile$|^base/hooks/\+pre-commit.sh$'
         args:
           - --detect-license-in-X-top-lines=15
           - --license-filepath
