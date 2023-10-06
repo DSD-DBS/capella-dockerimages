@@ -1,0 +1,66 @@
+# SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
+# SPDX-License-Identifier: Apache-2.0
+
+name: "Capella Model-Validation"
+description: "An action to validate a Capella model."
+
+inputs:
+  entry_point:
+    description: "The entry point of the used model"
+  capella_version:
+    description: "The version of the Capella model"
+  capella_docker_images_revision:
+    description: "The revision of capella-dockerimages to use"
+    default: main
+  capella_docker_images_dropins:
+    description: "Please have a look at https://dsd-dbs.github.io/capella-dockerimages/capella/introduction/#supported-dropins"
+    required: false
+    default: selected
+  github_token:
+    description: "The GitHub token for authentication"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v3
+      with:
+        python-version: 3.11
+    - name: Authenticate to GitHub Container Registry
+      shell: bash
+      run: docker login ghcr.io -u ${{ github.actor }} --password-stdin <<< "${{ inputs.github_token }}"
+    - name: Pull Capella Docker image
+      shell: bash
+      env:
+        IMAGE_TAG: ${{ inputs.capella_version }}-${{ inputs.capella_docker_images_dropins }}-dropins-${{ inputs.capella_docker_images_revision }}
+      run: docker pull ghcr.io/dsd-dbs/capella-dockerimages/capella/base:$IMAGE_TAG
+    - name: Prepare workspace
+      shell: bash
+      run: |
+        git config --global --add safe.directory $GITHUB_WORKSPACE
+        git fetch
+        REVISION=$(echo ${{ github.ref }} | cut -d'/' -f3)
+        [ ! -z "$REVISION" ] && git reset --hard origin/"$REVISION"
+        chmod -R 777 .
+    - name: Validate Capella Model
+      shell: bash
+      env:
+        IMAGE_TAG: ${{ inputs.capella_version }}-${{ inputs.capella_docker_images_dropins }}-dropins-${{ inputs.capella_docker_images_revision }}
+        DISPLAY: ":99" # Virtual display used to run Capella in the background. Do not modify the value!
+      run: |
+        docker run --rm --name capella-pod -d -e DISPLAY=$DISPLAY ghcr.io/dsd-dbs/capella-dockerimages/capella/base:$IMAGE_TAG tail -f /dev/null;
+        docker cp . capella-pod:/workspace/project/;
+        timeout 300 docker exec capella-pod /bin/bash -c 'cd /workspace && xvfb-run -a /opt/capella/capella --launcher.suppressErrors -nosplash -application org.polarsys.capella.core.commandline.core -appid org.polarsys.capella.core.validation.commandline -data "/workspace" -input "project/${{ inputs.entry_point }}" -outputfolder "project/validation" 2>&1 | tee .log';
+        docker cp capella-pod:/workspace/.log ./.log;
+        docker cp capella-pod:/workspace/MDEReport.html ./MDEReport.html;
+        FILE_PATH="/workspace/project/validation/project/coffee-machine-demo.aird/validation-results.html"
+        docker exec capella-pod /bin/bash -c "[ -f $FILE_PATH ]" && docker cp capella-pod:$FILE_PATH ./validation-results.html;
+        BUILD_DIR=$(pwd)/reports;
+        mkdir -p $BUILD_DIR;
+        cp .log MDEReport.html $BUILD_DIR;
+        [[ -e validation-results.html ]] && cp validation-results.html $BUILD_DIR # Only created when model is healthy
+    - name: Archive model-validation in artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: Validation reports
+        path: reports
