@@ -133,7 +133,7 @@ RUN mkdir -p /opt/capella/configuration/.settings; \
     ## Do not show WORKSPACE_SELECTION_DIALOG
     echo "SHOW_WORKSPACE_SELECTION_DIALOG=false" >> /opt/capella/configuration/.settings/org.eclipse.ui.ide.prefs; \
     # Setup workspace
-    mkdir /workspace; \
+    mkdir -p /workspace; \
     ## Disable Welcome Screen
     mkdir -p /workspace/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.ui.prefs; \
     # Set workspace permissions
