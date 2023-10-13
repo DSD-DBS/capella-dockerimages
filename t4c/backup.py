@@ -280,7 +280,7 @@ def git_commit_and_push(git_dir: pathlib.Path) -> None:
         )
 
         subprocess.run(
-            ["git", "push", "origin", os.environ["GIT_REPO_BRANCH"]],
+            ["git", "push", "origin", f"HEAD:{os.environ['GIT_REPO_BRANCH']}"],
             check=True,
             cwd=git_dir,
             env={
