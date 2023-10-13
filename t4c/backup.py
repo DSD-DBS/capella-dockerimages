@@ -161,7 +161,6 @@ def clone_git_repository() -> pathlib.Path:
             env=env,
         )
     except subprocess.CalledProcessError as e:
-        print(e.returncode)
         if e.returncode == 128:
             subprocess.run(
                 [
