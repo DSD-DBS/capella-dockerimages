@@ -140,28 +140,39 @@ def clone_git_repository() -> pathlib.Path:
     git_dir.mkdir(exist_ok=True)
 
     log.debug("Cloning git repository...")
-    subprocess.run(
-        ["git", "clone", os.environ["GIT_REPO_URL"], "/tmp/git"],
-        check=True,
-        env={
-            "GIT_USERNAME": os.getenv("GIT_USERNAME", ""),
-            "GIT_PASSWORD": os.getenv("GIT_PASSWORD", ""),
-            "GIT_ASKPASS": "/etc/git_askpass.py",
-        },
-    )
+    env = {
+        "GIT_USERNAME": os.getenv("GIT_USERNAME", ""),
+        "GIT_PASSWORD": os.getenv("GIT_PASSWORD", ""),
+        "GIT_ASKPASS": "/etc/git_askpass.py",
+    }
+
     try:
         subprocess.run(
-            ["git", "switch", os.environ["GIT_REPO_BRANCH"]],
+            [
+                "git",
+                "clone",
+                "--depth=1",
+                f"--branch={os.environ['GIT_REPO_BRANCH']}",
+                os.environ["GIT_REPO_URL"],
+                "/tmp/git",
+            ],
             check=True,
             cwd=git_dir,
+            env=env,
         )
     except subprocess.CalledProcessError as e:
-        print(e.returncode)
         if e.returncode == 128:
             subprocess.run(
-                ["git", "switch", "-c", os.environ["GIT_REPO_BRANCH"]],
+                [
+                    "git",
+                    "clone",
+                    "--depth=1",
+                    os.environ["GIT_REPO_URL"],
+                    "/tmp/git",
+                ],
                 check=True,
                 cwd=git_dir,
+                env=env,
             )
         else:
             raise e
@@ -268,7 +279,7 @@ def git_commit_and_push(git_dir: pathlib.Path) -> None:
         )
 
         subprocess.run(
-            ["git", "push", "origin", os.environ["GIT_REPO_BRANCH"]],
+            ["git", "push", "origin", f"HEAD:{os.environ['GIT_REPO_BRANCH']}"],
             check=True,
             cwd=git_dir,
             env={
