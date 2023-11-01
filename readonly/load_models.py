@@ -29,6 +29,8 @@ from lxml.builder import E
 logging.basicConfig(level="DEBUG")
 log = logging.getLogger(__file__)
 
+WORKSPACE_DIR = os.getenv("WORKSPACE_DIR", "/workspace")
+
 
 class _ProjectNature(enum.Enum):
     library = "org.polarsys.capella.library.nature"
@@ -51,7 +53,7 @@ class _ProjectDict(t.TypedDict):
 def disable_welcome_screen() -> None:
     prefs = "\n".join(["eclipse.preferences.version=1", "showIntro=false"])
     prefs_path = pathlib.Path(
-        "/workspace/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.ui.prefs"
+        f"{WORKSPACE_DIR}/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.ui.prefs"
     )
     prefs_path.parent.mkdir(parents=True, exist_ok=True)
     prefs_path.write_text(prefs, encoding="utf-8")
