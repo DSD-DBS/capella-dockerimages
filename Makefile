@@ -304,7 +304,7 @@ run-jupyter-notebook: jupyter-notebook
 	docker run $(DOCKER_RUN_FLAGS) \
 		-p $(WEB_PORT):8888 \
 		-v $$(pwd)/volumes/workspace/notebooks:/tmp/notebooks \
-		-e NOTEBOOKS_DIR=/tmp/notebooks \
+		-e WORKSPACE_DIR=/tmp/notebooks \
 		-e JUPYTER_BASE_URL=/ \
 		$(DOCKER_PREFIX)$<:$(JUPYTER_NOTEBOOK_REVISION)
 

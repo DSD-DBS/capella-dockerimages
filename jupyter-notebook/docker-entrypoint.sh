@@ -15,12 +15,12 @@ set -euo pipefail
 
 echo "---START_PREPARE_WORKSPACE---"
 
-mkdir -p "$NOTEBOOKS_DIR"
+mkdir -p "$WORKSPACE_DIR"
 
-test -f "$NOTEBOOKS_DIR/requirements.txt" || cp /etc/skel/requirements_template.txt "$NOTEBOOKS_DIR/requirements.txt"
-pip install -U -r "$NOTEBOOKS_DIR/requirements.txt" -r /etc/skel/requirements_template.txt 2>&1 | tee "$NOTEBOOKS_DIR/installlog.txt"
+test -f "$WORKSPACE_DIR/requirements.txt" || cp /etc/skel/requirements_template.txt "$WORKSPACE_DIR/requirements.txt"
+pip install -U -r "$WORKSPACE_DIR/requirements.txt" -r /etc/skel/requirements_template.txt 2>&1 | tee "$WORKSPACE_DIR/installlog.txt"
 
-test -d "$NOTEBOOKS_DIR/shared" || ln -s /shared "$NOTEBOOKS_DIR/shared"
+test -d "$WORKSPACE_DIR/shared" || ln -s /shared "$WORKSPACE_DIR/shared"
 
 echo "---START_SESSION---"
 
@@ -29,4 +29,4 @@ exec jupyter-lab --ip=0.0.0.0 \
     --no-browser \
     --ServerApp.authenticate_prometheus=False \
     --ServerApp.base_url="$JUPYTER_BASE_URL" \
-    --ServerApp.root_dir="$NOTEBOOKS_DIR"
+    --ServerApp.root_dir="$WORKSPACE_DIR"

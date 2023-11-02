@@ -40,7 +40,7 @@ RUN python3 -m pip install --no-cache-dir -r /etc/skel/requirements_template.txt
 COPY jupyter_lab_config.py /home/techuser/.jupyter/jupyter_lab_config.py
 
 ENV JUPYTER_PORT=8888
-ENV NOTEBOOKS_DIR=/workspace/notebooks
+ENV WORKSPACE_DIR=/workspace/notebooks
 
 EXPOSE $JUPYTER_PORT
 
