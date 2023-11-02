@@ -60,7 +60,7 @@ jobs:
       - name: Set outputs
         id: tag
         run: |
-          echo "branch=$(git rev-parse --abbrev-ref HEAD | sed 's/[^a-zA-Z0-9]/-/g')" >> "$GITHUB_OUTPUT"
+          echo "branch=$(echo $GITHUB_REF_NAME | sed 's/[^a-zA-Z0-9.]/-/g')" >> "$GITHUB_OUTPUT"
           echo "sha=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
       - name: Build
         run: >
