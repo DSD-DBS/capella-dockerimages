@@ -25,7 +25,7 @@ For changes in your Gitlab image builder repository:
 
 You can customize the pipeline to your needs (e.g., define multiple environments). The template provides three different jobs `.base`, `.capella` and `.jupyter` which can be extended:
 
-```yml
+```yaml
 include:
   - remote: https://raw.githubusercontent.com/DSD-DBS/capella-dockerimages/${CAPELLA_DOCKER_IMAGES_REVISION}/ci-templates/gitlab/release-train.yml"
 
