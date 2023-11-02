@@ -11,8 +11,8 @@ then
     if [ "$RESTART_PAPYRUS" = "1" ];
     then
         # Restart Papyrus automatically
-        ( while true; do /opt/Papyrus/papyrus -data /workspace > /var/log/papyrus.stdout.log 2> /var/log/papyrus.stderr.log; sleep 1; done ) &
+        ( while true; do /opt/Papyrus/papyrus -data ${WORKSPACE_DIR:-/workspace} > /var/log/papyrus.stdout.log 2> /var/log/papyrus.stderr.log; sleep 1; done ) &
     else
-        /opt/Papyrus/papyrus -data /workspace > /var/log/papyrus.stdout.log 2> /var/log/papyrus.stderr.log &
+        /opt/Papyrus/papyrus -data ${WORKSPACE_DIR:-/workspace} > /var/log/papyrus.stdout.log 2> /var/log/papyrus.stderr.log &
     fi
 fi
