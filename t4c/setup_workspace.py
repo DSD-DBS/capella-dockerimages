@@ -13,8 +13,9 @@ from collections import Counter
 logging.basicConfig(level=logging.DEBUG)
 LOGGER = logging.getLogger("TeamForCapella preparation")
 
+WORKSPACE_DIR = os.getenv("WORKSPACE_DIR", "/workspace")
 OBEO_COLLAB_CONF = pathlib.Path(
-    "/workspace/.metadata",
+    "{WORKSPACE_DIR}/.metadata",
     ".plugins/org.eclipse.core.runtime/.settings/fr.obeo.dsl.viewpoint.collab.prefs",
 )
 REPOSITORIES_BASE_PATH = pathlib.Path("/opt/capella/configuration")
