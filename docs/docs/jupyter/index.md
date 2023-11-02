@@ -16,6 +16,17 @@ defined in that file will be installed before the server launches.
 docker build -t jupyter-notebook jupyter-notebook
 ```
 
+### Add custom Python requirements
+
+#### Option 1: JUPYTER_ADDITIONAL_REQUIREMENTS build argument
+
+To install additional Python requirements, you can pass a commma-separated list of requirements
+as build argument `JUPYTER_ADDITIONAL_REQUIREMENTS` to the Docker build command. The value is passed to the `pip install` command.
+
+#### Option 2: Modify the `requirements_template.txt` file
+
+You can also modify the `requirements_template.txt` in the `jupyter` directory to add additional requirements.
+
 ## Run the `jupyter-notebook` image
 
 ```zsh
