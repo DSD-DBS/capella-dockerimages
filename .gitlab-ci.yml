@@ -2,10 +2,10 @@ include: "/ci-templates/gitlab/release-train.yml"
 
 .staging: &staging
   rules:
-    # For commits on the main branch, build for the staging environment
+    &staging-rules # For commits on the main branch, build for the staging environment
     - if: '$CI_COMMIT_REF_NAME == "main"'
     - when: manual
-  variables:
+  variables: &staging-variables
     ENVIRONMENT: staging
     CAPELLA_DOCKER_IMAGES_REVISION: "$CI_COMMIT_REF_NAME"
     IMAGE_BUILDER_GITLAB_REPOSITORY: "$IMAGE_BUILDER_GITLAB_REPOSITORY"
@@ -13,32 +13,43 @@ include: "/ci-templates/gitlab/release-train.yml"
     DOCKER_BUILD_ARGS: "" # Enable Docker build cache
 
 .production: &production
-  rules:
-    # For tags, build for the production environment
+  rules: &production-rules # For tags, build for the production environment
     - if: "$CI_COMMIT_TAG != null"
-  variables:
+  variables: &production-variables
     ENVIRONMENT: production
     CAPELLA_DOCKER_IMAGES_REVISION: "$CI_COMMIT_REF_NAME"
     IMAGE_BUILDER_GITLAB_REPOSITORY: "$IMAGE_BUILDER_GITLAB_REPOSITORY"
     BUILD_FOR_LATEST_TAG: "1"
 
+.jupyter-with-collaboration: &jupyter-with-collaboration
+  JUPYTER_IMAGE_TAG_PREFIX: "with-collaboration"
+  JUPYTER_ADDITIONAL_REQUIREMENTS: "jupyter-collaboration"
+
+.jupyter-without-collaboration: &jupyter-without-collaboration
+  JUPYTER_IMAGE_TAG_PREFIX: "without-collaboration"
+  JUPYTER_ADDITIONAL_REQUIREMENTS: ""
+
 production-base:
   extends: .base
   <<: *production
 
-production-jupyter:
+production-jupyter-with-collaboration:
   extends: .jupyter
   needs:
     - job: production-base
       optional: true
-  <<: *production
+  rules: *production-rules
+  variables:
+    <<: [*production-variables, *jupyter-with-collaboration]
 
-production-capella:
-  extends: .capella
+production-jupyter-without-collaboration:
+  extends: .jupyter
   needs:
     - job: production-base
       optional: true
-  <<: *production
+  rules: *production-rules
+  variables:
+    <<: [*production-variables, *jupyter-without-collaboration]
 
 production-papyrus:
   extends: .papyrus
@@ -58,12 +69,23 @@ staging-base:
   extends: .base
   <<: *staging
 
-staging-jupyter:
+staging-jupyter-with-collaboration:
   extends: .jupyter
   needs:
     - job: staging-base
       optional: true
-  <<: *staging
+  rules: *staging-rules
+  variables:
+    <<: [*production-variables, *jupyter-with-collaboration]
+
+staging-jupyter-without-collaboration:
+  extends: .jupyter
+  needs:
+    - job: staging-base
+      optional: true
+  rules: *staging-rules
+  variables:
+    <<: [*production-variables, *jupyter-without-collaboration]
 
 staging-capella:
   extends: .capella

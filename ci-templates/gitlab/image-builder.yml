@@ -65,9 +65,9 @@ variables:
   BUILD_FOR_LATEST_TAG:
     value: "0"
     description: "Fetch the latest tag for the image builder repository and use it as revision. If 0, '$CI_COMMIT_REF_NAME' will be used."
-  JUPYTER_VERSION:
-    value: "python-3.11"
-    description: "Python version for the jupyter notebook."
+  JUPYTER_IMAGE_TAG_PREFIX:
+    value: "with-collaboration"
+    description: "Prefix for the Jupyter image tag."
   PAPYRUS_VERSION:
     value: "6.4.0"
     description: "Semantic version of Papyrus."
@@ -84,6 +84,7 @@ variables:
   DOCKER_BUILD_ARGS: "--no-cache"
   BUILD_ARCHITECTURE: amd64
   PURE_VARIANTS_VERSION: "6.0.1"
+  JUPYTER_ADDITIONAL_REQUIREMENTS: "jupyter-collaboration"
 
 stages:
   - build
@@ -613,13 +614,15 @@ jupyter:
     IMAGE: jupyter-notebook
   script:
     - *prepare
-    - DOCKER_TAG=python-3.11-$GENERAL_IMAGE_TAG
+    - DOCKER_TAG=$JUPYTER_IMAGE_TAG_PREFIX-$GENERAL_IMAGE_TAG
     - *resolve-base-image
     - *github
     - *docker
+    - cat ../jupyter/requirements_template.txt >> jupyter-notebook/requirements_template.txt
     - |
       docker build $DOCKER_BUILD_ARGS \
         -t $IMAGE:$DOCKER_TAG \
         --build-arg BASE_IMAGE=$BASE_IMAGE \
+        --build-arg JUPYTER_ADDITIONAL_REQUIREMENTS=$JUPYTER_ADDITIONAL_REQUIREMENTS \
         jupyter-notebook
     - *push

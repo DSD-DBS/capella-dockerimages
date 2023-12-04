@@ -60,6 +60,7 @@ Make sure to enable the "Expand variable reference" flag.
 - `T4C_SERVER_TEST_DATA_REPO`: Link to a Git repository containing t4c test data needed to run the backup tests.
   The repository needs to have the following structure: `/data/$CAPELLA_VERSION/repositories/test-repo`
 - `LOCAL_GIT_BASE_IMAGE`: Specifies the base image which is used to build the local git server for the pytest.
+- `JUPYTER_ADDITIONAL_REQUIREMENTS`: Comma-separated list of additional Python requirements for the Jupyter image.
 
 ## Repository tree
 
@@ -98,6 +99,8 @@ The tree inside of your Gitlab repository should look like:
 │   └── versions
 │       └── 6.4.0
 │           └── papyrus.tar.gz
+├── jupyter
+│   └── requirements_template.txt
 └── pure-variants
     ├── dependencies
     └── updateSite
