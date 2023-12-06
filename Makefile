@@ -64,6 +64,15 @@ GIT_PASSWORD ?= password
 # Preferred RDP port on your host system
 RDP_PORT ?= 3390
 
+# Port for access to the xpra htm5 server via nginx
+XPRA_PORT ?= 10000
+
+# Port for direct access to the xpra htm5 server, without authentication!
+# Only enabled in debug routes.
+XPRA_DEBUG_PORT ?= 10001
+
+CONNECTION_METHOD ?= xpra # xpra or xrdp
+
 # External port for web-based containers
 WEB_PORT ?= 8888
 
@@ -312,7 +321,9 @@ run-capella/remote: capella/remote
 	docker run $(DOCKER_RUN_FLAGS) \
 		-v $$(pwd)/volumes/workspace:/workspace \
 		-e RMT_PASSWORD=$(RMT_PASSWORD) \
+		-e CONNECTION_METHOD=$(CONNECTION_METHOD) \
 		-p $(RDP_PORT):3389 \
+		-p $(XPRA_PORT):10000 \
 		-p $(METRICS_PORT):9118 \
 		$(DOCKER_PREFIX)capella/remote:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
 
@@ -465,6 +476,9 @@ run-t4c/client/exporter: t4c/client/base
 
 debug-capella/base: DOCKER_RUN_FLAGS=-it --entrypoint="bash"
 debug-capella/base: run-capella/base
+
+debug-capella/remote: DOCKER_RUN_FLAGS=-it -p $(XPRA_DEBUG_PORT):10001
+debug-capella/remote: run-capella/remote
 
 debug-t4c/client/backup: LOG_LEVEL=DEBUG
 debug-t4c/client/backup: DOCKER_RUN_FLAGS=-it --entrypoint="bash" -v $$(pwd)/backups/backup.py:/opt/capella/backup.py

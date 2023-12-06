@@ -21,7 +21,8 @@ RUN apt-get update && \
     git-lfs \
     unzip \
     neovim \
-    zip && \
+    zip \
+    wget && \
     rm -rf /var/lib/apt/lists/*
 
 RUN echo "en_GB.UTF-8 UTF-8" >> /etc/locale.gen && \

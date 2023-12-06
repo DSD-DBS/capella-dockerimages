@@ -84,6 +84,7 @@ variables:
   DOCKER_BUILD_ARGS: "--no-cache"
   BUILD_ARCHITECTURE: amd64
   PURE_VARIANTS_VERSION: "6.0.1"
+  XPRA_REGISTRY: "https://xpra.org"
 
 stages:
   - build
@@ -266,6 +267,7 @@ capella/remote:
       docker build $DOCKER_BUILD_ARGS \
         -t $DOCKER_REGISTRY/capella/remote:$DOCKER_TAG \
         --build-arg BASE_IMAGE=$BASE_IMAGE \
+        --build-arg XPRA_REGISTRY=$XPRA_REGISTRY \
         remote
     - *push
 
@@ -316,6 +318,7 @@ t4c/client/remote:
       docker build $DOCKER_BUILD_ARGS \
         -t $DOCKER_REGISTRY/t4c/client/remote:$DOCKER_TAG \
         --build-arg BASE_IMAGE=$BASE_IMAGE \
+        --build-arg XPRA_REGISTRY=$XPRA_REGISTRY \
         remote
     - *prepare-tests-general
     - pytest -o log_cli=true -s test_t4c_repository_injection.py || r=3
@@ -389,6 +392,7 @@ capella/ease/remote:
       docker build $DOCKER_BUILD_ARGS \
         -t $DOCKER_REGISTRY/capella/ease/remote:$DOCKER_TAG \
         --build-arg BASE_IMAGE=$BASE_IMAGE \
+        --build-arg XPRA_REGISTRY=$XPRA_REGISTRY \
         remote
     - *push
 
@@ -458,6 +462,7 @@ t4c/client/ease/remote:
       docker build $DOCKER_BUILD_ARGS \
         -t $IMAGE:$DOCKER_TAG \
         --build-arg BASE_IMAGE=$BASE_IMAGE \
+        --build-arg XPRA_REGISTRY=$XPRA_REGISTRY \
         remote
     - *push
 
@@ -528,6 +533,7 @@ eclipse/remote:
       docker build $DOCKER_BUILD_ARGS \
         -t ${IMAGE}:${DOCKER_TAG} \
         --build-arg BASE_IMAGE=$BASE_IMAGE \
+        --build-arg XPRA_REGISTRY=$XPRA_REGISTRY \
         remote
     - *push
 
@@ -597,6 +603,7 @@ papyrus/remote:
       docker build $DOCKER_BUILD_ARGS \
         -t ${IMAGE}:${DOCKER_TAG} \
         --build-arg BASE_IMAGE=$BASE_IMAGE \
+        --build-arg XPRA_REGISTRY=$XPRA_REGISTRY \
         remote
     - *push
 
