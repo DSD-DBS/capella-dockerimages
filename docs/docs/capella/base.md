@@ -103,7 +103,7 @@ If you're missing a dropin in the list, feel free to open a PR.
 #### Optional: Workaround of pinned library versions to remove incompatibilities
 
 **Note:**
-_This workaround is normally handled in the [Dockerfile](capella/Dockerfile) and it is
+_This workaround is normally handled in the Dockerfile and it is
 only necessary to download below libraries if there are restrictions on your network
 that block an access to these libraries when the Docker image is being built._
 

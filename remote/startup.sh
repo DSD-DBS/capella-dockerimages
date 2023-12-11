@@ -16,6 +16,8 @@ else
     exit 1;
 fi
 
+echo "${RMT_PASSWORD:?}" | htpasswd -ci /etc/nginx/.htpasswd techuser
+
 unset RMT_PASSWORD
 
 # Run preparation scripts
@@ -30,5 +32,15 @@ for filename in /opt/setup/*.sh; do
     echo "Executing shell script '$filename'..."
     /bin/bash $filename
 done
+
+# Load supervisord configuration for connection method
+SUPERVISORD_CONFIG_PATH=/tmp/supervisord/supervisord.${CONNECTION_METHOD:-xrdp}.conf
+if [ -f "$SUPERVISORD_CONFIG_PATH" ]; then
+    echo "Adding '$SUPERVISORD_CONFIG_PATH' to configuration."
+    cat $SUPERVISORD_CONFIG_PATH >> /etc/supervisord.conf
+else
+    echo "No '$SUPERVISORD_CONFIG_PATH' found'. Falling back to xrdp configuration."
+    cat /tmp/supervisord/supervisord.xrdp.conf >> /etc/supervisord.conf
+fi
 
 exec supervisord

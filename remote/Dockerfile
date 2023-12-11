@@ -4,6 +4,12 @@
 ARG BASE_IMAGE=capella/base
 FROM ${BASE_IMAGE}
 
+# Port if xrdp is used as connection method.
+EXPOSE 3389
+
+# Port if xpra is used as connection method.
+EXPOSE 10000
+
 ARG DEBIAN_FRONTEND=noninteractive
 
 SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
@@ -12,7 +18,8 @@ ENV SHELL=/bin/bash
 # Install RDP (XRDP with XORG)
 USER root
 
-RUN apt-get update && apt-get upgrade -y && apt-get install -y \
+# Install xrdp and dependencies
+RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
     xrdp \
     xserver-xorg-core \
     xorgxrdp \
@@ -21,6 +28,14 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     gettext-base \
     xprintidle \
     nitrogen && rm -rf /var/lib/apt/lists/*
+
+ARG XPRA_REGISTRY=https://xpra.org
+
+# Install xpra and dependencies
+RUN wget -qO /usr/share/keyrings/xpra.asc ${XPRA_REGISTRY}/xpra.asc && \
+    wget -qO /etc/apt/sources.list.d/xpra.sources https://raw.githubusercontent.com/Xpra-org/xpra/master/packaging/repos/bookworm/xpra.sources && \
+    sed -i "s|https://xpra.org|${XPRA_REGISTRY}|" /etc/apt/sources.list.d/xpra.sources && \
+    apt-get update && apt-get install -y --no-install-recommends xpra xpra-x11 xpra-html5 apache2-utils nginx && rm -rf /var/lib/apt/lists/*
 
 COPY rc.xml /etc/xdg/openbox/rc.xml
 COPY menu.xml /etc/xdg/openbox/menu.xml
@@ -32,6 +47,10 @@ COPY bg-saved.cfg /home/techuser/.config/nitrogen/bg-saved.cfg
 # Copy Supervisor Configuration
 RUN pip install --no-cache-dir supervisor==4.2.5
 COPY supervisord.conf /etc/supervisord.conf
+COPY supervisord.*.conf /tmp/supervisord/
+
+# Copy nginx configuration for xpra
+COPY nginx.conf /etc/nginx/nginx.conf
 
 # Allow any user to start the RDP server
 # Depending on the base image used, Xwrapper.config may (not) be available and has to be created.
@@ -42,7 +61,9 @@ RUN sed -i 's/allowed_users=console/allowed_users=anybody/g' /etc/X11/Xwrapper.c
 # Set permissions
 RUN mkdir -p /run/xrdp/sockdir && \
     chown -R techuser /etc/xrdp /run/xrdp /var/log/xrdp* && \
-    chown techuser /var/log
+    chown techuser /var/log && \
+    chown techuser /etc/supervisord.conf /var/log/nginx /var/log/nginx/* && \
+    chown techuser /etc/nginx
 
 WORKDIR /home/techuser
 
