@@ -4,14 +4,16 @@
 from __future__ import annotations
 
 import logging
+import os
 import pathlib
 import re
 
 logging.basicConfig(level=logging.DEBUG)
 LOGGER = logging.getLogger("Capella preparation")
 
+WORKSPACE_DIR = os.getenv("WORKSPACE_DIR", "/workspace")
 ECLIPSE_SETTINGS_BASE_PATH = pathlib.Path(
-    "/workspace/.metadata/.plugins/org.eclipse.core.runtime/.settings"
+    f"{WORKSPACE_DIR}/.metadata/.plugins/org.eclipse.core.runtime/.settings"
 )
 
 
@@ -71,7 +73,7 @@ if __name__ == "__main__":
     replace_config(
         ECLIPSE_SETTINGS_BASE_PATH / "org.eclipse.egit.core.prefs",
         "core_defaultRepositoryDir",
-        "/workspace/git",
+        f"{WORKSPACE_DIR}/git",
     )
 
     set_git_merge_mode()

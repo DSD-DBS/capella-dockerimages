@@ -14,7 +14,7 @@ unset RMT_PASSWORD
 # Prepare Workspace
 echo "---START_PREPARE_WORKSPACE---"
 export DISPLAY=:99
-xvfb-run /opt/capella/capella -clean -data /workspace --launcher.suppressErrors -nosplash -consolelog -application org.eclipse.ease.runScript -script "file:/opt/scripts/load_models.py";
+xvfb-run /opt/capella/capella -clean -data ${WORKSPACE_DIR:-/workspace} --launcher.suppressErrors -nosplash -consolelog -application org.eclipse.ease.runScript -script "file:/opt/scripts/load_models.py";
 if [[ "$?" == 0 ]]
 then
     echo "---FINISH_PREPARE_WORKSPACE---"
