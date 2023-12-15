@@ -25,6 +25,7 @@ custom registry URLs, your timezone, CA certificates and any other stuff.
 The following environment variable can be set in all images:
 
 - `WORKSPACE_DIR`: The directory applications (Eclipse, Capella, Jupyter) will use as workspace.
+  The workspace directory shall be a subdirectory of `/workspace` or `/home/techuser`.
 
 ## Use the prebuilt image
 
