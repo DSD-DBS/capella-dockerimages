@@ -51,6 +51,8 @@ def run_importer_script() -> None:
         OUTPUT_FOLDER,
         "-archiveProject",
         "false",
+        "-overrideExistingProject",
+        "true",
         "-importCommitHistoryAsJson",
         os.getenv("INCLUDE_COMMIT_HISTORY", "true"),
         "-includeCommitHistoryChanges",
