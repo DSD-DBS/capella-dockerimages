@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
+# SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
 # SPDX-License-Identifier: Apache-2.0
 
 
@@ -8,7 +8,7 @@ dynamic = ["version"]
 name = "capella-dockerimages-tests"
 requires-python = ">=3.11, <3.12"
 license = { text = "Apache-2.0" }
-authors = [{ name = "DB Netz AG" }]
+authors = [{ name = "DB InfraGO AG" }]
 dependencies = ["docker>=6.1.0", "pytest", "capellambse[decl]", "chardet"]
 
 [project.urls]
