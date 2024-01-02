@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.4
 
-# SPDX-FileCopyrightText: Copyright DB Netz AG and the capella-collab-manager contributors
+# SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
 # SPDX-License-Identifier: Apache-2.0
 
 ARG BASE_IMAGE=capella/base
