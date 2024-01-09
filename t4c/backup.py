@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
 # SPDX-License-Identifier: Apache-2.0
 
+import glob
 import logging
-import mimetypes
 import os
 import pathlib
 import re
@@ -50,7 +50,7 @@ def run_importer_script() -> None:
         "-outputFolder",
         OUTPUT_FOLDER,
         "-archiveProject",
-        "false",
+        "true",
         "-overrideExistingProject",
         "true",
         "-importCommitHistoryAsJson",
@@ -104,9 +104,9 @@ def run_importer_script() -> None:
                 raise RuntimeError(
                     f"{ERROR_PREFIX} - Backup failed. Please check the logs above."
                 )
-            if re.search(r"[1-9][0-9]* copies failed", line):
+            if re.search(r"[1-9][0-9]* archivings failed", line):
                 raise RuntimeError(
-                    f"{ERROR_PREFIX} - Failed to copy to output folder ({OUTPUT_FOLDER})"
+                    f"{ERROR_PREFIX} - Failed to create archives in output folder ({OUTPUT_FOLDER})"
                 )
 
         if popen.stderr:
@@ -129,9 +129,9 @@ def run_importer_script() -> None:
             raise RuntimeError(
                 f"{ERROR_PREFIX} - '[1-9][0-9]* projects imports succeeded' not found in logs"
             )
-        if not re.search(r"[1-9][0-9]* copies succeeded", stdout):
+        if not re.search(r"[1-9][0-9]* archivings succeeded", stdout):
             raise RuntimeError(
-                f"{ERROR_PREFIX} - '[1-9][0-9]* copies succeeded' not found in logs"
+                f"{ERROR_PREFIX} - '[1-9][0-9]* archivings succeeded' not found in logs"
             )
 
     log.info("Import of model from TeamForCapella server finished")
@@ -183,29 +183,28 @@ def clone_git_repository() -> pathlib.Path:
     return git_dir
 
 
-def unmess_file_structure(model_dir: pathlib.Path) -> None:
-    """Sort images and airdfragments into folders
+def unzip_exported_files(project_dir: pathlib.Path) -> None:
+    log.info("Start unzipping project archive in %s", project_dir)
 
-    The importer application of TeamForCapella places all files into the project directory,
-    without sorting into the images and fragments directories.
-    This function sorts '*.airdfragment' files into the fragments directory.
-    Images with mimetype 'image/*' are copied into the images directory.
-    """
+    pattern = f"{os.environ['T4C_PROJECT_NAME']}_????????_??????.zip"
 
-    log.info("Start unmessing files...")
+    matching_files = glob.glob(pattern, root_dir=project_dir)
 
-    (model_dir / "images").mkdir(exist_ok=True)
-    (model_dir / "fragments").mkdir(exist_ok=True)
+    if not matching_files:
+        raise FileNotFoundError(f"No files found matching pattern: {pattern}")
 
-    for file in model_dir.iterdir():
-        if file.is_file():
-            mimetype = mimetypes.guess_type(file)[0]
-            if file.suffix in (".airdfragment", ".capellafragment"):
-                file.rename(model_dir / "fragments" / file.name)
-            elif mimetype and mimetype.startswith("image/"):
-                file.rename(model_dir / "images" / file.name)
+    if len(matching_files) > 1:
+        raise FileExistsError(
+            f"Multiple files found matching pattern: {pattern} - {matching_files}"
+        )
 
-    log.info("Finished unmessing files...")
+    project_file_to_unzip = matching_files[0]
+
+    subprocess.run(
+        ["unzip", project_file_to_unzip], check=True, cwd=project_dir
+    )
+
+    log.info("Finished unzipping %s", project_file_to_unzip)
 
 
 def copy_exported_files_into_git_repo(project_dir: pathlib.Path) -> None:
@@ -224,7 +223,6 @@ def copy_exported_files_into_git_repo(project_dir: pathlib.Path) -> None:
     model_dir = project_dir / urllib.parse.quote(
         os.environ["T4C_PROJECT_NAME"]
     )
-    unmess_file_structure(model_dir)
 
     shutil.copytree(
         model_dir,
@@ -337,6 +335,7 @@ if __name__ == "__main__":
     _project_dir.mkdir(exist_ok=True)
 
     run_importer_script()
+    unzip_exported_files(_project_dir)
 
     file_handler = os.getenv("FILE_HANDLER", "")
     if file_handler == "local":
