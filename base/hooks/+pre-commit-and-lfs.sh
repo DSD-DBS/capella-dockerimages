@@ -4,5 +4,5 @@
 
 STAGE=$(basename "$0")
 
-/opt/git/global-hooks/+pre-commit.sh $STAGE "$@"
-exec git lfs $STAGE "${@:2}"
+/opt/git/global-hooks/+pre-commit.sh $STAGE "$@" < /dev/null
+exec git lfs $STAGE "$@"
