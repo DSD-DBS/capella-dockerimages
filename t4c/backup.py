@@ -220,9 +220,7 @@ def copy_exported_files_into_git_repo(project_dir: pathlib.Path) -> None:
             "/tmp/git",
         )
 
-    model_dir = project_dir / urllib.parse.quote(
-        os.environ["T4C_PROJECT_NAME"]
-    )
+    model_dir = project_dir / os.environ["T4C_PROJECT_NAME"]
 
     shutil.copytree(
         model_dir,
