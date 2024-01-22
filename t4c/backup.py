@@ -42,7 +42,7 @@ def run_importer_script() -> None:
         "-repoName",
         os.environ["T4C_REPO_NAME"],
         "-projectName",
-        urllib.parse.quote(os.environ["T4C_PROJECT_NAME"]),
+        urllib.parse.quote(os.environ["T4C_PROJECT_NAME"], safe="@"),
         "-importerLogin" if is_capella_5_x_x() else "-repositoryLogin",
         os.environ["T4C_USERNAME"],
         "-importerPassword" if is_capella_5_x_x() else "-repositoryPassword",
