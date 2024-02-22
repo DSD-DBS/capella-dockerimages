@@ -13,7 +13,8 @@
 !!! info
     The exporter can export a model from Git to a TeamForCapella repository with the `merge`-strategy of TeamForCapella.
 
-The T4C client exporter image imports a model from a git repository and exports it to a T4C server.
+The T4C client exporter image imports a model from a git repository and exports
+it to a T4C server.
 
 ## Build it yourself
 
@@ -44,8 +45,10 @@ docker run -d \
   t4c/client/base export
 ```
 
-You can find the description for most of the values in the run instructions of the [importer](./importer.md#run-the-container). These are the additional ones:
+You can find the description for most of the values in the run instructions of
+the [importer](./importer.md#run-the-container). These are the additional ones:
 
 - `HTTP_PORT`: port to the T4C http server
-- `HTTP_LOGIN`: username for the REST API. At the moment administrator access is required
+- `HTTP_LOGIN`: username for the REST API. At the moment administrator access
+  is required
 - `HTTP_PASSWORD`: password for the REST API

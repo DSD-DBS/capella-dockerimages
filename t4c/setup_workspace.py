@@ -82,9 +82,11 @@ def setup_repositories() -> None:
         if protocol:
             assert protocol in ["tcp", "ssl", "ws", "wss"]
         inject_t4c_connection_details(
-            f"{repo['repository']}\\ ({repo['instance']})"
-            if repo["repository"] in duplicate_names
-            else repo["repository"],
+            (
+                f"{repo['repository']}\\ ({repo['instance']})"
+                if repo["repository"] in duplicate_names
+                else repo["repository"]
+            ),
             protocol or "tcp",
             repo["host"],
             repo["port"],

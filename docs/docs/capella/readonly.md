@@ -9,9 +9,11 @@
 !!! info
     The Docker image name for this image is `capella/readonly`
 
-The read-only image builds on top of the Capella EASE remote image and provides support for the read-only use of models.
+The read-only image builds on top of the Capella EASE remote image and provides
+support for the read-only use of models.
 
-It clones a git repositories and automatically injects the cloned models in the workspace.
+It clones a git repositories and automatically injects the cloned models in the
+workspace.
 
 ## Use the prebuilt image
 
@@ -19,8 +21,10 @@ It clones a git repositories and automatically injects the cloned models in the 
 docker run ghcr.io/dsd-dbs/capella-dockerimages/capella/readonly:$TAG
 ```
 
-where `$TAG` is the Docker tag. For more information, have a look at our [tagging schema](introduction.md#tagging-schema-for-prebuilt-images).
-Please check the [`Run the container`](#run-the-container) section to get an overview over environment variables you have to set during startup.
+where `$TAG` is the Docker tag. For more information, have a look at our
+[tagging schema](introduction.md#tagging-schema-for-prebuilt-images). Please
+check the [`Run the container`](#run-the-container) section to get an overview
+over environment variables you have to set during startup.
 
 ## Build it yourself
 
@@ -36,20 +40,26 @@ docker build -t capella/readonly \
 
 ## Run the container
 
-There are two options available for read-only containers.
-The first option supports multiple repositories, but you need to JSON-serizalize it.
-With the second option, you can provide the details as environment variables directly.
+There are two options available for read-only containers. The first option
+supports multiple repositories, but you need to JSON-serizalize it. With the
+second option, you can provide the details as environment variables directly.
 
-Running the Capella read-only container is analogous to the Capella base container. Please run the [instructions of the Capella base container](../base.md#run-the-container).
+Running the Capella read-only container is analogous to the Capella base
+container. Please run the
+[instructions of the Capella base container](../base.md#run-the-container).
 
-Optionally, if you want to change the log location of EASE, add the `$EASE_LOG_LOCATION` environment variable and provide a path to a file as value during `docker run`. The value should be the absolute path to log file. Defaults to `/proc/1/fd/1` (i.e., Docker container logs) if not provided.
+Optionally, if you want to change the log location of EASE, add the
+`$EASE_LOG_LOCATION` environment variable and provide a path to a file as value
+during `docker run`. The value should be the absolute path to log file.
+Defaults to `/proc/1/fd/1` (i.e., Docker container logs) if not provided.
 
-In addition, choose one of the following two options and consider the differences.
+In addition, choose one of the following two options and consider the
+differences.
 
 ### Provide repository details as JSON
 
-With this option, any number of Git models can be loaded.
-These must first be serialized to JSON in the following format:
+With this option, any number of Git models can be loaded. These must first be
+serialized to JSON in the following format:
 
 ```json
 [
@@ -65,7 +75,8 @@ These must first be serialized to JSON in the following format:
 ]
 ```
 
-The JSON string has to be provided as value to the environment variable with the key `GIT_REPOS_JSON`:
+The JSON string has to be provided as value to the environment variable with
+the key `GIT_REPOS_JSON`:
 
 ```zsh
     -e GIT_REPOS_JSON=$GIT_REPOS_JSON
@@ -73,8 +84,9 @@ The JSON string has to be provided as value to the environment variable with the
 
 ### Provide repository details in separate environment variables
 
-With this option, you can only provide details for exactly one repository at time.
-If you want to make any number of models available, please use option [`Provide repository details as JSON`](#provide-repository-details-as-json).
+With this option, you can only provide details for exactly one repository at
+time. If you want to make any number of models available, please use option
+[`Provide repository details as JSON`](#provide-repository-details-as-json).
 
 Add this section to your `docker run` command:
 
@@ -89,9 +101,20 @@ Add this section to your `docker run` command:
 
 Please replace the followings variables (in addition to the general variables):
 
-- `$GIT_URL` with the URL to the Git repository. All URI-formats supported by the `git clone` command will work. Please do NOT include credentials in the URL as they will be not cleaned after cloning the model. You can provide HTTP credentials via the `GIT_USERNAME` and `GIT_PASSWORD` variables (see below).
-- `$GIT_ENTRYPOINT` with the relative path from the root of your repository to the `aird`-file of your model, e.g. `path/to/model.aird`.
-- `$GIT_REVISION` with the desired revision of the git repository. The revision is cloned with the `--single-branch` option, therefore only the specific revision is accessible. Only tags and branches are supported, commit hashes are NOT supported. If empty, the whole repository gets cloned.
-- `$GIT_DEPTH` with the desired git depth. If not provided, the whole history will be cloned.
-- `$GIT_USERNAME` with the git username if the repository is access protected. Leave empty, when no authentication is required.
-- `$GIT_PASSWORD` with the git password if the repository is access protected. Leave empty, when no authentication is required. The password gets cleaned after cloning and is not accessible in the RDP connection.
+- `$GIT_URL` with the URL to the Git repository. All URI-formats supported by
+  the `git clone` command will work. Please do NOT include credentials in the
+  URL as they will be not cleaned after cloning the model. You can provide HTTP
+  credentials via the `GIT_USERNAME` and `GIT_PASSWORD` variables (see below).
+- `$GIT_ENTRYPOINT` with the relative path from the root of your repository to
+  the `aird`-file of your model, e.g. `path/to/model.aird`.
+- `$GIT_REVISION` with the desired revision of the git repository. The revision
+  is cloned with the `--single-branch` option, therefore only the specific
+  revision is accessible. Only tags and branches are supported, commit hashes
+  are NOT supported. If empty, the whole repository gets cloned.
+- `$GIT_DEPTH` with the desired git depth. If not provided, the whole history
+  will be cloned.
+- `$GIT_USERNAME` with the git username if the repository is access protected.
+  Leave empty, when no authentication is required.
+- `$GIT_PASSWORD` with the git password if the repository is access protected.
+  Leave empty, when no authentication is required. The password gets cleaned
+  after cloning and is not accessible in the RDP connection.

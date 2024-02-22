@@ -13,7 +13,9 @@
 !!! info
     The importer exports a model from a TeamForCapella repository to a Git repository.
 
-The T4C client backup image imports a model from a TeamForCapella server and exports it to a Git repository. It can be used as a backup solution, for example, in a scheduled job.
+The T4C client backup image imports a model from a TeamForCapella server and
+exports it to a Git repository. It can be used as a backup solution, for
+example, in a scheduled job.
 
 ## Build it yourself
 
@@ -45,16 +47,29 @@ docker run -d \
 
 Set the following values for the corresponding keys:
 
-- `GIT_REPO_URL`: URL to the target Git repository where the model will be pushed to. All URI-formats supported by the `git clone` command will work. You can provide HTTP credentials via the `GIT_USERNAME` and `GIT_PASSWORD` variables (see below).
+- `GIT_REPO_URL`: URL to the target Git repository where the model will be
+  pushed to. All URI-formats supported by the `git clone` command will work.
+  You can provide HTTP credentials via the `GIT_USERNAME` and `GIT_PASSWORD`
+  variables (see below).
 - `GIT_REPO_BRANCH`: branch of the Git repository.
 - `GIT_USERNAME`: Git username if the repository is access protected.
-- `GIT_PASSWORD`: Git password that is used during cloning from and pushing to the Git repository.
-- `T4C_REPO_HOST`: hostname to the T4C server. The same value that you enter in Capella to connect to a remote repository.
-- `T4C_REPO_PORT`: port to the T4C server. The same value that you enter in Capella to connect to a remote repository. Defaults to 2036.
+- `GIT_PASSWORD`: Git password that is used during cloning from and pushing to
+  the Git repository.
+- `T4C_REPO_HOST`: hostname to the T4C server. The same value that you enter in
+  Capella to connect to a remote repository.
+- `T4C_REPO_PORT`: port to the T4C server. The same value that you enter in
+  Capella to connect to a remote repository. Defaults to 2036.
 - `T4C_CDO_PORT`: CDO port to the T4C server. Defaults to 12036.
-- `T4C_REPO_NAME`: T4C repository name. The same value that you enter in Capella to connect to a remote repository.
-- `T4C_PROJECT_NAME`: name of the Capella project. It's displayed in the Capella project explorer and in the last step when connecting to a remote repository.
-- `T4C_USERNAME`: T4C username that is used during the import. The user needs to have access to the repository.
+- `T4C_REPO_NAME`: T4C repository name. The same value that you enter in
+  Capella to connect to a remote repository.
+- `T4C_PROJECT_NAME`: name of the Capella project. It's displayed in the
+  Capella project explorer and in the last step when connecting to a remote
+  repository.
+- `T4C_USERNAME`: T4C username that is used during the import. The user needs
+  to have access to the repository.
 - `T4C_PASSWORD`: T4C password that is used during the import.
-- `LOG_LEVEL`: your preferred logging level (all Python logging levels are supported).
-- `INCLUDE_COMMIT_HISTORY`: `true` or `false` to define if the T4C commit history should be exported. Important: Exporting the commit history can take a few hours for large models.
+- `LOG_LEVEL`: your preferred logging level (all Python logging levels are
+  supported).
+- `INCLUDE_COMMIT_HISTORY`: `true` or `false` to define if the T4C commit
+  history should be exported. Important: Exporting the commit history can take
+  a few hours for large models.

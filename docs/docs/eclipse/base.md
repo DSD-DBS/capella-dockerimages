@@ -9,9 +9,11 @@
 !!! info
     The Docker image name for this image is `eclipse/base`
 
-The Eclipse base image runs the [Eclipse Project](https://download.eclipse.org/eclipse/downloads/)
-in a Docker container. The Eclipse client can be downloaded and can optionally be customised
-prior to building the Docker image. EGit is installed as default package.
+The Eclipse base image runs the
+[Eclipse Project](https://download.eclipse.org/eclipse/downloads/) in a Docker
+container. The Eclipse client can be downloaded and can optionally be
+customised prior to building the Docker image. EGit is installed as default
+package.
 
 ## Supported versions
 
@@ -22,8 +24,8 @@ The image has been tested with the following versions:
 
 ## Supported architectures
 
-We support and have tested the image against the `arm64` and `amd64`
-build architectures for the supported versions.
+We support and have tested the image against the `arm64` and `amd64` build
+architectures for the supported versions.
 
 ## Use the prebuilt image
 
@@ -37,33 +39,40 @@ The Eclipse image is not available as prebuilt image yet.
 
 Download a Eclipse Linux binary `tar.gz` archive. You can get a release
 directly from Eclipse. Visit <https://download.eclipse.org/eclipse/downloads/>,
-then find a release in the `Latest Release` section. Scroll down to "Platform Runtime Binary"
-and select the package for the Linux platform with the matching build architecture.
+then find a release in the `Latest Release` section. Scroll down to "Platform
+Runtime Binary" and select the package for the Linux platform with the matching
+build architecture.
 
-Place the downloaded archive in the subdirectory `eclipse/versions/$ECLIPSE_VERSION/$BUILD_ARCHITECTURE` of the present
+Place the downloaded archive in the subdirectory
+`eclipse/versions/$ECLIPSE_VERSION/$BUILD_ARCHITECTURE` of the present
 repository and ensure that the end result is either
 
 - `eclipse/versions/$ECLIPSE_VERSION/$BUILD_ARCHITECTURE/eclipse.tar.gz`.
 
-where `ECLIPSE_VERSION` refers to the semantic version of Eclipse, e.g. `4.27.0`.
+where `ECLIPSE_VERSION` refers to the semantic version of Eclipse, e.g.
+`4.27.0`.
 
 #### Optional: Customisation of the Eclipse client
 
 To customise the Eclipse client you can
 
 1. extract the downloaded archive,
-1. apply any modifications (e.g., installation of plugins and/ or dropins) to it, and
+1. apply any modifications (e.g., installation of plugins and/ or dropins) to
+   it, and
 1. compress the modified folder to get a `eclipse.tar.gz` again.
 
 #### Optional: Download the EGit Eclipse package manually
 
-Our `eclipse/base` image is shipped with EGit preinstalled. If you have access to <https://download.eclipse.org/egit/updates/>
-from your build environment, we're fetching the package automatically and there is nothing to do here.
+Our `eclipse/base` image is shipped with EGit preinstalled. If you have access
+to <https://download.eclipse.org/egit/updates/> from your build environment,
+we're fetching the package automatically and there is nothing to do here.
 
-If your build environment can not access the package registry, there is the option
-to pre-download the package and inject it during the build.
+If your build environment can not access the package registry, there is the
+option to pre-download the package and inject it during the build.
 
-1. Download the registry <https://download.eclipse.org/egit/updates/> (analogous to [Download Eclipse packages manually](../ease.md#optional-download-eclipse-packages-manually))
+1. Download the registry <https://download.eclipse.org/egit/updates/>
+   (analogous to
+   [Download Eclipse packages manually](../ease.md#optional-download-eclipse-packages-manually))
 2. Place the files into `/tmp/egit`
 3. Pass `--build-arg BUILD_TYPE=offline` to the `docker build` command.
 
@@ -77,7 +86,8 @@ docker build -t eclipse/base eclipse --build-arg ECLIPSE_VERSION=$ECLIPSE_VERSIO
 
 ### Locally on X11 systems
 
-If you don't need remote access, have a local X11 server running and just want to run Eclipse locally, this may be the best option for you.
+If you don't need remote access, have a local X11 server running and just want
+to run Eclipse locally, this may be the best option for you.
 
 On some systems, you have to whitelist connections to the X-Server with:
 
@@ -85,9 +95,13 @@ On some systems, you have to whitelist connections to the X-Server with:
 xhost +local
 ```
 
-It allows all local programs to connect to your X server. You can further restrict the access to the X server. Please read the [documentation of `xhost`](https://man.archlinux.org/man/xhost.1) for more details.
+It allows all local programs to connect to your X server. You can further
+restrict the access to the X server. Please read the
+[documentation of `xhost`](https://man.archlinux.org/man/xhost.1) for more
+details.
 
-The container can be started with the following command. The `DISPLAY` environment has to be passed to the container.
+The container can be started with the following command. The `DISPLAY`
+environment has to be passed to the container.
 
 ```zsh
 docker run -d \
@@ -100,7 +114,8 @@ Eclipse should start after a few seconds.
 
 ### In a remote container (RDP)
 
-Please follow the instructions on the [remote](../remote.md) page. When running the image, add the following variables to the `docker run` command:
+Please follow the instructions on the [remote](../remote.md) page. When running
+the image, add the following variables to the `docker run` command:
 
 ```zsh
     -e AUTOSTART_ECLIPSE=$AUTOSTART_ECLIPSE \
@@ -109,8 +124,9 @@ Please follow the instructions on the [remote](../remote.md) page. When running 
 
 Please replace the followings variables:
 
-- `AUTOSTART_ECLIPSE` defines the autostart behaviour of Eclipse. When set to 1 (default), Eclipse will be started as soon
-  as an RDP connection has been established to the running container.
-- `RESTART_ECLIPSE` defines the restart behaviour of Eclipse. When set to 1 (default) and when `RESTART_ECLIPSE=1`,
-  Eclipse will be re-started as soon as it has been exited (after clean quits as
-  well as crashs).
+- `AUTOSTART_ECLIPSE` defines the autostart behaviour of Eclipse. When set to 1
+  (default), Eclipse will be started as soon as an RDP connection has been
+  established to the running container.
+- `RESTART_ECLIPSE` defines the restart behaviour of Eclipse. When set to 1
+  (default) and when `RESTART_ECLIPSE=1`, Eclipse will be re-started as soon as
+  it has been exited (after clean quits as well as crashs).

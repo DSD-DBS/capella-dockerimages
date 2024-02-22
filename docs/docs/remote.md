@@ -11,7 +11,8 @@ The remote images allow to extend the
 - T4C base image (`t4c/client/base`)
 - Pure::variants image (`t4c/client/pure-variants`)
 
-with a RDP or XPRA server and a metrics endpoint to measure the container activity.
+with a RDP or XPRA server and a metrics endpoint to measure the container
+activity.
 
 It is a basic Linux server with a [Openbox](http://openbox.org/) installation.
 
@@ -23,8 +24,8 @@ It is a basic Linux server with a [Openbox](http://openbox.org/) installation.
 
 !!! info "Openbox is only used for the connection method RDP."
 
-Feel free to adjust the configurations `remote/rc.xml` and `remote/menu.xml` to satisfy
-custom Openbox configuration needs.
+Feel free to adjust the configurations `remote/rc.xml` and `remote/menu.xml` to
+satisfy custom Openbox configuration needs.
 
 If you like to use your own wallpaper, replace `remote/wallpaper.png`.
 
@@ -34,15 +35,20 @@ If you like to use your own wallpaper, replace `remote/wallpaper.png`.
 docker build -t $BASE_IMAGE/remote remote --build-arg BASE_IMAGE=$BASE_IMAGE
 ```
 
-where `$BASE_IMAGE` is `capella/base`, `t4c/client/base` or `t4c/client/pure-variants` (depends on the image you'd like to extend with remote functionality)
+where `$BASE_IMAGE` is `capella/base`, `t4c/client/base` or
+`t4c/client/pure-variants` (depends on the image you'd like to extend with
+remote functionality)
 
 ## Run the container
 
 Replace the followings variables:
 
-- `$BASE_IMAGE` with `capella/base`, `t4c/client/base` or `t4c/client/pure-variants`. Please check the individual section `In a remote container (RDP)` of the individual base image documentation pages for additional configuration options.
-- `$RMT_PASSWORD` is the password for remote connections (for the login via RDP) and has
-  to be at least 8 characters long.
+- `$BASE_IMAGE` with `capella/base`, `t4c/client/base` or
+  `t4c/client/pure-variants`. Please check the individual section
+  `In a remote container (RDP)` of the individual base image documentation
+  pages for additional configuration options.
+- `$RMT_PASSWORD` is the password for remote connections (for the login via
+  RDP) and has to be at least 8 characters long.
 
 <!-- prettier-ignore-start -->
 === "Connect via RDP"
