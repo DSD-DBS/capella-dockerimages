@@ -3,37 +3,37 @@
 
 dropins:
   CapellaXHTMLDocGen:
-    github: "https://github.com/eclipse/capella-xhtml-docgen"
-    eclipseRepository: "https://download.eclipse.org/capella/addons/xhtmldocgen/updates/releases/5.0.0/"
+    github: 'https://github.com/eclipse/capella-xhtml-docgen'
+    eclipseRepository: 'https://download.eclipse.org/capella/addons/xhtmldocgen/updates/releases/5.0.0/'
     installIU:
-      - "org.polarsys.capella.docgen.package.feature.feature.group"
+      - 'org.polarsys.capella.docgen.package.feature.feature.group'
   DiagramStyler:
-    github: "https://github.com/eclipse/capella/wiki/PVMT"
-    eclipseRepository: "jar:https://artifactory.thalesdigital.io/ui/api/v1/download?repoKey=mvn-public&path=com%252Fthalesgroup%252Fmde%252Fcapella%252Fdiagramstyler%252Fcom.thalesgroup.mde.capella.diagramstyler.repository%252F50.3.1%252Fcom.thalesgroup.mde.capella.diagramstyler.repository-50.3.1.zip!/"
+    github: 'https://github.com/eclipse/capella/wiki/PVMT'
+    eclipseRepository: 'jar:https://artifactory.thalesdigital.io/ui/api/v1/download?repoKey=mvn-public&path=com%252Fthalesgroup%252Fmde%252Fcapella%252Fdiagramstyler%252Fcom.thalesgroup.mde.capella.diagramstyler.repository%252F50.3.1%252Fcom.thalesgroup.mde.capella.diagramstyler.repository-50.3.1.zip!/'
     installIU:
-      - "com.thalesgroup.mde.capella.diagramstyler.feature.feature.group"
+      - 'com.thalesgroup.mde.capella.diagramstyler.feature.feature.group'
   PVMT:
-    github: "https://github.com/eclipse/capella/wiki/PVMT"
-    eclipseRepository: "jar:https://artifactory.thalesdigital.io/ui/api/v1/download?repoKey=mvn-public&path=com%252Fthalesgroup%252Fvpd%252Fproperty%252Fcom.thalesgroup.vpd.property.repository%252F50.5.1%252Fcom.thalesgroup.vpd.property.repository-50.5.1.zip!/"
+    github: 'https://github.com/eclipse/capella/wiki/PVMT'
+    eclipseRepository: 'jar:https://artifactory.thalesdigital.io/ui/api/v1/download?repoKey=mvn-public&path=com%252Fthalesgroup%252Fvpd%252Fproperty%252Fcom.thalesgroup.vpd.property.repository%252F50.5.1%252Fcom.thalesgroup.vpd.property.repository-50.5.1.zip!/'
     installIU:
-      - "com.thalesgroup.vpd.property.feature.feature.group"
+      - 'com.thalesgroup.vpd.property.feature.feature.group'
   Filtering:
-    github: "https://github.com/eclipse/capella-filtering"
-    eclipseRepository: "jar:https://download.eclipse.org/capella/addons/filtering/updates/releases/1.5.1/Filtering-updateSite-1.5.1.202104270742.zip!/"
+    github: 'https://github.com/eclipse/capella-filtering'
+    eclipseRepository: 'jar:https://download.eclipse.org/capella/addons/filtering/updates/releases/1.5.1/Filtering-updateSite-1.5.1.202104270742.zip!/'
     installIU:
-      - "org.polarsys.capella.filtering.feature.feature.group"
+      - 'org.polarsys.capella.filtering.feature.feature.group'
   Requirements:
-    github: "https://github.com/eclipse/capella-requirements-vp"
-    eclipseRepository: "jar:https://download.eclipse.org/capella/addons/requirements/updates/releases/0.12.3/Requirements-updateSite-0.12.3.202208111122.zip!/"
+    github: 'https://github.com/eclipse/capella-requirements-vp'
+    eclipseRepository: 'jar:https://download.eclipse.org/capella/addons/requirements/updates/releases/0.12.3/Requirements-updateSite-0.12.3.202208111122.zip!/'
     installIU:
-      - "org.polarsys.capella.vp.requirements.feature.feature.group"
+      - 'org.polarsys.capella.vp.requirements.feature.feature.group'
   SubsystemTransition:
-    github: "https://github.com/eclipse/capella-sss-transition"
-    eclipseRepository: "jar:https://download.eclipse.org/capella/addons/subsystemtransition/updates/releases/1.6.1/SubsystemTransition-updateSite-1.6.1.202302141252.zip!/"
+    github: 'https://github.com/eclipse/capella-sss-transition'
+    eclipseRepository: 'jar:https://download.eclipse.org/capella/addons/subsystemtransition/updates/releases/1.6.1/SubsystemTransition-updateSite-1.6.1.202302141252.zip!/'
     installIU:
-      - "org.polarsys.capella.transition.system2subsystem.feature.feature.group"
+      - 'org.polarsys.capella.transition.system2subsystem.feature.feature.group'
   TextualEditor:
-    github: "https://github.com/eclipse/capella-textual-editor"
-    eclipseRepository: "jar:https://download.eclipse.org/capella/addons/textualeditor/updates/releases/0.11.0/TextualEditor-updateSite-0.11.0.202208161352.zip!/"
+    github: 'https://github.com/eclipse/capella-textual-editor'
+    eclipseRepository: 'jar:https://download.eclipse.org/capella/addons/textualeditor/updates/releases/0.11.0/TextualEditor-updateSite-0.11.0.202208161352.zip!/'
     installIU:
-      - "org.polarsys.capella.scenario.editor.feature.feature.group"
+      - 'org.polarsys.capella.scenario.editor.feature.feature.group'

@@ -14,7 +14,8 @@ SPDX-License-Identifier: Apache-2.0
 
 ## Documentation
 
-The documentation has been moved to [Github Pages](https://dsd-dbs.github.io/capella-dockerimages/).
+The documentation has been moved to
+[Github Pages](https://dsd-dbs.github.io/capella-dockerimages/).
 
 ## Introduction
 
@@ -27,7 +28,8 @@ This repository provides Docker images for the followings tools:
     [SWT-Bot](https://www.eclipse.org/swtbot/)
 - [Jupyter Notebook](https://jupyter.org/)
 
-In general, we are providing images to run applications in a containerized environment and to automate processes around the tools.
+In general, we are providing images to run applications in a containerized
+environment and to automate processes around the tools.
 
 This repository includes Docker files to build the following Docker images:
 

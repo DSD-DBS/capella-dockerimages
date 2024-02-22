@@ -1,11 +1,10 @@
 # SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
 # SPDX-License-Identifier: Apache-2.0
 
-
 variables:
   CLEANUP:
-    value: "0"
-    description: "Clean all test docker containers"
+    value: '0'
+    description: 'Clean all test docker containers'
 
 # To address the issue of legacy or remaining containers resulting from a cancelled
 # or timed-out pipeline, we require an additional CI template. This is because
@@ -22,5 +21,10 @@ remove-containers-by-labels:
     - if: '$CLEANUP == "1"'
       when: always
   script:
-    - TEST_CONTAINERS=$(docker ps --filter "label=capella-dockerimages-pytest-container=true" -q)
-    - if [[ -n $TEST_CONTAINERS ]]; then docker stop $TEST_CONTAINERS; docker rm $TEST_CONTAINERS; else exit 0; fi;
+    - TEST_CONTAINERS=$(docker ps --filter
+      "label=capella-dockerimages-pytest-container=true" -q)
+    - >
+      if [[ -n $TEST_CONTAINERS ]]; then
+        docker stop $TEST_CONTAINERS;
+        docker rm $TEST_CONTAINERS;
+      else exit 0; fi;

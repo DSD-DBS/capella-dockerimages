@@ -3,88 +3,98 @@
 
 variables:
   BASE:
-    value: "0"
-    description: "Build the base image?"
+    value: '0'
+    description: 'Build the base image?'
   CAPELLA_BASE:
-    value: "0"
-    description: "Build the capella/base image?"
+    value: '0'
+    description: 'Build the capella/base image?'
   CAPELLA_REMOTE:
-    value: "0"
-    description: "Build the capella/remote image?"
+    value: '0'
+    description: 'Build the capella/remote image?'
   T4C_CLIENT_BASE:
-    value: "0"
-    description: "Build the t4c/client/base image?"
+    value: '0'
+    description: 'Build the t4c/client/base image?'
   T4C_CLIENT_REMOTE:
-    value: "0"
-    description: "Build the t4c/client/remote image?"
+    value: '0'
+    description: 'Build the t4c/client/remote image?'
   T4C_CLIENT_REMOTE_PURE_VARIANTS:
-    value: "0"
-    description: "Build the t4c/client/remote/pure-variants image?"
+    value: '0'
+    description: 'Build the t4c/client/remote/pure-variants image?'
   CAPELLA_EASE:
-    value: "0"
-    description: "Build the capella/ease image?"
+    value: '0'
+    description: 'Build the capella/ease image?'
   CAPELLA_EASE_REMOTE:
-    value: "0"
-    description: "Build the capella/ease/remote image?"
+    value: '0'
+    description: 'Build the capella/ease/remote image?'
   CAPELLA_READONLY:
-    value: "0"
-    description: "Build the capella/readonly image?"
+    value: '0'
+    description: 'Build the capella/readonly image?'
   T4C_CLIENT_EASE:
-    value: "0"
-    description: "Build the t4c/client/ease image?"
+    value: '0'
+    description: 'Build the t4c/client/ease image?'
   T4C_CLIENT_EASE_REMOTE:
-    value: "0"
-    description: "Build the t4c/client/ease/remote image?"
+    value: '0'
+    description: 'Build the t4c/client/ease/remote image?'
   T4C_CLIENT_EASE_REMOTE_DEBUG:
-    value: "0"
-    description: "Build the t4c/client/ease/remote/debug image?"
+    value: '0'
+    description: 'Build the t4c/client/ease/remote/debug image?'
   JUPYTER:
-    value: "0"
-    description: "Build the jupyter-notebook image?"
+    value: '0'
+    description: 'Build the jupyter-notebook image?'
   PAPYRUS_BASE:
-    value: "0"
-    description: "Build the papyrus/base image?"
+    value: '0'
+    description: 'Build the papyrus/base image?'
   PAPYRUS_REMOTE:
-    value: "0"
-    description: "Build the papyrus/remote image?"
+    value: '0'
+    description: 'Build the papyrus/remote image?'
   ECLIPSE_BASE:
-    value: "0"
-    description: "Build the eclipse/base image?"
+    value: '0'
+    description: 'Build the eclipse/base image?'
   ECLIPSE_REMOTE:
-    value: "0"
-    description: "Build the eclipse/remote image?"
+    value: '0'
+    description: 'Build the eclipse/remote image?'
   ECLIPSE_REMOTE_PURE_VARIANTS:
-    value: "0"
-    description: "Build the eclipse/remote/pure-variants image?"
+    value: '0'
+    description: 'Build the eclipse/remote/pure-variants image?'
   CAPELLA_DOCKER_IMAGES_REVISION:
-    value: "main"
-    description: "Revision of the Capella Docker images Github repository (https://github.com/DSD-DBS/capella-dockerimages)"
+    value: 'main'
+    description:
+      'Revision of the Capella Docker images Github repository
+      (https://github.com/DSD-DBS/capella-dockerimages)'
   CAPELLA_VERSION:
-    value: "6.0.0"
-    description: "Capella version. Please make sure that a subdirectory with the name of the value exists. The value must be valid ASCII and may contain lowercase and uppercase letters, digits, underscores, periods and dashes."
+    value: '6.0.0'
+    description:
+      'Capella version. Please make sure that a subdirectory with the name of
+      the value exists. The value must be valid ASCII and may contain lowercase
+      and uppercase letters, digits, underscores, periods and dashes.'
   BUILD_FOR_LATEST_TAG:
-    value: "0"
-    description: "Fetch the latest tag for the image builder repository and use it as revision. If 0, '$CI_COMMIT_REF_NAME' will be used."
+    value: '0'
+    description:
+      "Fetch the latest tag for the image builder repository and use it as
+      revision. If 0, '$CI_COMMIT_REF_NAME' will be used."
   JUPYTER_VERSION:
-    value: "python-3.11"
-    description: "Python version for the jupyter notebook."
+    value: 'python-3.11'
+    description: 'Python version for the jupyter notebook.'
   PAPYRUS_VERSION:
-    value: "6.4.0"
-    description: "Semantic version of Papyrus."
+    value: '6.4.0'
+    description: 'Semantic version of Papyrus.'
   ECLIPSE_VERSION:
-    value: "4.27"
-    description: "Semantic version of Eclipse."
+    value: '4.27'
+    description: 'Semantic version of Eclipse.'
   ENVIRONMENT:
-    value: "staging"
-    description: "Specifies the environment. Make sure that all related environment variables are set on the repository level. More information in the documentation."
-  T4C_SERVER_REGISTRY: "" # Registry where you can find the t4c server image
-  T4C_SERVER_TAG: "$CAPELLA_VERSION-main" # Tag that is used for the t4c server image
-  T4C_SERVER_TEST_DATA_REPO: "" # Link to the t4c test data repo needed to run the backup tests
-  LOCAL_GIT_BASE_IMAGE: "debian:bookworm" # Specifies the base images used to build the local git server needed to run the tests
-  DOCKER_BUILD_ARGS: "--no-cache"
+    value: 'staging'
+    description:
+      'Specifies the environment. Make sure that all related environment
+      variables are set on the repository level. More information in the
+      documentation.'
+  T4C_SERVER_REGISTRY: '' # Registry where you can find the t4c server image
+  T4C_SERVER_TAG: '$CAPELLA_VERSION-main' # Tag that is used for the t4c server image
+  T4C_SERVER_TEST_DATA_REPO: '' # Link to the t4c test data repo needed to run the backup tests
+  LOCAL_GIT_BASE_IMAGE: 'debian:bookworm' # Specifies the base images used to build the local git server needed to run the tests
+  DOCKER_BUILD_ARGS: '--no-cache'
   BUILD_ARCHITECTURE: amd64
-  PURE_VARIANTS_VERSION: "6.0.1"
-  XPRA_REGISTRY: "https://xpra.org"
+  PURE_VARIANTS_VERSION: '6.0.1'
+  XPRA_REGISTRY: 'https://xpra.org'
 
 stages:
   - build
@@ -103,7 +113,10 @@ default:
   - docker info
   - DOCKER_REGISTRY_USER_QUERY=DOCKER_REGISTRY_USER_${ENVIRONMENT_UPPERCASE}
   - DOCKER_REGISTRY_PASSWORD_QUERY=DOCKER_REGISTRY_PASSWORD_${ENVIRONMENT_UPPERCASE}
-  - echo ${!DOCKER_REGISTRY_PASSWORD_QUERY:?} | docker login -u ${!DOCKER_REGISTRY_USER_QUERY:?} --password-stdin $DOCKER_REGISTRY
+  - |
+    echo ${!DOCKER_REGISTRY_PASSWORD_QUERY:?} \
+      | docker login -u ${!DOCKER_REGISTRY_USER_QUERY:?} \
+      --password-stdin $DOCKER_REGISTRY
   - docker pull $BASE_IMAGE
 
 .push: &push
@@ -124,7 +137,9 @@ default:
     else
       IMAGE_BUILDER_REVISION="$CI_COMMIT_REF_NAME"
     fi
-  - GENERAL_IMAGE_TAG=$(echo $CAPELLA_DOCKER_IMAGES_REVISION | sed 's/[^a-zA-Z0-9.]/-/g')-$IMAGE_BUILDER_REVISION
+  - |
+    GENERAL_IMAGE_TAG=$(echo $CAPELLA_DOCKER_IMAGES_REVISION \
+      | sed 's/[^a-zA-Z0-9.]/-/g')-$IMAGE_BUILDER_REVISION
   - IMAGE=${DOCKER_REGISTRY}/$IMAGE
 
 .resolve-base-image: &resolve-base-image
@@ -159,7 +174,8 @@ default:
 
 .prepare-eclipse-pv: &prepare-eclipse-pv
   - *prepare
-  - export DOCKER_TAG=$ECLIPSE_VERSION-$PURE_VARIANTS_VERSION-$GENERAL_IMAGE_TAG
+  - |
+    export DOCKER_TAG=$ECLIPSE_VERSION-$PURE_VARIANTS_VERSION-$GENERAL_IMAGE_TAG
   - BASE_IMAGE="${DOCKER_REGISTRY}/${BASE_IMAGE}:$ECLIPSE_VERSION-$GENERAL_IMAGE_TAG"
   - cd pure-variants
   - *github
@@ -176,7 +192,11 @@ default:
   - export DOCKER_PREFIX=${DOCKER_REGISTRY:?}/
   - apt-get update && apt-get -y install jq
   # This command lists docker containers, identifies the current job and writes the network ID of the current container into the DOCKER_NETWORK variable.
-  - export DOCKER_NETWORK=$(docker inspect -f "{{json .NetworkSettings.Networks }}" $(docker ps -q -f "label=com.gitlab.gitlab-runner.job.id=$CI_JOB_ID" -f "label=com.gitlab.gitlab-runner.type=build") | jq -r 'keys[0]' | head -n 1)
+  - |
+    export DOCKER_NETWORK=$(docker inspect -f "{{json .NetworkSettings.Networks }}" \
+      $(docker ps -q -f "label=com.gitlab.gitlab-runner.job.id=$CI_JOB_ID" \
+      -f "label=com.gitlab.gitlab-runner.type=build") \
+      | jq -r 'keys[0]' | head -n 1)
   - *local-git-server
   - python -m venv .venv
   - source .venv/bin/activate
@@ -185,7 +205,8 @@ default:
 
 .prepare-t4c-server-tests: &prepare-t4c-server-tests
   - *prepare-tests-general
-  - GIT_PASSWORD=${T4C_SERVER_TEST_DATA_REPO_TOKEN:?} git clone ${T4C_SERVER_TEST_DATA_REPO:?}
+  - GIT_PASSWORD=${T4C_SERVER_TEST_DATA_REPO_TOKEN:?} git clone
+    ${T4C_SERVER_TEST_DATA_REPO:?}
 
 base:
   stage: build
@@ -224,7 +245,8 @@ capella/base:
   script:
     - *prepare-capella
     - *docker
-    - mv ../capella.tar.gz ./capella/versions/$CAPELLA_VERSION/$BUILD_ARCHITECTURE/capella.tar.gz
+    - mv ../capella.tar.gz
+      ./capella/versions/$CAPELLA_VERSION/$BUILD_ARCHITECTURE/capella.tar.gz
     - >
       if [[ -n "$(find ../dropins -maxdepth 1 -type d)" ]]; then
         mv ../dropins/* ./capella/versions/$CAPELLA_VERSION/dropins/
@@ -232,7 +254,8 @@ capella/base:
         echo "No files to move in dropins"
       fi
     - >
-      if [[ -n "$(find ../patches -maxdepth 1 -type f -not -path '*/\.*')" ]]; then
+      if [[ -n "$(find ../patches -maxdepth 1 -type f -not -path '*/\.*')" ]];
+      then
         mv ../patches/* ./capella/versions/$CAPELLA_VERSION/patches/
       else
         echo "No files to move in patches"
@@ -293,7 +316,8 @@ t4c/client/base:
         --build-arg BASE_IMAGE=$BASE_IMAGE \
         t4c
     - *prepare-t4c-server-tests
-    - pytest -o log_cli=true -s -m t4c_server test_backups.py test_exporter_local.py test_exporter_git.py || r=3
+    - pytest -o log_cli=true -s -m t4c_server test_backups.py
+      test_exporter_local.py test_exporter_git.py || r=3
     - *push
     - exit $r
   allow_failure: &allow_failure
@@ -341,7 +365,8 @@ t4c/client/remote/pure-variants:
     - *prepare-capella
     - *docker
     - mv ../../../../pure-variants/dependencies/* pure-variants/dependencies/
-    - mv ../../../../pure-variants/updateSite/* pure-variants/versions/${PURE_VARIANTS_VERSION:?}
+    - mv ../../../../pure-variants/updateSite/*
+      pure-variants/versions/${PURE_VARIANTS_VERSION:?}
     - |
       docker build $DOCKER_BUILD_ARGS \
       -t $DOCKER_REGISTRY/t4c/client/remote/pure-variants:$DOCKER_TAG \
@@ -504,7 +529,8 @@ eclipse/base:
   script:
     - *prepare-eclipse
     - *docker
-    - mv ../eclipse.tar.gz ./eclipse/versions/$ECLIPSE_VERSION/$BUILD_ARCHITECTURE/eclipse.tar.gz
+    - mv ../eclipse.tar.gz
+      ./eclipse/versions/$ECLIPSE_VERSION/$BUILD_ARCHITECTURE/eclipse.tar.gz
     - mv ../../../egit/* ./eclipse/egit/
     - |
       docker build $DOCKER_BUILD_ARGS \

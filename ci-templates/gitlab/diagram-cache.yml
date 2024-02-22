@@ -7,7 +7,7 @@ variables:
 update_capella_diagram_cache:
   image:
     name: $DOCKER_REGISTRY/capella/base:${CAPELLA_DOCKER_IMAGES_TAG}
-    entrypoint: [""]
+    entrypoint: ['']
   script:
     - pip install capellambse
     - mkdir diagram_cache
@@ -35,11 +35,11 @@ update_capella_diagram_cache:
       EOF
   artifacts:
     paths:
-      - "diagram_cache"
+      - 'diagram_cache'
   variables:
     # Virtual display used to run Capella in the background.
     # Do not modify the value!
-    DISPLAY: ":99"
+    DISPLAY: ':99'
 
     # Docker tag, which is used for the capella/base image.
     # Defaults to ${CAPELLA_VERSION}-${CAPELLA_DOCKER_IMAGES_REVISION} if not defined

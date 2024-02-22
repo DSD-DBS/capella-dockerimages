@@ -33,7 +33,7 @@ nav:
       - CLI: capella/cli.md
       - EASE: ease.md
       - Read-only: capella/readonly.md
-      - "pure::variants": pure-variants.md
+      - 'pure::variants': pure-variants.md
       - Build from source: capella/build-from-source.md
       - Team4Capella client:
           - Introduction: capella/t4c/introduction.md
@@ -46,7 +46,7 @@ nav:
       - Base: papyrus/base.md
   - Eclipse:
       - Base: eclipse/base.md
-      - "pure::variants": pure-variants.md
+      - 'pure::variants': pure-variants.md
   - Remote: remote.md
 
 repo_url: https://github.com/DSD-DBS/capella-dockerimages
@@ -60,6 +60,7 @@ markdown_extensions:
   - abbr
   - pymdownx.snippets
   - attr_list
+  - md_in_html
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg

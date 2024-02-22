@@ -24,6 +24,7 @@ jobs:
           entry_point: test/test.aird # Relative entrypoint to .aird file inside repository (starting from the root of the repository).
 ```
 
-This is the minimal configuration, specifying only the `entry_point`. Nevertheless, there
-are several other options to configure your diagram cache workflow.
-For more options please have a look at the possible [inputs](https://github.com/DSD-DBS/capella-dockerimages/blob/main/ci-templates/github/diagram-cache.yml)
+This is the minimal configuration, specifying only the `entry_point`.
+Nevertheless, there are several other options to configure your diagram cache
+workflow. For more options please have a look at the possible
+[inputs](https://github.com/DSD-DBS/capella-dockerimages/blob/main/ci-templates/github/diagram-cache.yml)

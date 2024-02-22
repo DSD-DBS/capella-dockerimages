@@ -3,80 +3,80 @@
 
 variables:
   # Revision of Github repository. If using a mirror, no change is needed.
-  CAPELLA_DOCKER_IMAGES_REVISION: "$CI_COMMIT_REF_NAME"
+  CAPELLA_DOCKER_IMAGES_REVISION: '$CI_COMMIT_REF_NAME'
 
   # Provide the path to image builder repository
-  IMAGE_BUILDER_GITLAB_REPOSITORY: "path/to/project"
+  IMAGE_BUILDER_GITLAB_REPOSITORY: 'path/to/project'
 
 # The base image does not depend on the Capella version.
 # Therefore, we're building it once before building the dependent Capella images.
 .base:
   trigger:
-    project: "$IMAGE_BUILDER_GITLAB_REPOSITORY"
+    project: '$IMAGE_BUILDER_GITLAB_REPOSITORY'
     strategy: depend
   variables:
     CAPELLA_DOCKER_IMAGES_REVISION: $CAPELLA_DOCKER_IMAGES_REVISION
-    BUILD_FOR_LATEST_TAG: "1"
+    BUILD_FOR_LATEST_TAG: '1'
 
     # Only build base image
-    BASE: "1"
+    BASE: '1'
 
 .capella:
   trigger:
-    project: "$IMAGE_BUILDER_GITLAB_REPOSITORY"
+    project: '$IMAGE_BUILDER_GITLAB_REPOSITORY'
     strategy: depend
   parallel:
     matrix:
-      - CAPELLA_VERSION: ["5.0.0", "5.2.0", "6.0.0", "6.1.0"]
+      - CAPELLA_VERSION: ['5.0.0', '5.2.0', '6.0.0', '6.1.0']
   variables:
     CAPELLA_DOCKER_IMAGES_REVISION: $CAPELLA_DOCKER_IMAGES_REVISION
-    BUILD_FOR_LATEST_TAG: "1"
+    BUILD_FOR_LATEST_TAG: '1'
 
     # Build all Capella images
-    CAPELLA_BASE: "1"
-    CAPELLA_CLI: "1"
-    CAPELLA_REMOTE: "1"
-    T4C_CLIENT_BASE: "1"
-    T4C_CLIENT_BACKUP: "1"
-    T4C_CLIENT_EXPORTER: "1"
-    T4C_CLIENT_REMOTE: "1"
-    T4C_CLIENT_REMOTE_PURE_VARIANTS: "1"
-    CAPELLA_EASE: "1"
-    CAPELLA_EASE_REMOTE: "1"
-    CAPELLA_READONLY: "1"
+    CAPELLA_BASE: '1'
+    CAPELLA_CLI: '1'
+    CAPELLA_REMOTE: '1'
+    T4C_CLIENT_BASE: '1'
+    T4C_CLIENT_BACKUP: '1'
+    T4C_CLIENT_EXPORTER: '1'
+    T4C_CLIENT_REMOTE: '1'
+    T4C_CLIENT_REMOTE_PURE_VARIANTS: '1'
+    CAPELLA_EASE: '1'
+    CAPELLA_EASE_REMOTE: '1'
+    CAPELLA_READONLY: '1'
 
 .jupyter:
   trigger:
-    project: "$IMAGE_BUILDER_GITLAB_REPOSITORY"
+    project: '$IMAGE_BUILDER_GITLAB_REPOSITORY'
     strategy: depend
   variables:
     CAPELLA_DOCKER_IMAGES_REVISION: $CAPELLA_DOCKER_IMAGES_REVISION
-    BUILD_FOR_LATEST_TAG: "1"
+    BUILD_FOR_LATEST_TAG: '1'
 
     # Only build jupyter image
-    JUPYTER: "1"
+    JUPYTER: '1'
 
 .papyrus:
   trigger:
-    project: "$IMAGE_BUILDER_GITLAB_REPOSITORY"
+    project: '$IMAGE_BUILDER_GITLAB_REPOSITORY'
     strategy: depend
   variables:
     CAPELLA_DOCKER_IMAGES_REVISION: $CAPELLA_DOCKER_IMAGES_REVISION
-    BUILD_FOR_LATEST_TAG: "1"
+    BUILD_FOR_LATEST_TAG: '1'
 
     # Only build papyrus images
-    PAPYRUS_BASE: "1"
-    PAPYRUS_REMOTE: "1"
+    PAPYRUS_BASE: '1'
+    PAPYRUS_REMOTE: '1'
 
 .eclipse:
   trigger:
-    project: "$IMAGE_BUILDER_GITLAB_REPOSITORY"
+    project: '$IMAGE_BUILDER_GITLAB_REPOSITORY'
     strategy: depend
   variables:
     CAPELLA_DOCKER_IMAGES_REVISION: $CAPELLA_DOCKER_IMAGES_REVISION
-    BUILD_FOR_LATEST_TAG: "1"
+    BUILD_FOR_LATEST_TAG: '1'
 
     # Only build papyrus images
-    ECLIPSE_BASE: "1"
-    ECLIPSE_REMOTE: "1"
-    ECLIPSE_REMOTE_PURE_VARIANTS: "1"
+    ECLIPSE_BASE: '1'
+    ECLIPSE_REMOTE: '1'
+    ECLIPSE_REMOTE_PURE_VARIANTS: '1'
