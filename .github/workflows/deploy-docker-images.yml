@@ -52,7 +52,7 @@ jobs:
           cache-dependency-path: ./pyproject.toml
           python-version: "3.11"
       - name: Login to github container registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
