@@ -89,42 +89,44 @@ flowchart LR
     T4C_CLIENT_BASE(t4c/client/base) --> T4C_CLIENT_REMOTE(t4c/client/remote) --> T4C_CLIENT_REMOTE_PURE_VARIANTS(t4c/client/remote/pure-variants)
     CAPELLA_EASE(capella/ease) --> CAPELLA_EASE_REMOTE(capella/ease/remote) --> CAPELLA_READONLY(capella/readonly)
 
-    style BASE fill:#77a32e,color:#000000
-    style CAPELLA_BASE fill:#27e87f,color:#000000
-    style JUPYTER fill:#5161ea,color:#000000
-    style PAPYRUS_BASE fill:#9adef0,color:#000000
-    style ECLIPSE_BASE fill:#241839,color:#ffffff
-    style T4C_CLIENT_BASE fill:#472f3f,color:#ffffff
+    style BASE fill:#b22222,color:#000000
+    style CAPELLA_BASE fill:#8feb34,color:#000000
+    style JUPYTER fill:#f5626c,color:#000000
+    style PAPYRUS_BASE fill:#5f9ea0,color:#000000
+    style ECLIPSE_BASE fill:#fafad2,color:#000000
+    style T4C_CLIENT_BASE fill:#1e90ff,color:#000000
 
-    style CAPELLA_EASE fill:#ae17e7,color:#000000
-    style T4C_CLIENT_EASE fill:#ae17e7,color:#000000
+    style CAPELLA_READONLY fill:#dda0dd,color:#000000
 
-    style CAPELLA_REMOTE fill:#e3ab74,color:#000000
-    style T4C_CLIENT_REMOTE fill:#e3ab74,color:#000000
-    style CAPELLA_EASE_REMOTE fill:#e3ab74,color:#000000
-    style ECLIPSE_REMOTE fill:#e3ab74,color:#000000
-    style PAPYRUS_REMOTE fill:#e3ab74,color:#000000
+    style CAPELLA_EASE fill:#f4a460,color:#000000
+    style T4C_CLIENT_EASE fill:#f4a460,color:#000000
 
-    style CAPELLA_REMOTE_PURE_VARIANTS fill:#a64d79,color:#000000
-    style T4C_CLIENT_REMOTE_PURE_VARIANTS fill:#a64d79,color:#000000
-    style ECLIPSE_REMOTE_PURE_VARIANTS fill:#a64d79,color:#000000
+    style CAPELLA_REMOTE fill:#228b22,color:#000000
+    style T4C_CLIENT_REMOTE fill:#228b22,color:#000000
+    style CAPELLA_EASE_REMOTE fill:#228b22,color:#000000
+    style ECLIPSE_REMOTE fill:#228b22,color:#000000
+    style PAPYRUS_REMOTE fill:#228b22,color:#000000
+
+    style CAPELLA_REMOTE_PURE_VARIANTS fill:#62f5f2,color:#000000
+    style T4C_CLIENT_REMOTE_PURE_VARIANTS fill:#62f5f2,color:#000000
+    style ECLIPSE_REMOTE_PURE_VARIANTS fill:#62f5f2,color:#000000
 
 ```
 
 Each highlighted color indicates the Dockerfile which is used to build the
 image:
 
-:material-checkbox-blank-circle:{ style="color: #ebb134 " } [Base](base.md)
-<br> :material-checkbox-blank-circle:{ style="color: #8feb34 " }
-[Capella Base](capella/base.md)<br> :material-checkbox-blank-circle:{
-style="color: #34cceb " } [T4C Client Base](capella/t4c/base.md) <br>
-:material-checkbox-blank-circle:{ style="color: #eb3477 " } [EASE](ease.md)
-<br> :material-checkbox-blank-circle:{ style="color: #f2f1a7 " }
-[Remote](remote.md) <br> :material-checkbox-blank-circle:{ style="color:
-#d0a7f2 " } [Capella read-only](capella/readonly.md) <br>
-:material-checkbox-blank-circle:{ style="color: #62f5f2 " }
-[pure::variants](pure-variants.md) <br> :material-checkbox-blank-circle:{
-style="color: #f5626c " } [Jupyter notebook](jupyter/index.md) <br>
+<!-- prettier-ignore -->
+:material-checkbox-blank-circle:{ style="color: #b22222 " } [Base](base.md) <br>
+:material-checkbox-blank-circle:{ style="color: #8feb34 " } [Capella Base](capella/base.md)<br>
+:material-checkbox-blank-circle:{ style="color: #fafad2 " } [Eclipse Base](eclipse/base.md)<br>
+:material-checkbox-blank-circle:{ style="color: #5f9ea0 " } [Papyrus Base](papyrus/base.md)<br>
+:material-checkbox-blank-circle:{ style="color: #1e90ff " } [T4C Client Base](capella/t4c/base.md) <br>
+:material-checkbox-blank-circle:{ style="color: #f4a460 " } [EASE](ease.md) <br>
+:material-checkbox-blank-circle:{ style="color: #228b22 " } [Remote](remote.md) <br>
+:material-checkbox-blank-circle:{ style="color: #dda0dd " } [Capella read-only](capella/readonly.md) <br>
+:material-checkbox-blank-circle:{ style="color: #62f5f2 " } [pure::variants](pure-variants.md) <br>
+:material-checkbox-blank-circle:{ style="color: #f5626c " } [Jupyter notebook](jupyter/index.md) <br>
 
 **Make sure that all `docker` commands are executed in the root directory of
 the repository.**
