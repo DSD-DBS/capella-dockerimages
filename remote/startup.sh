@@ -18,6 +18,9 @@ fi
 
 echo "${RMT_PASSWORD:?}" | htpasswd -ci /etc/nginx/.htpasswd techuser
 
+# Replace __XPRA_SUBPATH__ with the actual subpath
+sed -i "s|__XPRA_SUBPATH__|${XPRA_SUBPATH:-/}|g" /etc/nginx/nginx.conf
+
 unset RMT_PASSWORD
 
 # Run preparation scripts
