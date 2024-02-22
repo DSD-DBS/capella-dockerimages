@@ -9,30 +9,22 @@ update_capella_diagram_cache:
     name: $DOCKER_REGISTRY/capella/base:${CAPELLA_DOCKER_IMAGES_TAG}
     entrypoint: [""]
   script:
-    - pip install capellambse
+    - pip install "capellambse[cli]@git+https://github.com/DSD-DBS/py-capellambse.git@${CAPELLAMBSE_REVISION}"
     - mkdir diagram_cache
+    - xvfb-run python -m capellambse.diagram_cache
+        --model "${ENTRYPOINT}"
+        --output ./diagram_cache
+        --index
+        --exe "/opt/capella/capella"
     - |
-      xvfb-run python <<EOF
-      import json
-      import os
-
-      import capellambse
-
-      ignore_duplicate_uuids = os.getenv(
-          "IGNORE_DUPLICATE_UUIDS_AND_VOID_ALL_WARRANTIES", ""
-      ).lower() in ("true", "1", "t")
-
-      resources = json.loads(os.getenv("RESOURCES", "null"))
-
-      print(f"capellambse.__version__: {capellambse.__version__}")
-      model = capellambse.MelodyModel(
-          os.environ["ENTRYPOINT"],
-          diagram_cache="diagram_cache",
-          ignore_duplicate_uuids_and_void_all_warranties=ignore_duplicate_uuids,
-          resources=resources,
-      )
-      model.update_diagram_cache(capella_cli="/opt/capella/capella", create_index=True)
-      EOF
+      if [[ "${PUSH_DIAGRAM_CACHE}" == "false" ]]; then
+        exit 0
+      fi
+      DERIVED_BRANCH_NAME="diagram-cache/${CI_COMMIT_REF_NAME}"
+      git switch --orphan "${DERIVED_BRANCH_NAME}"
+      git add diagram_cache
+      git commit -m "${COMMIT_MSG} for ${CI_COMMIT_SHORT_SHA}"
+      git push -o ci.skip --set-upstream origin ${DERIVED_BRANCH_NAME} --force
   artifacts:
     paths:
       - "diagram_cache"
@@ -44,6 +36,18 @@ update_capella_diagram_cache:
     # Docker tag, which is used for the capella/base image.
     # Defaults to ${CAPELLA_VERSION}-${CAPELLA_DOCKER_IMAGES_REVISION} if not defined
     CAPELLA_DOCKER_IMAGES_TAG: ${CAPELLA_VERSION}-${CAPELLA_DOCKER_IMAGES_REVISION}
+
+    # Whether to push the diagram cache changes or not
+    # Defaults to false if not defined
+    PUSH_DIAGRAM_CACHE: "false"
+
+    # The commit message used for updating the diagram cache
+    # Defaults to "chore: Update diagram cache" if not defined
+    COMMIT_MSG: "chore: Update diagram cache"
+
+    # The revision of the py-capellambse package to install
+    # Defaults to "master" if not defined
+    CAPELLAMBSE_REVISION: "master"
 
     # Relative entrypoint to .aird file inside repository (starting from the root of the repository).
     # Example: test/test.aird
