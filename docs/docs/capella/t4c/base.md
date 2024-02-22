@@ -9,8 +9,8 @@
 !!! info
     The Docker image name for this image is `t4c/client/base`
 
-The T4C base image builds on top of the Capella base image and installs the T4C client
-plugins.
+The T4C base image builds on top of the Capella base image and installs the T4C
+client plugins.
 
 ## Build it yourself
 
@@ -42,29 +42,32 @@ plugins.
 
 #### Optional: Add feature patches
 
-It is possible to provide feature patches for our t4c base image that are installed
-after the initial installation. To install such feature patches, you have to do the
-following things.
+It is possible to provide feature patches for our t4c base image that are
+installed after the initial installation. To install such feature patches, you
+have to do the following things.
 
-1. The feature patch `.zip` file needs to be copied into the subdirectory `t4c/updateSite/$CAPELLA_VERSION`
-   of the present repository
-1. You have to create the `patch_info.csv` file inside the same subdirectory if not yet existing
-1. You have to add a new line to the `patch_info.csv` having the following format:
+1. The feature patch `.zip` file needs to be copied into the subdirectory
+   `t4c/updateSite/$CAPELLA_VERSION` of the present repository
+1. You have to create the `patch_info.csv` file inside the same subdirectory if
+   not yet existing
+1. You have to add a new line to the `patch_info.csv` having the following
+   format:
 
    ```csv
    <feature patch zip file>,<install iu>,<tag>
    ```
 
-   In case that you have one feature patch zip containing different things you want to
-   install you can provide multiple _install iu_, each with a whitespace seperated.
-   So in this case the `patch_info.csv` would contain a line with the following format:
+   In case that you have one feature patch zip containing different things you
+   want to install you can provide multiple _install iu_, each with a
+   whitespace seperated. So in this case the `patch_info.csv` would contain a
+   line with the following format:
 
    ```csv
    <feature patch zip file>,<install iu 1> <install iu 2> ... <install iu n>,<tag>
    ```
 
-Please ensure that the `patch_info.csv` contains an empty line at the end otherwise
-the last feature patch might not be installed.
+Please ensure that the `patch_info.csv` contains an empty line at the end
+otherwise the last feature patch might not be installed.
 
 ### Build it manually with Docker
 
@@ -76,7 +79,10 @@ docker build -t t4c/client/base --build-arg CAPELLA_VERSION=$CAPELLA_VERSION t4c
 
 ## Run the container
 
-Running the T4C client container is analogous to the Capella Base container. Please run the [instructions of the Capella Base container](../base.md#run-the-container), but add the following environment variables during the `docker run` command:
+Running the T4C client container is analogous to the Capella Base container.
+Please run the
+[instructions of the Capella Base container](../base.md#run-the-container), but
+add the following environment variables during the `docker run` command:
 
 ```zsh
     -e T4C_LICENCE_SECRET=XXX \
@@ -114,4 +120,5 @@ Please replace the followings variables:
          - `$T4C_REPOSITORIES` with a comma-seperated list of repositories. These repositories show
             up as default options on connection (e.g. `repo1,repo2`).
 
-When Capella has started, you should see the T4C models in the dropdown menu of the connection dialog.
+When Capella has started, you should see the T4C models in the dropdown menu of
+the connection dialog.

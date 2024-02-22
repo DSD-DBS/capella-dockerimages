@@ -5,17 +5,24 @@
 
 # Welcome
 
-Welcome to the MBSE Docker images repository. Initially started for our [Capella Collaboration Manager](https://github.com/DSD-DBS/capella-collab-manager) to run Capella in a browser, we now offer a variety of Docker images to automate processes in the MBSE context.
+Welcome to the MBSE Docker images repository. Initially started for our
+[Capella Collaboration Manager](https://github.com/DSD-DBS/capella-collab-manager)
+to run Capella in a browser, we now offer a variety of Docker images to
+automate processes in the MBSE context.
 
 ## Use prebuilt images from Github packages
 
-For license reasons, we are only able to provide the following prebuilt public images at this time:
+For license reasons, we are only able to provide the following prebuilt public
+images at this time:
 
 - [`base`](base.md)
 - [`capella/base`](capella/base.md) (without dropins or plugins)
 - [`capella/readonly`](capella/readonly.md)
 
-If you need another image, please follow the [`Build images locally`](#build-images-locally) or [`Build images in a CI/CD environment`](#build-images-in-a-cicd-environment) instructions.
+If you need another image, please follow the
+[`Build images locally`](#build-images-locally) or
+[`Build images in a CI/CD environment`](#build-images-in-a-cicd-environment)
+instructions.
 
 ## Build images locally
 
@@ -27,7 +34,9 @@ git clone https://github.com/DSD-DBS/capella-dockerimages.git
 
 ### Build images with GNU Make
 
-If you have [GNU Make](https://www.gnu.org/software/make/manual/make.html) installed on your system, you can make use of our Makefile to build, run and debug our Docker images.
+If you have [GNU Make](https://www.gnu.org/software/make/manual/make.html)
+installed on your system, you can make use of our Makefile to build, run and
+debug our Docker images.
 
 <!-- prettier-ignore -->
 !!! warning
@@ -39,7 +48,8 @@ If you have [GNU Make](https://www.gnu.org/software/make/manual/make.html) insta
 
     When running the build targets with `PUSH_IMAGES=1`, they get pushed to your preferred registry after each build.
 
-For each image, please execute the steps described in the preparation section in the documentation for each image.
+For each image, please execute the steps described in the preparation section
+in the documentation for each image.
 
 Then, just run the following command:
 
@@ -63,8 +73,8 @@ make all
 
 ### Build images manually with Docker
 
-It's important to strictly follow the sequence. Several Docker images depend on each other.
-The full dependency graph for the images looks like:
+It's important to strictly follow the sequence. Several Docker images depend on
+each other. The full dependency graph for the images looks like:
 
 ```mermaid
 flowchart LR
@@ -101,22 +111,30 @@ flowchart LR
 
 ```
 
-Each highlighted color indicates the Dockerfile which is used to build the image:
+Each highlighted color indicates the Dockerfile which is used to build the
+image:
 
-:material-checkbox-blank-circle:{ style="color: #ebb134 " } [Base](base.md) <br>
-:material-checkbox-blank-circle:{ style="color: #8feb34 " } [Capella Base](capella/base.md)<br>
-:material-checkbox-blank-circle:{ style="color: #34cceb " } [T4C Client Base](capella/t4c/base.md) <br>
-:material-checkbox-blank-circle:{ style="color: #eb3477 " } [EASE](ease.md) <br>
-:material-checkbox-blank-circle:{ style="color: #f2f1a7 " } [Remote](remote.md) <br>
-:material-checkbox-blank-circle:{ style="color: #d0a7f2 " } [Capella read-only](capella/readonly.md) <br>
-:material-checkbox-blank-circle:{ style="color: #62f5f2 " } [pure::variants](pure-variants.md) <br>
-:material-checkbox-blank-circle:{ style="color: #f5626c " } [Jupyter notebook](jupyter/index.md) <br>
+:material-checkbox-blank-circle:{ style="color: #ebb134 " } [Base](base.md)
+<br> :material-checkbox-blank-circle:{ style="color: #8feb34 " }
+[Capella Base](capella/base.md)<br> :material-checkbox-blank-circle:{
+style="color: #34cceb " } [T4C Client Base](capella/t4c/base.md) <br>
+:material-checkbox-blank-circle:{ style="color: #eb3477 " } [EASE](ease.md)
+<br> :material-checkbox-blank-circle:{ style="color: #f2f1a7 " }
+[Remote](remote.md) <br> :material-checkbox-blank-circle:{ style="color:
+#d0a7f2 " } [Capella read-only](capella/readonly.md) <br>
+:material-checkbox-blank-circle:{ style="color: #62f5f2 " }
+[pure::variants](pure-variants.md) <br> :material-checkbox-blank-circle:{
+style="color: #f5626c " } [Jupyter notebook](jupyter/index.md) <br>
 
-**Make sure that all `docker` commands are executed in the root directory of the repository.**
+**Make sure that all `docker` commands are executed in the root directory of
+the repository.**
 
-For each image, you'll find documentation how to build & run the image manually.
+For each image, you'll find documentation how to build & run the image
+manually.
 
 ## Build images in a CI/CD environment
 
-We provide a [Gitlab CI/CD template](https://github.com/DSD-DBS/capella-dockerimages/blob/main/ci-templates/gitlab/image-builder.yml) to build and test the images in CI/CD environment.
-Please find the instructions [here](https://github.com/DSD-DBS/capella-dockerimages/tree/main/ci-templates/gitlab#image-builder).
+We provide a
+[Gitlab CI/CD template](https://github.com/DSD-DBS/capella-dockerimages/blob/main/ci-templates/gitlab/image-builder.yml)
+to build and test the images in CI/CD environment. Please find the instructions
+[here](https://github.com/DSD-DBS/capella-dockerimages/tree/main/ci-templates/gitlab#image-builder).

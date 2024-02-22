@@ -19,10 +19,11 @@ update_capella_diagram_cache:
     ENTRY_POINT: test/test.aird # Entry point to the .aird file of the model (relative from root level of the repository)
 ```
 
-In addition, you have to add the following environment variables on repository level.
-Make sure to enable the "Expand variable reference" flag.
+In addition, you have to add the following environment variables on repository
+level. Make sure to enable the "Expand variable reference" flag.
 
 - `CAPELLA_DOCKER_IMAGES_REVISION`: Revision of this Github repository
 
 This is the minimal configuration. For more advanced configuration options,
-please refer to the [Gitlab CI template](https://github.com/DSD-DBS/capella-dockerimages/blob/main/ci-templates/gitlab/diagram-cache.yml).
+please refer to the
+[Gitlab CI template](https://github.com/DSD-DBS/capella-dockerimages/blob/main/ci-templates/gitlab/diagram-cache.yml).

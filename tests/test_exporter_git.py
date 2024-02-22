@@ -72,9 +72,9 @@ def test_export_model_happy(
         "Export of model to TeamForCapella server finished",
     )
 
-    t4c_projects: list[
-        dict[str, str]
-    ] = conftest.get_projects_of_t4c_repository(t4c_ip_addr, t4c_http_port)
+    t4c_projects: list[dict[str, str]] = (
+        conftest.get_projects_of_t4c_repository(t4c_ip_addr, t4c_http_port)
+    )
 
     assert len(t4c_projects) == 1
 
