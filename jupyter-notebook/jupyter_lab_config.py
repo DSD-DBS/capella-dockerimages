@@ -668,7 +668,10 @@ c = get_config()  # noqa
 #
 #          Takes precedence over allow_origin_pat.
 #  Default: ''
-# c.ServerApp.allow_origin = ''
+allow_origin = os.getenv("JUPYTER_ALLOW_ORIGIN")
+
+if allow_origin:
+    c.ServerApp.allow_origin = allow_origin
 
 ## Use a regular expression for the Access-Control-Allow-Origin header
 #
