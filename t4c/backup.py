@@ -186,7 +186,9 @@ def clone_git_repository() -> pathlib.Path:
 def unzip_exported_files(project_dir: pathlib.Path) -> None:
     log.info("Start unzipping project archive in %s", project_dir)
 
-    pattern = f"{os.environ['T4C_PROJECT_NAME']}_????????_??????.zip"
+    pattern = (
+        f"{glob.escape(os.environ['T4C_PROJECT_NAME'])}_????????_??????.zip"
+    )
 
     matching_files = glob.glob(pattern, root_dir=project_dir)
 
