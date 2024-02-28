@@ -30,7 +30,7 @@ done
 for filename in /opt/setup/*.sh; do
     [ -e "$filename" ] || continue
     echo "Executing shell script '$filename'..."
-    /bin/bash $filename
+    source $filename
 done
 
 # Load supervisord configuration for connection method

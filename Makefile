@@ -361,6 +361,7 @@ run-eclipse/remote/pure-variants: eclipse/remote/pure-variants
 run-capella/readonly: capella/readonly
 	docker run $(DOCKER_RUN_FLAGS) \
 		-p $(RDP_PORT):3389 \
+		-p $(XPRA_PORT):10000 \
 		-e RMT_PASSWORD=$(RMT_PASSWORD) \
 		-e GIT_URL=$(GIT_REPO_URL) \
 		-e GIT_ENTRYPOINT=$(GIT_REPO_ENTRYPOINT) \
@@ -368,6 +369,7 @@ run-capella/readonly: capella/readonly
 		-e GIT_DEPTH=$(GIT_REPO_DEPTH) \
 		-e GIT_USERNAME="$(GIT_USERNAME)" \
 		-e GIT_PASSWORD="$(GIT_PASSWORD)" \
+		-e CONNECTION_METHOD=$(CONNECTION_METHOD) \
 		$(DOCKER_PREFIX)capella/readonly:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
 
 run-capella/readonly-json: capella/readonly
