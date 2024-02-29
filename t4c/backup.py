@@ -57,6 +57,8 @@ def run_importer_script() -> None:
         os.getenv("INCLUDE_COMMIT_HISTORY", "true"),
         "-includeCommitHistoryChanges",
         os.getenv("INCLUDE_COMMIT_HISTORY", "true"),
+        "-backupDBOnFailure",
+        "false",
     ]
 
     if connection_type == "telnet":
