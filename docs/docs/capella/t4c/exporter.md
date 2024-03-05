@@ -38,17 +38,9 @@ docker run -d \
   -e T4C_PROJECT_NAME=test \
   -e T4C_USERNAME=user \
   -e T4C_PASSWORD=password \
-  -e HTTP_PORT=8080 \
-  -e HTTP_LOGIN=admin \
-  -e HTTP_PASSWORD=password \
   -e LOG_LEVEL=DEBUG \
   t4c/client/base export
 ```
 
-You can find the description for most of the values in the run instructions of
-the [importer](./importer.md#run-the-container). These are the additional ones:
-
-- `HTTP_PORT`: port to the T4C http server
-- `HTTP_LOGIN`: username for the REST API. At the moment administrator access
-  is required
-- `HTTP_PASSWORD`: password for the REST API
+You can find the description for these values in the run instructions of the
+[importer](./importer.md#run-the-container).

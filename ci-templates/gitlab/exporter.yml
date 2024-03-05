@@ -57,16 +57,6 @@ export-to-t4c:
     # T4C password (for repository login)
     # T4C_PASSWORD: ${T4C_PASSWORD}
 
-    # HTTP username
-    # HTTP_LOGIN: ${HTTP_LOGIN}
-
-    # HTTP password
-    # HTTP_PASSWORD: ${HTTP_PASSWORD}
-
-    # HTTP Port (port for REST API endpoint)
-    # Defaults to 8080
-    # HTTP_PORT: 8080
-
     # Log level. All Python `logging` levels are allowed.
     # Defaults to INFO
     LOG_LEVEL: INFO

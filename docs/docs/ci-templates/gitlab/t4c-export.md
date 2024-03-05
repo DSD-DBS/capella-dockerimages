@@ -25,7 +25,6 @@ In addition, you have to add the following environment variables on repository
 level. Make sure to enable the "Expand variable reference" flag.
 
 - `CAPELLA_DOCKER_IMAGES_REVISION`: Revision of this Github repository
-- `HTTP_LOGIN` and `HTTP_PASSWORD`: Username / password for the T4C REST API
 - `T4C_USERNAME` and `T4C_PASSWORD`: Username / password for the T4C repository
 
 This is the minimal configuration. For more advanced configuration options,

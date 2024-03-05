@@ -118,12 +118,6 @@ def run_exporter_script(model_dir: pathlib.Path) -> None:
         os.environ["T4C_USERNAME"],
         "-repositoryPassword",
         os.environ["T4C_PASSWORD"],
-        "-httpLogin",
-        os.environ["HTTP_LOGIN"],
-        "-httpPassword",
-        os.environ["HTTP_PASSWORD"],
-        "-httpPort",
-        os.environ["HTTP_PORT"],
         "-sourceToExport",
         str(model_dir),
     ]

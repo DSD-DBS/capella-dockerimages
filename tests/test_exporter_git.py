@@ -18,13 +18,11 @@ pytestmark = pytest.mark.t4c_server
 @pytest.fixture(name="t4c_exporter_git_env")
 def fixture_t4c_exporter_git_env(
     git_general_env: dict[str, str],
-    t4c_exporter_env: dict[str, str],
+    t4c_general_env: dict[str, str],
     request: pytest.FixtureRequest,
 ) -> dict[str, str]:
     env: dict[str, str] = (
-        t4c_exporter_env
-        | git_general_env
-        | {"ENTRYPOINT": conftest.ENTRYPOINT}
+        t4c_general_env | git_general_env | {"ENTRYPOINT": conftest.ENTRYPOINT}
     )
 
     if hasattr(request, "param"):

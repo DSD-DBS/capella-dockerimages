@@ -103,7 +103,10 @@ def fixture_init_git_server(
 
 @pytest.fixture(name="t4c_server_env")
 def fixture_t4c_server_env(request: pytest.FixtureRequest) -> dict[str, str]:
-    env: dict[str, str] = {"REST_API_PASSWORD": "password"}
+    env: dict[str, str] = {
+        "REST_API_PASSWORD": "password",
+        "ENABLE_CDO": "false",
+    }
 
     if hasattr(request, "param"):
         env = env | request.param
@@ -183,17 +186,6 @@ def fixture_t4c_general_env(t4c_ip_addr: str) -> dict[str, str]:
         "T4C_PASSWORD": T4C_PASSWORD,
         "INCLUDE_COMMIT_HISTORY": "false",
         "LOG_LEVEL": "INFO",
-    }
-
-
-@pytest.fixture(name="t4c_exporter_env")
-def fixture_t4c_exporter_env(
-    t4c_general_env: dict[str, str]
-) -> dict[str, str]:
-    return t4c_general_env | {
-        "HTTP_LOGIN": HTTP_LOGIN,
-        "HTTP_PASSWORD": HTTP_PASSWORD,
-        "HTTP_PORT": "8080",
     }
 
 
