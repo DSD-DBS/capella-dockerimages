@@ -5,15 +5,7 @@
 
 set -exuo pipefail
 
-salt=$(openssl rand -base64 16)
-password_hash=$(openssl passwd -6 -salt ${salt} "${RMT_PASSWORD:?}")
-line=$(grep techuser /etc/shadow);
-echo ${line%%:*}:${password_hash}:${line#*:*:} > /etc/shadow;
-unset RMT_PASSWORD
-
-# Prepare Workspace
 echo "---START_PREPARE_WORKSPACE---"
-export DISPLAY=:99
 xvfb-run /opt/capella/capella -clean -data ${WORKSPACE_DIR:-/workspace} --launcher.suppressErrors -nosplash -consolelog -application org.eclipse.ease.runScript -script "file:/opt/scripts/load_models.py";
 if [[ "$?" == 0 ]]
 then
@@ -26,5 +18,3 @@ fi
 unset GIT_USERNAME GIT_PASSWORD GIT_ASKPASS GIT_REPOS_JSON
 
 echo "---START_SESSION---"
-
-exec supervisord
