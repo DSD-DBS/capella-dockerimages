@@ -179,7 +179,6 @@ def fixture_t4c_general_env(t4c_ip_addr: str) -> dict[str, str]:
     return {
         "T4C_REPO_HOST": t4c_ip_addr,
         "T4C_REPO_PORT": "2036",
-        "T4C_CDO_PORT": "12036",
         "T4C_REPO_NAME": T4C_REPO_NAME,
         "T4C_PROJECT_NAME": T4C_PROJECT_NAME,
         "T4C_USERNAME": T4C_USERNAME,

@@ -22,9 +22,6 @@ T4C_USERNAME ?= admin
 # T4C password
 T4C_PASSWORD ?= admin
 
-# Connection type to T4C server
-CONNECTION_TYPE ?= telnet
-
 # Remote container rdp password
 RMT_PASSWORD ?= tmp_passwd2
 

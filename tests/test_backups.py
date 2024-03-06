@@ -44,11 +44,7 @@ def fixture_t4c_backup_container(
 
 @pytest.mark.parametrize(
     "t4c_server_container",
-    [
-        pytest.param(
-            {"init": True},
-        )
-    ],
+    [{"init": True}],
     indirect=True,
 )
 def test_model_backup_happy(
