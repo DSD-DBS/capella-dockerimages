@@ -88,15 +88,18 @@ Replace the followings variables:
 
     ```zsh
     docker run -d \
-        -p $XPRA_EXTERNAL_PORT:10000 \
+        -p $XPRA_PORT:10000 \
         -e CONNECTION_METHOD=xpra \
         -e RMT_PASSWORD=$RMT_PASSWORD \
+        -e XPRA_SUBPATH="/" \
         $BASE_IMAGE/remote
     ```
 
+    Set the `XPRA_SUBPATH` to the subpath that `xpra` should serve on. If you want to have it running on `/xpra`, set `XPRA_SUBPATH` to `/xpra`.
+
     Then, open a browser and connect to:
     ```
-    http://techuser:${RMT_PASSWORD}@localhost:${XPRA_EXTERNAL_PORT}?floating_menu=0
+    http://techuser:${RMT_PASSWORD}@localhost:${XPRA_PORT}${XPRA_SUBPATH}/?floating_menu=0
     ```
 
     More configuration options can be passed as query parameters.

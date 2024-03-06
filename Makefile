@@ -67,6 +67,9 @@ RDP_PORT ?= 3390
 # Port for access to the xpra htm5 server via nginx
 XPRA_PORT ?= 10000
 
+# Subpath to serve the xpra client on
+XPRA_SUBPATH ?= /xpra
+
 # Port for direct access to the xpra htm5 server, without authentication!
 # Only enabled in debug routes.
 XPRA_DEBUG_PORT ?= 10001
@@ -322,6 +325,7 @@ run-capella/remote: capella/remote
 		-v $$(pwd)/volumes/workspace:/workspace \
 		-e RMT_PASSWORD=$(RMT_PASSWORD) \
 		-e CONNECTION_METHOD=$(CONNECTION_METHOD) \
+		-e XPRA_SUBPATH=$(XPRA_SUBPATH) \
 		-p $(RDP_PORT):3389 \
 		-p $(XPRA_PORT):10000 \
 		-p $(METRICS_PORT):9118 \
