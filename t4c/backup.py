@@ -21,8 +21,6 @@ OUTPUT_FOLDER: str = "/tmp/model"
 def run_importer_script() -> None:
     log.debug("Import model from TeamForCapella server...")
 
-    connection_type: str = get_connection_type()
-
     command: list[str] = [
         "/opt/capella/capella",
         "--launcher.suppressErrors",
@@ -60,22 +58,6 @@ def run_importer_script() -> None:
         "-backupDBOnFailure",
         "false",
     ]
-
-    if connection_type == "telnet":
-        command += [
-            "-consoleport",
-            os.getenv("T4C_CDO_PORT", "12036"),
-        ]
-    else:
-        http_login, http_password, http_port = get_http_envs()
-        command += [
-            "-httpLogin",
-            http_login,
-            "-httpPassword",
-            http_password,
-            "-httpPort",
-            http_port,
-        ]
 
     log.info("Executing the following command: %s", " ".join(command))
 
@@ -300,42 +282,12 @@ def git_commit_and_push(git_dir: pathlib.Path) -> None:
         log.warning("No changes, will not commit.")
 
 
-def get_connection_type() -> str:
-    default_connection_type: str = "telnet" if is_capella_5_x_x() else "http"
-    connection_type: str = os.getenv(
-        "CONNECTION_TYPE", default_connection_type
-    )
-
-    if connection_type not in ("telnet", "http"):
-        raise ValueError(
-            'CONNECTION_TYPE is only allowed to be: "telnet", "http"'
-        )
-
-    if connection_type == "http" and is_capella_5_x_x():
-        raise ValueError('CONNECTION_TYPE must be "telnet" for capella 5.x.x')
-
-    return connection_type
-
-
 def is_capella_5_x_x() -> bool:
     return bool(re.match(r"5.[0-9]+.[0-9]+", os.getenv("CAPELLA_VERSION", "")))
 
 
 def is_capella_5_0_x() -> bool:
     return bool(re.match(r"5.0.[0-9]+", os.getenv("CAPELLA_VERSION", "")))
-
-
-def get_http_envs() -> tuple[str, str, str]:
-    http_login = os.getenv("HTTP_LOGIN")
-    http_password = os.getenv("HTTP_PASSWORD")
-    http_port = os.getenv("HTTP_PORT")
-
-    if not (http_login and http_password and http_port):
-        raise ValueError(
-            "HTTP_LOGIN, HTTP_PASSWORD, HTTP_PORT must be specified"
-        )
-
-    return (http_login, http_password, http_port)
 
 
 if __name__ == "__main__":

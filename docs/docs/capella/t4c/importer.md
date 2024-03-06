@@ -59,7 +59,6 @@ Set the following values for the corresponding keys:
   Capella to connect to a remote repository.
 - `T4C_REPO_PORT`: port to the T4C server. The same value that you enter in
   Capella to connect to a remote repository. Defaults to 2036.
-- `T4C_CDO_PORT`: CDO port to the T4C server. Defaults to 12036.
 - `T4C_REPO_NAME`: T4C repository name. The same value that you enter in
   Capella to connect to a remote repository.
 - `T4C_PROJECT_NAME`: name of the Capella project. It's displayed in the

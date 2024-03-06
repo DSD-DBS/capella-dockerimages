@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import difflib
 import logging
 import os
 import pathlib
@@ -13,7 +12,6 @@ import capellambse
 import capellambse.decl
 import conftest
 import pytest
-from capellambse.loader import exs
 
 log = logging.getLogger(__file__)
 log.setLevel("DEBUG")
@@ -25,10 +23,10 @@ TECHUSER_UID: str | int = os.getenv("TECHUSER_UID", "")
 
 @pytest.fixture(name="t4c_exporter_local_env")
 def fixture_t4c_exporter_local_env(
-    t4c_exporter_env: dict[str, str],
+    t4c_general_env: dict[str, str],
     t4c_ip_addr: str,
 ) -> dict[str, str]:
-    return t4c_exporter_env | {
+    return t4c_general_env | {
         "FILE_HANDLER": "local",
         "no_proxy": t4c_ip_addr,
     }
@@ -147,31 +145,3 @@ def copy_model_files_to_directory(
     for file in model_dir.glob("*"):
         if not str(file).endswith("license"):
             shutil.copy2(file, tar_dir)
-
-
-def _create_model_diff(
-    model_1: capellambse.MelodyModel,
-    model_2: capellambse.MelodyModel,
-    path: pathlib.Path,
-    suffix: int | str | None = None,
-):
-    differ: difflib.Differ = difflib.Differ()
-
-    diff_file_path: pathlib.Path = path / "diff.xml"
-    if suffix is not None:
-        diff_file_path = path / f"diff_{suffix}.xml"
-
-    model_diff = differ.compare(
-        exs.to_string(model_1._element).splitlines(True),
-        exs.to_string(model_2._element).splitlines(True),
-    )
-
-    with open(diff_file_path, "w", encoding="UTF-8") as diff_file:
-        diff_file.write("".join(model_diff))
-
-
-def _clear_files_and_delete_directory(model_dir: pathlib.Path):
-    for file in model_dir.glob("*"):
-        if file.is_file():
-            file.unlink()
-    model_dir.rmdir()

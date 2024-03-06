@@ -22,18 +22,6 @@ T4C_USERNAME ?= admin
 # T4C password
 T4C_PASSWORD ?= admin
 
-# T4C http port
-HTTP_PORT ?= 8080
-
-# T4C http username
-HTTP_LOGIN ?= admin
-
-# T4C http password
-HTTP_PASSWORD ?= password
-
-# Connection type to T4C server
-CONNECTION_TYPE ?= telnet
-
 # Remote container rdp password
 RMT_PASSWORD ?= tmp_passwd2
 
@@ -437,11 +425,7 @@ run-t4c/client/backup: t4c/client/base
 		-e T4C_PASSWORD="$(T4C_PASSWORD)" \
 		-e GIT_USERNAME="$(GIT_USERNAME)" \
 		-e GIT_PASSWORD="$(GIT_PASSWORD)" \
-		-e HTTP_LOGIN="$(HTTP_LOGIN)" \
-		-e HTTP_PASSWORD="$(HTTP_PASSWORD)" \
-		-e HTTP_PORT="$(HTTP_PORT)" \
 		-e LOG_LEVEL="$(LOG_LEVEL)" \
-		-e CONNECTION_TYPE="$(CONNECTION_TYPE)" \
 		$(DOCKER_PREFIX)t4c/client/base:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst) backup
 
 run-t4c/client/backup-local: t4c/client/base
@@ -454,11 +438,7 @@ run-t4c/client/backup-local: t4c/client/base
 		-e T4C_PROJECT_NAME="$(T4C_IMPORTER_PROJECT)" \
 		-e T4C_USERNAME="$(T4C_USERNAME)" \
 		-e T4C_PASSWORD="$(T4C_PASSWORD)" \
-		-e HTTP_LOGIN="$(HTTP_LOGIN)" \
-		-e HTTP_PASSWORD="$(HTTP_PASSWORD)" \
-		-e HTTP_PORT="$(HTTP_PORT)" \
 		-e LOG_LEVEL="$(LOG_LEVEL)" \
-		-e CONNECTION_TYPE="$(CONNECTION_TYPE)" \
 		$(DOCKER_PREFIX)t4c/client/base:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst) backup
 
 run-t4c/client/exporter: t4c/client/base
@@ -474,9 +454,6 @@ run-t4c/client/exporter: t4c/client/base
 		-e T4C_PROJECT_NAME="$(T4C_IMPORTER_PROJECT)" \
 		-e T4C_USERNAME="$(T4C_USERNAME)" \
 		-e T4C_PASSWORD="$(T4C_PASSWORD)" \
-		-e HTTP_PORT="${HTTP_PORT}" \
-		-e HTTP_LOGIN="${HTTP_LOGIN}" \
-		-e HTTP_PASSWORD="${HTTP_PASSWORD}" \
 		-e LOG_LEVEL="$(LOG_LEVEL)" \
 		$(DOCKER_PREFIX)t4c/client/base:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst) export
 
