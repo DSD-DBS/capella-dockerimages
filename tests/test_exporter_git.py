@@ -113,7 +113,7 @@ def test_export_model_6_x_x_unhappy(
 
 @pytest.mark.skipif(
     condition=conftest.is_capella_6_x_x(),
-    reason="Tests checkes whether error is thrown for 5.x.x",
+    reason="Tests checks whether error is thrown for 5.x.x",
 )
 def test_export_model_5_x_x_unhappy(
     t4c_exporter_container: containers.Containe,

@@ -275,13 +275,19 @@ def git_commit_and_push(git_dir: pathlib.Path) -> None:
     ).returncode
     if diff_returncode == 1:
         subprocess.run(
-            ["git", "commit", "--message", "Backup"],
+            ["git", "commit", "--no-verify", "--message", "Backup"],
             check=True,
             cwd=git_dir,
         )
 
         subprocess.run(
-            ["git", "push", "origin", f"HEAD:{os.environ['GIT_REPO_BRANCH']}"],
+            [
+                "git",
+                "push",
+                "--no-verify",
+                "origin",
+                f"HEAD:{os.environ['GIT_REPO_BRANCH']}",
+            ],
             check=True,
             cwd=git_dir,
             env={
