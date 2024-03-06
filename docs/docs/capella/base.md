@@ -88,7 +88,7 @@ To customise the Capella client you can
 ##### Install dropins
 
 As alternative to the solution presented above, we provide an interface to
-install dropins easily.
+install dropins.
 
 You have to pass a comma-separated list of dropin names as `CAPELLA_DROPINS`
 build argument to the `docker build` command:

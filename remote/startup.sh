@@ -16,10 +16,10 @@ else
     exit 1;
 fi
 
-echo "${RMT_PASSWORD:?}" | htpasswd -ci /etc/nginx/.htpasswd techuser
-
-# Replace __XPRA_SUBPATH__ with the actual subpath
+# Replace Variables in the nginx.conf
 sed -i "s|__XPRA_SUBPATH__|${XPRA_SUBPATH:-/}|g" /etc/nginx/nginx.conf
+sed -i "s|__XPRA_TOKEN__|${RMT_PASSWORD:-/}|g" /etc/nginx/nginx.conf
+sed -i "s|__XPRA_CSP_ORIGIN_HOST__|${XPRA_CSP_ORIGIN_HOST:-}|g" /etc/nginx/nginx.conf
 
 unset RMT_PASSWORD
 
