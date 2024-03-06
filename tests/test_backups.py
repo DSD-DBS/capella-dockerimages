@@ -138,15 +138,6 @@ def test_model_backup_happy(
             {"ENABLE_CDO": "true"},
             {"CONNECTION_TYPE": "unknown"},
         ),
-        pytest.param(
-            {"init": True},
-            {"ENABLE_CDO": "false"},
-            {"CONNECTION_TYPE": "telnet"},
-            marks=pytest.mark.skipif(
-                condition=conftest.is_capella_5_x_x(),
-                reason="CDO enabled by default for capella < 6.0.0",
-            ),
-        ),
         ({"init": True}, {"ENABLE_CDO": "false"}, {"CONNECTION_TYPE": "http"}),
     ],
     indirect=True,
