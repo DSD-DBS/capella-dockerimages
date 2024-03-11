@@ -35,7 +35,15 @@ ARG XPRA_REGISTRY=https://xpra.org
 RUN wget -qO /usr/share/keyrings/xpra.asc ${XPRA_REGISTRY}/xpra.asc && \
     wget -qO /etc/apt/sources.list.d/xpra.sources https://raw.githubusercontent.com/Xpra-org/xpra/master/packaging/repos/bookworm/xpra.sources && \
     sed -i "s|https://xpra.org|${XPRA_REGISTRY}|" /etc/apt/sources.list.d/xpra.sources && \
-    apt-get update && apt-get install -y --no-install-recommends xpra xpra-x11 xpra-html5 apache2-utils nginx && rm -rf /var/lib/apt/lists/*
+    apt-get update && \
+    apt-get install -y \
+        --no-install-recommends \
+        xpra \
+        xpra-x11 \
+        xpra-html5=10.1-r10-1 \
+        apache2-utils \
+        nginx && \
+    rm -rf /var/lib/apt/lists/*
 
 COPY rc.xml /etc/xdg/openbox/rc.xml
 COPY menu.xml /etc/xdg/openbox/menu.xml
