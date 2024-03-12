@@ -59,6 +59,7 @@ COPY supervisord.*.conf /tmp/supervisord/
 
 # Copy nginx configuration for xpra
 COPY nginx.conf /etc/nginx/nginx.conf
+COPY error.html /usr/share/nginx/html/error.html
 
 # Allow any user to start the RDP server
 # Depending on the base image used, Xwrapper.config may (not) be available and has to be created.
