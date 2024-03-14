@@ -104,7 +104,7 @@ Replace the followings variables:
     !!! note "Embedding in iframes"
 
         To embed the XPRA session in an iframe, you have to set a custom Content Security Policy. You can pass the environment variable `XPRA_CSP_ORIGIN_HOST`
-        with the hostname of the website you'd like to embed the XPRA session in. If you want to embed the XPRA session in an iframe on `example.com`, set `XPRA_CSP_ORIGIN_HOST` to `https://example.com`.
+        to the hostname of the website you'd like to embed the XPRA session in. If you want to embed the XPRA session in an iframe on `example.com`, set `XPRA_CSP_ORIGIN_HOST` to `https://example.com`.
 
     Set the `XPRA_SUBPATH` to the subpath that `xpra` should serve on. If you want to have it running on `/xpra`, set `XPRA_SUBPATH` to `/xpra`.
 
