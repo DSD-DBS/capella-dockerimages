@@ -50,3 +50,4 @@ prometheus*
 .vscode
 .idea
 volumes
+*.egg-info/

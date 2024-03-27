@@ -1,0 +1,165 @@
+# SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
+# SPDX-License-Identifier: Apache-2.0
+
+[build-system]
+requires = ["setuptools>=61", "setuptools_scm[toml]>=3.4", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+dynamic = ["version"]
+
+name = "t4c-cli"
+
+requires-python = ">=3.11, <3.13"
+license = { text = "Apache-2.0" }
+authors = [{ name = "DB InfraGO AG" }]
+keywords = []
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "License :: OSI Approved :: Apache Software License",
+  "Natural Language :: English",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+]
+dependencies = ["PyYAML", "click", "lxml"]
+
+[project.urls]
+Homepage = "https://github.com/DSD-DBS/capella-dockerimages"
+
+[project.optional-dependencies]
+dev = ["black", "isort", "mypy", "pylint", "pytest"]
+
+[project.scripts]
+backup = "t4c_cli.backup:backup"
+exporter = "t4c_cli.export:export"
+
+[tool.black]
+line-length = 79
+target-version = ["py311"]
+
+[tool.isort]
+profile = 'black'
+line_length = 79
+
+[tool.mypy]
+check_untyped_defs = true
+no_implicit_optional = true
+show_error_codes = true
+warn_redundant_casts = true
+warn_unreachable = true
+python_version = "3.11"
+
+[[tool.mypy.overrides]]
+# Untyped third party libraries
+module = ["yaml.*", "lxml.*"]
+ignore_missing_imports = true
+
+[tool.pydocstyle]
+convention = "numpy"
+add-select = [
+  "D212", # Multi-line docstring summary should start at the first line
+  "D402", # First line should not be the function’s “signature”
+  "D417", # Missing argument descriptions in the docstring
+]
+add-ignore = [
+  "D201", # No blank lines allowed before function docstring  # auto-formatting
+  "D202", # No blank lines allowed after function docstring  # auto-formatting
+  "D203", # 1 blank line required before class docstring  # auto-formatting
+  "D204", # 1 blank line required after class docstring  # auto-formatting
+  "D211", # No blank lines allowed before class docstring  # auto-formatting
+  "D213", # Multi-line docstring summary should start at the second line
+]
+
+[tool.pylint]
+bad-functions = ["print"]
+
+[tool.pylint.messages_control]
+disable = [
+  "broad-except",
+  "consider-using-f-string",
+  "cyclic-import",
+  "global-statement",
+  "import-outside-toplevel",
+  "invalid-name",
+  "missing-class-docstring",
+  "missing-function-docstring",
+  "missing-module-docstring",
+  "no-else-break",
+  "no-else-continue",
+  "no-else-raise",
+  "no-else-return",
+  "protected-access",
+  "redefined-builtin",
+  "too-few-public-methods",
+  "too-many-ancestors",
+  "too-many-arguments",
+  "too-many-boolean-expressions",
+  "too-many-branches",
+  "too-many-instance-attributes",
+  "too-many-lines",
+  "too-many-locals",
+  "too-many-public-methods",
+  "too-many-return-statements",
+  "too-many-statements",
+  "raise-missing-from",
+
+  # Auto-formatting
+  "bad-indentation",
+  "inconsistent-quotes",
+  "line-too-long",
+  "missing-final-newline",
+  "mixed-line-endings",
+  "multiple-imports",
+  "multiple-statements",
+  "trailing-newlines",
+  "trailing-whitespace",
+  "unexpected-line-ending-format",
+  "ungrouped-imports",
+  "wrong-import-order",
+  "wrong-import-position",
+
+  # Handled by mypy
+  "arguments-differ",
+  "assignment-from-no-return",
+  "import-error",
+  "missing-kwoa",
+  "no-member",
+  "no-value-for-parameter",
+  "redundant-keyword-arg",
+  "signature-differs",
+  "syntax-error",
+  "too-many-function-args",
+  "unbalanced-tuple-unpacking",
+  "undefined-variable",
+  "unexpected-keyword-arg",
+]
+enable = [
+  "c-extension-no-member",
+  "deprecated-pragma",
+  "use-symbolic-message-instead",
+  "useless-suppression",
+]
+
+[tool.pylint.master]
+init-import = "yes"
+load-plugins = "pylint.extensions.bad_builtin"
+extension-pkg-allow-list = ["lxml.builder", "lxml.etree"]
+
+[tool.pylint.similarities]
+min-similarity-lines = 6
+
+[tool.pytest.ini_options]
+addopts = """
+  --strict-config
+  --strict-markers
+"""
+
+[tool.setuptools]
+platforms = ["any"]
+zip-safe = false
+
+[tool.setuptools.package-data]
+"*" = ["py.typed", "*.json"]
+
+[tool.setuptools.packages.find]
+exclude = ["LICENSES"]

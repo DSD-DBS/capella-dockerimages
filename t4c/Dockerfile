@@ -30,8 +30,11 @@ WORKDIR /opt/capella
 
 RUN chown -R techuser /opt/capella
 
-COPY backup.py /opt/scripts/backup.py
-COPY export.py /opt/scripts/export.py
+COPY t4c_cli /opt/t4c_cli/t4c_cli
+COPY pyproject.toml /opt/t4c_cli/pyproject.toml
+
+WORKDIR /opt/t4c_cli
+RUN python -m venv .venv && source .venv/bin/activate && pip install --no-cache-dir .
 
 # Install T4C
 COPY ./updateSite/$CAPELLA_VERSION /opt/updateSite
