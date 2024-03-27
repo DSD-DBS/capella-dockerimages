@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
 # SPDX-License-Identifier: Apache-2.0
 
-FROM python:3.11.1-bookworm
+FROM python:3.11-bookworm
 
 
 SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
