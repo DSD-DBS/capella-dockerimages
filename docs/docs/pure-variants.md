@@ -24,7 +24,7 @@
 
 As part of this Docker image, `pure::variants` is installed into the Eclipse
 software of the base image. In addition, it has some basic configuration
-support, e. g., for setting the license server automatically during runtime.
+support, e.g., for setting the license server automatically during runtime.
 
 If the base image is based on Capella, the `pure::variants` Capella plugin is
 installed in addition.
