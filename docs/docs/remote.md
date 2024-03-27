@@ -47,8 +47,6 @@ Replace the followings variables:
   `t4c/client/pure-variants`. Please check the individual section
   `In a remote container (RDP)` of the individual base image documentation
   pages for additional configuration options.
-- `$RMT_PASSWORD` is the password for remote connections (for the login via
-  RDP) and has to be at least 8 characters long.
 
 === "Connect via RDP"
 
@@ -64,6 +62,9 @@ Replace the followings variables:
 
     Replace `$RDP_EXTERNAL_PORT` with the external port that the RDP
     server should listen on (usually `3389`).
+
+    Also replace `$RMT_PASSWORD` with the password for remote connections
+    (for the login via RDP). The value has to be at least 8 characters long.
 
     After starting the container, you should be able to connect to
     `localhost:$RDP_EXTERNAL_PORT` with your preferred RDP Client.
@@ -88,18 +89,15 @@ Replace the followings variables:
     docker run -d \
         -p $XPRA_PORT:10000 \
         -e CONNECTION_METHOD=xpra \
-        -e RMT_PASSWORD=$RMT_PASSWORD \
         -e XPRA_SUBPATH="/" \
         $BASE_IMAGE/remote
     ```
 
-    !!! note "Authentication"
+    !!! warning "Authentication"
 
-        The mentioned command uses a cookie-based authentication method. You have to pass a cookie with the key `token` and the value `$RMT_PASSWORD`.
-        To set the cookie manually, you can use browser extensions like [EditThisCookie](https://github.com/ETCExtensions/Edit-This-Cookie).
-
-        If you want to disable authentication for local development, you can expose the container internal port 10001 instead of port 10000.
-        Note that other flags like `XPRA_SUBPATH` won't work in this case.
+        Since version v1.19.0, xpra based containers are exposed without authentication.
+        If used with the Capella Collaboration Manager >= v3.1.0, authentication is handled via session pre-authentication automatically.
+        In other cases, you have to implement your own authentication mechanism.
 
     !!! note "Embedding in iframes"
 
