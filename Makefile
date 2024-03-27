@@ -74,7 +74,10 @@ METRICS_PORT ?= 9118
 export CAPELLA_VERSIONS ?= 5.0.0 5.2.0 6.0.0
 
 # Capella version used to run containers
-export CAPELLA_VERSION ?= 6.0.0
+export CAPELLA_VERSION ?= 6.1.0
+
+# Workspace directory in volumes/workspaces, e.g. workspace for /volumes/workspaces/workspace
+WORKSPACE_NAME ?= workspace
 
 AUTOSTART_CAPELLA ?= 1
 
@@ -310,7 +313,7 @@ run-jupyter-notebook: jupyter-notebook
 
 run-capella/remote: capella/remote
 	docker run $(DOCKER_RUN_FLAGS) \
-		-v $$(pwd)/volumes/workspace:/workspace \
+		-v $$(pwd)/volumes/workspaces/$(WORKSPACE_NAME):/workspace \
 		-e RMT_PASSWORD=$(RMT_PASSWORD) \
 		-e CONNECTION_METHOD=$(CONNECTION_METHOD) \
 		-e XPRA_SUBPATH=$(XPRA_SUBPATH) \
