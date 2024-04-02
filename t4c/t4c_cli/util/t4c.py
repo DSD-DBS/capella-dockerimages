@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import datetime
+import glob
 import logging
 import os
 import pathlib
@@ -9,40 +10,39 @@ import pathlib
 import yaml
 from lxml import etree
 
-from . import config, util
+from . import config
 
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 log = logging.getLogger("T4C")
 
 
-def check_dir_for_aird_files(
-    general_config: config.GeneralConfig, path: pathlib.Path
-):
+def check_dir_for_aird_files(path: pathlib.Path):
     aird_files = list(path.glob("*.aird"))
 
-    entrypoint = general_config.git_config.entrypoint
+    entrypoint = config.config.git.entrypoint
 
     if not len(aird_files) == 1:
         raise RuntimeError(
-            f"{general_config.error_prefix} - Entrypoint (if provided) or root directoy does not contain a .aird file"
+            "Entrypoint (if provided) or root directoy does not contain a .aird file"
         )
 
-    if entrypoint and (
-        not pathlib.Path(entrypoint).name == aird_files[0].name
-    ):
-        raise RuntimeError(
-            f"{general_config.error_prefix} - .aird file found in git entrypoint directory does not match git entrypoint aird"
-        )
+    if entrypoint:
+        entrypoint_filename = pathlib.Path(entrypoint).name
+        found_filename = aird_files[0].name
+        if entrypoint_filename and (not entrypoint_filename == found_filename):
+            raise RuntimeError(
+                f"Found {found_filename}, but expected {entrypoint_filename} as provided."
+            )
 
 
-def extract_t4c_commit_information(
-    t4c_config: config.T4CConfig,
-) -> tuple[str, datetime.datetime | None]:
-    project_dir = pathlib.Path(t4c_config.project_dir_path)
+def extract_t4c_commit_information() -> tuple[str, datetime.datetime | None]:
+    project_dir = pathlib.Path(config.config.t4c.project_dir_path)
 
-    log.info("Start extracting t4c commit information in %s", project_dir)
+    log.info(
+        "Start extracting TeamForCapella commit information in %s", project_dir
+    )
 
-    activity_metadata_file = util.get_single_file_by_t4c_pattern_or_raise(
+    activity_metadata_file = get_single_file_by_t4c_pattern_or_raise(
         prefix="CommitHistory_",
         file_format="activitymetadata",
         root_dir=project_dir,
@@ -74,14 +74,14 @@ def extract_t4c_commit_information(
             continue
 
         if commit_date := activity.attrib.get("date", None):
-            commit_datetime = util.parse_t4c_commit_date(commit_date)
+            commit_datetime = datetime.datetime.fromisoformat(commit_date)
             if commit_datetime and commit_datetime > last_commit_datetime:
                 last_commit_datetime = commit_datetime
 
         commit_information.append(activity_dict)
 
     log.info(
-        "Finished extracting t4c commit information in %s",
+        "Finished extracting TeamForCapella commit information in %s",
         activity_metadata_file,
     )
 
@@ -91,13 +91,33 @@ def extract_t4c_commit_information(
     )
 
 
+def get_single_file_by_t4c_pattern_or_raise(
+    prefix: str, file_format: str, root_dir: pathlib.Path
+) -> str:
+    pattern = (
+        f"{glob.escape(prefix)}_????????_??????.{glob.escape(file_format)}"
+    )
+
+    matching_files = glob.glob(pattern, root_dir=root_dir)
+
+    if not matching_files:
+        raise FileNotFoundError(f"No files found matching pattern: {pattern}")
+
+    if len(matching_files) > 1:
+        raise FileExistsError(
+            f"Multiple files found matching pattern: {pattern} - {matching_files}"
+        )
+
+    return matching_files[0]
+
+
 def _create_activity_dict(
     activity: etree.Element,
 ) -> dict[str, str | None] | None:
     attributes = activity.attrib
 
     if commit_datetime := attributes.get("date", None):
-        commit_datetime = util.parse_t4c_commit_date(attributes.get("date"))
+        commit_datetime = datetime.datetime.fromisoformat(commit_datetime)
 
     if description := attributes.get("description", None):
         description = description.rstrip()

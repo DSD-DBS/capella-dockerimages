@@ -1,17 +1,21 @@
 # SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
 # SPDX-License-Identifier: Apache-2.0
 
+import dataclasses
+import enum
 import os
+
+
+def str_to_bool(value: str) -> bool:
+    return value.lower() in ("true", "1")
 
 
 class GitConfig:
     dir_path: str = "/tmp/git"
     repo_url: str = os.getenv("GIT_REPO_URL", "")
     branch: str = os.getenv("GIT_REPO_BRANCH", "")
-    entrypoint: str | None = (
-        os.getenv("ENTRYPOINT")
-        if os.getenv("ENTRYPOINT", None)
-        else os.getenv("GIT_REPO_ENTRYPOINT", None)
+    entrypoint: str | None = os.getenv("ENTRYPOINT") or os.getenv(
+        "GIT_REPO_ENTRYPOINT"
     )
     email: str = os.getenv("GIT_EMAIL", "backup@example.com")
     username: str = os.getenv("GIT_USERNAME", "")
@@ -20,7 +24,6 @@ class GitConfig:
 
 
 class T4CConfig:
-    capella_version: str = os.getenv("CAPELLA_VERSION", "")
     project_dir_path: str = "/tmp/model"
     project_name: str = os.environ["T4C_PROJECT_NAME"]
     repo_host: str = os.environ["T4C_REPO_HOST"]
@@ -28,18 +31,27 @@ class T4CConfig:
     repo_name: str = os.environ["T4C_REPO_NAME"]
     username: str = os.environ["T4C_USERNAME"]
     password: str = os.environ["T4C_PASSWORD"]
-    import_commit_history_as_json: str = os.getenv(
-        "INCLUDE_COMMIT_HISTORY", "false"
+    include_commit_history = str_to_bool(
+        os.getenv("INCLUDE_COMMIT_HISTORY", "false")
     )
-    include_commit_history: str = os.getenv("INCLUDE_COMMIT_HISTORY", "false")
 
 
+class CapellaConfig:
+    version: str = os.getenv("CAPELLA_VERSION", "")
+
+
+class FileHandler(enum.Enum):
+    GIT = "GIT"
+    LOCAL = "LOCAL"
+
+
+@dataclasses.dataclass
 class GeneralConfig:
-    file_handler: str = os.getenv("FILE_HANDLER", "GIT")
-    error_prefix: str = "Import of model from TeamForCapella server failed"
+    file_handler = FileHandler(os.getenv("FILE_HANDLER", "GIT").upper())
 
-    git_config: GitConfig = GitConfig()
-    t4c_config: T4CConfig = T4CConfig()
+    git: GitConfig = GitConfig()
+    t4c: T4CConfig = T4CConfig()
+    capella: CapellaConfig = CapellaConfig()
 
-    def __init__(self, error_prefix: str) -> None:
-        self.error_prefix = error_prefix
+
+config = GeneralConfig()

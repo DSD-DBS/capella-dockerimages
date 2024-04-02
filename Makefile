@@ -26,13 +26,13 @@ T4C_PASSWORD ?= admin
 RMT_PASSWORD ?= tmp_passwd2
 
 # Git repository url for the importer, e.g. https://github.com/example.git
-GIT_REPO_URL ?= https://github.com/DSD-DBS/collab-platform-arch.git
+GIT_REPO_URL ?= http://host.docker.internal:$(GIT_SERVER_PORT)/git/git-test-repo.git
 
 # Git repository branch for the importer, e.g. main
 GIT_REPO_BRANCH ?= main
 
 # Git entrypoint (path to aird file)
-GIT_REPO_ENTRYPOINT ?= collab-platform-arch.aird
+GIT_REPO_ENTRYPOINT ?= test.aird
 
 # Git depth to clone
 GIT_REPO_DEPTH ?= 0
@@ -52,13 +52,10 @@ GIT_PASSWORD ?= password
 # Preferred RDP port on your host system
 RDP_PORT ?= 3390
 
-# Port for access to the xpra htm5 server via nginx
-XPRA_PORT ?= 10000
-
 # Subpath to serve the xpra client on
 XPRA_SUBPATH ?= /xpra
 
-# Port for direct access to the xpra htm5 server, without authentication!
+# Port for direct access to the xpra htm5 server
 # Only enabled in debug routes.
 XPRA_DEBUG_PORT ?= 10001
 
@@ -67,11 +64,15 @@ CONNECTION_METHOD ?= xpra # xpra or xrdp
 # External port for web-based containers
 WEB_PORT ?= 8888
 
+# Port for the Git Server which is used for debug purposes
+# Can be used for manual testing of the importer and exporter.
+GIT_SERVER_PORT ?= 10001
+
 # Preferred metrics port on your host system
 METRICS_PORT ?= 9118
 
 # Capella version used for builds and tests
-export CAPELLA_VERSIONS ?= 5.0.0 5.2.0 6.0.0
+export CAPELLA_VERSIONS ?= 5.0.0 5.2.0 6.0.0 6.1.0
 
 # Capella version used to run containers
 export CAPELLA_VERSION ?= 6.0.0
@@ -315,7 +316,7 @@ run-capella/remote: capella/remote
 		-e CONNECTION_METHOD=$(CONNECTION_METHOD) \
 		-e XPRA_SUBPATH=$(XPRA_SUBPATH) \
 		-p $(RDP_PORT):3389 \
-		-p $(XPRA_PORT):10000 \
+		-p $(WEB_PORT):10000 \
 		-p $(METRICS_PORT):9118 \
 		$(DOCKER_PREFIX)capella/remote:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
 
@@ -353,7 +354,7 @@ run-eclipse/remote/pure-variants: eclipse/remote/pure-variants
 run-capella/readonly: capella/readonly
 	docker run $(DOCKER_RUN_FLAGS) \
 		-p $(RDP_PORT):3389 \
-		-p $(XPRA_PORT):10000 \
+		-p $(WEB_PORT):10000 \
 		-e RMT_PASSWORD=$(RMT_PASSWORD) \
 		-e GIT_URL=$(GIT_REPO_URL) \
 		-e GIT_ENTRYPOINT=$(GIT_REPO_ENTRYPOINT) \
@@ -493,8 +494,13 @@ t4c/server/server:
 
 local-git-server: SHELL=./capella_loop.sh
 local-git-server:
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg CAPELLA_VERSION=$$CAPELLA_VERSION tests/local-git-server
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG tests/local-git-server
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
+
+run-local-git-server: local-git-server
+	docker run $(DOCKER_RUN_FLAGS) \
+		-p $(GIT_SERVER_PORT):80 \
+		$(DOCKER_PREFIX)$<:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
 
 ifeq ($(RUN_TESTS_WITH_T4C_SERVER), 1)
 test: t4c/client/base local-git-server t4c/server/server

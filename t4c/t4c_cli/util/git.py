@@ -8,16 +8,16 @@ import pathlib
 import subprocess
 
 from . import config
+from . import log as util_log
 
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 log = logging.getLogger("Git")
 
 
 def clone_git_repository_to_git_dir_path(
-    general_config: config.GeneralConfig,
     raise_if_branch_not_exist: bool = False,
 ) -> pathlib.Path:
-    git_config = general_config.git_config
+    git_config = config.config.git
 
     git_dir = pathlib.Path(git_config.dir_path)
     git_dir.mkdir(exist_ok=True)
@@ -44,17 +44,22 @@ def clone_git_repository_to_git_dir_path(
 
     try:
         subprocess.run(
-            ["git", "switch", git_config.branch], check=True, cwd=git_dir
+            ["git", "switch", git_config.branch],
+            check=True,
+            cwd=git_dir,
+            env={
+                "SKIP_POST_CHECKOUT": "1",
+            },
+            capture_output=True,
+            text=True,
         )
-    except subprocess.CalledProcessError:
+    except subprocess.CalledProcessError as err:
         if raise_if_branch_not_exist:
-            log.warning(
-                "Git branch %s does not exist in repository %s",
-                git_config.branch,
-                git_config.repo_url,
+            util_log.log_subprocess_error(
+                err.returncode, err.cmd, err.stdout, err.stderr
             )
             raise RuntimeError(
-                f"{general_config.error_prefix} - Branch {git_config.branch} does not exist on repository {git_config.repo_url}"
+                f"Couldn't switch to branch {git_config.branch} in repository {git_config.repo_url}. Check the log message above."
             )
 
     log.debug("Clone of git repository finished")

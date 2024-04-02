@@ -30,12 +30,6 @@ WORKDIR /opt/capella
 
 RUN chown -R techuser /opt/capella
 
-COPY t4c_cli /opt/t4c_cli/t4c_cli
-COPY pyproject.toml /opt/t4c_cli/pyproject.toml
-
-WORKDIR /opt/t4c_cli
-RUN python -m venv .venv && source .venv/bin/activate && pip install --no-cache-dir .
-
 # Install T4C
 COPY ./updateSite/$CAPELLA_VERSION /opt/updateSite
 WORKDIR /opt/updateSite
@@ -65,6 +59,11 @@ RUN cat >> /opt/capella/capella.ini <<EOT && chown techuser /opt/capella/capella
 -Dfr.obeo.dsl.viewpoint.collab.import.other.elements.keep.cdoid.as.xmiid=true
 EOT
 
+COPY t4c_cli /opt/t4c_cli/t4c_cli
+COPY pyproject.toml /opt/t4c_cli/pyproject.toml
+
+WORKDIR /opt/t4c_cli
+RUN python -m venv .venv && source .venv/bin/activate && pip install --no-cache-dir .
 
 WORKDIR /opt
 ENV BASE_TYPE=t4c

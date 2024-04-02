@@ -27,7 +27,15 @@ dependencies = ["PyYAML", "click", "lxml"]
 Homepage = "https://github.com/DSD-DBS/capella-dockerimages"
 
 [project.optional-dependencies]
-dev = ["black", "isort", "mypy", "pylint", "pytest"]
+dev = [
+  "black",
+  "isort",
+  "mypy",
+  "pylint",
+  "pytest",
+  "types-PyYAML",
+  "types-lxml",
+]
 
 [project.scripts]
 backup = "t4c_cli.backup:backup"
@@ -48,11 +56,6 @@ show_error_codes = true
 warn_redundant_casts = true
 warn_unreachable = true
 python_version = "3.11"
-
-[[tool.mypy.overrides]]
-# Untyped third party libraries
-module = ["yaml.*", "lxml.*"]
-ignore_missing_imports = true
 
 [tool.pydocstyle]
 convention = "numpy"

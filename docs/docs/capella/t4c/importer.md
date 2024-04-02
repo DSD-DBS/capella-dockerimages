@@ -72,3 +72,68 @@ Set the following values for the corresponding keys:
 - `INCLUDE_COMMIT_HISTORY`: `true` or `false` to define if the T4C commit
   history should be exported. Important: Exporting the commit history can take
   a few hours for large models.
+
+## Extract TeamForCapella commit messages to Git
+
+The importer extracts the commit messages from TeamForCapella and adds them to
+the Backup commit description. The commit has the format:
+
+```yaml
+Backup
+
+- user: admin
+  time: '2024-03-25T16:51:27.697000+00:00'
+  description: ''
+- user: admin
+  time: '2024-03-25T16:51:20.523000+00:00'
+  description: null
+- user: admin
+  time: '2024-03-25T16:51:09.755000+00:00'
+  description: Second Example commit
+- user: admin
+  time: '2024-03-25T16:50:57.138000+00:00'
+  description: First example commit
+```
+
+The commit body is always in the YAML format.
+
+## Testing
+
+### Manual Testing
+
+For development purposes, you can test the importer / backup locally.
+
+!!! warning
+
+    For the next steps, you need a running TeamForCapella server.
+
+<!-- prettier-ignore -->
+1. Start a lightweight local Git server with the following command:
+   ```zsh
+   make run-local-git-server
+   ```
+
+1. Create a new TeamForCapella repository via the REST API.
+   If you want to include the user information in the commits, you have to enable authentication.
+1. Set the `T4C_REPO_NAME` environment variable to the repository name that you
+   chose in the previous step:
+
+    ```zsh
+    export T4C_REPO_NAME="repoCapella"
+    ```
+
+1. Open Capella and create a new Capella project with the project name "test".
+1. [Export the project to the TeamForCapella repository](https://dsd-dbs.github.io/capella-collab-manager/user/tools/capella/teamforcapella/export/export-to-t4c/)
+1. Run the following command to start the importer:
+
+    ```zsh
+    make run-t4c/client/backup
+    ```
+
+1. Clone the sample repository:
+
+    ```zsh
+    git clone 'http://localhost:10001/git/git-test-repo.git'
+    ```
+
+1. Check the commit history and the model in the repository.
