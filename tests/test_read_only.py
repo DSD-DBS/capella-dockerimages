@@ -4,6 +4,7 @@
 import io
 import json
 import logging
+import typing as t
 
 import conftest
 import pytest
@@ -25,7 +26,7 @@ def fixture_container_success(
     git_ip_addr: str,
     init_git_server: None,  # pylint: disable=unused-argument
     mode_success: str,
-) -> containers.Container:
+) -> t.Generator[containers.Container, None, None]:
     repo_url = f"http://{git_ip_addr}:80/git/git-test-repo.git"
     entrypoint_without_leading_slash = (
         f"{conftest.CAPELLA_VERSION}/test-project.aird"
@@ -82,7 +83,9 @@ def fixture_mode_failure(request: pytest.FixtureRequest) -> str:
 
 
 @pytest.fixture(name="container_failure")
-def fixture_container_failure(mode_failure: str) -> containers.Container:
+def fixture_container_failure(
+    mode_failure: str,
+) -> t.Generator[containers.Container, None, None]:
     env: dict[str, str] = {  # type: ignore
         "json": {
             "GIT_REPOS_JSON": json.dumps(
@@ -109,7 +112,7 @@ def fixture_container_failure(mode_failure: str) -> containers.Container:
         yield container
 
 
-def lines(bytes):
+def lines(bytes: bytes) -> list[bytes]:
     return io.BytesIO(bytes).readlines()
 
 
@@ -125,20 +128,24 @@ def fixture_workspace_result(
 @pytest.mark.parametrize("mode_success", ["legacy"])
 def test_model_loading_with_legacy_env(
     workspace_result: containers.ExecResult,
-):
+) -> None:
     assert len(lines(workspace_result.output)) == 2
 
 
 @pytest.mark.parametrize("mode_success", ["json"])
-def test_model_loading_with_json_env(workspace_result: containers.ExecResult):
+def test_model_loading_with_json_env(
+    workspace_result: containers.ExecResult,
+) -> None:
     assert len(lines(workspace_result.output)) == 3
 
 
 @pytest.mark.parametrize("mode_success", ["json2"])
-def test_model_loading_with_json2_env(workspace_result: containers.ExecResult):
+def test_model_loading_with_json2_env(
+    workspace_result: containers.ExecResult,
+) -> None:
     assert len(lines(workspace_result.output)) == 2
 
 
-def test_invalid_url_fails(container_failure: containers.Container):
+def test_invalid_url_fails(container_failure: containers.Container) -> None:
     with pytest.raises(RuntimeError):
         conftest.wait_for_container(container_failure, "---START_SESSION---")

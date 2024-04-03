@@ -15,7 +15,7 @@ def load_dropins() -> dict[str, t.Any]:
     )["dropins"]
 
 
-def extract_repositories_and_installIUs(dropins: dict[str, t.Any]) -> None:
+def extract_repositories_and_install_ius(dropins: dict[str, t.Any]) -> None:
     for dropin_slug in os.getenv("CAPELLA_DROPINS", "").split(","):
         if not dropin_slug:
             continue
@@ -30,7 +30,7 @@ def extract_repositories_and_installIUs(dropins: dict[str, t.Any]) -> None:
         install_update_sites(dropin["eclipseRepository"], dropin["installIU"])
 
 
-def install_update_sites(repository: str, install_ui: list[str]):
+def install_update_sites(repository: str, install_ui: list[str]) -> None:
     subprocess.run(
         [
             "/opt/capella/capella",
@@ -48,5 +48,5 @@ def install_update_sites(repository: str, install_ui: list[str]):
 
 
 if __name__ == "__main__":
-    dropins = load_dropins()
-    extract_repositories_and_installIUs(dropins)
+    loaded_dropins = load_dropins()
+    extract_repositories_and_install_ius(loaded_dropins)

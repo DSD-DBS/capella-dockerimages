@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import logging
+import typing as t
 
 import conftest
 import pytest
@@ -42,7 +43,7 @@ def fixture_t4c_exporter_container(
     t4c_http_port: str,
     init_t4c_server_repo: None,  # pylint: disable=unused-argument
     init_git_server: None,  # pylint: disable=unused-argument
-) -> containers.Container:
+) -> t.Generator[containers.Container, None, None]:
     if conftest.is_capella_6_x_x():
         assert not conftest.get_projects_of_t4c_repository(
             t4c_ip_addr, t4c_http_port
@@ -64,7 +65,7 @@ def test_export_model_happy(
     t4c_exporter_container: containers.Container,
     t4c_ip_addr: str,
     t4c_http_port: str,
-):
+) -> None:
     conftest.wait_for_container(
         t4c_exporter_container,
         "Export of model to TeamForCapella server finished",
@@ -104,7 +105,7 @@ def test_export_model_happy(
 )
 def test_export_model_6_x_x_unhappy(
     t4c_exporter_container: containers.Container,
-):
+) -> None:
     with pytest.raises(RuntimeError):
         conftest.wait_for_container(t4c_exporter_container, "Export finished")
 
@@ -115,6 +116,6 @@ def test_export_model_6_x_x_unhappy(
 )
 def test_export_model_5_x_x_unhappy(
     t4c_exporter_container: containers.Containe,
-):
+) -> None:
     with pytest.raises(RuntimeError):
         conftest.wait_for_container(t4c_exporter_container, "Export finished")

@@ -1,23 +1,21 @@
 # SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
 # SPDX-License-Identifier: Apache-2.0
-
-"""Unit tests for metrics"""
+"""Unit tests for metrics."""
 import time
+import typing as t
 from unittest import mock
 
+import metrics
 import pytest
-from metrics import IdleTimer
-
-# pylint: disable=redefined-outer-name
 
 
-@pytest.fixture
-def idler() -> IdleTimer:
+@pytest.fixture(name="idler")
+def fixture_idler() -> metrics.IdleTimer:
     """Return an instance of `metrics.IdleTime`"""
-    return IdleTimer()
+    return metrics.IdleTimer()
 
 
-def print_no_display(*__, **_) -> str:
+def print_no_display(*__: t.Any, **_: t.Any) -> mock.MagicMock:
     """
     Just print: 'could not open display', the response of xprintidle
     when there is no X server.
@@ -27,7 +25,7 @@ def print_no_display(*__, **_) -> str:
 
 def test_get_idletime_had_no_display_on_init_but_later() -> None:
     with mock.patch("subprocess.run", print_no_display):
-        idler = IdleTimer()
+        idler = metrics.IdleTimer()
         _, init_idletime = idler.first_checkpoint
 
     idletime = idler.get_idletime()
@@ -38,7 +36,7 @@ def test_get_idletime_had_no_display_on_init_but_later() -> None:
 
 def test_get_idletime_never_had_a_display_and_returns_minus_one() -> None:
     with mock.patch("subprocess.run", print_no_display):
-        idler = IdleTimer()
+        idler = metrics.IdleTimer()
         _, init_idletime = idler.first_checkpoint
 
         time.sleep(10)
@@ -49,14 +47,14 @@ def test_get_idletime_never_had_a_display_and_returns_minus_one() -> None:
     assert idletime == -1
 
 
-def test_get_idletime_works(idler: IdleTimer) -> None:
+def test_get_idletime_works(idler: metrics.IdleTimer) -> None:
     idletime = idler.get_idletime()
 
     assert isinstance(idletime, float)
 
 
 def test_get_idletime_increases_after_display_is_closed(
-    idler: IdleTimer,
+    idler: metrics.IdleTimer,
 ) -> None:
     idletime = idler.get_idletime()
 

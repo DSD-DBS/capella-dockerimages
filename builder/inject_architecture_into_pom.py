@@ -1,16 +1,17 @@
 # SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
 # SPDX-License-Identifier: Apache-2.0
 
+# pylint: skip-file
+
+
 import copy
-import os
 import pathlib
 
-import lxml
 from lxml import etree
 from lxml.builder import E
 
 
-def patch_root_pom_xml():
+def patch_root_pom_xml() -> None:
     pom_xml_path = pathlib.Path("pom.xml")
 
     root = etree.parse(pom_xml_path.open()).getroot()
@@ -32,7 +33,7 @@ def patch_root_pom_xml():
     pom_xml_path.write_bytes(etree.tostring(root))
 
 
-def patch_releng_pom_xml():
+def patch_releng_pom_xml() -> None:
     pom_xml_path = pathlib.Path(
         "releng/plugins/org.polarsys.capella.rcp.product/pom.xml"
     )
@@ -45,24 +46,24 @@ def patch_releng_pom_xml():
     pom_xml_path.write_bytes(etree.tostring(root))
 
 
-def create_dropins(root: etree.ElementTree):
+def create_dropins(root: etree._Element) -> None:
     # We do the packaging ourselves and don't need antrun
-    create_dropins = root.xpath(
+    dropins = root.xpath(
         "//*[local-name()='execution' and ./*[local-name()='id']/text()='create-dropins']/*[local-name()='configuration']/*[local-name()='target']"
     )[0]
-    create_dropins.append(
+    dropins.append(
         E.mkdir(
             dir="${project.build.directory}/products/org.polarsys.capella.rcp.product/linux/gtk/aarch64/dropins"
         )
     )
-    create_dropins.append(
+    dropins.append(
         E.mkdir(
             dir="${project.build.directory}/products/org.polarsys.capella.rcp.product/macosx/cocoa/aarch64/Capella.app/Contents/Eclipse/dropins"
         )
     )
 
 
-def package_product(root: etree.ElementTree):
+def package_product(root: etree._Element) -> None:
     target = root.xpath(
         "//*[local-name()='execution' and ./*[local-name()='id']/text()='package-product']/*[local-name()='configuration']/*[local-name()='target']"
     )[0]

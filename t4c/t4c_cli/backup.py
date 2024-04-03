@@ -79,7 +79,7 @@ def _build_backup_command(
     return command
 
 
-def _validate_backup_stdout(line: str):
+def _validate_backup_stdout(line: str) -> None:
     if re.search(r"[1-9][0-9]* projects imports failed", line):
         raise RuntimeError("Backup failed. Please check the logs above.")
     if re.search(r"[1-9][0-9]* archivings failed", line):
@@ -117,7 +117,7 @@ def run_importer_script(
     log.info("Import of model from TeamForCapella server finished")
 
 
-def unzip_exported_files():
+def unzip_exported_files() -> None:
     project_dir = pathlib.Path(config.config.t4c.project_dir_path)
 
     log.info("Start unzipping project archive in %s", project_dir)
@@ -175,13 +175,13 @@ def copy_exported_files_into_git_repo() -> None:
     log.info("Finished copying files...")
 
 
-def create_t4c_project_dir():
+def create_t4c_project_dir() -> None:
     project_dir = pathlib.Path(config.config.t4c.project_dir_path)
     project_dir.mkdir(exist_ok=True)
 
 
 @click.command()
-def backup():
+def backup() -> None:
     git_config: config.GitConfig = config.config.git
     file_handler = config.config.file_handler
 

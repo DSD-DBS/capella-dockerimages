@@ -61,7 +61,7 @@ def test_export_locally(
         pathlib.Path, pathlib.Path, pathlib.Path
     ],
     t4c_exporter_local_env: dict[str, str],
-):
+) -> None:
     export_path, import_path, _ = model_export_import_diff_path
     data_dir: pathlib.Path = pathlib.Path(__file__).parents[0] / "data"
 
@@ -100,7 +100,7 @@ def test_export_locally(
     assert function_1.functions[0].name == "do stuff 1.1"
 
 
-def import_model(model_dir: pathlib.Path, env: dict[str, str]):
+def import_model(model_dir: pathlib.Path, env: dict[str, str]) -> None:
     with conftest.get_container(
         image="t4c/client/base", environment=env, command="backup"
     ) as container:
@@ -116,7 +116,7 @@ def import_model(model_dir: pathlib.Path, env: dict[str, str]):
         )
 
 
-def export_model(model_dir: pathlib.Path, env: dict[str, str]):
+def export_model(model_dir: pathlib.Path, env: dict[str, str]) -> None:
     model_tar = model_dir / "model.tar"
 
     conftest.create_tarfile(
@@ -141,7 +141,7 @@ def export_model(model_dir: pathlib.Path, env: dict[str, str]):
 
 def copy_model_files_to_directory(
     model_dir: pathlib.Path, tar_dir: pathlib.Path
-):
+) -> None:
     for file in model_dir.glob("*"):
         if not str(file).endswith("license"):
             shutil.copy2(file, tar_dir)

@@ -18,9 +18,6 @@ RUN apt-get update && \
     apt-get install -y git-lfs xvfb xauth && \
     rm -rf /var/lib/apt/lists/*
 
-COPY git_askpass.py /etc/git_askpass.py
-RUN chmod 555 /etc/git_askpass.py
-
 COPY docker_entrypoint.sh /docker_entrypoint.sh
 RUN chmod 555 /docker_entrypoint.sh
 
@@ -50,7 +47,7 @@ RUN PATCH_DIR=/opt/updateSite /opt/patch.sh
 
 USER root
 
-COPY setup_workspace.py /opt/setup/setup_t4c_client.py
+COPY setup_workspace_t4c.py /opt/setup/setup_workspace_t4c.py
 
 RUN cat >> /opt/capella/capella.ini <<EOT && chown techuser /opt/capella/capella.ini
 -DOBEO_LICENSE_SERVER_CONFIGURATION=\$T4C_LICENCE_SECRET

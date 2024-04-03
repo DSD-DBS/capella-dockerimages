@@ -10,7 +10,9 @@ log = logging.getLogger(__name__)
 def format_datetime_to_isoformat_without_tz(
     datetime_arg: datetime.datetime,
 ) -> str:
-    """Format the provided datetime object to a string in ISO format without timezone information.
+    """Format the provided datetime object to a string in ISO format.
+
+    The resulting string will not contain the timezone information.
 
     Returns
     -------

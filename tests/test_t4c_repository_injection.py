@@ -5,6 +5,7 @@ import json
 import logging
 import pathlib
 import re
+import typing as t
 
 import conftest
 import pytest
@@ -30,8 +31,7 @@ def fixture_success_mode(request: pytest.FixtureRequest) -> str:
 )
 def fixture_container_success(
     success_mode: str,
-    tmp_path: pathlib.Path,
-) -> containers.Container:
+) -> t.Generator[containers.Container, None, None]:
     env = {
         "json": {
             **default_env,
@@ -78,7 +78,7 @@ def fixture_failure_mode(request: pytest.FixtureRequest) -> str:
 @pytest.fixture(name="container_failure")
 def fixture_container_failure(
     failure_mode: str,
-) -> containers.Container:
+) -> t.Generator[containers.Container, None, None]:
     env = {
         "json": {
             **default_env,
@@ -114,7 +114,7 @@ def test_repositories_seeding(
     container_success: containers.Container,
     success_mode: str,
     tmp_path: pathlib.Path,
-):
+) -> None:
     tmp_path.chmod(0o777)
 
     conftest.wait_for_container(
@@ -154,7 +154,7 @@ def test_repositories_seeding(
 
 
 @pytest.mark.t4c
-def test_invalid_env_variable(container_failure: containers.Container):
+def test_invalid_env_variable(container_failure: containers.Container) -> None:
     with pytest.raises(RuntimeError):
         conftest.wait_for_container(
             container_failure,
