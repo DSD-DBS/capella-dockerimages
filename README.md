@@ -33,14 +33,13 @@ environment and to automate processes around the tools.
 
 This repository includes Docker files to build the following Docker images:
 
-<!-- prettier-ignore -->
-| Name of the Docker image | Short description |
-|------|---|
-| `base` |This is the base image that has the most important tools pre-installed.|
-| `capella/base`|This is the Capella base image. It is a simple container with Capella and the required dependencies installed. No more.|
-| `t4c/client/base`|This extends the Capella base image with the T4C client and the dependencies, as well as features to synchronize T4C and Git repositories.|
-| `capella/ease`<br>`t4c/client/ease`|This extends the Capella or T4C client base image with EASE and SWTBot functionality. You can mount every Python script and execute it in a container environment. |
-| `capella/remote`<br>`t4c/client/remote`|The remote image will add an RDP server on top of any other image. This will provide the user the possibility to connect and work inside the container.|
-| `capella/readonly`|This image has capability to clone a Git repository, will load the project into the workspace and also offers RDP.|
-| `capella/remote/pure-variants`<br>`t4c/client/remote/pure-variants`|This extends the remote image with pure::variants support.|
-| `jupyter-notebook`|A Jupyter notebook image based on the base image.|
+| Name of the Docker image                                            | Short description                                                                                                                                                  |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `base`                                                              | This is the base image that has the most important tools pre-installed.                                                                                            |
+| `capella/base`                                                      | This is the Capella base image. It is a simple container with Capella and the required dependencies installed. No more.                                            |
+| `t4c/client/base`                                                   | This extends the Capella base image with the T4C client and the dependencies, as well as features to synchronize T4C and Git repositories.                         |
+| `capella/ease`<br>`t4c/client/ease`                                 | This extends the Capella or T4C client base image with EASE and SWTBot functionality. You can mount every Python script and execute it in a container environment. |
+| `capella/remote`<br>`t4c/client/remote`                             | The remote image will add an RDP server on top of any other image. This will provide the user the possibility to connect and work inside the container.            |
+| `capella/readonly`                                                  | This image has capability to clone a Git repository, will load the project into the workspace and also offers RDP.                                                 |
+| `capella/remote/pure-variants`<br>`t4c/client/remote/pure-variants` | This extends the remote image with pure::variants support.                                                                                                         |
+| `jupyter-notebook`                                                  | A Jupyter notebook image based on the base image.                                                                                                                  |
