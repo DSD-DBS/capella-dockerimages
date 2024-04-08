@@ -7,11 +7,11 @@ set -euo pipefail
 
 case ${1:-startup} in
   backup)
-    xvfb-run python /opt/scripts/backup.py
+    xvfb-run /opt/t4c_cli/.venv/bin/backup
     ;;
 
   export)
-    xvfb-run python /opt/scripts/export.py
+    xvfb-run /opt/t4c_cli/.venv/bin/exporter
     ;;
 
   startup)
