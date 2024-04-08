@@ -8,7 +8,6 @@ import pathlib
 import re
 import shutil
 import subprocess
-import sys
 import urllib.parse
 
 import click
@@ -200,7 +199,6 @@ def backup():
     run_importer_script(last_backup_commit_datetime)
     unzip_exported_files()
 
-    last_t4c_commit_datetime = None
     if file_handler == config.FileHandler.GIT:
         copy_exported_files_into_git_repo()
 
