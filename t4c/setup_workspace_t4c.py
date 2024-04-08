@@ -103,5 +103,10 @@ if __name__ == "__main__":
         os.getenv("T4C_SERVER_HOST", "localhost"),
     )
 
+    # Automatically open the commit description window when saving
+    replace_config(
+        OBEO_COLLAB_CONF, "PREF_ENABLE_DESCRIPTION_ON_COMMIT", "true"
+    )
+
     # Set default repositories in selection dialog
     setup_repositories()
