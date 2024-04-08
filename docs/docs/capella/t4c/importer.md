@@ -105,7 +105,7 @@ For development purposes, you can test the importer / backup locally.
 
 !!! warning
 
-    For the next steps, you need a running TeamForCapella server.
+    For the next steps, you need a running TeamForCapella server and a TeamForCapella license server.
 
 <!-- prettier-ignore -->
 1. Start a lightweight local Git server with the following command:
