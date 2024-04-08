@@ -49,7 +49,8 @@ def clone_git_repository_to_git_dir_path(
             cwd=git_dir,
             env={
                 "SKIP_POST_CHECKOUT": "1",
-            },
+            }
+            | env,
             capture_output=True,
             text=True,
         )
