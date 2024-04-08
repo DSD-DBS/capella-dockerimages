@@ -1,7 +1,8 @@
 # SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
 # SPDX-License-Identifier: Apache-2.0
+"""Download Capella from Eclipse download page.
 
-"""Return a download URL for a stable Capella archive from the official
+Return a download URL for a stable Capella archive from the official
 eclipse download page:
 
 https://download.eclipse.org/capella/core/products/stable/.
@@ -46,8 +47,8 @@ if __name__ == "__main__":
         f"{capella_archive_path}{archive_name}"
     )
 
-    response = requests.get(download_url)
-    response.raise_for_status()
+    download_response = requests.get(download_url)
+    download_response.raise_for_status()
     download_path = pathlib.Path("/opt/capella.tar.gz").write_bytes(
-        response.content
+        download_response.content
     )

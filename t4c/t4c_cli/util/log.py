@@ -9,8 +9,8 @@ log = logging.getLogger(__name__)
 
 def log_subprocess_error(
     return_code: int, cmd: list[str], stdout: str, stderr: str
-):
-    """Logs the error of a subprocess in a readable format.
+) -> None:
+    """Log the error of a subprocess in a readable format.
 
     Do not pass credentials to the `cmd` parameter.
     """

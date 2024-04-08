@@ -19,7 +19,7 @@ logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 log = logging.getLogger("Exporter")
 
 
-def _check_capella_version():
+def _check_capella_version() -> None:
     if util_capella.is_capella_5_x_x():
         raise RuntimeError("Operation is not supported for Capella 5.x.x")
 
@@ -49,7 +49,7 @@ def _build_export_command(model_dir: pathlib.Path) -> list[str]:
     ]
 
 
-def _validate_exporter_stdout(line: str):
+def _validate_exporter_stdout(line: str) -> None:
     if "No address associated with hostname" in line:
         raise RuntimeError("Unknown host")
     elif "No such user:" in line:
@@ -58,7 +58,7 @@ def _validate_exporter_stdout(line: str):
         raise RuntimeError("Export failed")
 
 
-def run_exporter_script(model_dir: pathlib.Path):
+def run_exporter_script(model_dir: pathlib.Path) -> None:
     log.debug("Export model to TeamForCapella server...")
 
     util_capella.run_capella_command_and_handle_errors(
@@ -69,7 +69,7 @@ def run_exporter_script(model_dir: pathlib.Path):
 
 
 @click.command()
-def export():
+def export() -> None:
     _check_capella_version()
 
     root_path = pathlib.Path(os.getenv("ROOT_PATH", "/tmp/data"))

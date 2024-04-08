@@ -74,7 +74,7 @@ jobs:
       - name: Install test dependencies
         run: |
           docker build $DOCKER_BUILD_ARGS -t local-git-server tests/local-git-server
-          pip install .
+          pip install '.[test]'
       - name: Run pytest
         run: >
           DOCKER_PREFIX="${{ env.registry }}"

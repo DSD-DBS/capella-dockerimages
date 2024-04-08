@@ -29,7 +29,7 @@ DEFAULT_CAPELLA_COMMAND = [
 def run_capella_command_and_handle_errors(
     application: str, arguments: list[str], stdout_line_validator: t.Callable
 ) -> tuple[str, str]:
-    """Runs the provided Capella command.
+    """Run the provided Capella command.
 
     The function validates the stdout of the command using the provided validator.
     The validator is executed on each of stdout. An example validator looks like:
@@ -108,7 +108,7 @@ def determine_model_dir(
     root_path: pathlib.Path,
     entrypoint: str | None,
     create_if_not_exist: bool = False,
-):
+) -> pathlib.Path:
     model_dir = root_path
     if entrypoint:
         model_dir = pathlib.Path(

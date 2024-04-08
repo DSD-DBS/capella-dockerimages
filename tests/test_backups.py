@@ -7,6 +7,7 @@ import logging
 import os
 import pathlib
 import subprocess
+import typing as t
 
 import conftest
 import pytest
@@ -33,7 +34,7 @@ def fixture_t4c_backup_local_env(
 @pytest.fixture(name="t4c_backup_container")
 def fixture_t4c_backup_container(
     t4c_backup_local_env: dict[str, str]
-) -> containers.Container:
+) -> t.Generator[containers.Container, None, None]:
     with conftest.get_container(
         image="t4c/client/base",
         environment=t4c_backup_local_env,
@@ -52,7 +53,7 @@ def test_model_backup_happy(
     git_ip_addr: str,
     git_http_port: str,
     tmp_path: pathlib.Path,
-):
+) -> None:
     conftest.wait_for_container(
         t4c_backup_container, "Backup of model finished"
     )

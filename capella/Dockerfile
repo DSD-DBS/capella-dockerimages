@@ -155,6 +155,9 @@ ENV ECLIPSE_EXECUTABLE=/opt/capella/capella
 
 COPY ./autostart /home/techuser/.config/openbox/autostart
 
+COPY git_askpass.py /etc/git_askpass.py
+RUN chmod 555 /etc/git_askpass.py
+
 ARG BUILD_ARCHITECTURE=amd64
 ADD https://github.com/krallin/tini/releases/download/v0.19.0/tini-$BUILD_ARCHITECTURE /tini
 RUN chmod +x /tini

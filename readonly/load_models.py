@@ -33,8 +33,8 @@ WORKSPACE_DIR = os.getenv("WORKSPACE_DIR", "/workspace")
 
 
 class _ProjectNature(enum.Enum):
-    library = "org.polarsys.capella.library.nature"
-    project = "org.polarsys.capella.project.nature"
+    LIBRARY = "org.polarsys.capella.library.nature"
+    PROJECT = "org.polarsys.capella.project.nature"
 
 
 class _ProjectDict(t.TypedDict):
@@ -45,9 +45,9 @@ class _ProjectDict(t.TypedDict):
     entrypoint: str | pathlib.Path
     username: str | None
     password: str | None
-    nature: t.NotRequired[_ProjectNature | str]
+    nature: t.NotRequired[str]
     location: t.NotRequired[pathlib.Path]
-    etree: t.NotRequired[etree.ElementTree]
+    etree: t.NotRequired[etree._Element]
 
 
 def disable_welcome_screen() -> None:
@@ -135,18 +135,21 @@ def load_or_generate_project_etree(project: _ProjectDict) -> None:
 
 
 def derive_project_name(project: _ProjectDict) -> None:
-    project["name"] = project["etree"].find("name").text.strip()
+    name_element = project["etree"].find("name")
+    if name_element is None or name_element.text is None:
+        raise RuntimeError("Couldn't find project name in .project file.")
+    project["name"] = name_element.text.strip()
 
 
-def generate_project_etree(project: _ProjectDict) -> etree.ElementTree:
+def generate_project_etree(project: _ProjectDict) -> etree._Element:
     # More information:
     # https://help.eclipse.org/latest/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Freference%2Fmisc%2Fproject_description_file.html&cp%3D2_1_3_11
 
-    if project.get("nature", "") in _ProjectNature.__members__:
+    if project.get("nature", "").upper() in _ProjectNature.__members__:
         assert isinstance(project["nature"], str)
         nature = _ProjectNature[project["nature"]]
     else:
-        nature = _ProjectNature.project
+        nature = _ProjectNature.PROJECT
 
     return E.projectDescription(
         E.name(derive_project_name_from_aird(project["location"])),
@@ -205,7 +208,10 @@ def add_suffix_to_project_name(project: _ProjectDict, suffix: str) -> None:
     new_name = project["name"] + "-" + suffix
     project["name"] = new_name
 
-    project["etree"].find("name").text = new_name
+    element = project["etree"].find("name")
+    if element is None:
+        raise RuntimeError("Couldn't find project name in .project file.")
+    element.text = new_name
 
 
 def append_revision_to_project_name(project: _ProjectDict) -> None:
@@ -215,7 +221,7 @@ def append_revision_to_project_name(project: _ProjectDict) -> None:
     add_suffix_to_project_name(project, sanitized_revision)
 
 
-def main():
+def main() -> None:
     projects = fetch_projects_from_environment()
     print("---START_LOAD_MODEL---")
     try:

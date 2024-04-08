@@ -16,7 +16,7 @@ logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 log = logging.getLogger("T4C")
 
 
-def check_dir_for_aird_files(path: pathlib.Path):
+def check_dir_for_aird_files(path: pathlib.Path) -> None:
     aird_files = list(path.glob("*.aird"))
 
     entrypoint = config.config.git.entrypoint
@@ -48,17 +48,11 @@ def extract_t4c_commit_information() -> tuple[str, datetime.datetime | None]:
         root_dir=project_dir,
     )
 
-    activitymetadata_tree: etree.ElementTree = etree.parse(
+    activitymetadata_tree: etree._ElementTree = etree.parse(
         project_dir / activity_metadata_file
     )
 
-    activitymetadata: etree.Element = activitymetadata_tree.getroot()
-
-    if activitymetadata is None:
-        log.info(
-            "activitymetadata root element was not found - commit history cannot be extracted"
-        )
-        return "", None
+    activitymetadata: etree._Element = activitymetadata_tree.getroot()
 
     if len(activitymetadata) == 0:
         log.info("no commits since last backup")
@@ -112,12 +106,9 @@ def get_single_file_by_t4c_pattern_or_raise(
 
 
 def _create_activity_dict(
-    activity: etree.Element,
+    activity: etree._Element,
 ) -> dict[str, str | None] | None:
     attributes = activity.attrib
-
-    if commit_datetime := attributes.get("date", None):
-        commit_datetime = datetime.datetime.fromisoformat(commit_datetime)
 
     if description := attributes.get("description", None):
         description = description.rstrip()
@@ -127,6 +118,6 @@ def _create_activity_dict(
 
     return {
         "user": attributes.get("userId", None),
-        "time": commit_datetime.isoformat() if commit_datetime else None,
+        "time": attributes.get("date", None),
         "description": description,
     }

@@ -1,10 +1,13 @@
 # SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
 # SPDX-License-Identifier: Apache-2.0
+
+# pylint: skip-file
+
 import os
 
 # Configuration file for lab.
 
-c = get_config()  # noqa
+c = get_config()  # type: ignore # noqa
 
 # ------------------------------------------------------------------------------
 # Application(SingletonConfigurable) configuration

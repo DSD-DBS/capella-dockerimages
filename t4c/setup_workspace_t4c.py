@@ -22,7 +22,7 @@ REPOSITORIES_BASE_PATH = pathlib.Path("/opt/capella/configuration")
 
 
 def replace_config(path: pathlib.Path, key: str, value: str) -> None:
-    """This will replace the existing config or add the config (if it doesn't exist)"""
+    """Replace the existing config or add the config option."""
     path.parent.mkdir(exist_ok=True, parents=True)
     if path.exists():
         file_content = path.read_text()

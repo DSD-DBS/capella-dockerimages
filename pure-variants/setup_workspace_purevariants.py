@@ -18,7 +18,7 @@ eclipse_settings_base_path = pathlib.Path(
 
 
 def replace_config(path: pathlib.Path, key: str, value: str) -> None:
-    """This will replace the existing config or add the config (if it doesn't exist)"""
+    """Replace the existing config or add the config."""
     path.parent.mkdir(exist_ok=True, parents=True)
     if path.exists():
         file_content = path.read_text()
@@ -47,7 +47,7 @@ def extract_pure_variants_major_version(version: str) -> str:
     return version.split(".")[0]
 
 
-def copy_license_file_to_right_location():
+def copy_license_file_to_right_location() -> None:
     source = pathlib.Path("/inputs/pure-variants/license.lic")
 
     if source.exists():
@@ -73,7 +73,7 @@ if __name__ == "__main__":
     replace_config(
         eclipse_settings_base_path / "com.ps.consul.eclipse.ui.float.prefs",
         "licenseServerLocation",
-        os.getenv("PURE_VARIANTS_LICENSE_SERVER"),
+        os.environ["PURE_VARIANTS_LICENSE_SERVER"],
     )
 
     copy_license_file_to_right_location()

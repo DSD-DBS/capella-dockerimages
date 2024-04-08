@@ -61,7 +61,7 @@ def clone_git_repository_to_git_dir_path(
             )
             raise RuntimeError(
                 f"Couldn't switch to branch {git_config.branch} in repository {git_config.repo_url}. Check the log message above."
-            )
+            ) from err
 
     log.debug("Clone of git repository finished")
     return git_dir
@@ -71,7 +71,7 @@ def git_commit_and_push(
     git_config: config.GitConfig,
     commit_message: str,
     commit_datetime: datetime.datetime | None,
-):
+) -> None:
     git_dir = pathlib.Path(git_config.dir_path)
 
     subprocess.run(
@@ -135,20 +135,19 @@ def git_commit_and_push(
 def find_last_commit_timestamp_by_text_search(
     git_config: config.GitConfig, grep_arg: str
 ) -> datetime.datetime | None:
-    """
-    Find the timestamp of the last commit that matches a given text search pattern.
+    """Find the timestamp of the last commit.
 
     Parameters
     ----------
-        git_config : config.GitConfig
-            The Git configuration.
-        grep_arg : str
-            The text search pattern to match.
+    git_config : config.GitConfig
+        The Git configuration.
+    grep_arg : str
+        The text search pattern to match.
 
     Returns
     -------
-        datetime.datetime or None
-            The timestamp of the last matching commit, or None if no matching commit is found.
+    datetime.datetime or None
+        The timestamp of the last matching commit, or None if no matching commit is found.
     """
 
     git_dir = pathlib.Path(git_config.dir_path)

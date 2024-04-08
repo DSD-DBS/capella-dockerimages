@@ -18,7 +18,7 @@ ECLIPSE_SETTINGS_BASE_PATH = pathlib.Path(
 
 
 def replace_config(path: pathlib.Path, key: str, value: str) -> None:
-    """This will replace the existing config or add the config (if it doesn't exist)"""
+    """Replace the existing config or add the config option."""
     path.parent.mkdir(exist_ok=True, parents=True)
     if path.exists():
         file_content = path.read_text()
@@ -39,8 +39,8 @@ def replace_config(path: pathlib.Path, key: str, value: str) -> None:
     path.write_text(file_content)
 
 
-def set_git_merge_mode():
-    """Set the default merge mode for Git to 'Last head (unmerged)'
+def set_git_merge_mode() -> None:
+    """Set the default merge mode for Git to 'Last head (unmerged)'.
 
     The default merge strategy is set to "Working tree (pre-merged to 'Ours')"
     in the Linux bundle. This strategy has caused problems with the EMF Diff/Merge tool.

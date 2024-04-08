@@ -49,6 +49,8 @@ nav:
       - Base: eclipse/base.md
       - 'pure::variants': pure-variants.md
   - Remote: remote.md
+  - Development:
+      - Testing: development/testing.md
 
 repo_url: https://github.com/DSD-DBS/capella-dockerimages
 edit_uri: edit/master/docs/docs

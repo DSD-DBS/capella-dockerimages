@@ -16,6 +16,7 @@ import subprocess
 import tarfile
 import textwrap
 import time
+import typing as t
 
 import chardet
 import docker
@@ -28,7 +29,7 @@ log = logging.getLogger(__file__)
 log.setLevel("DEBUG")
 client = docker.from_env()
 
-timeout = 120  # Timeout in seconds
+TIMEOUT = 120  # Timeout in seconds
 
 
 HTTP_LOGIN: str = "admin"
@@ -48,12 +49,12 @@ GIT_PASSWORD: str = "any"
 
 
 DOCKER_NETWORK: str = os.getenv("DOCKER_NETWORK", "host")
-CAPELLA_VERSION: str = os.getenv("CAPELLA_VERSION", "")
+CAPELLA_VERSION: str = os.environ["CAPELLA_VERSION"]
 ENTRYPOINT: str = f"/{CAPELLA_VERSION}/test-project.aird"
 
 
 @pytest.fixture(name="git_container")
-def fixture_git_container() -> containers.Container:
+def fixture_git_container() -> t.Generator[containers.Container, None, None]:
     with get_container(
         image="local-git-server",
         image_prefix="",
@@ -94,11 +95,10 @@ def fixture_init_git_server(
     git_ip_addr: str,
     git_http_port: str,
     tmp_path: pathlib.Path,
-):
+) -> None:
     clone_git_repository(git_ip_addr, git_http_port, tmp_path)
     copy_test_project_into_git_repo(tmp_path)
     commit_and_push_git_repo(tmp_path)
-    yield
 
 
 @pytest.fixture(name="t4c_server_env")
@@ -119,7 +119,7 @@ def fixture_t4c_server_container(
     t4c_server_env: dict[str, str],
     tmp_path: pathlib.Path,
     request: pytest.FixtureRequest,
-) -> containers.Container:
+) -> t.Generator[containers.Container, None, None]:
     init = hasattr(request, "param") and request.param.get("init", False)
     server_test_data_tar_path = tmp_path / "test-server-data.tar"
 
@@ -149,9 +149,10 @@ def fixture_t4c_server_container(
         entrypoint=["/bin/bash"],
     ) as container:
         if init:
-            # We can't just mount the test data as a volume as this will cause problems
-            # when as we are running Docker in Docker (i.e., we would mount the
-            # volume on the host machine but not on the container running the job/test)
+            # We can't just mount the test data as a volume as this will cause
+            # problems when as we are running Docker in Docker (i.e., we would
+            # mount the volume on the host machine but not on the container
+            # running the job/test)
             with open(file=server_test_data_tar_path, mode="rb") as tar_file:
                 client.api.put_archive(container.id, "/", tar_file)
         wait_for_container(container, wait_for_message, cmd="/opt/startup.sh")
@@ -189,9 +190,8 @@ def fixture_t4c_general_env(t4c_ip_addr: str) -> dict[str, str]:
 
 
 @pytest.fixture(name="init_t4c_server_repo")
-def fixture_init_t4c_server_repo(t4c_ip_addr: str, t4c_http_port: str):
+def fixture_init_t4c_server_repo(t4c_ip_addr: str, t4c_http_port: str) -> None:
     create_t4c_repository(t4c_ip_addr, t4c_http_port)
-    yield
 
 
 @contextlib.contextmanager
@@ -214,7 +214,7 @@ def get_container(
     docker_tag = (
         image_tag
         if image_tag is not None
-        else os.getenv("DOCKER_TAG", "latest")
+        else os.getenv("DOCKER_TAG", f"{CAPELLA_VERSION}-latest")
     )
 
     image = f"{docker_prefix}{image}:{docker_tag}"
@@ -244,7 +244,7 @@ def wait_for_container(
     container: containers.Container,
     wait_for_message: str,
     cmd: str | None = None,
-):
+) -> None:
     start_time = time.time()
 
     log_queue: multiprocessing.Queue = multiprocessing.Queue()
@@ -262,7 +262,7 @@ def wait_for_container(
 
     log.info("Wait until log line: %s", wait_for_message)
     decoded_log = ""
-    while time.time() - start_time < timeout:
+    while time.time() - start_time < TIMEOUT:
         try:
             decoded_log += log_queue.get(timeout=4)
 
@@ -276,23 +276,27 @@ def wait_for_container(
                 fetch_log_process.terminate()
                 return
 
-        except queue.Empty:
+        except queue.Empty as exc:
             if log_queue.empty():
                 container.reload()
                 if container.status == "exited":
                     log.error("Log from container:\n%s", decoded_log)
                     fetch_log_process.terminate()
-                    raise RuntimeError("Container exited unexpectedly")
+                    raise RuntimeError(
+                        "Container exited unexpectedly"
+                    ) from exc
 
-    if time.time() - start_time > timeout:
+    if time.time() - start_time > TIMEOUT:
         log.error("Log from container:\n%s", decoded_log)
         fetch_log_process.terminate()
         raise TimeoutError(
-            f"Timeout while waiting for container '{container.name}' with image '{container.image}'"
+            f"Waited for container '{container.name}' with image '{container.image}'"
         )
 
 
-def fetch_logs(container_id: int, log_queue, cmd: str | None = None):
+def fetch_logs(
+    container_id: int, log_queue: multiprocessing.Queue, cmd: str | None = None
+) -> None:
     container = client.containers.get(container_id=container_id)
 
     if cmd:
@@ -347,7 +351,7 @@ def get_projects_of_t4c_repository(
 # 1. deamon-reload
 # 2. docker restart
 # Related to: https://github.com/moby/moby/issues/42442
-def create_t4c_repository(t4c_ip_addr: str, t4c_http_port: str):
+def create_t4c_repository(t4c_ip_addr: str, t4c_http_port: str) -> None:
     if DOCKER_NETWORK == "host":
         t4c_ip_addr = "127.0.0.1"
 
@@ -372,14 +376,14 @@ def create_tarfile(
     destination_path: str | pathlib.Path,
     source_dir: str | pathlib.Path,
     arcname: str,
-):
+) -> None:
     with tarfile.open(name=destination_path, mode="w") as tar_file:
         tar_file.add(name=source_dir, arcname=arcname)
 
 
 def extract_container_dir_to_local_dir(
     container_id: str, container_dir: str, target_dir: pathlib.Path
-):
+) -> None:
     target_dir.mkdir(parents=True, exist_ok=True)
     tar_file_name = target_dir / (container_dir.split("/")[-1] + ".tar")
 
@@ -395,14 +399,14 @@ def extract_container_dir_to_local_dir(
 
 def clone_git_repository(
     git_ip_addr: str, git_http_port: str, path: pathlib.Path
-):
+) -> None:
     if DOCKER_NETWORK == "host":
         git_ip_addr = "127.0.0.1"
 
     env = os.environ
     env["no_proxy"] = f"{os.getenv('no_proxy', '')},{git_ip_addr}"
 
-    subprocess.run(  # pylint: disable=subprocess-run-check
+    subprocess.run(
         [
             "git",
             "clone",
@@ -414,7 +418,7 @@ def clone_git_repository(
         text=True,
         capture_output=True,
     )
-    subprocess.run(  # pylint: disable=subprocess-run-check
+    subprocess.run(
         ["git", "switch", "-c", GIT_REPO_BRANCH],
         cwd=path,
         check=True,
@@ -423,7 +427,7 @@ def clone_git_repository(
     )
 
 
-def copy_test_project_into_git_repo(git_path: pathlib.Path):
+def copy_test_project_into_git_repo(git_path: pathlib.Path) -> None:
     target_dir: pathlib.Path = pathlib.Path(
         git_path,
         str(pathlib.Path(ENTRYPOINT).parent).lstrip("/"),
@@ -439,9 +443,9 @@ def copy_test_project_into_git_repo(git_path: pathlib.Path):
             shutil.copy2(file, target_dir)
 
 
-def commit_and_push_git_repo(path: pathlib.Path):
+def commit_and_push_git_repo(path: pathlib.Path) -> None:
     try:
-        subprocess.run(  # pylint: disable=subprocess-run-check
+        subprocess.run(
             ["git", "config", "user.email", GIT_EMAIL],
             cwd=path,
             check=True,
@@ -449,7 +453,7 @@ def commit_and_push_git_repo(path: pathlib.Path):
             capture_output=True,
         )
 
-        subprocess.run(  # pylint: disable=subprocess-run-check
+        subprocess.run(
             ["git", "config", "user.name", GIT_USERNAME],
             cwd=path,
             check=True,
@@ -457,7 +461,7 @@ def commit_and_push_git_repo(path: pathlib.Path):
             capture_output=True,
         )
 
-        subprocess.run(  # pylint: disable=subprocess-run-check
+        subprocess.run(
             ["git", "add", "."],
             cwd=path,
             check=True,
@@ -465,7 +469,7 @@ def commit_and_push_git_repo(path: pathlib.Path):
             capture_output=True,
         )
 
-        subprocess.run(  # pylint: disable=subprocess-run-check
+        subprocess.run(
             [
                 "git",
                 "-c",
@@ -480,7 +484,7 @@ def commit_and_push_git_repo(path: pathlib.Path):
             capture_output=True,
         )
 
-        subprocess.run(  # pylint: disable=subprocess-run-check
+        subprocess.run(
             ["git", "push", "origin", GIT_REPO_BRANCH],
             env={
                 "GIT_USERNAME": GIT_USERNAME,
