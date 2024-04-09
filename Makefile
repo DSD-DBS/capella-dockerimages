@@ -302,7 +302,7 @@ capella/builder:
 
 run-capella/base: capella/base
 	docker run $(DOCKER_RUN_FLAGS) \
-		$(DOCKER_PREFIX)capella/base:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
+		$(DOCKER_PREFIX)$<:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
 
 run-jupyter-notebook: jupyter-notebook
 	docker run $(DOCKER_RUN_FLAGS) \
@@ -321,43 +321,49 @@ run-capella/remote: capella/remote
 		-p $(RDP_PORT):3389 \
 		-p $(WEB_PORT):10000 \
 		-p $(METRICS_PORT):9118 \
-		$(DOCKER_PREFIX)capella/remote:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
+		$(DOCKER_PREFIX)$<:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
 
 run-papyrus/remote: DOCKER_TAG=$(PAPYRUS_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
 run-papyrus/remote: papyrus/remote
 	docker run \
 		--platform linux/amd64 \
 		-e RMT_PASSWORD=$(RMT_PASSWORD) \
+		-e CONNECTION_METHOD=$(CONNECTION_METHOD) \
+		-e XPRA_SUBPATH=$(XPRA_SUBPATH) \
 		-p $(RDP_PORT):3389 \
+		-p $(WEB_PORT):10000 \
 		-p $(METRICS_PORT):9118 \
-		$(DOCKER_PREFIX)papyrus/remote:$(DOCKER_TAG)
+		$(DOCKER_PREFIX)$<:$(DOCKER_TAG)
 
 run-eclipse/remote: DOCKER_TAG=$(ECLIPSE_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
 run-eclipse/remote: eclipse/remote
 	docker run \
 		-e RMT_PASSWORD=$(RMT_PASSWORD) \
+		-e CONNECTION_METHOD=$(CONNECTION_METHOD) \
+		-e XPRA_SUBPATH=$(XPRA_SUBPATH) \
 		-p $(RDP_PORT):3389 \
+		-p $(WEB_PORT):10000 \
 		-p $(METRICS_PORT):9118 \
-		$(DOCKER_PREFIX)eclipse/remote:$(DOCKER_TAG)
+		$(DOCKER_PREFIX)$<:$(DOCKER_TAG)
 
 run-eclipse/remote/pure-variants: DOCKER_TAG=$(ECLIPSE_VERSION)-$(PURE_VARIANTS_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
 run-eclipse/remote/pure-variants: eclipse/remote/pure-variants
 	docker run $(DOCKER_RUN_FLAGS) \
 		-e RMT_PASSWORD=$(RMT_PASSWORD) \
 		-e PURE_VARIANTS_LICENSE_SERVER=$(PURE_VARIANTS_LICENSE_SERVER) \
+		-e CONNECTION_METHOD=$(CONNECTION_METHOD) \
+		-e XPRA_SUBPATH=$(XPRA_SUBPATH) \
 		-v $$(pwd)/volumes/pure-variants:/inputs/pure-variants \
 		-v $$(pwd)/volumes/workspace:/workspace \
 		-v $$(pwd)/pure-variants/versions:/opt/versions \
 		-p $(RDP_PORT):3389 \
+		-p $(WEB_PORT):10000 \
 		-p $(METRICS_PORT):9118 \
-		--rm \
-		$(DOCKER_PREFIX)eclipse/remote/pure-variants:$(DOCKER_TAG)
+		$(DOCKER_PREFIX)$<:$(DOCKER_TAG)
 
 
 run-capella/readonly: capella/readonly
 	docker run $(DOCKER_RUN_FLAGS) \
-		-p $(RDP_PORT):3389 \
-		-p $(WEB_PORT):10000 \
 		-e RMT_PASSWORD=$(RMT_PASSWORD) \
 		-e GIT_URL=$(GIT_REPO_URL) \
 		-e GIT_ENTRYPOINT=$(GIT_REPO_ENTRYPOINT) \
@@ -366,40 +372,50 @@ run-capella/readonly: capella/readonly
 		-e GIT_USERNAME="$(GIT_USERNAME)" \
 		-e GIT_PASSWORD="$(GIT_PASSWORD)" \
 		-e CONNECTION_METHOD=$(CONNECTION_METHOD) \
-		$(DOCKER_PREFIX)capella/readonly:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
+		-e XPRA_SUBPATH=$(XPRA_SUBPATH) \
+		-p $(RDP_PORT):3389 \
+		-p $(WEB_PORT):10000 \
+		$(DOCKER_PREFIX)$<:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
 
 run-capella/readonly-json: capella/readonly
 	docker run $(DOCKER_RUN_FLAGS) \
-		-p $(RDP_PORT):3389 \
 		-e RMT_PASSWORD=$(RMT_PASSWORD) \
 		-e GIT_REPOS_JSON="$$(cat $(READONLY_JSON_PATH))" \
-		$(DOCKER_PREFIX)capella/readonly:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
+		-e CONNECTION_METHOD=$(CONNECTION_METHOD) \
+		-e XPRA_SUBPATH=$(XPRA_SUBPATH) \
+		-p $(RDP_PORT):3389 \
+		-p $(WEB_PORT):10000 \
+		$(DOCKER_PREFIX)$<:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
 
 run-t4c/client/remote-legacy: t4c/client/remote
-	docker rm /t4c-client-remote || true
 	docker run $(DOCKER_RUN_FLAGS) \
+		-v $$(pwd)/volumes/workspaces/$(WORKSPACE_NAME):/workspace \
 		-e T4C_LICENCE_SECRET=$(T4C_LICENCE_SECRET) \
 		-e T4C_SERVER_HOST=$(T4C_SERVER_HOST) \
 		-e T4C_SERVER_PORT=$(T4C_SERVER_PORT) \
 		-e T4C_REPOSITORIES=$(T4C_REPOSITORIES) \
 		-e RMT_PASSWORD=$(RMT_PASSWORD) \
 		-e T4C_USERNAME=$(T4C_USERNAME) \
+		-e CONNECTION_METHOD=$(CONNECTION_METHOD) \
+		-e XPRA_SUBPATH=$(XPRA_SUBPATH) \
 		-p $(RDP_PORT):3389 \
+		-p $(WEB_PORT):10000 \
 		-p $(METRICS_PORT):9118 \
-		--name t4c-client-remote-legacy \
-		$(DOCKER_PREFIX)t4c/client/remote:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
+		$(DOCKER_PREFIX)$<:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
 
-run-t4c/client/remote-json: t4c/client/remote
-	docker rm /t4c-client-remote-json || true
+run-t4c/client/remote: t4c/client/remote
 	docker run $(DOCKER_RUN_FLAGS) \
+		-v $$(pwd)/volumes/workspaces/$(WORKSPACE_NAME):/workspace \
 		-e T4C_LICENCE_SECRET=$(T4C_LICENCE_SECRET) \
 		-e T4C_JSON=$(T4C_JSON) \
 		-e RMT_PASSWORD=$(RMT_PASSWORD) \
 		-e T4C_USERNAME=$(T4C_USERNAME) \
+		-e CONNECTION_METHOD=$(CONNECTION_METHOD) \
+		-e XPRA_SUBPATH=$(XPRA_SUBPATH) \
 		-p $(RDP_PORT):3389 \
+		-p $(WEB_PORT):10000 \
 		-p $(METRICS_PORT):9118 \
-		--name t4c-client-remote-json \
-		$(DOCKER_PREFIX)t4c/client/remote:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
+		$(DOCKER_PREFIX)$<:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
 
 run-t4c/client/remote/pure-variants: t4c/client/remote/pure-variants
 	docker run $(DOCKER_RUN_FLAGS) \
@@ -411,10 +427,12 @@ run-t4c/client/remote/pure-variants: t4c/client/remote/pure-variants
 		-v $$(pwd)/volumes/pure-variants:/inputs/pure-variants \
 		-v $$(pwd)/volumes/workspace:/workspace \
 		-e AUTOSTART_CAPELLA=$(AUTOSTART_CAPELLA) \
+		-e CONNECTION_METHOD=$(CONNECTION_METHOD) \
+		-e XPRA_SUBPATH=$(XPRA_SUBPATH) \
 		-p $(RDP_PORT):3389 \
+		-p $(WEB_PORT):10000 \
 		-p $(METRICS_PORT):9118 \
-		--rm \
-		$(DOCKER_PREFIX)t4c/client/remote/pure-variants:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
+		$(DOCKER_PREFIX)$<:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
 
 
 run-t4c/client/backup: t4c/client/base
@@ -430,7 +448,7 @@ run-t4c/client/backup: t4c/client/base
 		-e GIT_USERNAME="$(GIT_USERNAME)" \
 		-e GIT_PASSWORD="$(GIT_PASSWORD)" \
 		-e LOG_LEVEL="$(LOG_LEVEL)" \
-		$(DOCKER_PREFIX)t4c/client/base:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst) backup
+		$(DOCKER_PREFIX)$<:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst) backup
 
 run-t4c/client/backup-local: t4c/client/base
 	docker run $(DOCKER_RUN_FLAGS) --rm -it \
@@ -443,7 +461,7 @@ run-t4c/client/backup-local: t4c/client/base
 		-e T4C_USERNAME="$(T4C_USERNAME)" \
 		-e T4C_PASSWORD="$(T4C_PASSWORD)" \
 		-e LOG_LEVEL="$(LOG_LEVEL)" \
-		$(DOCKER_PREFIX)t4c/client/base:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst) backup
+		$(DOCKER_PREFIX)$<:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst) backup
 
 run-t4c/client/exporter: t4c/client/base
 	docker run $(DOCKER_RUN_FLAGS) \
@@ -459,7 +477,7 @@ run-t4c/client/exporter: t4c/client/base
 		-e T4C_USERNAME="$(T4C_USERNAME)" \
 		-e T4C_PASSWORD="$(T4C_PASSWORD)" \
 		-e LOG_LEVEL="$(LOG_LEVEL)" \
-		$(DOCKER_PREFIX)t4c/client/base:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst) export
+		$(DOCKER_PREFIX)$<:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst) export
 
 debug-capella/base: DOCKER_RUN_FLAGS=-it --entrypoint="bash"
 debug-capella/base: run-capella/base
