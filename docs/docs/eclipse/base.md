@@ -61,21 +61,6 @@ To customise the Eclipse client you can
    it, and
 1. compress the modified folder to get a `eclipse.tar.gz` again.
 
-#### Optional: Download the EGit Eclipse package manually
-
-Our `eclipse/base` image is shipped with EGit preinstalled. If you have access
-to <https://download.eclipse.org/egit/updates/> from your build environment,
-we're fetching the package automatically and there is nothing to do here.
-
-If your build environment can not access the package registry, there is the
-option to pre-download the package and inject it during the build.
-
-1. Download the registry <https://download.eclipse.org/egit/updates/>
-   (analogous to
-   [Download Eclipse packages manually](../ease.md#optional-download-eclipse-packages-manually))
-2. Place the files into `/tmp/egit`
-3. Pass `--build-arg BUILD_TYPE=offline` to the `docker build` command.
-
 ### Build it manually with Docker
 
 ```zsh

@@ -11,6 +11,7 @@ theme:
     accent: light blue
   features:
     - content.code.copy
+    - content.code.annotate
 nav:
   - Introduction: index.md
   - Base: base.md
@@ -31,9 +32,7 @@ nav:
       - Introduction: capella/introduction.md
       - Base: capella/base.md
       - Remote: remote.md
-      - CLI: capella/cli.md
-      - EASE: ease.md
-      - Read-only: capella/readonly.md
+      - Provisioning: capella/provisioning.md
       - 'pure::variants': pure-variants.md
       - Build from source: capella/build-from-source.md
       - Team4Capella client:
@@ -42,7 +41,6 @@ nav:
           - Exporter: capella/t4c/exporter.md
           - Importer: capella/t4c/importer.md
           - Remote: remote.md
-          - EASE: ease.md
   - Papyrus:
       - Base: papyrus/base.md
   - Eclipse:

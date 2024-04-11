@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 ARG BASE_IMAGE=base
-ARG BUILD_TYPE=online
 FROM $BASE_IMAGE as base
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -10,17 +9,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 ENV SHELL=/bin/bash
 
-FROM base as build_online
-ONBUILD USER root
-ONBUILD ENV EGIT_REPOSITORY=https://download.eclipse.org/egit/updates/
-
-FROM base as build_offline
-ONBUILD USER root
-ONBUILD ENV EGIT_REPOSITORY=file:/tmp/egit
-ONBUILD COPY ./egit /tmp/egit
-ONBUILD RUN chown -R techuser /tmp/egit
-
-FROM build_${BUILD_TYPE}
+USER root
+ARG ECLIPSE_REPOSITORY=https://download.eclipse.org
 
 # https://forums.debian.net/viewtopic.php?t=151997
 RUN apt-get update && apt-get install -y openjdk-17-jre || apt-get install -y openjdk-17-jre
@@ -51,7 +41,7 @@ RUN /opt/eclipse/eclipse \
     -consoleLog \
     -application org.eclipse.equinox.p2.director \
     -noSplash \
-    -repository ${EGIT_REPOSITORY} \
+    -repository ${ECLIPSE_REPOSITORY}/egit/updates/ \
     -installIU "org.eclipse.egit,org.eclipse.egit.core,org.eclipse.egit.ui"
 
 USER root

@@ -72,7 +72,8 @@ RUN mkdir -p /run/xrdp/sockdir && \
     chown -R techuser /etc/xrdp /run/xrdp /var/log/xrdp* && \
     chown techuser /var/log && \
     chown techuser /etc/supervisord.conf /var/log/nginx /var/log/nginx/* && \
-    chown techuser /etc/nginx
+    chown techuser /etc/nginx && \
+    touch /etc/environment && chown techuser /etc/environment
 
 WORKDIR /home/techuser
 

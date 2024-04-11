@@ -22,11 +22,6 @@ t4c/server
 t4c/.dockerignore
 !t4c/updateSite/*/.gitkeep
 
-# EASE
-ease/debug/libs/*
-ease/extensions/*/*
-!ease/extensions/*/.gitkeep
-
 # Pure::variants
 pure-variants/versions/*/*
 !pure-variants/versions/*/.gitkeep

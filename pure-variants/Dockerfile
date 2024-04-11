@@ -2,19 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 ARG BASE_IMAGE=capella/remote
-ARG BUILD_TYPE=online
 FROM ${BASE_IMAGE} as base
 
-FROM base as build_online
-ONBUILD ENV ECLIPSE_REPOSITORY=https://download.eclipse.org/releases/2020-06/
-
-FROM base as build_offline
-ONBUILD USER root
-ONBUILD ENV ECLIPSE_REPOSITORY=file:/tmp/dependencies
-ONBUILD COPY ./dependencies /tmp/dependencies
-ONBUILD RUN chown -R techuser /tmp/dependencies
-
-FROM build_${BUILD_TYPE}
+ARG ECLIPSE_REPOSITORY=https://download.eclipse.org
 
 SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 ENV SHELL=/bin/bash
@@ -39,7 +29,7 @@ RUN installUI=com.ps.consul.eclipse.purevariants.emf.feature.mapping.feature.gro
     -consoleLog \
     -application org.eclipse.equinox.p2.director \
     -noSplash \
-    -repository ${ECLIPSE_REPOSITORY} \
+    -repository ${ECLIPSE_REPOSITORY}/releases/2020-06/ \
     -repository file:///tmp/pure-variants \
     -installIU "$installUI"
 

@@ -121,7 +121,7 @@ ARG MEMORY_LIMIT=5500m
 RUN echo '-Dorg.eclipse.equinox.p2.transport.ecf.retry=15' >> /opt/capella/capella.ini && \
     echo '-Dorg.eclipse.ecf.provider.filetransfer.retrieve.readTimeout=10000' >> /opt/capella/capella.ini && \
     sed -i "s/-Xmx[^ ]*/-Xmx$MEMORY_LIMIT/g" /opt/capella/capella.ini
-RUN pip install --no-cache-dir PyYAML==6.0.1 && python install_dropins.py
+RUN pip install --no-cache-dir lxml==4.9.3 PyYAML==6.0.1 && python install_dropins.py
 
 COPY ./versions/${CAPELLA_VERSION}/patches /opt/patches
 RUN PATCH_DIR=/opt/patches /opt/patch.sh
@@ -143,8 +143,7 @@ RUN mkdir -p /opt/capella/configuration/.settings; \
     chown techuser /opt /opt/capella/capella.ini
 
 RUN echo '-Dosgi.configuration.area=file:/opt/capella/configuration' >> /opt/capella/capella.ini
-COPY setup_workspace.py /opt/setup/setup_welcome_screen.py
-COPY replace_env_variables.sh /opt/setup/replace_env_variables.sh
+COPY startup/* /opt/setup/
 
 ENV AUTOSTART_CAPELLA=1
 ENV RESTART_CAPELLA=1

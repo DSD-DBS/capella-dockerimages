@@ -17,7 +17,6 @@ images at this time:
 
 - [`base`](base.md)
 - [`capella/base`](capella/base.md) (without dropins or plugins)
-- [`capella/readonly`](capella/readonly.md)
 
 If you need another image, please follow the
 [`Build images locally`](#build-images-locally) or
@@ -83,11 +82,8 @@ flowchart LR
     BASE(base) --> PAPYRUS_BASE(papyrus/base) --> PAPYRUS_REMOTE(papyrus/remote)
     BASE(base) --> ECLIPSE_BASE(eclipse/base) --> ECLIPSE_REMOTE(eclipse/remote) --> ECLIPSE_REMOTE_PURE_VARIANTS(eclipse/remote/pure-variants)
     CAPELLA_BASE(capella/base) --> T4C_CLIENT_BASE(t4c/client/base)
-    CAPELLA_BASE(capella/base) --> CAPELLA_EASE(capella/ease)
-    T4C_CLIENT_BASE(t4c/client/base) --> T4C_CLIENT_EASE(t4c/client/ease)
     CAPELLA_BASE(capella/base) --> CAPELLA_REMOTE(capella/remote) --> CAPELLA_REMOTE_PURE_VARIANTS(capella/remote/pure-variants)
     T4C_CLIENT_BASE(t4c/client/base) --> T4C_CLIENT_REMOTE(t4c/client/remote) --> T4C_CLIENT_REMOTE_PURE_VARIANTS(t4c/client/remote/pure-variants)
-    CAPELLA_EASE(capella/ease) --> CAPELLA_EASE_REMOTE(capella/ease/remote) --> CAPELLA_READONLY(capella/readonly)
 
     style BASE fill:#b22222,color:#000000
     style CAPELLA_BASE fill:#8feb34,color:#000000
@@ -96,14 +92,8 @@ flowchart LR
     style ECLIPSE_BASE fill:#fafad2,color:#000000
     style T4C_CLIENT_BASE fill:#1e90ff,color:#000000
 
-    style CAPELLA_READONLY fill:#dda0dd,color:#000000
-
-    style CAPELLA_EASE fill:#f4a460,color:#000000
-    style T4C_CLIENT_EASE fill:#f4a460,color:#000000
-
     style CAPELLA_REMOTE fill:#228b22,color:#000000
     style T4C_CLIENT_REMOTE fill:#228b22,color:#000000
-    style CAPELLA_EASE_REMOTE fill:#228b22,color:#000000
     style ECLIPSE_REMOTE fill:#228b22,color:#000000
     style PAPYRUS_REMOTE fill:#228b22,color:#000000
 
@@ -122,9 +112,7 @@ image:
 :material-checkbox-blank-circle:{ style="color: #fafad2 " } [Eclipse Base](eclipse/base.md)<br>
 :material-checkbox-blank-circle:{ style="color: #5f9ea0 " } [Papyrus Base](papyrus/base.md)<br>
 :material-checkbox-blank-circle:{ style="color: #1e90ff " } [T4C Client Base](capella/t4c/base.md) <br>
-:material-checkbox-blank-circle:{ style="color: #f4a460 " } [EASE](ease.md) <br>
 :material-checkbox-blank-circle:{ style="color: #228b22 " } [Remote](remote.md) <br>
-:material-checkbox-blank-circle:{ style="color: #dda0dd " } [Capella read-only](capella/readonly.md) <br>
 :material-checkbox-blank-circle:{ style="color: #62f5f2 " } [pure::variants](pure-variants.md) <br>
 :material-checkbox-blank-circle:{ style="color: #f5626c " } [Jupyter notebook](jupyter/index.md) <br>
 
