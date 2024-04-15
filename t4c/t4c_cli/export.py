@@ -40,10 +40,8 @@ def _build_export_command(model_dir: pathlib.Path) -> list[str]:
         t4c_config.repo_port,
         "-repoName",
         t4c_config.repo_name,
-        "-repositoryLogin",
-        t4c_config.username,
-        "-repositoryPassword",
-        t4c_config.password,
+        "-repositoryCredentials",
+        t4c_config.credentials_file_path,
         "-sourceToExport",
         str(model_dir),
     ]
