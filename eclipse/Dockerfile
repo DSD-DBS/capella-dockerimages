@@ -26,8 +26,6 @@ RUN tar -xf eclipse.tar.gz && \
 ARG MEMORY_LIMIT=5500m
 
 RUN mkdir -p /workspace; \
-    # Disable Welcome Screen
-    mkdir -p /workspace/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.ui.prefs; \
     # Set workspace permissions
     chown -R techuser /workspace && \
     chmod +x eclipse/eclipse && \
