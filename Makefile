@@ -109,8 +109,6 @@ CAPELLA_BUILD_TYPE ?= online
 # Set the option to 'false' if you want to run it on arm architectures.
 INSTALL_OLD_GTK_VERSION ?= true
 
-EASE_BUILD_TYPE ?= online
-
 PURE_VARIANTS_LICENSE_SERVER ?= http://localhost:8080
 
 # Inject libraries from the capella/libs directory
@@ -130,10 +128,6 @@ DOCKER_REGISTRY ?= localhost:12345
 
 # Log level when running Docker containers
 LOG_LEVEL ?= DEBUG
-
-# Path to a JSON file, which is used as input for the
-# make-run/capella/readonly target.
-READONLY_JSON_PATH ?= local/readonly.json
 
 # If this option is set to 1, all tests that require a running t4c server
 # will be executed. To run these tests, you need a Makefile in
@@ -164,11 +158,7 @@ all: \
 	t4c/client/base \
 	t4c/client/remote \
 	t4c/client/remote/pure-variants \
-	capella/remote/pure-variants \
-	capella/ease \
-	t4c/client/ease \
-	capella/ease/remote \
-	capella/readonly
+	capella/remote/pure-variants
 
 base: SHELL=/bin/bash
 base:
@@ -276,26 +266,6 @@ capella/remote/pure-variants: capella/remote
 	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG pure-variants
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
-capella/ease: SHELL=./capella_loop.sh
-capella/ease: capella/base
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG --build-arg BUILD_TYPE=$(EASE_BUILD_TYPE) ease
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
-
-t4c/client/ease: SHELL=./capella_loop.sh
-t4c/client/ease: t4c/client/base
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG --build-arg BUILD_TYPE=$(EASE_BUILD_TYPE) ease
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
-
-capella/ease/remote: SHELL=./capella_loop.sh
-capella/ease/remote: capella/ease
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG remote
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
-
-capella/readonly: SHELL=./capella_loop.sh
-capella/readonly: capella/ease/remote
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG readonly
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
-
 capella/builder:
 	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(CAPELLA_DOCKERIMAGES_REVISION) builder
 	docker run -it -e CAPELLA_VERSION=$(CAPELLA_VERSION) -v $$(pwd)/builder/output/$(CAPELLA_VERSION):/output -v $$(pwd)/builder/m2_cache:/root/.m2/repository $(DOCKER_PREFIX)$@:$(CAPELLA_DOCKERIMAGES_REVISION)
@@ -313,10 +283,15 @@ run-jupyter-notebook: jupyter-notebook
 		$(DOCKER_PREFIX)$<:$(JUPYTER_NOTEBOOK_REVISION)
 
 run-capella/remote: capella/remote
+	FLAGS="";
+	if [ -n "$(WORKSPACE_NAME)" ]; then \
+		FLAGS="-v $$(pwd)/volumes/workspaces/$(WORKSPACE_NAME):/workspace"; \
+	fi
 	docker run $(DOCKER_RUN_FLAGS) \
-		-v $$(pwd)/volumes/workspaces/$(WORKSPACE_NAME):/workspace \
+		$$FLAGS \
 		-e RMT_PASSWORD=$(RMT_PASSWORD) \
 		-e CONNECTION_METHOD=$(CONNECTION_METHOD) \
+		-e AUTOSTART_CAPELLA=$(AUTOSTART_CAPELLA) \
 		-e XPRA_SUBPATH=$(XPRA_SUBPATH) \
 		-p $(RDP_PORT):3389 \
 		-p $(WEB_PORT):10000 \
@@ -361,31 +336,6 @@ run-eclipse/remote/pure-variants: eclipse/remote/pure-variants
 		-p $(METRICS_PORT):9118 \
 		$(DOCKER_PREFIX)$<:$(DOCKER_TAG)
 
-
-run-capella/readonly: capella/readonly
-	docker run $(DOCKER_RUN_FLAGS) \
-		-e RMT_PASSWORD=$(RMT_PASSWORD) \
-		-e GIT_URL=$(GIT_REPO_URL) \
-		-e GIT_ENTRYPOINT=$(GIT_REPO_ENTRYPOINT) \
-		-e GIT_REVISION=$(GIT_REPO_BRANCH) \
-		-e GIT_DEPTH=$(GIT_REPO_DEPTH) \
-		-e GIT_USERNAME="$(GIT_USERNAME)" \
-		-e GIT_PASSWORD="$(GIT_PASSWORD)" \
-		-e CONNECTION_METHOD=$(CONNECTION_METHOD) \
-		-e XPRA_SUBPATH=$(XPRA_SUBPATH) \
-		-p $(RDP_PORT):3389 \
-		-p $(WEB_PORT):10000 \
-		$(DOCKER_PREFIX)$<:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
-
-run-capella/readonly-json: capella/readonly
-	docker run $(DOCKER_RUN_FLAGS) \
-		-e RMT_PASSWORD=$(RMT_PASSWORD) \
-		-e GIT_REPOS_JSON="$$(cat $(READONLY_JSON_PATH))" \
-		-e CONNECTION_METHOD=$(CONNECTION_METHOD) \
-		-e XPRA_SUBPATH=$(XPRA_SUBPATH) \
-		-p $(RDP_PORT):3389 \
-		-p $(WEB_PORT):10000 \
-		$(DOCKER_PREFIX)$<:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
 
 run-t4c/client/remote-legacy: t4c/client/remote
 	docker run $(DOCKER_RUN_FLAGS) \
@@ -493,22 +443,6 @@ debug-t4c/client/remote/pure-variants: AUTOSTART_CAPELLA=0
 debug-t4c/client/remote/pure-variants: DOCKER_RUN_FLAGS=-it --entrypoint="bash"
 debug-t4c/client/remote/pure-variants: run-t4c/client/remote/pure-variants
 
-debug-capella/readonly: DOCKER_RUN_FLAGS=-it \
-							-e DISPLAY=:0 \
-							-v /tmp/.X11-unix:/tmp/.X11-unix \
-							-v $$(pwd)/local/scripts:/opt/scripts/debug \
-							-v $$(pwd)/readonly/load_models.py:/opt/scripts/load_models.py \
-							--entrypoint="bash"
-debug-capella/readonly: run-capella/readonly
-
-debug-capella/readonly-json: DOCKER_RUN_FLAGS=-it \
-							-e DISPLAY=:0 \
-							-v /tmp/.X11-unix:/tmp/.X11-unix \
-							-v $$(pwd)/local/scripts:/opt/scripts/debug \
-							-v $$(pwd)/readonly/load_models.py:/opt/scripts/load_models.py \
-							--entrypoint="bash"
-debug-capella/readonly-json: run-capella/readonly-json
-
 t4c/server/server: SHELL=./capella_loop.sh
 t4c/server/server:
 	$(MAKE) -C t4c/server PUSH_IMAGES=$(PUSH_IMAGES) CAPELLA_VERSION=$$CAPELLA_VERSION $@
@@ -532,7 +466,7 @@ test: t4c/client/remote
 endif
 
 test: SHELL=./capella_loop.sh
-test: capella/readonly
+test:
 	export CAPELLA_VERSION=$$CAPELLA_VERSION
 	source .venv/bin/activate
 	cd tests

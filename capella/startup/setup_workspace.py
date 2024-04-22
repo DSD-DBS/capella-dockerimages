@@ -62,9 +62,7 @@ def set_git_merge_mode() -> None:
 if __name__ == "__main__":
     # Disable Welcome Screen
     replace_config(
-        pathlib.Path(
-            "/opt/capella/configuration/.settings/org.eclipse.ui.ide.prefs"
-        ),
+        ECLIPSE_SETTINGS_BASE_PATH / "org.eclipse.ui.prefs",
         "showIntro",
         "false",
     )
