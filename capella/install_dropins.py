@@ -5,6 +5,7 @@ import os
 import pathlib
 import subprocess
 import typing as t
+import urllib.request
 
 import yaml
 
@@ -27,7 +28,17 @@ def extract_repositories_and_install_ius(dropins: dict[str, t.Any]) -> None:
 
         dropin = dropins[dropin_slug]
 
-        install_update_sites(dropin["eclipseRepository"], dropin["installIU"])
+        match dropin["type"]:
+            case "updateSite":
+                install_update_sites(
+                    dropin["eclipseRepository"], dropin["installIU"]
+                )
+            case "dropin":
+                download_and_copy_dropin(
+                    dropin["downloadURL"], dropin["fileName"]
+                )
+            case _:
+                raise ValueError(f"Unknown plugin type '{dropin['type']}'.")
 
 
 def install_update_sites(repository: str, install_ui: list[str]) -> None:
@@ -44,6 +55,12 @@ def install_update_sites(repository: str, install_ui: list[str]) -> None:
             ",".join(install_ui),
         ],
         check=True,
+    )
+
+
+def download_and_copy_dropin(download_url: str, file_name: str) -> None:
+    urllib.request.urlretrieve(
+        download_url, pathlib.Path("/opt/capella/dropins") / file_name
     )
 
 

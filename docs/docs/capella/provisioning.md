@@ -12,6 +12,15 @@
     that you've passed to the read-only image manually. The path with all
     repositories can then be mounted to the new image as described below.
 
+!!! info "Technical prerequisites"
+
+    The feature relies on an Eclipse plugin that is not part of Capella.
+    The plugin is called `models-from-directory-importer` and is available
+    on GitHub: https://github.com/DSD-DBS/capella-addons.
+
+    The plugin is part of all Capella based pre-built images on GitHub.
+    If you build it manually, make sure that you follow the ["Install dropins" instructions](./base.md#install-dropins).
+
 To load models to your workspace automatically, you can mount a volume to the
 container.
 
