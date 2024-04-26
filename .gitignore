@@ -46,3 +46,4 @@ prometheus*
 .idea
 volumes
 *.egg-info/
+.env

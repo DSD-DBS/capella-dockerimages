@@ -144,6 +144,8 @@ RUN_TESTS_WITH_T4C_SERVER ?= 0
 # correct locations (as described in the README)
 RUN_TESTS_WITH_T4C_CLIENT ?= 0
 
+include .env
+
 export DOCKER_BUILDKIT=1
 export MAKE_CURRENT_TARGET=$@
 
