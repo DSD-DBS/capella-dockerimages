@@ -94,7 +94,7 @@ You have to pass a comma-separated list of dropin names as `CAPELLA_DROPINS`
 build argument to the `docker build` command:
 
 ```zsh
---build-arg CAPELLA_DROPINS="CapellaXHTMLDocGen,DiagramStyler,PVMT,Filtering,Requirements,SubsystemTransition"
+--build-arg CAPELLA_DROPINS="ModelsImporter,CapellaXHTMLDocGen,DiagramStyler,PVMT,Filtering,Requirements,SubsystemTransition"
 ```
 
 Supported dropins are:

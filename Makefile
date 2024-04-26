@@ -84,7 +84,7 @@ AUTOSTART_CAPELLA ?= 1
 
 # Comma-separated list of dropins to download & add, doesn't affect copied & mounted dropins
 # See available options in documentation: https://dsd-dbs.github.io/capella-dockerimages/capella/base/#optional-customisation-of-the-capella-client
-CAPELLA_DROPINS ?= CapellaXHTMLDocGen,DiagramStyler,PVMT,Filtering,Requirements,SubsystemTransition,TextualEditor
+CAPELLA_DROPINS ?= ModelsImporter,CapellaXHTMLDocGen,DiagramStyler,PVMT,Filtering,Requirements,SubsystemTransition,TextualEditor
 
 # Only use when "capella_loop.sh" is NOT used
 export DOCKER_TAG_SCHEMA ?= $$CAPELLA_VERSION-$$CAPELLA_DOCKERIMAGES_REVISION
@@ -144,6 +144,7 @@ RUN_TESTS_WITH_T4C_SERVER ?= 0
 # correct locations (as described in the README)
 RUN_TESTS_WITH_T4C_CLIENT ?= 0
 
+CREATE_ENV_FILE:=$(shell touch .env)
 include .env
 
 export DOCKER_BUILDKIT=1
