@@ -29,11 +29,16 @@ class T4CConfig:
     repo_host: str = os.environ["T4C_REPO_HOST"]
     repo_port: str = os.getenv("T4C_REPO_PORT", "2036")
     repo_name: str = os.environ["T4C_REPO_NAME"]
-    username: str = os.environ["T4C_USERNAME"]
-    password: str = os.environ["T4C_PASSWORD"]
+    credentials_file_path: str = "/tmp/t4c_credentials"
     include_commit_history = str_to_bool(
         os.getenv("INCLUDE_COMMIT_HISTORY", "false")
     )
+
+    def __init__(self) -> None:
+        with open(self.credentials_file_path, "w", encoding="utf-8") as file:
+            file.write(
+                f"{os.environ['T4C_USERNAME']}:{os.environ['T4C_PASSWORD']}"
+            )
 
 
 class CapellaConfig:

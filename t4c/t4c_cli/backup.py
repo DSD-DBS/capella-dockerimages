@@ -40,17 +40,11 @@ def _build_backup_command(
         "-projectName",
         urllib.parse.quote(t4c_config.project_name, safe="@"),
         (
-            "-importerLogin"
+            "-importerCredentials"
             if util_capella.is_capella_5_x_x()
-            else "-repositoryLogin"
+            else "-repositoryCredentials"
         ),
-        t4c_config.username,
-        (
-            "-importerPassword"
-            if util_capella.is_capella_5_x_x()
-            else "-repositoryPassword"
-        ),
-        t4c_config.password,
+        t4c_config.credentials_file_path,
         "-outputFolder",
         t4c_config.project_dir_path,
         "-archiveProject",
