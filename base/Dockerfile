@@ -69,6 +69,7 @@ RUN ln -s "$(which python3.11)" /usr/bin/python && \
 # Make pre-commit cache persistent
 ENV PRE_COMMIT_HOME=/workspace/.pre-commit
 
+ENV WORKSPACE_DIR=/workspace
 WORKDIR /workspace
 
 USER techuser

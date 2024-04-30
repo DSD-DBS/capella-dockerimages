@@ -119,6 +119,7 @@ BUILD_ARCHITECTURE ?= amd64
 
 DOCKER_BUILD_FLAGS ?= --platform linux/$(BUILD_ARCHITECTURE)
 DOCKER_RUN_FLAGS ?= --add-host=host.docker.internal:host-gateway --rm -it
+DOCKER_DEBUG_FLAGS ?= -it --entrypoint="bash" -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=$$DISPLAY
 
 # If set to 1, we will push the images to the specified registry
 PUSH_IMAGES ?= 0
@@ -308,6 +309,7 @@ run-papyrus/remote: papyrus/remote
 		-e RMT_PASSWORD=$(RMT_PASSWORD) \
 		-e CONNECTION_METHOD=$(CONNECTION_METHOD) \
 		-e XPRA_SUBPATH=$(XPRA_SUBPATH) \
+		-e WORKSPACE_DIR=/workspace/papyrus \
 		-p $(RDP_PORT):3389 \
 		-p $(WEB_PORT):10000 \
 		-p $(METRICS_PORT):9118 \
@@ -319,6 +321,7 @@ run-eclipse/remote: eclipse/remote
 		-e RMT_PASSWORD=$(RMT_PASSWORD) \
 		-e CONNECTION_METHOD=$(CONNECTION_METHOD) \
 		-e XPRA_SUBPATH=$(XPRA_SUBPATH) \
+		-e WORKSPACE_DIR=/workspace/eclipse \
 		-p $(RDP_PORT):3389 \
 		-p $(WEB_PORT):10000 \
 		-p $(METRICS_PORT):9118 \
@@ -331,6 +334,7 @@ run-eclipse/remote/pure-variants: eclipse/remote/pure-variants
 		-e PURE_VARIANTS_LICENSE_SERVER=$(PURE_VARIANTS_LICENSE_SERVER) \
 		-e CONNECTION_METHOD=$(CONNECTION_METHOD) \
 		-e XPRA_SUBPATH=$(XPRA_SUBPATH) \
+		-e WORKSPACE_DIR=/workspace/eclipse_pv \
 		-v $$(pwd)/volumes/pure-variants:/inputs/pure-variants \
 		-v $$(pwd)/volumes/workspace:/workspace \
 		-v $$(pwd)/pure-variants/versions:/opt/versions \
@@ -382,11 +386,11 @@ run-t4c/client/remote/pure-variants: t4c/client/remote/pure-variants
 		-e AUTOSTART_CAPELLA=$(AUTOSTART_CAPELLA) \
 		-e CONNECTION_METHOD=$(CONNECTION_METHOD) \
 		-e XPRA_SUBPATH=$(XPRA_SUBPATH) \
+		-e WORKSPACE_DIR=/workspace/capella_pv \
 		-p $(RDP_PORT):3389 \
 		-p $(WEB_PORT):10000 \
 		-p $(METRICS_PORT):9118 \
 		$(DOCKER_PREFIX)$<:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
-
 
 run-t4c/client/backup: t4c/client/base
 	docker run $(DOCKER_RUN_FLAGS) --rm -it \
@@ -432,19 +436,23 @@ run-t4c/client/exporter: t4c/client/base
 		-e LOG_LEVEL="$(LOG_LEVEL)" \
 		$(DOCKER_PREFIX)$<:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst) export
 
-debug-capella/base: DOCKER_RUN_FLAGS=-it --entrypoint="bash"
+debug-capella/base: DOCKER_RUN_FLAGS=$(DOCKER_DEBUG_FLAGS)
 debug-capella/base: run-capella/base
 
-debug-capella/remote: DOCKER_RUN_FLAGS=-it -p $(XPRA_DEBUG_PORT):10001
+debug-capella/remote: DOCKER_RUN_FLAGS=$(DOCKER_DEBUG_FLAGS)
 debug-capella/remote: run-capella/remote
 
 debug-t4c/client/backup: LOG_LEVEL=DEBUG
-debug-t4c/client/backup: DOCKER_RUN_FLAGS=-it --entrypoint="bash" -v $$(pwd)/backups/backup.py:/opt/capella/backup.py
+debug-t4c/client/backup: DOCKER_RUN_FLAGS=$(DOCKER_DEBUG_FLAGS) -v $$(pwd)/backups/backup.py:/opt/capella/backup.py
 debug-t4c/client/backup: run-t4c/client/backup
 
 debug-t4c/client/remote/pure-variants: AUTOSTART_CAPELLA=0
-debug-t4c/client/remote/pure-variants: DOCKER_RUN_FLAGS=-it --entrypoint="bash"
+debug-t4c/client/remote/pure-variants: DOCKER_RUN_FLAGS=$(DOCKER_DEBUG_FLAGS)
 debug-t4c/client/remote/pure-variants: run-t4c/client/remote/pure-variants
+
+debug-eclipse/remote/pure-variants: AUTOSTART_ECLIPSE=0
+debug-eclipse/remote/pure-variants: DOCKER_RUN_FLAGS=$(DOCKER_DEBUG_FLAGS)
+debug-eclipse/remote/pure-variants: run-eclipse/remote/pure-variants
 
 t4c/server/server: SHELL=./capella_loop.sh
 t4c/server/server:
