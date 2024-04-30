@@ -11,7 +11,7 @@ STAGE=$1
 # Otherwise, it will lead to a deadlock.
 # pre-commit locks the cache directory, then clones the required repositories in the cache directory.
 # This triggers the post-checkout hook of the repository, which tries to acquire the pre-commit lock.
-[[ $PWD != /workspace/.pre-commit/* ]] || exit 0
+[[ $PWD != ${WORKSPACE_DIR}/.pre-commit/* ]] || exit 0
 
 # start templated
 INSTALL_PYTHON=/opt/.venv/bin/python

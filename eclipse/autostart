@@ -11,8 +11,8 @@ then
     if [ "$RESTART_ECLIPSE" = "1" ];
     then
         # Restart Eclipse automatically
-        ( while true; do /opt/eclipse/eclipse -data ${WORKSPACE_DIR:-/workspace} > /var/log/eclipse.stdout.log 2> /var/log/eclipse.stderr.log; sleep 1; done ) &
+        ( while true; do /opt/eclipse/eclipse -data ${WORKSPACE_DIR} > /var/log/eclipse.stdout.log 2> /var/log/eclipse.stderr.log; sleep 1; done ) &
     else
-        /opt/eclipse/eclipse -data ${WORKSPACE_DIR:-/workspace} > /var/log/eclipse.stdout.log 2> /var/log/eclipse.stderr.log &
+        /opt/eclipse/eclipse -data ${WORKSPACE_DIR} > /var/log/eclipse.stdout.log 2> /var/log/eclipse.stderr.log &
     fi
 fi
