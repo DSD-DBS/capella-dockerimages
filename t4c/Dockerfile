@@ -60,7 +60,7 @@ COPY t4c_cli /opt/t4c_cli/t4c_cli
 COPY pyproject.toml /opt/t4c_cli/pyproject.toml
 
 WORKDIR /opt/t4c_cli
-RUN python -m venv .venv && source .venv/bin/activate && pip install --no-cache-dir .
+RUN pip install --no-cache-dir .
 
 WORKDIR /opt
 ENV BASE_TYPE=t4c

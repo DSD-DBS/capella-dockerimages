@@ -110,6 +110,7 @@ CAPELLA_BUILD_TYPE ?= online
 INSTALL_OLD_GTK_VERSION ?= true
 
 PURE_VARIANTS_LICENSE_SERVER ?= http://localhost:8080
+PURE_VARIANTS_KNOWN_SERVERS ?= '[{"name": "test", "url": "http://example.localhost"}]'
 
 # Inject libraries from the capella/libs directory
 INJECT_LIBS_CAPELLA ?= false
@@ -332,6 +333,7 @@ run-eclipse/remote/pure-variants: eclipse/remote/pure-variants
 	docker run $(DOCKER_RUN_FLAGS) \
 		-e RMT_PASSWORD=$(RMT_PASSWORD) \
 		-e PURE_VARIANTS_LICENSE_SERVER=$(PURE_VARIANTS_LICENSE_SERVER) \
+		-e PURE_VARIANTS_KNOWN_SERVERS=$(PURE_VARIANTS_KNOWN_SERVERS) \
 		-e CONNECTION_METHOD=$(CONNECTION_METHOD) \
 		-e XPRA_SUBPATH=$(XPRA_SUBPATH) \
 		-e WORKSPACE_DIR=/workspace/eclipse_pv \
@@ -381,6 +383,7 @@ run-t4c/client/remote/pure-variants: t4c/client/remote/pure-variants
 		-e RMT_PASSWORD=$(RMT_PASSWORD) \
 		-e T4C_USERNAME=$(T4C_USERNAME) \
 		-e PURE_VARIANTS_LICENSE_SERVER=$(PURE_VARIANTS_LICENSE_SERVER) \
+		-e PURE_VARIANTS_KNOWN_SERVERS=$(PURE_VARIANTS_KNOWN_SERVERS) \
 		-v $$(pwd)/volumes/pure-variants:/inputs/pure-variants \
 		-v $$(pwd)/volumes/workspace:/workspace \
 		-e AUTOSTART_CAPELLA=$(AUTOSTART_CAPELLA) \

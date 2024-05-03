@@ -59,7 +59,7 @@ RUN ln -s "$(which python3.11)" /usr/bin/python && \
     ln -sf "$(which pip3.11)" /usr/local/bin/pip3 && \
     python -m venv /opt/.venv && \
     # Configure pre-commit
-    pip install pre-commit==3.4.0 --no-cache-dir && \
+    pip install --no-cache-dir pre-commit lxml PyYAML --no-cache-dir && \
     echo "commit-msg post-rewrite pre-commit pre-merge-commit pre-rebase prepare-commit-msg" | xargs -n 1 cp /opt/git/global-hooks/+pre-commit-only.sh && \
     echo "pre-push post-checkout post-commit post-merge" | xargs -n 1 cp /opt/git/global-hooks/+pre-commit-and-lfs.sh && \
     git config --global core.hooksPath /opt/git/global-hooks && \
