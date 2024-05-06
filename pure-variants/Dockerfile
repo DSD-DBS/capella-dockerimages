@@ -19,8 +19,6 @@ RUN mkdir /tmp/pure-variants && \
     unzip /tmp/updateSite/* -d /tmp/pure-variants && \
     rm -rf /tmp/updateSite
 
-COPY setup_workspace_purevariants.py /opt/setup/setup_workspace_purevariants.py
-
 USER techuser
 
 RUN installUI=com.ps.consul.eclipse.purevariants.emf.feature.mapping.feature.group,com.ps.consul.eclipse.purevariants.de.enterprise.feature.group; \
@@ -39,6 +37,8 @@ RUN if [ "$BASE_TYPE" == "capella" ]; \
     chmod +x ${ECLIPSE_INSTALLATION_PATH:?}/plugins/com.ps.consul.eclipse.core.linux_*/server/bin/finishInstallation.sh; \
     fi; \
     rm -rf /tmp/pure-variants;
+
+COPY setup_workspace_purevariants.py /opt/setup/setup_workspace_purevariants.py
 
 # In some cases, the pure::variants server could not start with the error message:
 # Cannot run program `...`, failed to exec spawn helper, exit value: 1

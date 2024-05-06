@@ -12,8 +12,9 @@ import shutil
 logging.basicConfig(level=logging.DEBUG)
 LOGGER = logging.getLogger("pure::variants preparation")
 
-eclipse_settings_base_path = pathlib.Path(
-    "/workspace/.metadata/.plugins/org.eclipse.core.runtime/.settings"
+WORKSPACE_DIR = os.getenv("WORKSPACE_DIR", "/workspace")
+ECLIPSE_SETTINGS_BASE_PATH = pathlib.Path(
+    f"{WORKSPACE_DIR}/.metadata/.plugins/org.eclipse.core.runtime/.settings"
 )
 
 
@@ -71,7 +72,7 @@ if __name__ == "__main__":
     LOGGER.info("Prepare Workspace...")
 
     replace_config(
-        eclipse_settings_base_path / "com.ps.consul.eclipse.ui.float.prefs",
+        ECLIPSE_SETTINGS_BASE_PATH / "com.ps.consul.eclipse.ui.float.prefs",
         "licenseServerLocation",
         os.environ["PURE_VARIANTS_LICENSE_SERVER"],
     )
