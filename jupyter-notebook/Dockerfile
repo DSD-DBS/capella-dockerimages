@@ -6,6 +6,9 @@ FROM $BASE_IMAGE
 
 USER root
 
+SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
+ENV SHELL=/bin/bash
+
 RUN apt-get update && \
     apt-get install --yes --no-install-recommends \
     git \
@@ -13,10 +16,16 @@ RUN apt-get update && \
     libgirepository1.0-dev \
     libcairo2-dev \
     gir1.2-pango-1.0 \
-    graphviz \
-    nodejs \
-    npm && \
+    curl \
+    graphviz && \
     rm -rf /var/lib/apt/lists/*
+
+ENV NVM_DIR=/usr/local/nvm
+RUN mkdir ${NVM_DIR} && \
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash && \
+    bash -c "source ${NVM_DIR}/nvm.sh && nvm install --lts" && \
+    ln -s ${NVM_DIR}/versions/node/*/bin ${NVM_DIR}/bin
+ENV PATH="${NVM_DIR}/bin:${PATH}"
 
 COPY docker-entrypoint.sh /
 COPY requirements_template.txt /etc/skel
