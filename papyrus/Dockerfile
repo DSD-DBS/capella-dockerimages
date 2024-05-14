@@ -8,6 +8,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 ENV SHELL=/bin/bash
 
+ARG ECLIPSE_REPOSITORY=https://download.eclipse.org
+
 USER root
 
 ARG PAPYRUS_VERSION
@@ -24,6 +26,14 @@ RUN mkdir -p /workspace; \
     chown -R techuser /workspace && \
     chmod +x Papyrus/papyrus && \
     sed -i "s/-Xmx[^ ]*/-Xmx$MEMORY_LIMIT/g" /opt/Papyrus/papyrus.ini
+
+# Install SysML
+RUN /opt/Papyrus/papyrus \
+    -consoleLog \
+    -application org.eclipse.equinox.p2.director \
+    -noSplash \
+    -repository ${ECLIPSE_REPOSITORY}/modeling/mdt/papyrus/components/sysml16/releases/2.2.0_c/p2/ \
+    -installIU "org.eclipse.papyrus.sysml16.elementgroup.feature.feature.group,org.eclipse.papyrus.sysml16.feature.feature.group,org.eclipse.papyrus.sysml16.requirements.extension.feature.feature.group"
 
 COPY ./autostart /home/techuser/.config/openbox/autostart
 
