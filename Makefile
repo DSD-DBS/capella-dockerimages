@@ -457,6 +457,9 @@ debug-eclipse/remote/pure-variants: AUTOSTART_ECLIPSE=0
 debug-eclipse/remote/pure-variants: DOCKER_RUN_FLAGS=$(DOCKER_DEBUG_FLAGS)
 debug-eclipse/remote/pure-variants: run-eclipse/remote/pure-variants
 
+debug-jupyter-notebook: DOCKER_RUN_FLAGS=$(DOCKER_DEBUG_FLAGS)
+debug-jupyter-notebook: run-jupyter-notebook
+
 t4c/server/server: SHELL=./capella_loop.sh
 t4c/server/server:
 	$(MAKE) -C t4c/server PUSH_IMAGES=$(PUSH_IMAGES) CAPELLA_VERSION=$$CAPELLA_VERSION $@
