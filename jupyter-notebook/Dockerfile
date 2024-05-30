@@ -17,6 +17,7 @@ RUN apt-get update && \
     libcairo2-dev \
     gir1.2-pango-1.0 \
     curl \
+    weasyprint \
     graphviz && \
     rm -rf /var/lib/apt/lists/*
 
@@ -54,5 +55,7 @@ ENV WORKSPACE_DIR=/workspace/notebooks
 EXPOSE $JUPYTER_PORT
 
 WORKDIR $HOME
+
+ENV JUPYTER_ADDITIONAL_DEPENDENCIES=""
 
 ENTRYPOINT ["/docker-entrypoint.sh"]

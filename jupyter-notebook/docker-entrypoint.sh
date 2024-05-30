@@ -17,8 +17,11 @@ echo "---START_PREPARE_WORKSPACE---"
 
 mkdir -p "$WORKSPACE_DIR"
 
+[[ -z "$JUPYTER_ADDITIONAL_DEPENDENCIES" ]] || pip install -U $JUPYTER_ADDITIONAL_DEPENDENCIES 2>&1 | tee -a "$WORKSPACE_DIR/installlog.txt"
+unset JUPYTER_ADDITIONAL_DEPENDENCIES
+
 test -f "$WORKSPACE_DIR/requirements.txt" || cp /etc/skel/requirements_template.txt "$WORKSPACE_DIR/requirements.txt"
-pip install -U -r "$WORKSPACE_DIR/requirements.txt" -r /etc/skel/requirements_template.txt 2>&1 | tee "$WORKSPACE_DIR/installlog.txt"
+pip install -U -r "$WORKSPACE_DIR/requirements.txt" -r /etc/skel/requirements_template.txt 2>&1 | tee -a "$WORKSPACE_DIR/installlog.txt"
 
 test -d "$WORKSPACE_DIR/shared" || ln -s /shared "$WORKSPACE_DIR/shared"
 
