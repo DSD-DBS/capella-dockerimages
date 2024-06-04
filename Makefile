@@ -282,9 +282,10 @@ run-capella/base: capella/base
 run-jupyter-notebook: jupyter-notebook
 	docker run $(DOCKER_RUN_FLAGS) \
 		-p $(WEB_PORT):8888 \
+		-p $(METRICS_PORT):9118 \
 		-v $$(pwd)/volumes/workspace/notebooks:/tmp/notebooks \
 		-e WORKSPACE_DIR=/tmp/notebooks \
-		-e JUPYTER_BASE_URL=/ \
+		-e JUPYTER_BASE_URL=/subpath \
 		$(DOCKER_PREFIX)$<:$(JUPYTER_NOTEBOOK_REVISION)
 
 run-capella/remote: capella/remote

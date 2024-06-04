@@ -31,9 +31,14 @@ ENV PATH="${NVM_DIR}/bin:${PATH}"
 COPY docker-entrypoint.sh /
 COPY requirements_template.txt /etc/skel
 RUN chmod +x /docker-entrypoint.sh && \
-    mkdir -p "/shared" && chown techuser "/shared"
+    mkdir -p "/shared" && chown techuser "/shared" && \
+    chown techuser -R /var/log
 
 USER techuser
+
+RUN pip install --no-cache-dir supervisor requests prometheus_client
+COPY supervisord.conf /etc/supervisord.conf
+COPY jupyter_metrics.py /opt/metrics.py
 
 # Activate virtual environment
 RUN python -m venv /home/techuser/.venv

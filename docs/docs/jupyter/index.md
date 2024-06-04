@@ -29,7 +29,6 @@ The following environment variables can be defined:
 - `WORKSPACE_DIR`: The working directory for JupyterLab.
 - `JUPYTER_BASE_URL`: A context path to access the jupyter server. This allows
   you to run multiple server containers on the same domain.
-- `JUPYTER_TOKEN`: A token for accessing the environment.
 - `JUPYTER_ADDITIONAL_DEPENDENCIES`: A space-separated list of additional pip
   dependencies to install. The variable is passed to the `pip install -U`
   command and may include additional flags. The value is not escaped, only use
