@@ -7,6 +7,7 @@ eclipse download page:
 
 https://download.eclipse.org/capella/core/products/stable/.
 """
+import os
 import pathlib
 import sys
 
@@ -30,6 +31,13 @@ def get_directory_structure(url: str) -> list[str]:
 if __name__ == "__main__":
     capella_version = sys.argv[1]
     print(f"Installing Capella {capella_version}")
+
+    if os.getenv("BUILD_ARCHITECTURE") == "arm64":
+        raise RuntimeError(
+            "We don't support the automatic installation of Capella on arm64 yet. "
+            f"Place the Capella archive in the 'capella/versions/{capella_version}/arm64' directory in the capella-dockerimages repository, "
+            "set the environment variable CAPELLA_BUILD_TYPE to 'offline' and run the build again."
+        )
 
     versions = get_directory_structure(CAPELLA_INDEX_URL)
     capella_archive_path = next(
