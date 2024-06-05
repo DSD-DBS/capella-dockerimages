@@ -26,10 +26,4 @@ pip install -U -r "$WORKSPACE_DIR/requirements.txt" -r /etc/skel/requirements_te
 test -d "$WORKSPACE_DIR/shared" || ln -s /shared "$WORKSPACE_DIR/shared"
 
 echo "---START_SESSION---"
-
-exec jupyter-lab --ip=0.0.0.0 \
-    --port=$JUPYTER_PORT \
-    --no-browser \
-    --ServerApp.authenticate_prometheus=False \
-    --ServerApp.base_url="$JUPYTER_BASE_URL" \
-    --ServerApp.root_dir="$WORKSPACE_DIR"
+exec /opt/.venv/bin/supervisord
