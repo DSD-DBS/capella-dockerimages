@@ -221,6 +221,7 @@ capella/base:
     - *docker
     # prettier-ignore
     - mv ../capella.tar.gz ./capella/versions/$CAPELLA_VERSION/$BUILD_ARCHITECTURE/capella.tar.gz
+    - cp ./eclipse/set_memory_flags.py ./capella/setup/set_memory_flags.py
     - >
       if [[ -n "$(find ../dropins -maxdepth 1 -type d)" ]]; then
         mv ../dropins/* ./capella/versions/$CAPELLA_VERSION/dropins/
@@ -435,6 +436,7 @@ papyrus/base:
     - *prepare-papyrus
     - *docker
     - mv ../papyrus.tar.gz ./papyrus/versions/$PAPYRUS_VERSION/papyrus.tar.gz
+    - cp ./eclipse/set_memory_flags.py ./papyrus/set_memory_flags.py
     - |
       docker build $DOCKER_BUILD_ARGS \
         -t ${IMAGE}:${DOCKER_TAG} \

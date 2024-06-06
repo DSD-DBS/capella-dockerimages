@@ -115,3 +115,6 @@ Please replace the followings variables:
 - `RESTART_ECLIPSE` defines the restart behaviour of Eclipse. When set to 1
   (default) and when `RESTART_ECLIPSE=1`, Eclipse will be re-started as soon as
   it has been exited (after clean quits as well as crashs).
+
+If you want to configure the JVM memory options, have a look at
+[Eclipse memory options](./memory-options.md).

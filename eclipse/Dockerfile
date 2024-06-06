@@ -23,14 +23,13 @@ WORKDIR /opt/
 RUN tar -xf eclipse.tar.gz && \
     rm -rf eclipse.tar.gz
 
-ARG MEMORY_LIMIT=5500m
-
 RUN mkdir -p /workspace; \
     # Set workspace permissions
     chown -R techuser /workspace && \
     chmod +x eclipse/eclipse && \
-    chown -R techuser /opt/eclipse && \
-    sed -i "s/-Xmx[^ ]*/-Xmx$MEMORY_LIMIT/g" /opt/eclipse/eclipse.ini
+    chown -R techuser /opt/eclipse
+
+COPY set_memory_flags.py /opt/setup/set_memory_flags.py
 
 USER techuser
 
@@ -51,6 +50,12 @@ ENV RESTART_ECLIPSE=1
 
 ENV ECLIPSE_INSTALLATION_PATH=/opt/eclipse
 ENV ECLIPSE_EXECUTABLE=/opt/eclipse/eclipse
+
+# Set memory options for the JVM (used by set_memory_flags.py)
+ARG MEMORY_MAX=90%
+ENV MEMORY_MAX=${MEMORY_MAX}
+ARG MEMORY_MIN=70%
+ENV MEMORY_MIN=${MEMORY_MIN}
 
 ENV BASE_TYPE=eclipse
 

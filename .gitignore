@@ -47,3 +47,6 @@ prometheus*
 volumes
 *.egg-info/
 .env
+
+**/set_memory_flags.py
+!eclipse/set_memory_flags.py
