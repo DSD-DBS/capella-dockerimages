@@ -19,13 +19,12 @@ WORKDIR /opt/
 RUN tar -xf papyrus.tar.gz && \
     rm -rf papyrus.tar.gz
 
-ARG MEMORY_LIMIT=5500m
-
+COPY set_memory_flags.py /opt/setup/set_memory_flags.py
 RUN mkdir -p /workspace; \
     # Set workspace permissions
     chown -R techuser /workspace && \
     chmod +x Papyrus/papyrus && \
-    sed -i "s/-Xmx[^ ]*/-Xmx$MEMORY_LIMIT/g" /opt/Papyrus/papyrus.ini
+    chown techuser /opt/Papyrus/papyrus.ini
 
 # Install SysML
 RUN /opt/Papyrus/papyrus \
@@ -42,6 +41,12 @@ ENV RESTART_PAPYRUS=1
 
 ENV ECLIPSE_INSTALLATION_PATH=/opt/Papyrus
 ENV ECLIPSE_EXECUTABLE=/opt/Papyrus/papyrus
+
+# Set memory options for the JVM (used by set_memory_flags.py)
+ARG MEMORY_MAX=90%
+ENV MEMORY_MAX=${MEMORY_MAX}
+ARG MEMORY_MIN=70%
+ENV MEMORY_MIN=${MEMORY_MIN}
 
 ENV BASE_TYPE=papyrus
 

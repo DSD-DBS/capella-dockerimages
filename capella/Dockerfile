@@ -142,7 +142,7 @@ RUN mkdir -p /opt/capella/configuration/.settings; \
     chown techuser /opt /opt/capella/capella.ini
 
 RUN echo '-Dosgi.configuration.area=file:/opt/capella/configuration' >> /opt/capella/capella.ini
-COPY startup/* /opt/setup/
+COPY setup/* /opt/setup/
 
 ENV AUTOSTART_CAPELLA=1
 ENV RESTART_CAPELLA=1
@@ -150,6 +150,12 @@ COPY ./autostart /home/techuser/.config/openbox/autostart
 
 ENV ECLIPSE_INSTALLATION_PATH=/opt/capella
 ENV ECLIPSE_EXECUTABLE=/opt/capella/capella
+
+# Set memory options for the JVM (used by set_memory_flags.py)
+ARG MEMORY_MAX=90%
+ENV MEMORY_MAX=${MEMORY_MAX}
+ARG MEMORY_MIN=70%
+ENV MEMORY_MIN=${MEMORY_MIN}
 
 COPY ./autostart /home/techuser/.config/openbox/autostart
 

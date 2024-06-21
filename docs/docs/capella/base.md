@@ -244,6 +244,9 @@ Please replace the followings variables:
   (default) and when `AUTOSTART_CAPELLA=1`, Capella will be re-started as soon
   as it has been exited (after clean quits as well as crashs).
 
+If you want to configure the JVM memory options, have a look at
+[Eclipse memory options](../eclipse/memory-options.md).
+
 ### Example to export representations (diagrams) as SVG images
 
 Replace `/path/to/model` and `<PROJECT_NAME>` to pass any local Capella model.

@@ -61,6 +61,9 @@ To customise the Papyrus client you can
 docker build -t papyrus/base papyrus --build-arg PAPYRUS_VERSION=$PAPYRUS_VERSION
 ```
 
+If you want to configure the JVM memory options, have a look at
+[Eclipse memory options](../eclipse/memory-options.md).
+
 ## Run the container
 
 ### Locally on X11 systems

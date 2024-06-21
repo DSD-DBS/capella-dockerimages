@@ -45,6 +45,7 @@ nav:
       - Base: papyrus/base.md
   - Eclipse:
       - Base: eclipse/base.md
+      - Memory Options: eclipse/memory-options.md
       - 'pure::variants': pure-variants.md
   - Remote: remote.md
   - Development:

@@ -131,6 +131,10 @@ DOCKER_REGISTRY ?= localhost:12345
 # Log level when running Docker containers
 LOG_LEVEL ?= DEBUG
 
+# Set memory options for the TeamForCapella server
+MEMORY_MAX ?= 90%
+MEMORY_MIN ?= 70%
+
 # If this option is set to 1, all tests that require a running t4c server
 # will be executed. To run these tests, you need a Makefile in
 # t4c/server with a target t4c/server/server that builds the t4c server
@@ -181,6 +185,7 @@ jupyter-notebook: base
 capella/base: SHELL=./capella_loop.sh
 capella/base: base
 	envsubst < capella/.dockerignore.template > capella/.dockerignore
+	cp eclipse/set_memory_flags.py capella/setup/set_memory_flags.py
 	docker build $(DOCKER_BUILD_FLAGS) \
 		-t $(DOCKER_PREFIX)$@:$$DOCKER_TAG \
 		--build-arg BUILD_ARCHITECTURE=$(BUILD_ARCHITECTURE) \
@@ -192,16 +197,19 @@ capella/base: base
 		--build-arg INSTALL_OLD_GTK_VERSION=$(INSTALL_OLD_GTK_VERSION) \
 		capella
 	rm capella/.dockerignore
+	rm capella/setup/set_memory_flags.py
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
 papyrus/base: DOCKER_TAG=$(PAPYRUS_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
 papyrus/base: DOCKER_BUILD_FLAGS=--platform linux/amd64
 papyrus/base: base
+	cp eclipse/set_memory_flags.py papyrus/set_memory_flags.py
 	docker build $(DOCKER_BUILD_FLAGS) \
 		-t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) \
 		--build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(CAPELLA_DOCKERIMAGES_REVISION) \
 		--build-arg PAPYRUS_VERSION=$(PAPYRUS_VERSION) \
 		papyrus
+	rm papyrus/set_memory_flags.py
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) DOCKER_TAG=$(DOCKER_TAG) IMAGENAME=$@ .push
 
 eclipse/base: DOCKER_TAG=$(ECLIPSE_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
@@ -299,6 +307,8 @@ run-capella/remote: capella/remote
 		-e CONNECTION_METHOD=$(CONNECTION_METHOD) \
 		-e AUTOSTART_CAPELLA=$(AUTOSTART_CAPELLA) \
 		-e XPRA_SUBPATH=$(XPRA_SUBPATH) \
+		-e MEMORY_MIN=$(MEMORY_MIN) \
+		-e MEMORY_MAX=$(MEMORY_MAX) \
 		-p $(RDP_PORT):3389 \
 		-p $(WEB_PORT):10000 \
 		-p $(METRICS_PORT):9118 \
@@ -312,6 +322,8 @@ run-papyrus/remote: papyrus/remote
 		-e CONNECTION_METHOD=$(CONNECTION_METHOD) \
 		-e XPRA_SUBPATH=$(XPRA_SUBPATH) \
 		-e WORKSPACE_DIR=/workspace/papyrus \
+		-e MEMORY_MIN=$(MEMORY_MIN) \
+		-e MEMORY_MAX=$(MEMORY_MAX) \
 		-p $(RDP_PORT):3389 \
 		-p $(WEB_PORT):10000 \
 		-p $(METRICS_PORT):9118 \
@@ -324,6 +336,8 @@ run-eclipse/remote: eclipse/remote
 		-e CONNECTION_METHOD=$(CONNECTION_METHOD) \
 		-e XPRA_SUBPATH=$(XPRA_SUBPATH) \
 		-e WORKSPACE_DIR=/workspace/eclipse \
+		-e MEMORY_MIN=$(MEMORY_MIN) \
+		-e MEMORY_MAX=$(MEMORY_MAX) \
 		-p $(RDP_PORT):3389 \
 		-p $(WEB_PORT):10000 \
 		-p $(METRICS_PORT):9118 \
@@ -338,6 +352,8 @@ run-eclipse/remote/pure-variants: eclipse/remote/pure-variants
 		-e CONNECTION_METHOD=$(CONNECTION_METHOD) \
 		-e XPRA_SUBPATH=$(XPRA_SUBPATH) \
 		-e WORKSPACE_DIR=/workspace/eclipse_pv \
+		-e MEMORY_MIN=$(MEMORY_MIN) \
+		-e MEMORY_MAX=$(MEMORY_MAX) \
 		-v $$(pwd)/volumes/pure-variants:/inputs/pure-variants \
 		-v $$(pwd)/volumes/workspace:/workspace \
 		-v $$(pwd)/pure-variants/versions:/opt/versions \
@@ -358,6 +374,8 @@ run-t4c/client/remote-legacy: t4c/client/remote
 		-e T4C_USERNAME=$(T4C_USERNAME) \
 		-e CONNECTION_METHOD=$(CONNECTION_METHOD) \
 		-e XPRA_SUBPATH=$(XPRA_SUBPATH) \
+		-e MEMORY_MIN=$(MEMORY_MIN) \
+		-e MEMORY_MAX=$(MEMORY_MAX) \
 		-p $(RDP_PORT):3389 \
 		-p $(WEB_PORT):10000 \
 		-p $(METRICS_PORT):9118 \
@@ -372,6 +390,8 @@ run-t4c/client/remote: t4c/client/remote
 		-e T4C_USERNAME=$(T4C_USERNAME) \
 		-e CONNECTION_METHOD=$(CONNECTION_METHOD) \
 		-e XPRA_SUBPATH=$(XPRA_SUBPATH) \
+		-e MEMORY_MIN=$(MEMORY_MIN) \
+		-e MEMORY_MAX=$(MEMORY_MAX) \
 		-p $(RDP_PORT):3389 \
 		-p $(WEB_PORT):10000 \
 		-p $(METRICS_PORT):9118 \
@@ -379,14 +399,14 @@ run-t4c/client/remote: t4c/client/remote
 
 run-t4c/client/remote/pure-variants: t4c/client/remote/pure-variants
 	docker run $(DOCKER_RUN_FLAGS) \
+		-v $$(pwd)/volumes/pure-variants:/inputs/pure-variants \
+		-v $$(pwd)/volumes/workspace:/workspace \
 		-e T4C_LICENCE_SECRET=$(T4C_LICENCE_SECRET) \
 		-e T4C_JSON=$(T4C_JSON) \
 		-e RMT_PASSWORD=$(RMT_PASSWORD) \
 		-e T4C_USERNAME=$(T4C_USERNAME) \
 		-e PURE_VARIANTS_LICENSE_SERVER=$(PURE_VARIANTS_LICENSE_SERVER) \
 		-e PURE_VARIANTS_KNOWN_SERVERS=$(PURE_VARIANTS_KNOWN_SERVERS) \
-		-v $$(pwd)/volumes/pure-variants:/inputs/pure-variants \
-		-v $$(pwd)/volumes/workspace:/workspace \
 		-e AUTOSTART_CAPELLA=$(AUTOSTART_CAPELLA) \
 		-e CONNECTION_METHOD=$(CONNECTION_METHOD) \
 		-e XPRA_SUBPATH=$(XPRA_SUBPATH) \
