@@ -14,42 +14,15 @@ ENV SHELL=/bin/bash
 FROM base as old_gtk_true
 
 ONBUILD USER root
-
-# Install WebKit with GTK
-ONBUILD COPY libs /tmp/libs
-ONBUILD ARG INJECT_PACKAGES=false
-# hadolint ignore=SC2046
-ONBUILD RUN if [ "$INJECT_PACKAGES" = "true" ]; then \
-    apt-get update && \
-    # Inject old packages manually
-    apt-get install -y $(find /tmp/libs -iname "*.deb"); \
-    rm -rf /var/lib/apt/lists/*; \
-    rm -r /tmp/libs; \
-    else \
-    # Download old packages from the Ubuntu focal registry
-    ## Add source
-    echo "deb http://de.archive.ubuntu.com/ubuntu/ focal main" >> /etc/apt/sources.list.d/focal.list; \
-    ## Import the required keys
-    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32; \
-    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 871920D1991BC93C; \
-    apt-get update; \
-    ## Install the packages
-    apt-get install -y \
-    libjavascriptcoregtk-4.0-18=2.28.1-1 \
-    libwebkit2gtk-4.0-37=2.28.1-1; \
-    rm /etc/apt/sources.list.d/focal.list; \
-    fi; \
-    rm -rf /var/lib/apt/lists/*;
+ONBUILD RUN echo 'http://dl-cdn.alpinelinux.org/alpine/v3.9/main' >> /etc/apk/repositories && \
+    echo 'http://dl-cdn.alpinelinux.org/alpine/v3.9/community' >> /etc/apk/repositories && \
+    apk update --no-cache && \
+    apk add --force-overwrite webkit2gtk=2.22.2-r0
 
 FROM base as old_gtk_false
 
 ONBUILD USER root
-ONBUILD COPY libs /tmp/libs
-ONBUILD RUN apt-get update && \
-    apt-get install -y \
-    libjavascriptcoregtk-4.0-18 \
-    libwebkit2gtk-4.0-37 && \
-    rm -rf /var/lib/apt/lists/*;
+ONBUILD RUN apk add --no-cache webkit2gtk
 
 FROM old_gtk_${INSTALL_OLD_GTK_VERSION} as base_new
 
@@ -73,19 +46,25 @@ ONBUILD ARG CAPELLA_VERSION="5.2.0"
 ONBUILD ARG BUILD_ARCHITECTURE="amd"
 ONBUILD COPY ./versions/${CAPELLA_VERSION}/${BUILD_ARCHITECTURE}/capella.* /opt/
 
-
 FROM build_${BUILD_TYPE}
 
 ARG CAPELLA_VERSION
 
-RUN apt-get update && \
-    apt-get install -y \
-    libxtst6 \
+RUN apk add --no-cache \
+    libxtst \
     xdg-utils \
     xvfb \
     xauth \
-    dbus-x11 && \
-    rm -rf /var/lib/apt/lists/*;
+    dbus-x11 \
+    fontconfig \
+    ttf-dejavu \
+    gcompat \
+    libstdc++ && \
+    if [[ "$CAPELLA_VERSION" == 7.*.* ]]; then \
+        apk add --no-cache openjdk17; \
+    else \
+        apk add --no-cache openjdk11; \
+    fi
 
 RUN if [ -s capella.zip ]; then \
     # Install Capella using zip
@@ -119,7 +98,8 @@ COPY ./versions/${CAPELLA_VERSION}/dropins.yml /opt/dropins.yml
 
 ARG MEMORY_LIMIT=5500m
 
-RUN echo '-Dorg.eclipse.equinox.p2.transport.ecf.retry=15' >> /opt/capella/capella.ini && \
+RUN sed -i "1i -vm\n/usr/bin/java" /opt/capella/capella.ini && \
+    echo '-Dorg.eclipse.equinox.p2.transport.ecf.retry=15' >> /opt/capella/capella.ini && \
     echo '-Dorg.eclipse.ecf.provider.filetransfer.retrieve.readTimeout=10000' >> /opt/capella/capella.ini && \
     sed -i "s/-Xmx[^ ]*/-Xmx$MEMORY_LIMIT/g" /opt/capella/capella.ini
 RUN python install_dropins.py

@@ -13,7 +13,7 @@ USER root
 ARG ECLIPSE_REPOSITORY=https://download.eclipse.org
 
 # https://forums.debian.net/viewtopic.php?t=151997
-RUN apt-get update && apt-get install -y openjdk-17-jre || apt-get install -y openjdk-17-jre
+RUN apk add --no-cache openjdk17
 
 ARG ECLIPSE_VERSION
 ARG BUILD_ARCHITECTURE=amd64

@@ -19,38 +19,21 @@ ENV SHELL=/bin/bash
 USER root
 
 # Install xrdp and dependencies
-RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
+RUN apk add --no-cache \
     xrdp \
-    xserver-xorg-core \
+    xorg-server \
     xorgxrdp \
     openbox \
-    obconf \
-    gettext-base \
+    obconf-qt \
+    gettext \
     xprintidle \
-    nitrogen && rm -rf /var/lib/apt/lists/*
-
-ARG XPRA_REGISTRY=https://xpra.org
-
-# Install xpra and dependencies
-RUN wget -qO /usr/share/keyrings/xpra.asc ${XPRA_REGISTRY}/xpra.asc && \
-    wget -qO /etc/apt/sources.list.d/xpra.sources https://raw.githubusercontent.com/Xpra-org/xpra/master/packaging/repos/bookworm/xpra.sources && \
-    sed -i "s|https://xpra.org|${XPRA_REGISTRY}|" /etc/apt/sources.list.d/xpra.sources && \
-    apt-get update && \
-    apt-get install -y \
-        --no-install-recommends \
-        xpra \
-        xpra-x11 \
-        xpra-html5=10.1-r10-1 \
-        apache2-utils \
-        nginx && \
-    rm -rf /var/lib/apt/lists/*
+    xpra \
+    xpra-webclient \
+    apache2-utils \
+    nginx
 
 COPY rc.xml /etc/xdg/openbox/rc.xml
 COPY menu.xml /etc/xdg/openbox/menu.xml
-
-# Setup Nitrogen (Desktop background)
-COPY wallpaper.png /tmp/wallpaper.png
-COPY bg-saved.cfg /home/techuser/.config/nitrogen/bg-saved.cfg
 
 # Copy Supervisor Configuration
 RUN pip install --no-cache-dir supervisor==4.2.5
@@ -68,10 +51,10 @@ RUN sed -i 's/allowed_users=console/allowed_users=anybody/g' /etc/X11/Xwrapper.c
     chmod 666 /etc/shadow
 
 # Set permissions
-RUN mkdir -p /run/xrdp/sockdir && \
-    chown -R techuser /etc/xrdp /run/xrdp /var/log/xrdp* && \
+RUN mkdir -p /run/xrdp/sockdir /var/log/nginx && \
+    chown -R techuser /etc/xrdp /run/xrdp && \
     chown techuser /var/log && \
-    chown techuser /etc/supervisord.conf /var/log/nginx /var/log/nginx/* && \
+    chown techuser /etc/supervisord.conf /var/log/nginx && \
     chown techuser /etc/nginx && \
     touch /etc/environment && chown techuser /etc/environment
 
