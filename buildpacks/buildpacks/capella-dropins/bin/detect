@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+# Don't cache if capella layer has changed. The symlink has to be updated!
+
+# Otherwise cache if hash of dropins has not changed.

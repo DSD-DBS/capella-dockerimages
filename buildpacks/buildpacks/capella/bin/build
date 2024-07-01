@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+CAPELLA_BUILD_TYPE=${CAPELLA_BUILD_TYPE:-offline}
+BUILD_ARCHITECTURE=$(dpkg --print-architecture)
+PATH_TO_CAPELLA_DIRECTORY=/app/capella/versions/$CAPELLA_VERSION/$BUILD_ARCHITECTURE
+
+if [ "$CAPELLA_BUILD_TYPE" = "online" ]; then
+    python3 /app/capella/download_archive.py $CAPELLA_VERSION;
+else
+    cp /app/capella/versions/$CAPELLA_VERSION/$BUILD_ARCHITECTURE/capella.tar.gz /tmp/capella.tar.gz
+fi
+
+mkdir /tmp/capella;
+tar -xf /tmp/capella.tar.gz -C /tmp/capella;
+
+# Remove samples directory from archive and move to layer
+mkdir ${CNB_LAYERS_DIR}/capella
+mv /tmp/capella/capella/* ${CNB_LAYERS_DIR}/capella;
+
+# Some older archives don't have the correct execute permissions. Fix that.
+chmod +x ${CNB_LAYERS_DIR}/capella/capella
+chmod -R +x ${CNB_LAYERS_DIR}/capella/jre/bin
+chmod -R +x ${CNB_LAYERS_DIR}/capella/jre/lib
+
+# Create Eclipse settings directory
+mkdir -p ${CNB_LAYERS_DIR}/capella/configuration/.settings;
+
+## Do not show WORKSPACE_SELECTION_DIALOG
+echo "SHOW_WORKSPACE_SELECTION_DIALOG=false" >> ${CNB_LAYERS_DIR}/capella/configuration/.settings/org.eclipse.ui.ide.prefs;
+
+mkdir -p ${CNB_LAYERS_DIR}/startup;
+cp /app/capella/setup/* ${CNB_LAYERS_DIR}/startup/;
+cp /app/eclipse/set_memory_flags.py ${CNB_LAYERS_DIR}/startup/;
+
+# Install patches
+PATCH_DIR=/app/capella/versions/$CAPELLA_VERSION/patches /app/capella/patch.sh
+
+# Increase timeout and retries for better stability
+echo '-Dorg.eclipse.equinox.p2.transport.ecf.retry=15' >> /layers/capella/capella/capella.ini
+echo '-Dorg.eclipse.ecf.provider.filetransfer.retrieve.readTimeout=10000' >> /layers/capella/capella/capella.ini
+echo '-Dosgi.configuration.area=file:/layers/capella/capella/configuration' >> /layers/capella/capella/capella.ini
+
+mkdir -p ${CNB_LAYERS_DIR}/meta
+cp /app/capella/git_askpass.py ${CNB_LAYERS_DIR}/meta
+cp /app/capella/entrypoint.sh ${CNB_LAYERS_DIR}/meta
+cp /app/capella/autostart ${CNB_LAYERS_DIR}/meta
+
+cat > "${CNB_LAYERS_DIR}/meta.toml" << EOL
+[types]
+launch = true
+EOL
+
+cat > "${CNB_LAYERS_DIR}/capella.toml" << EOL
+[types]
+launch = true
+EOL
+
+cat > "${CNB_LAYERS_DIR}/startup.toml" << EOL
+[types]
+launch = true
+EOL
+
+cat > "${CNB_LAYERS_DIR}/launch.toml" << EOL
+[[processes]]
+type = "capella"
+command = ["${CNB_LAYERS_DIR}/meta/entrypoint.sh"]
+default = true
+EOL

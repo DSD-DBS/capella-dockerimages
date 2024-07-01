@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+# cat >> "$CNB_BUILD_PLAN_PATH" <<EOL
+# [[provides]]
+# name = "capella-deps"
+# EOL

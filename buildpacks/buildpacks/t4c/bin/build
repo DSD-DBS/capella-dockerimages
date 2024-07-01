@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+mkdir -p ${CNB_LAYERS_DIR}/meta
+cp /app/t4c/docker_entrypoint.sh ${CNB_LAYERS_DIR}/meta
+
+cd t4c/updateSite/$CAPELLA_VERSION
+T4C_ZIP=$(find . -type f -iname "com.thalesgroup.mde.melody.team.license.update-*.zip" | head -n 1 | cut -c 3-); \
+/layers/capella/capella/capella \
+    -consoleLog \
+    -application org.eclipse.equinox.p2.director \
+    -noSplash \
+    -repository jar:file:///opt/updateSite/$T4C_ZIP!/ \
+    -installIU com.thalesgroup.mde.melody.collab.feature.feature.group,com.thalesgroup.mde.melody.collab.maintenance.feature.feature.group,com.thalesgroup.mde.melody.collab.licbranding.feature.feature.group
+
+# Install patches
+PATCH_DIR=t4c/updateSite/$CAPELLA_VERSION /app/capella/patch.sh
+
+cat > "${CNB_LAYERS_DIR}/launch.toml" << EOL
+[[processes]]
+type = "capella"
+command = ["${CNB_LAYERS_DIR}/meta/entrypoint.sh"]
+default = true
+EOL

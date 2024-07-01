@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+cat >>"${CNB_OUTPUT_DIR}/run.Dockerfile" <<EOL
+ARG base_image
+FROM \${base_image}
+USER root
+
+RUN apt-get update && \
+    apt-get install --no-install-recommends -y \
+        libxtst6 \
+        xdg-utils \
+        xvfb \
+        xauth \
+        dbus-x11 && \
+    rm -rf /var/lib/apt/lists/*;
+
+RUN apt-get update && \
+    apt-get install --no-install-recommends -y \
+    libjavascriptcoregtk-4.0-18 \
+    libwebkit2gtk-4.0-37 && \
+    rm -rf /var/lib/apt/lists/*;
+
+ENV BASE_TYPE=capella
+ENV ECLIPSE_INSTALLATION_PATH=/layers/capella/capella
+ENV ECLIPSE_EXECUTABLE=/layers/capella/capella/capella
+ENV AUTOSTART_CAPELLA=1
+ENV RESTART_CAPELLA=1
+
+ARG user_id
+USER \${user_id}
+EOL

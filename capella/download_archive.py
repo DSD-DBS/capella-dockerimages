@@ -57,6 +57,6 @@ if __name__ == "__main__":
 
     download_response = requests.get(download_url)
     download_response.raise_for_status()
-    download_path = pathlib.Path("/opt/capella.tar.gz").write_bytes(
+    download_path = pathlib.Path("/tmp/capella.tar.gz").write_bytes(
         download_response.content
     )

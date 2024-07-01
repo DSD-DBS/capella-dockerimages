@@ -80,8 +80,8 @@ def append_flag_to_file(
 
 if __name__ == "__main__":
     eclipse_executable = pathlib.Path(os.environ["ECLIPSE_EXECUTABLE"])
-    _memory_min = os.environ["MEMORY_MIN"].strip()
-    _memory_max = os.environ["MEMORY_MAX"].strip()
+    _memory_min = os.environ.get("MEMORY_MIN", "70%").strip()
+    _memory_max = os.environ.get("MEMORY_MAX", "90%").strip()
 
     ini_path = eclipse_executable.with_suffix(".ini")
 
