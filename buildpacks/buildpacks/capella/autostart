@@ -1,0 +1,17 @@
+#!/bin/bash
+# SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# Autostart script
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+if [ "$AUTOSTART_CAPELLA" = "1" ];
+then
+    if [ "$RESTART_CAPELLA" = "1" ];
+    then
+        # Run capella in a loop:
+        ( while true; do /layers/capella/app/capella -data ${WORKSPACE_DIR:-/workspace} > /var/log/capella.stdout.log 2> /var/log/capella.stderr.log; sleep 1; done ) &
+    else
+        /layers/capella/app/capella -data ${WORKSPACE_DIR:-/workspace} > /var/log/capella.stdout.log 2> /var/log/capella.stderr.log &
+    fi
+fi

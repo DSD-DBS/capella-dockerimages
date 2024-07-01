@@ -10,8 +10,8 @@ Capella version. In addition, we provide a release train template, which can be
 used to trigger the image builder pipeline with a matrix of Capella versions
 and environments.
 
-<!-- prettier-ignore -->
 !!! warning
+
     To continue, create a new image builder Gitlab repository and follow the instuctions of the image builder template.
 
 The pipeline is not triggered automatically. There are a few options to trigger
@@ -46,19 +46,19 @@ include:
     - when: manual
   variables:
     ENVIRONMENT: staging
-    CAPELLA_DOCKER_IMAGES_REVISION: "$CI_COMMIT_REF_NAME"
-    IMAGE_BUILDER_GITLAB_REPOSITORY: "$IMAGE_BUILDER_GITLAB_REPOSITORY"
-    BUILD_FOR_LATEST_TAG: "0"
+    CAPELLA_DOCKER_IMAGES_REVISION: '$CI_COMMIT_REF_NAME'
+    IMAGE_BUILDER_GITLAB_REPOSITORY: '$IMAGE_BUILDER_GITLAB_REPOSITORY'
+    BUILD_FOR_LATEST_TAG: '0'
 
 .production: &production
   rules:
     # For tags, build for the production environment
-    - if: "$CI_COMMIT_TAG != null"
+    - if: '$CI_COMMIT_TAG != null'
   variables:
     ENVIRONMENT: production
-    CAPELLA_DOCKER_IMAGES_REVISION: "$CI_COMMIT_REF_NAME"
-    IMAGE_BUILDER_GITLAB_REPOSITORY: "$IMAGE_BUILDER_GITLAB_REPOSITORY"
-    BUILD_FOR_LATEST_TAG: "1"
+    CAPELLA_DOCKER_IMAGES_REVISION: '$CI_COMMIT_REF_NAME'
+    IMAGE_BUILDER_GITLAB_REPOSITORY: '$IMAGE_BUILDER_GITLAB_REPOSITORY'
+    BUILD_FOR_LATEST_TAG: '1'
 
 production-base:
   extends: .base

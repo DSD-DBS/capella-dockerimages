@@ -12,7 +12,7 @@ ENV SHELL=/bin/bash
 
 RUN apt-get update && \
     apt-get upgrade --yes && \
-    apt-get install --yes \
+    apt-get install --yes --no-install-recommends \
     gettext-base \
     locales \
     python3 \
@@ -46,7 +46,7 @@ ENV HOME=/home/techuser
 # This in analogous to the virtualenv activate script
 # To allow deactivation of the virtualenv, we need to save the old PATH
 ENV _OLD_VIRTUAL_PATH="$PATH"
-ENV VIRTUAL_ENV=/opt/.venv
+ENV VIRTUAL_ENV=/layers/venv/venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 COPY --chmod=755 hooks/* /opt/git/global-hooks/
@@ -57,14 +57,15 @@ RUN ln -s "$(which python3.11)" /usr/bin/python && \
     ln -sf "$(which python3.11)" /usr/bin/python3 && \
     ln -sf "$(which pip3.11)" /usr/local/bin/pip && \
     ln -sf "$(which pip3.11)" /usr/local/bin/pip3 && \
-    python -m venv /opt/.venv && \
+    python -m venv /layers/venv/venv && \
     # Configure pre-commit
-    pip install --no-cache-dir pre-commit lxml PyYAML --no-cache-dir && \
+    pip install --no-cache-dir pre-commit lxml PyYAML && \
     echo "commit-msg post-rewrite pre-commit pre-merge-commit pre-rebase prepare-commit-msg" | xargs -n 1 cp /opt/git/global-hooks/+pre-commit-only.sh && \
     echo "pre-push post-checkout post-commit post-merge" | xargs -n 1 cp /opt/git/global-hooks/+pre-commit-and-lfs.sh && \
     git config --global core.hooksPath /opt/git/global-hooks && \
     chmod -R 755 /opt/git/global-hooks && \
-    chown -R techuser /opt/.venv/bin/ /opt/.venv/lib/python3.11/site-packages
+    chown -R techuser ${VIRTUAL_ENV}/bin/ ${VIRTUAL_ENV}/lib/python3.11/site-packages && \
+    chown -R techuser /var/log
 
 # Make pre-commit cache persistent
 ENV PRE_COMMIT_HOME=/workspace/.pre-commit

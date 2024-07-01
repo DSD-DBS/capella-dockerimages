@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
+# SPDX-License-Identifier: Apache-2.0
+
+set -eo pipefail
+
+cat >> "/layers/supervisord/app/supervisord.conf" << EOL
+[program:idletime]
+command=/layers/xidletime/app/venv/bin/python /layers/xidletime/app/metrics.py
+user=techuser
+autorestart=true
+environment=DISPLAY=":10"
+EOL
+
+mkdir -p ${CNB_LAYERS_DIR}/app
+
+python3 -m venv ${CNB_LAYERS_DIR}/app/venv
+${CNB_LAYERS_DIR}/app/venv/bin/pip install --no-cache-dir prometheus-client
+
+cp /app/buildpacks/buildpacks/xidletime/metrics.py ${CNB_LAYERS_DIR}/app/metrics.py
+
+cat > "${CNB_LAYERS_DIR}/app.toml" << EOL
+[types]
+launch = true
+EOL

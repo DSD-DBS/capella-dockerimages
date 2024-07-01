@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
+# SPDX-License-Identifier: Apache-2.0
+
+set -eo pipefail
+
+CAPELLA_BUILD_TYPE=${CAPELLA_BUILD_TYPE:-offline}
+BUILD_ARCHITECTURE=$(dpkg --print-architecture)
+PATH_TO_CAPELLA_DIRECTORY=/app/capella/versions/$CAPELLA_VERSION/$BUILD_ARCHITECTURE
+
+if [[ -z $CAPELLA_VERSION ]]; then
+    echo "CAPELLA_VERSION is not set."
+    exit 100
+fi
+
+if [[ -z $BUILD_ARCHITECTURE ]]; then
+    echo "BUILD_ARCHITECTURE is not set."
+    exit 100
+fi
+
+if [ "$BUILD_ARCHITECTURE" != "amd64" ] && [ "$BUILD_ARCHITECTURE" != "arm64" ]; then
+    echo "BUILD_ARCHITECTURE must be one of 'amd64' or 'arm64'. Is '$BUILD_ARCHITECTURE'."
+    exit 100
+fi
+
+# Validate CAPELLA_BUILD_TYPE
+if [ "$CAPELLA_BUILD_TYPE" != "online" ] && [ "$CAPELLA_BUILD_TYPE" != "offline" ]; then
+    echo "CAPELLA_BUILD_TYPE must be one of 'online' or 'offline'."
+    exit 100
+fi
+
+# Check if build mode is online, architecture is x86_64 (aarch64 not supported)
+if [ "$BUILD_ARCHITECTURE" = "amd64" ] && [ "$CAPELLA_BUILD_TYPE" = "online" ]; then
+    echo "Online is not supported for arm64."
+    exit 100
+fi
+
+# Check if build mode is online or capella.tar.gz exists
+if [ "$CAPELLA_BUILD_TYPE" = "offline" ] && [[ ! -f $PATH_TO_CAPELLA_DIRECTORY/capella.tar.gz ]]; then
+    echo "Couldn't find capella/versions/$CAPELLA_VERSION/$BUILD_ARCHITECTURE/capella.tar.gz."
+    echo "Add the mentioned file or use '--env CAPELLA_BUILD_TYPE=online'."
+    exit 100
+fi
+
+# Check if CAPELLA_FORCE_REDOWNLOAD=1 is set
+
+# Validate the checksum of the capella.tar.gz

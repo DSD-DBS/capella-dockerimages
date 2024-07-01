@@ -4,34 +4,36 @@
 model-validation:
   image:
     name: $DOCKER_REGISTRY/capella/base:${CAPELLA_DOCKER_IMAGES_TAG}
-    entrypoint: [""]
+    entrypoint: ['']
   script:
     # As our containers run with techuser (non-root) git commands fail with dubious ownership, see <https://gitlab.com/gitlab-org/gitlab-runner/-/issues/29022> for the solution.
     - git config --global --add safe.directory ${CI_PROJECT_DIR}
     - git fetch
-    - if [ ! -z $CI_COMMIT_BRANCH ]; then git reset --hard origin/$CI_COMMIT_BRANCH; fi
+    - if [ ! -z $CI_COMMIT_BRANCH ]; then git reset --hard
+      origin/$CI_COMMIT_BRANCH; fi
     - BUILD_DIR=$(pwd)
-    - if [ ! -f ".project" ]; then echo "The model validator requires a '.project' file!" && exit 1; fi
-    - 'if [[ "$(dirname "${ENTRYPOINT}")" != "." ]]; then echo ''The model validator requires a "*.aird" in the root level of the repository!'' && exit 1; fi'
+    - if [ ! -f ".project" ]; then echo "The model validator requires a
+      '.project' file!" && exit 1; fi
+    - 'if [[ "$(dirname "${ENTRYPOINT}")" != "." ]]; then echo ''The model
+      validator requires a "*.aird" in the root level of the repository!'' &&
+      exit 1; fi'
     - mkdir /tmp/project
     - cp -r . /tmp/project
     - cd /tmp
     - >
-      xvfb-run /opt/capella/capella
-      -nosplash
-      -application org.polarsys.capella.core.commandline.core
-      -appid org.polarsys.capella.core.validation.commandline
-      -data "$(pwd)"
-      -input "project/$ENTRYPOINT"
-      -outputfolder "project/validation"
-    - cp "/tmp/project/validation/project/$ENTRYPOINT/validation-results.html" $BUILD_DIR
+      xvfb-run /layers/capella/app/capella -nosplash -application
+      org.polarsys.capella.core.commandline.core -appid
+      org.polarsys.capella.core.validation.commandline -data "$(pwd)" -input
+      "project/$ENTRYPOINT" -outputfolder "project/validation"
+    - cp "/tmp/project/validation/project/$ENTRYPOINT/validation-results.html"
+      $BUILD_DIR
   artifacts:
     paths:
-      - "validation-results.html"
+      - 'validation-results.html'
   variables:
     # Virtual display used to run Capella in the background.
     # Do not modify the value!
-    DISPLAY: ":99"
+    DISPLAY: ':99'
 
     # Docker tag, which is used for the capella/base image.
     # Defaults to ${CAPELLA_VERSION}-${CAPELLA_DOCKER_IMAGES_REVISION} if not defined

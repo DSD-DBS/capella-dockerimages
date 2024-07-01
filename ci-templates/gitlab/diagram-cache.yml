@@ -7,15 +7,13 @@ variables:
 update_capella_diagram_cache:
   image:
     name: $DOCKER_REGISTRY/capella/base:${CAPELLA_DOCKER_IMAGES_TAG}
-    entrypoint: [""]
+    entrypoint: ['']
   script:
-    - pip install "capellambse[cli]@git+https://github.com/DSD-DBS/py-capellambse.git@${CAPELLAMBSE_REVISION}"
+    - pip install
+      "capellambse[cli]@git+https://github.com/DSD-DBS/py-capellambse.git@${CAPELLAMBSE_REVISION}"
     - mkdir diagram_cache
-    - xvfb-run python -m capellambse.diagram_cache
-        --model "${ENTRYPOINT}"
-        --output ./diagram_cache
-        --index
-        --exe "/opt/capella/capella"
+    - xvfb-run python -m capellambse.diagram_cache --model "${ENTRYPOINT}"
+      --output ./diagram_cache --index --exe "/layers/capella/app/capella"
     - |
       if [[ "${PUSH_DIAGRAM_CACHE}" == "false" ]]; then
         exit 0
@@ -27,11 +25,11 @@ update_capella_diagram_cache:
       git push -o ci.skip --set-upstream origin ${DERIVED_BRANCH_NAME} --force
   artifacts:
     paths:
-      - "diagram_cache"
+      - 'diagram_cache'
   variables:
     # Virtual display used to run Capella in the background.
     # Do not modify the value!
-    DISPLAY: ":99"
+    DISPLAY: ':99'
 
     # Docker tag, which is used for the capella/base image.
     # Defaults to ${CAPELLA_VERSION}-${CAPELLA_DOCKER_IMAGES_REVISION} if not defined
@@ -39,15 +37,15 @@ update_capella_diagram_cache:
 
     # Whether to push the diagram cache changes or not
     # Defaults to false if not defined
-    PUSH_DIAGRAM_CACHE: "false"
+    PUSH_DIAGRAM_CACHE: 'false'
 
     # The commit message used for updating the diagram cache
     # Defaults to "chore: Update diagram cache" if not defined
-    COMMIT_MSG: "chore: Update diagram cache"
+    COMMIT_MSG: 'chore: Update diagram cache'
 
     # The revision of the py-capellambse package to install
     # Defaults to "master" if not defined
-    CAPELLAMBSE_REVISION: "master"
+    CAPELLAMBSE_REVISION: 'master'
 
     # Relative entrypoint to .aird file inside repository (starting from the root of the repository).
     # Example: test/test.aird

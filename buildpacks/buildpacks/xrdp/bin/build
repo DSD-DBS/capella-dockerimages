@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
+# SPDX-License-Identifier: Apache-2.0
+
+set -eo pipefail
+
+mkdir -p ${CNB_LAYERS_DIR}/app/exec.d
+cp /app/buildpacks/buildpacks/xrdp/exec.d/* ${CNB_LAYERS_DIR}/app/exec.d
+chmod +x ${CNB_LAYERS_DIR}/app/exec.d/*
+
+mkdir -p ${CNB_LAYERS_DIR}/app
+cp /app/buildpacks/buildpacks/xrdp/rc.xml ${CNB_LAYERS_DIR}/app/rc.xml
+cp /app/buildpacks/buildpacks/xrdp/menu.xml ${CNB_LAYERS_DIR}/app/menu.xml
+
+cat > "${CNB_LAYERS_DIR}/app.toml" << EOL
+[types]
+launch = true
+EOL
