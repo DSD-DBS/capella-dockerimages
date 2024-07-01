@@ -12,10 +12,25 @@ theme:
   features:
     - content.code.copy
     - content.code.annotate
+    - navigation.sections
+  icon:
+    admonition:
+      commercial: fontawesome/solid/dollar-sign
+
 nav:
   - Introduction: index.md
-  - Base: base.md
-  - Git hooks (pre-commit): git-hooks/git-hooks.md
+  - Base:
+      - Capella: base/capella/index.md
+      - Papyrus: base/papyrus/index.md
+      - Eclipse: base/eclipse/index.md
+      - Jupyter: base/jupyter/index.md
+  - Extensions:
+      - TeamForCapella: extensions/t4c.md
+      - 'pure::variants': extensions/pure-variants.md
+      - Remote: extensions/remote.md
+  - Hints:
+      - Memory Options for JVM: hints/memory-options.md
+      - Git hooks (pre-commit): hints/git-hooks/index.md
   - CI/CD templates:
       - Index: ci-templates/index.md
       - Gitlab:
@@ -27,29 +42,9 @@ nav:
           - Test container clean up: ci-templates/gitlab/cleanup.md
       - Github:
           - Diagram cache: ci-templates/github/diagram-cache.md
-  - Jupyter Notebooks: jupyter/index.md
-  - Capella:
-      - Introduction: capella/introduction.md
-      - Base: capella/base.md
-      - Remote: remote.md
-      - Provisioning: capella/provisioning.md
-      - 'pure::variants': pure-variants.md
-      - Build from source: capella/build-from-source.md
-      - Team4Capella client:
-          - Introduction: capella/t4c/introduction.md
-          - Base: capella/t4c/base.md
-          - Exporter: capella/t4c/exporter.md
-          - Importer: capella/t4c/importer.md
-          - Remote: remote.md
-  - Papyrus:
-      - Base: papyrus/base.md
-  - Eclipse:
-      - Base: eclipse/base.md
-      - Memory Options: eclipse/memory-options.md
-      - 'pure::variants': pure-variants.md
-  - Remote: remote.md
   - Development:
       - Testing: development/testing.md
+      - Buildpacks: development/buildpacks.md
 
 repo_url: https://github.com/DSD-DBS/capella-dockerimages
 edit_uri: edit/master/docs/docs
@@ -62,6 +57,7 @@ markdown_extensions:
   - abbr
   - pymdownx.snippets
   - attr_list
+  - md_in_html
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
@@ -80,4 +76,7 @@ markdown_extensions:
 extra:
   generator: false
 
-copyright: Copyright &copy; 2022-2023 DB InfraGO AG
+extra_css:
+  - stylesheets/commercial.css
+
+copyright: Copyright &copy; 2022-2024 DB InfraGO AG

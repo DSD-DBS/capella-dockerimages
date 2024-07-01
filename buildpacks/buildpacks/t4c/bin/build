@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+# SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
+# SPDX-License-Identifier: Apache-2.0
+
+set -eo pipefail
+
+mkdir -p ${CNB_LAYERS_DIR}/meta
+cp /app/buildpacks/buildpacks/t4c/entrypoint.sh ${CNB_LAYERS_DIR}/meta
+
+mkdir -p ${CNB_LAYERS_DIR}/meta/exec.d
+cp /app/buildpacks/buildpacks/t4c/exec.d/* ${CNB_LAYERS_DIR}/meta/exec.d
+chmod +x ${CNB_LAYERS_DIR}/meta/exec.d/*
+
+# Compute a diff (all files created when installing the T4C extension)
+capella_layer=/layers/capella/app
+capella_tmp_layer=$(mktemp -d)
+t4c_diff_layer=${CNB_LAYERS_DIR}/app
+
+# Snapshot before installation of T4C extension
+rsync -a ${capella_layer}/ ${capella_tmp_layer}/
+
+# Install T4C client
+T4C_ZIP=$(find /app/t4c/updateSite/$CAPELLA_VERSION -type f -iname "com.thalesgroup.mde.melody.team.license.update-*.zip" | head -n 1); \
+${capella_tmp_layer}/capella \
+    -clean \
+    -data $(mktemp -d) \
+    -consoleLog \
+    -application org.eclipse.equinox.p2.director \
+    -noSplash \
+    -repository jar:file://${T4C_ZIP}!/ \
+    -installIU com.thalesgroup.mde.melody.collab.feature.feature.group,com.thalesgroup.mde.melody.collab.maintenance.feature.feature.group,com.thalesgroup.mde.melody.collab.licbranding.feature.feature.group
+
+# Install patches
+PATCH_DIR=/app/t4c/updateSite/$CAPELLA_VERSION /app/capella/patch.sh
+
+# Compute diff
+rsync -a --compare-dest=${capella_layer}/ ${capella_tmp_layer}/ ${t4c_diff_layer}/
+
+# Install T4C CLI
+mkdir -p ${CNB_LAYERS_DIR}/cli
+python3 -m venv ${CNB_LAYERS_DIR}/cli
+
+cat > "${CNB_LAYERS_DIR}/app.toml" << EOL
+[types]
+launch = true
+EOL
+
+cat > "${CNB_LAYERS_DIR}/meta.toml" << EOL
+[types]
+launch = true
+EOL
+
+cat > "${CNB_LAYERS_DIR}/cli.toml" << EOL
+[types]
+launch = true
+EOL
+
+cat > "${CNB_LAYERS_DIR}/launch.toml" << EOL
+[[processes]]
+type = "t4c"
+command = ["${CNB_LAYERS_DIR}/meta/entrypoint.sh"]
+default = true
+EOL

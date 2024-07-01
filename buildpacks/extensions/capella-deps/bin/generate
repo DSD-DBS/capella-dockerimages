@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
+# SPDX-License-Identifier: Apache-2.0
+
+set -eo pipefail
+
+cat >> "${CNB_OUTPUT_DIR}/run.Dockerfile" <<EOL
+ARG base_image
+FROM \${base_image}
+USER root
+EOL
+
+# Invalidate cache if DISABLE_CAPELLA_DEPS_CACHE is set.
+if [ "$DISABLE_CAPELLA_DEPS_CACHE" == "1" ]; then
+    echo "ARG build_id" >> "${CNB_OUTPUT_DIR}/run.Dockerfile"
+fi
+
+cat >> "${CNB_OUTPUT_DIR}/run.Dockerfile" <<EOL
+RUN apt-get update && \
+    apt-get install --no-install-recommends -y \
+        libxtst6 \
+        xdg-utils \
+        xvfb \
+        xauth \
+        dbus-x11 && \
+    rm -rf /var/lib/apt/lists/*;
+
+RUN apt-get update && \
+    apt-get install --no-install-recommends -y \
+    libjavascriptcoregtk-4.0-18 \
+    libwebkit2gtk-4.0-37 && \
+    rm -rf /var/lib/apt/lists/*;
+
+ARG user_id
+USER \${user_id}
+EOL

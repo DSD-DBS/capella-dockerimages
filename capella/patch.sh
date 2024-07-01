@@ -2,13 +2,15 @@
 # SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
 # SPDX-License-Identifier: Apache-2.0
 
-if [[ -n "${PATCH_DIR:?}/patch_info.csv" ]];
+if [[ -f "${PATCH_DIR:?}/patch_info.csv" ]];
 then
     while IFS="," read -r patch_zip install_iu tag
     do
         INSTALL_IU_JOIN=$(echo $install_iu | sed "s/ /,/g");
-        /opt/capella/capella \
+        /layers/capella/app/capella \
         -consoleLog \
+        -clean \
+        -data $(mktemp -d) \
         -application org.eclipse.equinox.p2.director \
         -profile DefaultProfile \
         -tag $tag \

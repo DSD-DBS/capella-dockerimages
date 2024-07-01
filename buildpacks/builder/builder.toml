@@ -1,0 +1,68 @@
+# SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
+# SPDX-License-Identifier: Apache-2.0
+
+[[buildpacks]]
+uri = "../buildpacks/pre-commit"
+
+[[buildpacks]]
+uri = "../buildpacks/capella"
+
+[[buildpacks]]
+uri = "../buildpacks/capella-dropins"
+
+[[buildpacks]]
+uri = "../buildpacks/t4c"
+
+[[buildpacks]]
+uri = "../buildpacks/supervisord"
+
+[[buildpacks]]
+uri = "../buildpacks/xpra"
+
+[[buildpacks]]
+uri = "../buildpacks/xrdp"
+
+[[buildpacks]]
+uri = "../buildpacks/xidletime"
+
+[[extensions]]
+uri = "../extensions/base"
+
+[[extensions]]
+uri = "../extensions/capella-deps"
+
+[[extensions]]
+uri = "../extensions/xpra-deps"
+
+[[extensions]]
+uri = "../extensions/xrdp-deps"
+
+[[extensions]]
+uri = "../extensions/xidletime-deps"
+
+[[order]]
+group = [
+    { id = "pre-commit", version = "0.0.0" },
+    { id = "capella", version = "0.0.0" },
+    { id = "capella-dropins", version = "0.0.0" },
+    { id = "t4c", version = "0.0.0", optional = true },
+    { id = "supervisord", version = "0.0.0", optional = true },
+    { id = "xpra", version = "0.0.0", optional = true },
+    { id = "xrdp", version = "0.0.0", optional = true },
+    { id = "xidletime", version = "0.0.0", optional = true },
+]
+
+[[order-extensions]]
+group = [
+    { id = "base", version = "0.0.0" },
+    { id = "capella-deps", version = "0.0.0" },
+    { id = "xpra-deps", version = "0.0.0", optional = true },
+    { id = "xrdp-deps", version = "0.0.0", optional = true },
+    { id = "xidletime-deps", version = "0.0.0", optional = true },
+]
+
+[build]
+image = "localhost:12345/buildpacks-base"
+[run]
+[[run.images]]
+image = "localhost:12345/run-base"

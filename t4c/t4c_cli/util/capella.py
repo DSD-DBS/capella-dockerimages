@@ -16,7 +16,7 @@ logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 log = logging.getLogger(__name__)
 
 DEFAULT_CAPELLA_COMMAND = [
-    "/opt/capella/capella",
+    "/layers/capella/app/capella",
     "--launcher.suppressErrors",
     "-nosplash",
     "-console",

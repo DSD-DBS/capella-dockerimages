@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
+# SPDX-License-Identifier: Apache-2.0
+
+set -eo pipefail
+
+shopt -s nullglob
+
+matches=(/app/t4c/updateSite/$CAPELLA_VERSION/com.thalesgroup.mde.melody.team.license.update-*.zip)
+count_matches=${#matches[@]}
+if [ $count_matches -lt 1 ]; then
+    echo "Couldn't find com.thalesgroup.mde.melody.team.license.update-*.zip in t4c/updateSite/$CAPELLA_VERSION."
+    exit 1
+elif [ $count_matches -gt 1 ]; then
+    echo "Found more than one com.thalesgroup.mde.melody.team.license.update-*.zip in t4c/updateSite/$CAPELLA_VERSION:"
+    echo $matches
+    exit 1
+fi

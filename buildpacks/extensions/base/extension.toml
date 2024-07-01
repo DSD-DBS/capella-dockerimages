@@ -1,0 +1,9 @@
+# SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
+# SPDX-License-Identifier: Apache-2.0
+
+api = "0.11"
+
+[extension]
+id = "base"
+name = "Basic setup"
+version = "0.0.0"

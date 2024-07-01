@@ -71,9 +71,6 @@ GIT_SERVER_PORT ?= 10001
 # Preferred metrics port on your host system
 METRICS_PORT ?= 9118
 
-# Capella version used for builds and tests
-export CAPELLA_VERSIONS ?= 5.0.0 5.2.0 6.0.0 6.1.0
-
 # Capella version used to run containers
 export CAPELLA_VERSION ?= 6.1.0
 
@@ -86,8 +83,7 @@ AUTOSTART_CAPELLA ?= 1
 # See available options in documentation: https://dsd-dbs.github.io/capella-dockerimages/capella/base/#optional-customisation-of-the-capella-client
 CAPELLA_DROPINS ?= ModelsImporter,CapellaXHTMLDocGen,DiagramStyler,PVMT,Filtering,Requirements,SubsystemTransition,TextualEditor
 
-# Only use when "capella_loop.sh" is NOT used
-export DOCKER_TAG_SCHEMA ?= $$CAPELLA_VERSION-$$CAPELLA_DOCKERIMAGES_REVISION
+export DOCKER_TAG ?= $(CAPELLA_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
 
 PAPYRUS_VERSION ?= 6.4.0
 
@@ -112,15 +108,14 @@ INSTALL_OLD_GTK_VERSION ?= true
 PURE_VARIANTS_LICENSE_SERVER ?= http://localhost:8080
 PURE_VARIANTS_KNOWN_SERVERS ?= '[{"name": "test", "url": "http://example.localhost"}]'
 
-# Inject libraries from the capella/libs directory
-INJECT_LIBS_CAPELLA ?= false
-
-# Build architecture: amd64 or arm64
+# Target build architecture: amd64 or arm64
 BUILD_ARCHITECTURE ?= amd64
 
 DOCKER_BUILD_FLAGS ?= --platform linux/$(BUILD_ARCHITECTURE)
 DOCKER_RUN_FLAGS ?= --add-host=host.docker.internal:host-gateway --rm -it
-DOCKER_DEBUG_FLAGS ?= -it --entrypoint="bash" -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=$$DISPLAY
+DOCKER_DEBUG_FLAGS ?= -it --entrypoint="bash"
+
+PACK_BUILD_FLAGS ?= --path ./buildpacks --pull-policy always --volume $$PWD:/app:ro
 
 # If set to 1, we will push the images to the specified registry
 PUSH_IMAGES ?= 0
@@ -160,134 +155,65 @@ export MAKE_CURRENT_TARGET=$@
 SHELL=/bin/bash
 
 all: \
-	base \
-	jupyter-notebook \
-	capella/base \
-	capella/remote \
-	t4c/client/base \
-	t4c/client/remote \
-	t4c/client/remote/pure-variants \
-	capella/remote/pure-variants
+	jupyter \
+	capella \
+	papyrus \
+	eclipse
 
-base: SHELL=/bin/bash
-base:
-	docker build $(DOCKER_BUILD_FLAGS) \
-		--build-arg UID=$(TECHUSER_UID) \
-		-t $(DOCKER_PREFIX)$@:$(CAPELLA_DOCKERIMAGES_REVISION) \
-		base
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) DOCKER_TAG=$(CAPELLA_DOCKERIMAGES_REVISION) IMAGENAME=$@ .push
+builder:
+	docker build buildpacks/builder -f buildpacks/builder/build.Dockerfile \
+		--build-arg CNB_USER_ID=$(TECHUSER_UID) \
+		-t $(DOCKER_REGISTRY)/buildpacks-base
+	docker push $(DOCKER_REGISTRY)/buildpacks-base
+	docker build buildpacks/builder \
+		-f buildpacks/builder/run.Dockerfile \
+		--build-arg TECHUSER_USER_ID=$(TECHUSER_UID) \
+		-t $(DOCKER_REGISTRY)/run-base
+	docker push $(DOCKER_REGISTRY)/run-base
+	pack builder create $(DOCKER_REGISTRY)/mbse-builder \
+		--config buildpacks/builder/builder.toml \
+		--publish
 
-jupyter-notebook: DOCKER_TAG=$(JUPYTER_NOTEBOOK_REVISION)
-jupyter-notebook: base
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) jupyter-notebook
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) DOCKER_TAG=$(DOCKER_TAG) IMAGENAME=$@ .push
+jupyter: builder
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(JUPYTER_NOTEBOOK_REVISION) jupyter-notebook
+	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) DOCKER_TAG=$(JUPYTER_NOTEBOOK_REVISION) IMAGENAME=$@ .push
 
-capella/base: SHELL=./capella_loop.sh
-capella/base: base
-	envsubst < capella/.dockerignore.template > capella/.dockerignore
-	cp eclipse/set_memory_flags.py capella/setup/set_memory_flags.py
-	docker build $(DOCKER_BUILD_FLAGS) \
-		-t $(DOCKER_PREFIX)$@:$$DOCKER_TAG \
-		--build-arg BUILD_ARCHITECTURE=$(BUILD_ARCHITECTURE) \
-		--build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(CAPELLA_DOCKERIMAGES_REVISION) \
-		--build-arg BUILD_TYPE=$(CAPELLA_BUILD_TYPE) \
-		--build-arg CAPELLA_VERSION=$$CAPELLA_VERSION \
-		--build-arg "CAPELLA_DROPINS=$(CAPELLA_DROPINS)" \
-		--build-arg "INJECT_PACKAGES=$(INJECT_LIBS_CAPELLA)" \
-		--build-arg INSTALL_OLD_GTK_VERSION=$(INSTALL_OLD_GTK_VERSION) \
-		capella
-	rm capella/.dockerignore
-	rm capella/setup/set_memory_flags.py
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
+capella: builder
+	pack build $(DOCKER_REGISTRY)/$(DOCKER_PREFIX)$@:$(DOCKER_TAG) \
+		--env TOOL=capella \
+		--env CAPELLA_BUILD_TYPE=$(CAPELLA_BUILD_TYPE) \
+		--env CAPELLA_VERSION=$$CAPELLA_VERSION \
+		--env CAPELLA_DROPINS="$(CAPELLA_DROPINS)" \
+		--builder localhost:12345/mbse-builder \
+		--uid $(TECHUSER_UID) \
+		--network host \
+		$(PACK_BUILD_FLAGS)
 
-papyrus/base: DOCKER_TAG=$(PAPYRUS_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
-papyrus/base: DOCKER_BUILD_FLAGS=--platform linux/amd64
-papyrus/base: base
+papyrus: DOCKER_BUILD_FLAGS=--platform linux/amd64
+papyrus: base
 	cp eclipse/set_memory_flags.py papyrus/set_memory_flags.py
 	docker build $(DOCKER_BUILD_FLAGS) \
-		-t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) \
+		-t $(DOCKER_PREFIX)$@:$(PAPYRUS_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION) \
 		--build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(CAPELLA_DOCKERIMAGES_REVISION) \
-		--build-arg PAPYRUS_VERSION=$(PAPYRUS_VERSION) \
+		--build-arg PAPYRUS_VERSION=$(PAPYRUS_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION) \
 		papyrus
 	rm papyrus/set_memory_flags.py
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) DOCKER_TAG=$(DOCKER_TAG) IMAGENAME=$@ .push
 
-eclipse/base: DOCKER_TAG=$(ECLIPSE_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
-eclipse/base: base
+eclipse: base
 	docker build $(DOCKER_BUILD_FLAGS) \
-		-t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) \
+		-t $(DOCKER_PREFIX)$@:$(ECLIPSE_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION) \
 		--build-arg BUILD_ARCHITECTURE=$(BUILD_ARCHITECTURE) \
 		--build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(CAPELLA_DOCKERIMAGES_REVISION) \
 		--build-arg ECLIPSE_VERSION=$(ECLIPSE_VERSION) \
 		eclipse
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) DOCKER_TAG=$(DOCKER_TAG) IMAGENAME=$@ .push
-
-capella/remote: SHELL=./capella_loop.sh
-capella/remote: capella/base
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG remote
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
-
-papyrus/remote: DOCKER_TAG=$(PAPYRUS_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
-papyrus/remote: DOCKER_BUILD_FLAGS=--platform linux/amd64
-papyrus/remote: papyrus/base
-	docker build $(DOCKER_BUILD_FLAGS) \
-		-t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) \
-		--build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(DOCKER_TAG) \
-		remote
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) DOCKER_TAG=$(DOCKER_TAG) IMAGENAME=$@ .push
-
-eclipse/remote: DOCKER_TAG=$(ECLIPSE_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
-eclipse/remote: eclipse/base
-	docker build $(DOCKER_BUILD_FLAGS) \
-		-t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) \
-		--build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(DOCKER_TAG) \
-		remote
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) DOCKER_TAG=$(DOCKER_TAG) IMAGENAME=$@ .push
-
-eclipse/remote/pure-variants: DOCKER_TAG=$(ECLIPSE_VERSION)-$(PURE_VARIANTS_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
-eclipse/remote/pure-variants: eclipse/remote
-	docker build $(DOCKER_BUILD_FLAGS) \
-		-t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) \
-		--build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(ECLIPSE_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION) \
-		--build-arg PURE_VARIANTS_VERSION=$(PURE_VARIANTS_VERSION) \
-		pure-variants
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) DOCKER_TAG=$(DOCKER_TAG) IMAGENAME=$@ .push
-
-t4c/client/base: SHELL=./capella_loop.sh
-t4c/client/base: capella/base
-	envsubst < t4c/.dockerignore.template > t4c/.dockerignore
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG --build-arg CAPELLA_VERSION=$$CAPELLA_VERSION t4c
-	rm t4c/.dockerignore
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
-
-t4c/client/remote: SHELL=./capella_loop.sh
-t4c/client/remote: t4c/client/base
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG remote
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
-
-t4c/client/remote/pure-variants: SHELL=./capella_loop.sh
-t4c/client/remote/pure-variants: t4c/client/remote
-	docker build $(DOCKER_BUILD_FLAGS) \
-		-t $(DOCKER_PREFIX)$@:$$DOCKER_TAG \
-		--build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG \
-		--build-arg PURE_VARIANTS_VERSION=$(PURE_VARIANTS_VERSION) \
-		pure-variants
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
-
-capella/remote/pure-variants: SHELL=./capella_loop.sh
-capella/remote/pure-variants: capella/remote
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG pure-variants
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
-
-capella/builder:
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(CAPELLA_DOCKERIMAGES_REVISION) builder
-	docker run -it -e CAPELLA_VERSION=$(CAPELLA_VERSION) -v $$(pwd)/builder/output/$(CAPELLA_VERSION):/output -v $$(pwd)/builder/m2_cache:/root/.m2/repository $(DOCKER_PREFIX)$@:$(CAPELLA_DOCKERIMAGES_REVISION)
+	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) DOCKER_TAG=$(ECLIPSE_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION) IMAGENAME=$@ .push
 
 run-capella/base: capella/base
 	docker run $(DOCKER_RUN_FLAGS) \
 		$(DOCKER_PREFIX)$<:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
 
-run-jupyter-notebook: jupyter-notebook
+run-jupyter: jupyter
 	docker run $(DOCKER_RUN_FLAGS) \
 		-p $(WEB_PORT):8888 \
 		-p $(METRICS_PORT):9118 \
@@ -296,26 +222,27 @@ run-jupyter-notebook: jupyter-notebook
 		-e JUPYTER_BASE_URL=/subpath \
 		$(DOCKER_PREFIX)$<:$(JUPYTER_NOTEBOOK_REVISION)
 
-run-capella/remote: capella/remote
-	FLAGS="";
-	if [ -n "$(WORKSPACE_NAME)" ]; then \
-		FLAGS="-v $$(pwd)/volumes/workspaces/$(WORKSPACE_NAME):/workspace"; \
-	fi
+run-capella/remote: capella
 	docker run $(DOCKER_RUN_FLAGS) \
 		$$FLAGS \
+		-v $$(pwd)/volumes/pure-variants:/inputs/pure-variants \
+		-e T4C_LICENCE_SECRET=$(T4C_LICENCE_SECRET) \
+		-e T4C_JSON=$(T4C_JSON) \
 		-e RMT_PASSWORD=$(RMT_PASSWORD) \
-		-e CONNECTION_METHOD=$(CONNECTION_METHOD) \
+		-e T4C_USERNAME=$(T4C_USERNAME) \
+		-e PURE_VARIANTS_LICENSE_SERVER=$(PURE_VARIANTS_LICENSE_SERVER) \
+		-e PURE_VARIANTS_KNOWN_SERVERS=$(PURE_VARIANTS_KNOWN_SERVERS) \
 		-e AUTOSTART_CAPELLA=$(AUTOSTART_CAPELLA) \
+		-e CONNECTION_METHOD=$(CONNECTION_METHOD) \
 		-e XPRA_SUBPATH=$(XPRA_SUBPATH) \
 		-e MEMORY_MIN=$(MEMORY_MIN) \
 		-e MEMORY_MAX=$(MEMORY_MAX) \
 		-p $(RDP_PORT):3389 \
 		-p $(WEB_PORT):10000 \
 		-p $(METRICS_PORT):9118 \
-		$(DOCKER_PREFIX)$<:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
+		$(DOCKER_REGISTRY)/$(DOCKER_PREFIX)$<:$(DOCKER_TAG)
 
-run-papyrus/remote: DOCKER_TAG=$(PAPYRUS_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
-run-papyrus/remote: papyrus/remote
+run-papyrus/remote: papyrus
 	docker run \
 		--platform linux/amd64 \
 		-e RMT_PASSWORD=$(RMT_PASSWORD) \
@@ -327,24 +254,9 @@ run-papyrus/remote: papyrus/remote
 		-p $(RDP_PORT):3389 \
 		-p $(WEB_PORT):10000 \
 		-p $(METRICS_PORT):9118 \
-		$(DOCKER_PREFIX)$<:$(DOCKER_TAG)
+		$(DOCKER_PREFIX)$<:$(PAPYRUS_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
 
-run-eclipse/remote: DOCKER_TAG=$(ECLIPSE_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
-run-eclipse/remote: eclipse/remote
-	docker run \
-		-e RMT_PASSWORD=$(RMT_PASSWORD) \
-		-e CONNECTION_METHOD=$(CONNECTION_METHOD) \
-		-e XPRA_SUBPATH=$(XPRA_SUBPATH) \
-		-e WORKSPACE_DIR=/workspace/eclipse \
-		-e MEMORY_MIN=$(MEMORY_MIN) \
-		-e MEMORY_MAX=$(MEMORY_MAX) \
-		-p $(RDP_PORT):3389 \
-		-p $(WEB_PORT):10000 \
-		-p $(METRICS_PORT):9118 \
-		$(DOCKER_PREFIX)$<:$(DOCKER_TAG)
-
-run-eclipse/remote/pure-variants: DOCKER_TAG=$(ECLIPSE_VERSION)-$(PURE_VARIANTS_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
-run-eclipse/remote/pure-variants: eclipse/remote/pure-variants
+run-eclipse/remote: eclipse
 	docker run $(DOCKER_RUN_FLAGS) \
 		-e RMT_PASSWORD=$(RMT_PASSWORD) \
 		-e PURE_VARIANTS_LICENSE_SERVER=$(PURE_VARIANTS_LICENSE_SERVER) \
@@ -360,61 +272,8 @@ run-eclipse/remote/pure-variants: eclipse/remote/pure-variants
 		-p $(RDP_PORT):3389 \
 		-p $(WEB_PORT):10000 \
 		-p $(METRICS_PORT):9118 \
-		$(DOCKER_PREFIX)$<:$(DOCKER_TAG)
+		$(DOCKER_PREFIX)$<:$(ECLIPSE_VERSION)-$(PURE_VARIANTS_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
 
-
-run-t4c/client/remote-legacy: t4c/client/remote
-	docker run $(DOCKER_RUN_FLAGS) \
-		-v $$(pwd)/volumes/workspaces/$(WORKSPACE_NAME):/workspace \
-		-e T4C_LICENCE_SECRET=$(T4C_LICENCE_SECRET) \
-		-e T4C_SERVER_HOST=$(T4C_SERVER_HOST) \
-		-e T4C_SERVER_PORT=$(T4C_SERVER_PORT) \
-		-e T4C_REPOSITORIES=$(T4C_REPOSITORIES) \
-		-e RMT_PASSWORD=$(RMT_PASSWORD) \
-		-e T4C_USERNAME=$(T4C_USERNAME) \
-		-e CONNECTION_METHOD=$(CONNECTION_METHOD) \
-		-e XPRA_SUBPATH=$(XPRA_SUBPATH) \
-		-e MEMORY_MIN=$(MEMORY_MIN) \
-		-e MEMORY_MAX=$(MEMORY_MAX) \
-		-p $(RDP_PORT):3389 \
-		-p $(WEB_PORT):10000 \
-		-p $(METRICS_PORT):9118 \
-		$(DOCKER_PREFIX)$<:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
-
-run-t4c/client/remote: t4c/client/remote
-	docker run $(DOCKER_RUN_FLAGS) \
-		-v $$(pwd)/volumes/workspaces/$(WORKSPACE_NAME):/workspace \
-		-e T4C_LICENCE_SECRET=$(T4C_LICENCE_SECRET) \
-		-e T4C_JSON=$(T4C_JSON) \
-		-e RMT_PASSWORD=$(RMT_PASSWORD) \
-		-e T4C_USERNAME=$(T4C_USERNAME) \
-		-e CONNECTION_METHOD=$(CONNECTION_METHOD) \
-		-e XPRA_SUBPATH=$(XPRA_SUBPATH) \
-		-e MEMORY_MIN=$(MEMORY_MIN) \
-		-e MEMORY_MAX=$(MEMORY_MAX) \
-		-p $(RDP_PORT):3389 \
-		-p $(WEB_PORT):10000 \
-		-p $(METRICS_PORT):9118 \
-		$(DOCKER_PREFIX)$<:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
-
-run-t4c/client/remote/pure-variants: t4c/client/remote/pure-variants
-	docker run $(DOCKER_RUN_FLAGS) \
-		-v $$(pwd)/volumes/pure-variants:/inputs/pure-variants \
-		-v $$(pwd)/volumes/workspace:/workspace \
-		-e T4C_LICENCE_SECRET=$(T4C_LICENCE_SECRET) \
-		-e T4C_JSON=$(T4C_JSON) \
-		-e RMT_PASSWORD=$(RMT_PASSWORD) \
-		-e T4C_USERNAME=$(T4C_USERNAME) \
-		-e PURE_VARIANTS_LICENSE_SERVER=$(PURE_VARIANTS_LICENSE_SERVER) \
-		-e PURE_VARIANTS_KNOWN_SERVERS=$(PURE_VARIANTS_KNOWN_SERVERS) \
-		-e AUTOSTART_CAPELLA=$(AUTOSTART_CAPELLA) \
-		-e CONNECTION_METHOD=$(CONNECTION_METHOD) \
-		-e XPRA_SUBPATH=$(XPRA_SUBPATH) \
-		-e WORKSPACE_DIR=/workspace/capella_pv \
-		-p $(RDP_PORT):3389 \
-		-p $(WEB_PORT):10000 \
-		-p $(METRICS_PORT):9118 \
-		$(DOCKER_PREFIX)$<:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
 
 run-t4c/client/backup: t4c/client/base
 	docker run $(DOCKER_RUN_FLAGS) --rm -it \
@@ -481,13 +340,11 @@ debug-eclipse/remote/pure-variants: run-eclipse/remote/pure-variants
 debug-jupyter-notebook: DOCKER_RUN_FLAGS=$(DOCKER_DEBUG_FLAGS)
 debug-jupyter-notebook: run-jupyter-notebook
 
-t4c/server/server: SHELL=./capella_loop.sh
 t4c/server/server:
 	$(MAKE) -C t4c/server PUSH_IMAGES=$(PUSH_IMAGES) CAPELLA_VERSION=$$CAPELLA_VERSION $@
 
-local-git-server: SHELL=./capella_loop.sh
 local-git-server:
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG tests/local-git-server
+	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) tests/local-git-server
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
 run-local-git-server: local-git-server
@@ -503,7 +360,6 @@ ifeq ($(RUN_TESTS_WITH_T4C_CLIENT), 1)
 test: t4c/client/remote
 endif
 
-test: SHELL=./capella_loop.sh
 test:
 	export CAPELLA_VERSION=$$CAPELLA_VERSION
 	source .venv/bin/activate
@@ -525,8 +381,8 @@ test:
 .push:
 	@if [ "$(PUSH_IMAGES)" == "1" ]; \
 	then \
-		docker tag "$(DOCKER_PREFIX)$(IMAGENAME):$$DOCKER_TAG" "$(DOCKER_REGISTRY)/$(DOCKER_PREFIX)$(IMAGENAME):$$DOCKER_TAG"; \
-		docker push "$(DOCKER_REGISTRY)/$(DOCKER_PREFIX)$(IMAGENAME):$$DOCKER_TAG";\
+		docker tag "$(DOCKER_PREFIX)$(IMAGENAME):$(DOCKER_TAG)" "$(DOCKER_REGISTRY)/$(DOCKER_PREFIX)$(IMAGENAME):$(DOCKER_TAG)"; \
+		docker push "$(DOCKER_REGISTRY)/$(DOCKER_PREFIX)$(IMAGENAME):$(DOCKER_TAG)";\
 	fi
 
 .PHONY: tests/* t4c/* t4c/server/* *

@@ -1,0 +1,12 @@
+# SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
+# SPDX-License-Identifier: Apache-2.0
+
+api = "0.11"
+
+[buildpack]
+id = "xpra"
+version = "0.0.0"
+description = "Install xpra-html5 to run X11 applications in a browser."
+
+[[targets]]
+os = "linux"
