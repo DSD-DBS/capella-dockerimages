@@ -9,10 +9,14 @@ import urllib.request
 
 import yaml
 
+CAPELLA_VERSION = os.environ["CAPELLA_VERSION"]
+
 
 def load_dropins() -> dict[str, t.Any]:
     return yaml.safe_load(
-        pathlib.Path("/opt/dropins.yml").read_text(encoding="utf-8")
+        pathlib.Path(
+            "/app/capella/versions", CAPELLA_VERSION, "dropins.yml"
+        ).read_text(encoding="utf-8")
     )["dropins"]
 
 
@@ -44,7 +48,7 @@ def extract_repositories_and_install_ius(dropins: dict[str, t.Any]) -> None:
 def install_update_sites(repository: str, install_ui: list[str]) -> None:
     subprocess.run(
         [
-            "/opt/capella/capella",
+            "/layers/capella/capella/capella",
             "-consoleLog",
             "-application",
             "org.eclipse.equinox.p2.director",
@@ -60,7 +64,8 @@ def install_update_sites(repository: str, install_ui: list[str]) -> None:
 
 def download_and_copy_dropin(download_url: str, file_name: str) -> None:
     urllib.request.urlretrieve(
-        download_url, pathlib.Path("/opt/capella/dropins") / file_name
+        download_url,
+        pathlib.Path("/layers/capella/capella/dropins") / file_name,
     )
 
 

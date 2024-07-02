@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+mkdir -p ${CNB_LAYERS_DIR}/capella-dropins
+cp -r /app/capella/versions/${CAPELLA_VERSION}/dropins/* ${CNB_LAYERS_DIR}/capella-dropins/
+
+# In case someone had dropins in their archive, copy it to the dropins layer
+if [ -n "$(ls -A /layers/capella/capella/dropins 2>/dev/null)" ]; then
+    cp -r "/layers/capella/capella/dropins/"* ${CNB_LAYERS_DIR}/capella-dropins/
+fi
+
+# Replace dropins folder with symbolic link to dropins layer
+rm -rf /layers/capella/capella/dropins
+ln -s ${CNB_LAYERS_DIR}/capella-dropins /layers/capella/capella/dropins
+
+python3 /app/capella/install_dropins.py
+
+cat > "${CNB_LAYERS_DIR}/capella-dropins.toml" << EOL
+[types]
+launch = true
+EOL

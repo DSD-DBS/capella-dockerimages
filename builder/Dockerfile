@@ -3,7 +3,6 @@
 
 FROM python:3.11-bookworm
 
-
 SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 ENV SHELL=/bin/bash
 

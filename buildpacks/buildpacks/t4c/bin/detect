@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+if [[ -z $CAPELLA_VERSION ]]; then
+    echo "CAPELLA_VERSION is not set."
+    exit 100
+fi
+
+PATH_TO_T4C_ARCHIVE=t4c/updateSite/$CAPELLA_VERSION/com.thalesgroup.mde.melody.team.license.update-*.zip
+
+if [[ ! -f $PATH_TO_T4C_ARCHIVE ]]; then
+    echo "Couldn't find $PATH_TO_T4C_ARCHIVE."
+    echo "Add the mentioned file to continue."
+    exit 100
+fi
