@@ -1,0 +1,9 @@
+# SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
+# SPDX-License-Identifier: Apache-2.0
+
+api = "0.11"
+
+[extension]
+id = "xpra-deps"
+name = "Xpra system dependencies"
+version = "0.0.0"

@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
+# SPDX-License-Identifier: Apache-2.0
+
+set -eo pipefail
+
+# Set environment variables for build & run
+mkdir -p ${CNB_LAYERS_DIR}/hooks
+
+echo "commit-msg post-rewrite pre-commit pre-merge-commit pre-rebase prepare-commit-msg" | xargs -n 1 cp ${CNB_LAYERS_DIR}/hooks/+pre-commit-only.sh && \
+echo "pre-push post-checkout post-commit post-merge" | xargs -n 1 cp ${CNB_LAYERS_DIR}/hooks/+pre-commit-and-lfs.sh && \
+
+cp -r /buildpacks/buildpacks/pre-commit/hooks/* ${CNB_LAYERS_DIR}/hooks
+
+cat > "${CNB_LAYERS_DIR}/hooks.toml" << EOL
+[types]
+launch = true
+EOL

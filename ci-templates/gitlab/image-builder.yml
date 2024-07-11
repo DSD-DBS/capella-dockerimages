@@ -2,15 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 variables:
-  BASE:
-    value: '0'
-    description: 'Build the base image?'
   CAPELLA_BASE:
     value: '0'
     description: 'Build the capella/base image?'
-  CAPELLA_REMOTE:
-    value: '0'
-    description: 'Build the capella/remote image?'
   T4C_CLIENT_BASE:
     value: '0'
     description: 'Build the t4c/client/base image?'
@@ -23,21 +17,17 @@ variables:
   JUPYTER:
     value: '0'
     description: 'Build the jupyter-notebook image?'
-  PAPYRUS_BASE:
-    value: '0'
-    description: 'Build the papyrus/base image?'
   PAPYRUS_REMOTE:
     value: '0'
     description: 'Build the papyrus/remote image?'
-  ECLIPSE_BASE:
-    value: '0'
-    description: 'Build the eclipse/base image?'
-  ECLIPSE_REMOTE:
-    value: '0'
-    description: 'Build the eclipse/remote image?'
   ECLIPSE_REMOTE_PURE_VARIANTS:
     value: '0'
     description: 'Build the eclipse/remote/pure-variants image?'
+  BUILD_FOR_LATEST_TAG:
+    value: '0'
+    description:
+      "Fetch the latest tag for the image builder repository and use it as
+      revision. If 0, '$CI_COMMIT_REF_NAME' will be used."
   CAPELLA_DOCKER_IMAGES_REVISION:
     value: 'main'
     description:
@@ -49,11 +39,6 @@ variables:
       'Capella version. Please make sure that a subdirectory with the name of
       the value exists. The value must be valid ASCII and may contain lowercase
       and uppercase letters, digits, underscores, periods and dashes.'
-  BUILD_FOR_LATEST_TAG:
-    value: '0'
-    description:
-      "Fetch the latest tag for the image builder repository and use it as
-      revision. If 0, '$CI_COMMIT_REF_NAME' will be used."
   JUPYTER_VERSION:
     value: 'python-3.11'
     description: 'Python version for the jupyter notebook.'
@@ -63,24 +48,17 @@ variables:
   ECLIPSE_VERSION:
     value: '4.27'
     description: 'Semantic version of Eclipse.'
+  PURE_VARIANTS_VERSION:
+    value: '6.0.1'
+    description: 'Semantic version of pure::variants.'
   ENVIRONMENT:
     value: 'staging'
     description:
-      'Specifies the environment. Make sure that all related environment
-      variables are set on the repository level. More information in the
-      documentation.'
-  T4C_SERVER_REGISTRY: '' # Registry where you can find the t4c server image
-  T4C_SERVER_TAG: '$CAPELLA_VERSION-main' # Tag that is used for the t4c server image
-  T4C_SERVER_TEST_DATA_REPO: '' # Link to the t4c test data repo needed to run the backup tests
-  LOCAL_GIT_BASE_IMAGE: 'debian:bookworm' # Specifies the base images used to build the local git server needed to run the tests
-  DOCKER_BUILD_ARGS: '--no-cache'
-  BUILD_ARCHITECTURE: amd64
-  PURE_VARIANTS_VERSION: '6.0.1'
-  XPRA_REGISTRY: 'https://xpra.org'
-  ECLIPSE_REPOSITORY: 'https://download.eclipse.org'
+      'Specifies the environment. Must match a key in the config.yml file.'
 
 stages:
   - build
+  - test
 
 default:
   image: $DOCKER_REGISTRY/base
@@ -88,25 +66,24 @@ default:
     - docker
 
 .github: &github
-  - git clone https://github.com/DSD-DBS/capella-dockerimages.git
-  - cd capella-dockerimages
-  - git checkout $CAPELLA_DOCKER_IMAGES_REVISION --
+  - git clone https://github.com/DSD-DBS/capella-dockerimages.git /tmp/capella-dockerimages
+  - git -C /tmp/capella-dockerimages checkout $CAPELLA_DOCKER_IMAGES_REVISION --
+  - cp -R /tmp/capella-dockerimages/* $CI_PROJECT_DIR
 
 .docker: &docker
   - docker info
-  - DOCKER_REGISTRY_USER_QUERY=DOCKER_REGISTRY_USER_${ENVIRONMENT_UPPERCASE}
-  - DOCKER_REGISTRY_PASSWORD_QUERY=DOCKER_REGISTRY_PASSWORD_${ENVIRONMENT_UPPERCASE}
   # prettier-ignore
-  - echo ${!DOCKER_REGISTRY_PASSWORD_QUERY:?} | docker login -u ${!DOCKER_REGISTRY_USER_QUERY:?} --password-stdin $DOCKER_REGISTRY
-  - docker pull $BASE_IMAGE
+  - echo $(cat config.yml | yq -r .environments.$ENVIRONMENT.registry.user) | \
+      docker login -u $(sops -d config.yml | yq -r .environments.$ENVIRONMENT.registry.password) --password-stdin $DOCKER_REGISTRY
 
-.push: &push
-  - docker push $IMAGE:$DOCKER_TAG
+.sops: &sops
+  - apk add sops gpg
+  - gpg --import /secrets/private.gpg
 
 .prepare: &prepare
-  - ENVIRONMENT_UPPERCASE=$(echo ${ENVIRONMENT:?} | tr '[:lower:]' '[:upper:]')
-  - DOCKER_REGISTRY_QUERY=DOCKER_REGISTRY_${ENVIRONMENT_UPPERCASE}
-  - DOCKER_REGISTRY=${!DOCKER_REGISTRY_QUERY:?}
+  - *sops
+  - (curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.34.2/pack-v0.34.2-linux.tgz" | sudo tar -C /usr/local/bin/ --no-same-owner -xzv pack)
+  - DOCKER_REGISTRY=$(cat config.yml | yq -r .environments.$ENVIRONMENT.registry.url)
   - >
     if [[ "$BUILD_FOR_LATEST_TAG" == "1" ]]; then
       git fetch --tags;
@@ -117,135 +94,71 @@ default:
     fi
   # prettier-ignore
   - GENERAL_IMAGE_TAG=$(echo $CAPELLA_DOCKER_IMAGES_REVISION | sed 's/[^a-zA-Z0-9.]/-/g')-$IMAGE_BUILDER_REVISION
-  - IMAGE=${DOCKER_REGISTRY}/$IMAGE
-
-.resolve-base-image: &resolve-base-image
-  - BASE_IMAGE=${DOCKER_REGISTRY}/${BASE_IMAGE}
-  - >
-    if [[ "$BASE_IMAGE" == "$DOCKER_REGISTRY/base2" ]]; then
-      BASE_IMAGE=$BASE_IMAGE:$GENERAL_IMAGE_TAG;
-    else
-      BASE_IMAGE=$BASE_IMAGE:$DOCKER_TAG;
-    fi
-
-.prepare-capella: &prepare-capella
-  - *prepare
-  - export DOCKER_TAG=$CAPELLA_VERSION-$GENERAL_IMAGE_TAG
-  - *resolve-base-image
-  - cd capella/versions/$CAPELLA_VERSION
-  - *github
 
 .prepare-papyrus: &prepare-papyrus
   - *prepare
   - export DOCKER_TAG=$PAPYRUS_VERSION-$GENERAL_IMAGE_TAG
-  - *resolve-base-image
-  - cd papyrus/versions/$PAPYRUS_VERSION
   - *github
 
 .prepare-eclipse: &prepare-eclipse
   - *prepare
   - export DOCKER_TAG=$ECLIPSE_VERSION-$GENERAL_IMAGE_TAG
-  - *resolve-base-image
-  - cd eclipse/versions/$ECLIPSE_VERSION
   - *github
 
 .prepare-eclipse-pv: &prepare-eclipse-pv
   - *prepare
   # prettier-ignore
   - export DOCKER_TAG=$ECLIPSE_VERSION-$PURE_VARIANTS_VERSION-$GENERAL_IMAGE_TAG
-  - BASE_IMAGE="${DOCKER_REGISTRY}/${BASE_IMAGE}:$ECLIPSE_VERSION-$GENERAL_IMAGE_TAG"
   - cd pure-variants
   - *github
 
-.local-git-server: &local-git-server
-  - |
-    docker build $DOCKER_BUILD_ARGS \
-      -t local-git-server \
-      --build-arg BASE_IMAGE=$LOCAL_GIT_BASE_IMAGE \
-      tests/local-git-server
 
-.prepare-tests-general: &prepare-tests-general
-  - export LOCAL_GIT_TAG=latest
-  - export DOCKER_PREFIX=${DOCKER_REGISTRY:?}/
-  - apt-get update && apt-get -y install jq
-  # This command lists docker containers, identifies the current job and writes the network ID of the current container into the DOCKER_NETWORK variable.
-  # prettier-ignore
-  - export DOCKER_NETWORK=$(docker inspect -f "{{json .NetworkSettings.Networks }}" $(docker ps -q -f "label=com.gitlab.gitlab-runner.job.id=$CI_JOB_ID" -f "label=com.gitlab.gitlab-runner.type=build") | jq -r 'keys[0]' | head -n 1)
-  - *local-git-server
-  - python -m venv .venv
-  - source .venv/bin/activate
-  - pip install -e '.[test]'
-  - cd tests
-
-.prepare-t4c-server-tests: &prepare-t4c-server-tests
-  - *prepare-tests-general
-  # prettier-ignore
-  - GIT_PASSWORD=${T4C_SERVER_TEST_DATA_REPO_TOKEN:?} git clone ${T4C_SERVER_TEST_DATA_REPO:?}
-
-base:
+builder:
   stage: build
   needs: []
-  rules:
-    - if: '$BASE == "1"'
-      when: always
   variables:
-    BASE_IMAGE: debian:bookworm
-    IMAGE: base2
+    IMAGE: builder
   script:
     - *prepare
-    - DOCKER_TAG=$GENERAL_IMAGE_TAG
     - *github
     - *docker
-    - UID_QUERY=UID_${ENVIRONMENT_UPPERCASE}
     - |
-      docker build $DOCKER_BUILD_ARGS \
-        -t $IMAGE:$DOCKER_TAG \
-        --build-arg UID=${!UID_QUERY} \
-        --build-arg BASE_IMAGE=$BASE_IMAGE \
-        base
-    - *push
+      docker build buildpacks/builder:$GENERAL_IMAGE_TAG \
+        --build-arg CNB_USER_ID=$(cat config.yml | yq -r ".environments.$ENVIRONMENT.uid")
+    - |
+      pack builder create $DOCKER_REGISTRY/builder:$GENERAL_IMAGE_TAG \
+        --config buildpacks/builder/builder.toml \
+        --publish
 
 capella/base:
   stage: build
   needs:
-    - job: base
+    - job: builder
       optional: true
   rules:
     - if: '$CAPELLA_BASE == "1"'
       when: always
+  cache:
+    - key: $ENVIRONMENT-$CAPELLA_VERSION
+    - paths:
+      - previous_image.txt
   variables:
-    BASE_IMAGE: base2
     IMAGE: capella/base
   script:
-    - *prepare-capella
+    - *prepare
+    - export DOCKER_TAG=$CAPELLA_VERSION-$GENERAL_IMAGE_TAG
+    - *resolve-previous-image
+    - *github
     - *docker
-    # prettier-ignore
-    - mv ../capella.tar.gz ./capella/versions/$CAPELLA_VERSION/$BUILD_ARCHITECTURE/capella.tar.gz
-    - cp ./eclipse/set_memory_flags.py ./capella/setup/set_memory_flags.py
-    - >
-      if [[ -n "$(find ../dropins -maxdepth 1 -type d)" ]]; then
-        mv ../dropins/* ./capella/versions/$CAPELLA_VERSION/dropins/
-      else
-        echo "No files to move in dropins"
-      fi
-    - >
-      if [[ -n "$(find ../patches -maxdepth 1 -type f -not -path '*/\.*')" ]];
-      then
-        mv ../patches/* ./capella/versions/$CAPELLA_VERSION/patches/
-      else
-        echo "No files to move in patches"
-      fi
-    - mv ../../../libs/* ./capella/libs/
     - |
-      docker build $DOCKER_BUILD_ARGS \
-        -t $DOCKER_REGISTRY/capella/base:$DOCKER_TAG \
-        --build-arg BUILD_TYPE=offline \
-        --build-arg CAPELLA_VERSION=$CAPELLA_VERSION \
-        --build-arg INJECT_PACKAGES=true \
-        --build-arg BUILD_ARCHITECTURE="$BUILD_ARCHITECTURE" \
-        --build-arg BASE_IMAGE=$BASE_IMAGE \
-        capella
-    - *push
+      pack build $DOCKER_REGISTRY/$IMAGE:$DOCKER_TAG \
+        --env TOOL=capella \
+        --env CAPELLA_VERSION=$CAPELLA_VERSION \
+        --uid $(cat config.yml | yq -r ".environments.$ENVIRONMENT.uid") \
+        --builder $DOCKER_REGISTRY/builder:$GENERAL_IMAGE_TAG \
+        --publish \
+        --path ./buildpacks \
+        --volume $CI_PROJECT_DIR:/app:ro
 
 capella/remote:
   stage: build
@@ -256,7 +169,6 @@ capella/remote:
     - if: '$CAPELLA_REMOTE == "1"'
       when: always
   variables:
-    BASE_IMAGE: capella/base
     IMAGE: capella/remote
   script:
     - *prepare-capella
@@ -264,7 +176,6 @@ capella/remote:
     - |
       docker build $DOCKER_BUILD_ARGS \
         -t $DOCKER_REGISTRY/capella/remote:$DOCKER_TAG \
-        --build-arg BASE_IMAGE=$BASE_IMAGE \
         --build-arg XPRA_REGISTRY=$XPRA_REGISTRY \
         remote
     - *push
@@ -278,7 +189,6 @@ t4c/client/base:
     - if: '$T4C_CLIENT_BASE == "1"'
       when: always
   variables:
-    BASE_IMAGE: capella/base
     IMAGE: t4c/client/base
   script:
     - *prepare-capella
@@ -288,16 +198,8 @@ t4c/client/base:
       docker build $DOCKER_BUILD_ARGS \
         -t $DOCKER_REGISTRY/t4c/client/base:$DOCKER_TAG \
         --build-arg CAPELLA_VERSION=$CAPELLA_VERSION \
-        --build-arg BASE_IMAGE=$BASE_IMAGE \
         t4c
-    - *prepare-t4c-server-tests
-    # prettier-ignore
-    - pytest -o log_cli=true -s -m t4c_server test_backups.py test_exporter_local.py test_exporter_git.py || r=3
     - *push
-    - exit $r
-  allow_failure: &allow_failure
-    exit_codes:
-      - 3 # Exit code when pytest fail
 
 t4c/client/remote:
   stage: build
@@ -308,7 +210,6 @@ t4c/client/remote:
     - if: '$T4C_CLIENT_REMOTE == "1"'
       when: always
   variables:
-    BASE_IMAGE: t4c/client/base
     IMAGE: t4c/client/remote
   script:
     - *prepare-capella
@@ -316,13 +217,9 @@ t4c/client/remote:
     - |
       docker build $DOCKER_BUILD_ARGS \
         -t $DOCKER_REGISTRY/t4c/client/remote:$DOCKER_TAG \
-        --build-arg BASE_IMAGE=$BASE_IMAGE \
         --build-arg XPRA_REGISTRY=$XPRA_REGISTRY \
         remote
-    - *prepare-tests-general
-    - pytest -o log_cli=true -s test_t4c_repository_injection.py || r=3
     - *push
-    - exit $r
   allow_failure: *allow_failure
 
 t4c/client/remote/pure-variants:
@@ -334,7 +231,6 @@ t4c/client/remote/pure-variants:
     - if: '$T4C_CLIENT_REMOTE_PURE_VARIANTS == "1"'
       when: always
   variables:
-    BASE_IMAGE: t4c/client/remote
     IMAGE: t4c/client/remote/pure-variants
   script:
     - *prepare-capella
@@ -345,34 +241,8 @@ t4c/client/remote/pure-variants:
       docker build $DOCKER_BUILD_ARGS \
       -t $DOCKER_REGISTRY/t4c/client/remote/pure-variants:$DOCKER_TAG \
       --build-arg ECLIPSE_REPOSITORY=${ECLIPSE_REPOSITORY} \
-      --build-arg BASE_IMAGE=$BASE_IMAGE \
       --build-arg PURE_VARIANTS_VERSION="$PURE_VARIANTS_VERSION" \
       pure-variants
-    - *push
-
-eclipse/base:
-  stage: build
-  needs:
-    - job: base
-      optional: true
-  rules:
-    - if: '$ECLIPSE_BASE == "1"'
-      when: always
-  variables:
-    BASE_IMAGE: base2
-    IMAGE: eclipse/base
-  script:
-    - *prepare-eclipse
-    - *docker
-    # prettier-ignore
-    - mv ../eclipse.tar.gz ./eclipse/versions/$ECLIPSE_VERSION/$BUILD_ARCHITECTURE/eclipse.tar.gz
-    - |
-      docker build $DOCKER_BUILD_ARGS \
-        -t ${IMAGE}:${DOCKER_TAG} \
-        --build-arg ECLIPSE_VERSION=${ECLIPSE_VERSION} \
-        --build-arg BASE_IMAGE=${BASE_IMAGE} \
-        --build-arg ECLIPSE_REPOSITORY=${ECLIPSE_REPOSITORY} \
-        eclipse
     - *push
 
 eclipse/remote:
@@ -384,7 +254,6 @@ eclipse/remote:
     - if: '$ECLIPSE_REMOTE == "1"'
       when: always
   variables:
-    BASE_IMAGE: eclipse/base
     IMAGE: eclipse/remote
   script:
     - *prepare-eclipse
@@ -392,12 +261,11 @@ eclipse/remote:
     - |
       docker build $DOCKER_BUILD_ARGS \
         -t ${IMAGE}:${DOCKER_TAG} \
-        --build-arg BASE_IMAGE=$BASE_IMAGE \
         --build-arg XPRA_REGISTRY=$XPRA_REGISTRY \
         remote
     - *push
 
-eclipse/remote/pure-variants:
+eclipse/pure-variants/remote:
   stage: build
   needs:
     - job: eclipse/remote
@@ -406,7 +274,6 @@ eclipse/remote/pure-variants:
     - if: '$ECLIPSE_REMOTE_PURE_VARIANTS == "1"'
       when: always
   variables:
-    BASE_IMAGE: eclipse/remote
     IMAGE: eclipse/remote/pure-variants
   script:
     - *prepare-eclipse-pv
@@ -416,34 +283,8 @@ eclipse/remote/pure-variants:
       docker build $DOCKER_BUILD_ARGS \
         -t ${IMAGE}:${DOCKER_TAG} \
         --build-arg ECLIPSE_REPOSITORY=${ECLIPSE_REPOSITORY} \
-        --build-arg BASE_IMAGE=${BASE_IMAGE} \
         --build-arg PURE_VARIANTS_VERSION="$PURE_VARIANTS_VERSION" \
         pure-variants
-    - *push
-
-papyrus/base:
-  stage: build
-  needs:
-    - job: base
-      optional: true
-  rules:
-    - if: '$PAPYRUS_BASE == "1"'
-      when: always
-  variables:
-    BASE_IMAGE: base2
-    IMAGE: papyrus/base
-  script:
-    - *prepare-papyrus
-    - *docker
-    - mv ../papyrus.tar.gz ./papyrus/versions/$PAPYRUS_VERSION/papyrus.tar.gz
-    - cp ./eclipse/set_memory_flags.py ./papyrus/set_memory_flags.py
-    - |
-      docker build $DOCKER_BUILD_ARGS \
-        -t ${IMAGE}:${DOCKER_TAG} \
-        --build-arg ECLIPSE_REPOSITORY=${ECLIPSE_REPOSITORY} \
-        --build-arg PAPYRUS_VERSION=$PAPYRUS_VERSION \
-        --build-arg BASE_IMAGE=$BASE_IMAGE \
-        papyrus
     - *push
 
 papyrus/remote:
@@ -455,7 +296,6 @@ papyrus/remote:
     - if: '$PAPYRUS_REMOTE == "1"'
       when: always
   variables:
-    BASE_IMAGE: papyrus/base
     IMAGE: papyrus/remote
   script:
     - *prepare-papyrus
@@ -463,7 +303,6 @@ papyrus/remote:
     - |
       docker build $DOCKER_BUILD_ARGS \
         -t ${IMAGE}:${DOCKER_TAG} \
-        --build-arg BASE_IMAGE=$BASE_IMAGE \
         --build-arg XPRA_REGISTRY=$XPRA_REGISTRY \
         remote
     - *push
@@ -477,7 +316,6 @@ jupyter:
     - if: '$JUPYTER == "1"'
       when: always
   variables:
-    BASE_IMAGE: base2
     IMAGE: jupyter-notebook
   script:
     - *prepare
@@ -488,6 +326,36 @@ jupyter:
     - |
       docker build $DOCKER_BUILD_ARGS \
         -t $IMAGE:$DOCKER_TAG \
-        --build-arg BASE_IMAGE=$BASE_IMAGE \
         jupyter-notebook
     - *push
+
+.local-git-server: &local-git-server
+  - |
+    docker build $DOCKER_BUILD_ARGS \
+      -t local-git-server \
+      --build-arg BASE_IMAGE=$(cat config.yml | yq -r '.["base-images"].debian') \
+      tests/local-git-server
+
+test:
+  stage: test
+  rules:
+    - if: '$T4C_CLIENT_REMOTE == "1"'
+      when: always
+  script:
+    - export LOCAL_GIT_TAG=latest
+    - export DOCKER_PREFIX=${DOCKER_REGISTRY:?}/
+    - apk add jq
+    # This command lists docker containers, identifies the current job and writes the network ID of the current container into the DOCKER_NETWORK variable.
+    # prettier-ignore
+    - export DOCKER_NETWORK=$(docker inspect -f "{{json .NetworkSettings.Networks }}" $(docker ps -q -f "label=com.gitlab.gitlab-runner.job.id=$CI_JOB_ID" -f "label=com.gitlab.gitlab-runner.type=build") | jq -r 'keys[0]' | head -n 1)
+    - *local-git-server
+    - python -m venv .venv
+    - source .venv/bin/activate
+    - pip install -e '.[test]'
+    - cd tests
+    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/$(cat config.yml | yq -r '.["test-data-repository"]') test-data-repo
+    - apk add yq envsubst
+    - export T4C_SERVER_REGISTRY=$(cat config.yml | yq -r '.["t4c-server"].registry')
+    - export T4C_SERVER_TAG=$(cat config.yml | yq -r '.["t4c-server"].tag' | envsubst)
+    # prettier-ignore
+    - pytest -o log_cli=true -s -m t4c_server test_backups.py test_exporter_local.py test_exporter_git.py test_t4c_repository_injection.py

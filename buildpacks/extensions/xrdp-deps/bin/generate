@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
+# SPDX-License-Identifier: Apache-2.0
+
+set -eo pipefail
+
+cat >> "${CNB_OUTPUT_DIR}/run.Dockerfile" <<EOL
+ARG base_image
+FROM \${base_image}
+USER root
+
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends \
+        xrdp \
+        xserver-xorg-core \
+        xorgxrdp \
+        openbox \
+        obconf && \
+    rm -rf /var/lib/apt/lists/*
+
+# Allow any user to start the RDP server
+# Depending on the base image used, Xwrapper.config may (not) be available and has to be created.
+RUN sed -i 's/allowed_users=console/allowed_users=anybody/g' /etc/X11/Xwrapper.config \
+    || echo "allowed_users=anybody" > /etc/X11/Xwrapper.config && \
+    chmod 666 /etc/shadow && \
+    mkdir -p /run/xrdp/sockdir && \
+    chown -R techuser /etc/xrdp /run/xrdp /var/log/xrdp* /etc/xdg/openbox
+
+ARG user_id
+USER \${user_id}
+EOL

@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+# SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
+# SPDX-License-Identifier: Apache-2.0
+
+set -eo pipefail
+
+CAPELLA_BUILD_TYPE=${CAPELLA_BUILD_TYPE:-offline}
+BUILD_ARCHITECTURE=$(dpkg --print-architecture)
+PATH_TO_CAPELLA_DIRECTORY=/app/capella/versions/$CAPELLA_VERSION/$BUILD_ARCHITECTURE
+
+BUILDPACK_CAPELLA_DIR=/app/buildpacks/buildpacks/capella
+
+if [ "$CAPELLA_BUILD_TYPE" = "online" ]; then
+    python3 ${BUILDPACK_CAPELLA_DIR}/download_archive.py $CAPELLA_VERSION;
+else
+    cp /app/capella/versions/$CAPELLA_VERSION/$BUILD_ARCHITECTURE/capella.tar.gz /tmp/capella.tar.gz
+fi
+
+mkdir /tmp/capella;
+tar -xf /tmp/capella.tar.gz -C /tmp/capella;
+
+# Remove samples directory from archive and move to layer
+mkdir ${CNB_LAYERS_DIR}/app
+mv /tmp/capella/capella/* ${CNB_LAYERS_DIR}/app;
+
+# Some older archives don't have the correct execute permissions. Fix that.
+chmod +x ${CNB_LAYERS_DIR}/app/capella
+chmod -R +x ${CNB_LAYERS_DIR}/app/jre/bin
+chmod -R +x ${CNB_LAYERS_DIR}/app/jre/lib
+
+# Create Eclipse settings directory
+mkdir -p ${CNB_LAYERS_DIR}/app/configuration/.settings;
+
+# Do not show WORKSPACE_SELECTION_DIALOG
+echo "SHOW_WORKSPACE_SELECTION_DIALOG=false" >> ${CNB_LAYERS_DIR}/app/configuration/.settings/org.eclipse.ui.ide.prefs;
+
+# Install patches
+PATCH_DIR=/app/capella/versions/$CAPELLA_VERSION/patches /app/capella/patch.sh
+
+# Increase timeout and retries for better stability
+echo '-Dorg.eclipse.equinox.p2.transport.ecf.retry=15' >> /layers/capella/app/capella.ini
+echo '-Dorg.eclipse.ecf.provider.filetransfer.retrieve.readTimeout=10000' >> /layers/capella/app/capella.ini
+
+mkdir -p ${CNB_LAYERS_DIR}/meta
+cp /app/capella/git_askpass.py ${CNB_LAYERS_DIR}/meta
+
+cp ${BUILDPACK_CAPELLA_DIR}/entrypoint.sh ${CNB_LAYERS_DIR}/meta
+cp ${BUILDPACK_CAPELLA_DIR}/autostart ${CNB_LAYERS_DIR}/meta
+
+mkdir -p ${CNB_LAYERS_DIR}/meta/exec.d
+cp ${BUILDPACK_CAPELLA_DIR}/exec.d/* ${CNB_LAYERS_DIR}/meta/exec.d
+cp /app/eclipse/set_memory_flags.py ${CNB_LAYERS_DIR}/meta/exec.d
+chmod +x ${CNB_LAYERS_DIR}/meta/exec.d/*
+
+# Set environment variables for build & run
+mkdir -p ${CNB_LAYERS_DIR}/meta/env
+echo -n "capella" > ${CNB_LAYERS_DIR}/meta/env/BASE_TYPE
+echo -n "/layers/capella/app" > ${CNB_LAYERS_DIR}/meta/env/ECLIPSE_INSTALLATION_PATH
+echo -n "/layers/capella/app/capella" > ${CNB_LAYERS_DIR}/meta/env/ECLIPSE_EXECUTABLE
+echo -n "1" > ${CNB_LAYERS_DIR}/meta/env/AUTOSTART_CAPELLA
+echo -n "1" > ${CNB_LAYERS_DIR}/meta/env/RESTART_CAPELLA
+
+cat > "${CNB_LAYERS_DIR}/meta.toml" << EOL
+[types]
+launch = true
+EOL
+
+cat > "${CNB_LAYERS_DIR}/app.toml" << EOL
+[types]
+launch = true
+EOL
+
+cat > "${CNB_LAYERS_DIR}/launch.toml" << EOL
+[[processes]]
+type = "capella"
+command = ["${CNB_LAYERS_DIR}/meta/entrypoint.sh"]
+default = true
+EOL

@@ -1,0 +1,19 @@
+/*
+ * SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+.md-typeset .admonition.commercial,
+.md-typeset details.commercial {
+  border-color: rgb(43, 155, 70);
+}
+.md-typeset .commercial > .admonition-title,
+.md-typeset .commercial > summary {
+  background-color: rgba(43, 155, 70, 0.1);
+}
+.md-typeset .commercial > .admonition-title::before,
+.md-typeset .commercial > summary::before {
+  background-color: rgb(43, 155, 70);
+  -webkit-mask-image: var(--md-admonition-icon--commercial);
+  mask-image: var(--md-admonition-icon--commercial);
+}

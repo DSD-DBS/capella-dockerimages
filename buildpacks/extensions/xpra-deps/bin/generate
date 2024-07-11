@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
+# SPDX-License-Identifier: Apache-2.0
+
+set -eo pipefail
+
+XPRA_REGISTRY=${XPRA_REGISTRY:-https://xpra.org}
+
+cat >> "${CNB_OUTPUT_DIR}/extend-config.toml" <<EOL
+[[build.args]]
+name = "XPRA_REGISTRY"
+value = "${XPRA_REGISTRY}"
+EOL
+
+cat >> "${CNB_OUTPUT_DIR}/run.Dockerfile" <<EOL
+ARG base_image
+FROM \${base_image}
+USER root
+
+ARG XPRA_REGISTRY=https://xpra.org
+
+RUN wget -qO /usr/share/keyrings/xpra.asc ${XPRA_REGISTRY}/xpra.asc && \
+    wget -qO /etc/apt/sources.list.d/xpra.sources https://raw.githubusercontent.com/Xpra-org/xpra/master/packaging/repos/bookworm/xpra.sources && \
+    sed -i "s|https://xpra.org|${XPRA_REGISTRY}|" /etc/apt/sources.list.d/xpra.sources && \
+    apt-get update && \
+    apt-get install -y \
+        --no-install-recommends \
+        xpra \
+        xpra-x11 \
+        xpra-html5 \
+        apache2-utils \
+        nginx && \
+    chown techuser -R /var/log/nginx && \
+    rm -rf /var/lib/apt/lists/*
+
+ARG user_id
+USER \${user_id}
+EOL

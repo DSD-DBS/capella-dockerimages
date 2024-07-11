@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 # SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
 # SPDX-License-Identifier: Apache-2.0
 """Set the memory flags in the *.ini file for Eclipse applications.
@@ -80,8 +82,8 @@ def append_flag_to_file(
 
 if __name__ == "__main__":
     eclipse_executable = pathlib.Path(os.environ["ECLIPSE_EXECUTABLE"])
-    _memory_min = os.environ["MEMORY_MIN"].strip()
-    _memory_max = os.environ["MEMORY_MAX"].strip()
+    _memory_min = os.environ.get("MEMORY_MIN", "70%").strip()
+    _memory_max = os.environ.get("MEMORY_MAX", "90%").strip()
 
     ini_path = eclipse_executable.with_suffix(".ini")
 
