@@ -41,7 +41,7 @@ def extract_repositories_and_install_ius(dropins: dict[str, t.Any]) -> None:
                 raise ValueError(f"Unknown plugin type '{dropin['type']}'.")
 
 
-def install_update_sites(repository: str, install_ui: list[str]) -> None:
+def install_update_sites(repository: str, install_iu: list[str]) -> None:
     subprocess.run(
         [
             "/opt/capella/capella",
@@ -52,7 +52,7 @@ def install_update_sites(repository: str, install_ui: list[str]) -> None:
             "-repository",
             repository,
             "-installIU",
-            ",".join(install_ui),
+            ",".join(install_iu),
         ],
         check=True,
     )
