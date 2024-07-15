@@ -1,0 +1,9 @@
+# SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
+# SPDX-License-Identifier: Apache-2.0
+
+dropins:
+  ModelsImporter:
+    github: 'https://github.com/DSD-DBS/capella-addons'
+    type: dropin
+    downloadURL: 'https://github.com/DSD-DBS/capella-addons/releases/download/v0.0.1/com.deutschebahn.models-from-directory-importer_0.0.1_capella_6.x.jar'
+    fileName: 'com.deutschebahn.models-from-directory-importer_0.0.1_capella_6.x.jar'
