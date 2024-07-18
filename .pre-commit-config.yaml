@@ -140,3 +140,15 @@ repos:
     rev: v2.12.0
     hooks:
       - id: hadolint-docker
+  - repo: local
+    hooks:
+      - id: sort-dropins-yml
+        name: Sort names of dopins in yml
+        files: 'dropins.yml'
+        entry: |
+          bash -c '
+            for n in $(seq 0 "$#");
+              do yq -i "with(.dropins; sort_keys(.))" "${!n}";
+            done
+          '
+        language: system
