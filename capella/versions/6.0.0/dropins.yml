@@ -8,6 +8,12 @@ dropins:
     eclipseRepository: 'https://download.eclipse.org/capella/addons/xhtmldocgen/updates/releases/6.0.0/'
     installIU:
       - 'org.polarsys.capella.docgen.package.feature.feature.group'
+  DarcViewpoint:
+    github: 'https://github.com/eclipse-capella/capella-cybersecurity'
+    type: updateSite
+    eclipseRepository: 'jar:https://download.eclipse.org/capella/addons/cybersecurity/updates/releases/2.1.1/Darc-updateSite-2.1.1.202301101540.zip!/'
+    installIU:
+      - 'org.polarsys.capella.cybersecurity.feature.feature.group'
   DiagramStyler:
     github: 'https://github.com/eclipse/capella/wiki/PVMT'
     type: updateSite
