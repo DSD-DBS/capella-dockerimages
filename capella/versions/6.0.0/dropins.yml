@@ -44,12 +44,6 @@ dropins:
     eclipseRepository: 'jar:https://download.eclipse.org/capella/addons/subsystemtransition/updates/releases/1.6.1/SubsystemTransition-updateSite-1.6.1.202302141252.zip!/'
     installIU:
       - 'org.polarsys.capella.transition.system2subsystem.feature.feature.group'
-  TextualEditor:
-    github: 'https://github.com/eclipse/capella-textual-editor'
-    type: updateSite
-    eclipseRepository: 'jar:https://download.eclipse.org/capella/addons/textualeditor/updates/releases/0.11.0/TextualEditor-updateSite-0.11.0.202208161352.zip!/'
-    installIU:
-      - 'org.polarsys.capella.scenario.editor.feature.feature.group'
   ModelsImporter:
     github: 'https://github.com/DSD-DBS/capella-addons'
     type: dropin
