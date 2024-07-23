@@ -33,7 +33,7 @@ variables:
     branch: '$IMAGE_BUILDER_GITLAB_BRANCH'
   parallel:
     matrix:
-      - CAPELLA_VERSION: ['5.0.0', '5.2.0', '6.0.0', '6.1.0']
+      - CAPELLA_VERSION: ['5.0.0', '5.2.0', '6.0.0', '6.1.0', '7.0.0']
   variables:
     CAPELLA_DOCKER_IMAGES_REVISION: $CAPELLA_DOCKER_IMAGES_REVISION
     BUILD_FOR_LATEST_TAG: '1'

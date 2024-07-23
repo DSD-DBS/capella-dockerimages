@@ -72,7 +72,7 @@ GIT_SERVER_PORT ?= 10001
 METRICS_PORT ?= 9118
 
 # Capella version used for builds and tests
-export CAPELLA_VERSIONS ?= 5.0.0 5.2.0 6.0.0 6.1.0
+export CAPELLA_VERSIONS ?= 5.0.0 5.2.0 6.0.0 6.1.0 7.0.0
 
 # Capella version used to run containers
 export CAPELLA_VERSION ?= 6.1.0
