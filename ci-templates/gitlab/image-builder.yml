@@ -331,6 +331,8 @@ t4c/client/remote/pure-variants:
     - job: t4c/client/remote
       optional: true
   rules:
+    - if: '$CAPELLA_VERSION == "7.0.0"'
+      when: never
     - if: '$T4C_CLIENT_REMOTE_PURE_VARIANTS == "1"'
       when: always
   variables:
