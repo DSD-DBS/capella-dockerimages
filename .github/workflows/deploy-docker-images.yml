@@ -37,10 +37,16 @@ jobs:
           - '6.0.0'
           - '6.1.0'
         dropins:
-          - name: 'without' # without dropins
+          - name: 'without'
             dropins: 'ModelsImporter'
           - name: 'selected'
-            dropins: 'ModelsImporter,CapellaXHTMLDocGen,DiagramStyler,PVMT,Filtering,Requirements,SubsystemTransition' # selected set of dropins
+            dropins: 'ModelsImporter,CapellaXHTMLDocGen,DiagramStyler,PVMT,Filtering,Requirements,SubsystemTransition'
+        include:
+          - capella_version: 7.0.0
+            dropins:
+              name: 'without'
+              dropins: 'ModelsImporter'
+
     name:
       Capella ${{ matrix.capella_version }} with ${{ matrix.dropins.name }}
       dropins
