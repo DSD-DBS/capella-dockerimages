@@ -7,11 +7,11 @@ set -euo pipefail
 
 case ${1:-startup} in
   backup)
-    xvfb-run /opt/t4c_cli/.venv/bin/backup
+    xvfb-run $VIRTUAL_ENV/bin/backup
     ;;
 
   export)
-    xvfb-run /opt/t4c_cli/.venv/bin/exporter
+    xvfb-run $VIRTUAL_ENV/bin/exporter
     ;;
 
   startup)
