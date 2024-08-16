@@ -6,6 +6,7 @@ from __future__ import annotations
 import logging
 import os
 import pathlib
+import re
 import shutil
 
 import click
@@ -52,7 +53,7 @@ def _validate_exporter_stdout(line: str) -> None:
         raise RuntimeError("Unknown host")
     elif "No such user:" in line:
         raise RuntimeError("Unknown user")
-    elif "1 projects exports failed" in line:
+    elif re.search(r"[1-9][0-9]* projects? exports? failed", line):
         raise RuntimeError("Export failed")
 
 
