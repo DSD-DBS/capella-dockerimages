@@ -74,9 +74,9 @@ def _build_backup_command(
 
 
 def _validate_backup_stdout(line: str) -> None:
-    if re.search(r"[1-9][0-9]* projects imports failed", line):
+    if re.search(r"[1-9][0-9]* projects? imports? failed", line):
         raise RuntimeError("Backup failed. Please check the logs above.")
-    if re.search(r"[1-9][0-9]* archivings failed", line):
+    if re.search(r"[1-9][0-9]* archivings? failed", line):
         raise RuntimeError(
             f"Failed to create archives in output folder ({config.config.t4c.project_dir_path})"
         )
@@ -99,13 +99,13 @@ def run_importer_script(
                 "'!MESSAGE [1-9][0-9]* Succeeded' not found in logs"
             )
     else:
-        if not re.search(r"[1-9][0-9]* projects imports succeeded", stdout):
+        if not re.search(r"[1-9][0-9]* projects? imports? succeeded", stdout):
             raise RuntimeError(
-                "'[1-9][0-9]* projects imports succeeded' not found in logs"
+                "'[1-9][0-9]* projects? imports? succeeded' not found in logs"
             )
-        if not re.search(r"[1-9][0-9]* archivings succeeded", stdout):
+        if not re.search(r"[1-9][0-9]* archivings? succeeded", stdout):
             raise RuntimeError(
-                "'[1-9][0-9]* archivings succeeded' not found in logs"
+                "'[1-9][0-9]* archivings? succeeded' not found in logs"
             )
 
     log.info("Import of model from TeamForCapella server finished")
