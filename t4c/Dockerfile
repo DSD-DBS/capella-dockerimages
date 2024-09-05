@@ -15,7 +15,7 @@ ENV SHELL=/bin/bash
 USER root
 
 RUN apt-get update && \
-    apt-get install -y git-lfs xvfb xauth && \
+    apt-get install -y xvfb xauth && \
     rm -rf /var/lib/apt/lists/*
 
 COPY docker_entrypoint.sh /docker_entrypoint.sh
