@@ -14,18 +14,23 @@ dropins:
     eclipseRepository: 'jar:https://artifactory.thalesdigital.io/ui/api/v1/download?repoKey=mvn-public&path=com%252Fthalesgroup%252Fmde%252Fcapella%252Fdiagramstyler%252Fcom.thalesgroup.mde.capella.diagramstyler.repository%252F50.3.1%252Fcom.thalesgroup.mde.capella.diagramstyler.repository-50.3.1.zip!/'
     installIU:
       - 'com.thalesgroup.mde.capella.diagramstyler.feature.feature.group'
-  PVMT:
-    github: 'https://github.com/eclipse/capella/wiki/PVMT'
-    type: updateSite
-    eclipseRepository: 'jar:https://artifactory.thalesdigital.io/ui/api/v1/download?repoKey=mvn-public&path=com%252Fthalesgroup%252Fvpd%252Fproperty%252Fcom.thalesgroup.vpd.property.repository%252F50.5.1%252Fcom.thalesgroup.vpd.property.repository-50.5.1.zip!/'
-    installIU:
-      - 'com.thalesgroup.vpd.property.feature.feature.group'
   Filtering:
     github: 'https://github.com/eclipse/capella-filtering'
     type: updateSite
     eclipseRepository: 'jar:https://download.eclipse.org/capella/addons/filtering/updates/releases/1.5.2/Filtering-updateSite-1.5.2.202111091404.zip!/'
     installIU:
       - 'org.polarsys.capella.filtering.feature.feature.group'
+  ModelsImporter:
+    github: 'https://github.com/DSD-DBS/capella-addons'
+    type: dropin
+    downloadURL: 'https://github.com/DSD-DBS/capella-addons/releases/download/v0.0.1/com.deutschebahn.models-from-directory-importer_0.0.1_capella_5.x.jar'
+    fileName: 'com.deutschebahn.models-from-directory-importer_0.0.1_capella_5.x.jar'
+  PVMT:
+    github: 'https://github.com/eclipse/capella/wiki/PVMT'
+    type: updateSite
+    eclipseRepository: 'jar:https://artifactory.thalesdigital.io/ui/api/v1/download?repoKey=mvn-public&path=com%252Fthalesgroup%252Fvpd%252Fproperty%252Fcom.thalesgroup.vpd.property.repository%252F50.5.1%252Fcom.thalesgroup.vpd.property.repository-50.5.1.zip!/'
+    installIU:
+      - 'com.thalesgroup.vpd.property.feature.feature.group'
   Requirements:
     github: 'https://github.com/eclipse/capella-requirements-vp'
     type: updateSite
@@ -44,8 +49,3 @@ dropins:
     eclipseRepository: 'jar:https://download.eclipse.org/capella/addons/textualeditor/updates/releases/0.11.0/TextualEditor-updateSite-0.11.0.202208161352.zip!/'
     installIU:
       - 'org.polarsys.capella.scenario.editor.feature.feature.group'
-  ModelsImporter:
-    github: 'https://github.com/DSD-DBS/capella-addons'
-    type: dropin
-    downloadURL: 'https://github.com/DSD-DBS/capella-addons/releases/download/v0.0.1/com.deutschebahn.models-from-directory-importer_0.0.1_capella_5.x.jar'
-    fileName: 'com.deutschebahn.models-from-directory-importer_0.0.1_capella_5.x.jar'
