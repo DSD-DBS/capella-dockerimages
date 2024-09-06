@@ -11,8 +11,6 @@ ENV SHELL=/bin/bash
 
 RUN apt-get update && \
     apt-get install --yes --no-install-recommends \
-    git \
-    git-lfs \
     libgirepository1.0-dev \
     libcairo2-dev \
     gir1.2-pango-1.0 \

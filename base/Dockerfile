@@ -12,17 +12,18 @@ ENV SHELL=/bin/bash
 
 RUN apt-get update && \
     apt-get upgrade --yes && \
-    apt-get install --yes \
+    apt-get install --yes --no-install-recommends \
     gettext-base \
+    git-lfs \
+    gnupg \
     locales \
+    neovim \
     python3 \
     python3-pip \
     python3-venv \
-    git-lfs \
     unzip \
-    neovim \
-    zip \
-    wget && \
+    wget \
+    zip && \
     rm -rf /var/lib/apt/lists/*
 
 RUN echo "en_GB.UTF-8 UTF-8" >> /etc/locale.gen && \
