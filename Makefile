@@ -84,7 +84,9 @@ AUTOSTART_CAPELLA ?= 1
 
 # Comma-separated list of dropins to download & add, doesn't affect copied & mounted dropins
 # See available options in documentation: https://dsd-dbs.github.io/capella-dockerimages/capella/base/#optional-customisation-of-the-capella-client
-CAPELLA_DROPINS ?= ModelsImporter,CapellaXHTMLDocGen,DiagramStyler,PVMT,Filtering,Requirements,SubsystemTransition,TextualEditor
+# One example is:
+# CAPELLA_DROPINS ?= ModelsImporter,CapellaXHTMLDocGen,DiagramStyler,PVMT,Filtering,Requirements,SubsystemTransition,TextualEditor
+CAPELLA_DROPINS ?= ""
 
 # Only use when "capella_loop.sh" is NOT used
 export DOCKER_TAG_SCHEMA ?= $$CAPELLA_VERSION-$$CAPELLA_DOCKERIMAGES_REVISION

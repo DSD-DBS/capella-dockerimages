@@ -75,20 +75,12 @@ capella
 └── readme
 ```
 
-#### Optional: Customisation of the Capella client
+#### Install dropins
 
-To customise the Capella client you can
+##### Automatic installation
 
-1. extract the downloaded archive,
-1. apply any modifications (e.g., installation of plugins and/ or dropins) to
-   it, and
-1. compress the modified folder `capella` to get a `capella.zip` or
-   `capella.tar.gz` again.
-
-##### Install dropins
-
-As alternative to the solution presented above, we provide an interface to
-install dropins.
+The image builder can automatically download dropins for Capella and inject
+them into the Capella client.
 
 You have to pass a comma-separated list of dropin names as `CAPELLA_DROPINS`
 build argument to the `docker build` command:
@@ -110,6 +102,23 @@ Supported dropins are:
 The dropins are registered in the
 `capella/versions/$CAPELLA_VERSION/dropins.yml` file. If you're missing a
 dropin in the list, feel free to open a PR.
+
+##### Manual installation
+
+If you want to install dropins manually, you can place the dropins in the
+`capella/versions/$CAPELLA_VERSION/dropins` directory. The dropins will be
+copied into the `dropins` directory of the Capella client without any further
+processing.
+
+#### Optional: Customisation of the Capella client
+
+If you want to customize the Capella client even further, you can:
+
+1. extract the downloaded archive,
+1. apply any modifications (e.g., installation of plugins and/ or dropins) to
+   it, and
+1. compress the modified folder `capella` to get a `capella.zip` or
+   `capella.tar.gz` again.
 
 #### Optional: Workaround of pinned library versions to remove incompatibilities
 
