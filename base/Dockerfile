@@ -18,6 +18,7 @@ RUN apt-get update && \
     gnupg \
     locales \
     neovim \
+    openssh-client \
     python3 \
     python3-pip \
     python3-venv \
