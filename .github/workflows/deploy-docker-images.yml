@@ -63,6 +63,7 @@ jobs:
         # prettier-ignore
         run: >
           make ${{ env.images }}
+          CAPELLA_DOWNLOAD_URL="https://mirror.umd.edu/eclipse/capella/core/products/releases/{}"
           CAPELLA_VERSIONS="${{ matrix.capella_version }}"
           DOCKER_PREFIX="${{ env.registry }}"
           CAPELLA_DOCKERIMAGES_REVISION="${{ steps.tag.outputs.branch }}"

@@ -7,6 +7,7 @@ eclipse download page:
 
 https://download.eclipse.org/capella/core/products/stable/.
 """
+
 import os
 import pathlib
 import sys
@@ -17,7 +18,13 @@ from lxml import etree, html
 CAPELLA_INDEX_URL = (
     "https://mirror.dkm.cz/eclipse/capella/core/products/releases/"
 )
-CAPELLA_DOWNLOAD_URL = "https://www.eclipse.org/downloads/download.php?file=/capella/core/products/releases/{}&r=1"
+CAPELLA_DOWNLOAD_URL = os.getenv(
+    "CAPELLA_DOWNLOAD_URL",
+    (
+        "https://www.eclipse.org/downloads/download.php"
+        "?file=/capella/core/products/releases/{}&r=1"
+    ),
+)
 
 
 def get_directory_structure(url: str) -> list[str]:
@@ -54,6 +61,7 @@ if __name__ == "__main__":
     download_url = CAPELLA_DOWNLOAD_URL.format(
         f"{capella_archive_path}{archive_name}"
     )
+    print(f"Downloading Capella from `{DOWNLOAD_URL}`...")
 
     download_response = requests.get(download_url)
     download_response.raise_for_status()
