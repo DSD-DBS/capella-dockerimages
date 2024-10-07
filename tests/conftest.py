@@ -194,6 +194,7 @@ def fixture_init_t4c_server_repo(t4c_ip_addr: str, t4c_http_port: str) -> None:
     create_t4c_repository(t4c_ip_addr, t4c_http_port)
 
 
+# pylint: disable=too-many-positional-arguments
 @contextlib.contextmanager
 def get_container(
     image: str,
@@ -238,6 +239,9 @@ def get_container(
         if container:
             container.stop()
             container.remove()
+
+
+# pylint: enable=too-many-positional-arguments
 
 
 def wait_for_container(

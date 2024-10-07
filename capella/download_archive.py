@@ -51,19 +51,19 @@ if __name__ == "__main__":
         version for version in versions if version.startswith(capella_version)
     )
 
-    final_url = f"{CAPELLA_INDEX_URL}{capella_archive_path}"
-    dir_content = get_directory_structure(final_url)
+    FINAL_URL = f"{CAPELLA_INDEX_URL}{capella_archive_path}"
+    dir_content = get_directory_structure(FINAL_URL)
     archive_name = next(
         arch
         for arch in dir_content
         if arch.endswith("linux-gtk-x86_64.tar.gz")
     )
-    download_url = CAPELLA_DOWNLOAD_URL.format(
+    DOWNLOAD_URL = CAPELLA_DOWNLOAD_URL.format(
         f"{capella_archive_path}{archive_name}"
     )
     print(f"Downloading Capella from `{DOWNLOAD_URL}`...")
 
-    download_response = requests.get(download_url)
+    download_response = requests.get(DOWNLOAD_URL)
     download_response.raise_for_status()
     download_path = pathlib.Path("/opt/capella.tar.gz").write_bytes(
         download_response.content
