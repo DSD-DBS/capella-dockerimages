@@ -4,6 +4,9 @@
 # Add prefix to all dockerimage names, e.g. capella-collab
 export DOCKER_PREFIX ?=
 
+# URL used by to download Capella from
+CAPELLA_DOWNLOAD_URL ?=
+
 # T4C license secret (usually a long numeric string)
 T4C_LICENCE_SECRET ?= XXX
 
@@ -193,6 +196,7 @@ capella/base: base
 		--build-arg BUILD_ARCHITECTURE=$(BUILD_ARCHITECTURE) \
 		--build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(CAPELLA_DOCKERIMAGES_REVISION) \
 		--build-arg BUILD_TYPE=$(CAPELLA_BUILD_TYPE) \
+		--build-arg CAPELLA_DOWNLOAD_URL=$(CAPELLA_DOWNLOAD_URL) \
 		--build-arg CAPELLA_VERSION=$$CAPELLA_VERSION \
 		--build-arg "CAPELLA_DROPINS=$(CAPELLA_DROPINS)" \
 		--build-arg "INJECT_PACKAGES=$(INJECT_LIBS_CAPELLA)" \
