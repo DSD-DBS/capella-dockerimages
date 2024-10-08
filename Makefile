@@ -140,6 +140,10 @@ LOG_LEVEL ?= DEBUG
 MEMORY_MAX ?= 90%
 MEMORY_MIN ?= 70%
 
+# Disable the semantic browser auto refresh
+# More information is available in the "Capella/Base" documentation.
+CAPELLA_DISABLE_SEMANTIC_BROWSER_AUTO_REFRESH ?= 1
+
 # If this option is set to 1, all tests that require a running t4c server
 # will be executed. To run these tests, you need a Makefile in
 # t4c/server with a target t4c/server/server that builds the t4c server
@@ -291,6 +295,7 @@ capella/builder:
 
 run-capella/base: capella/base
 	docker run $(DOCKER_RUN_FLAGS) \
+		-e CAPELLA_DISABLE_SEMANTIC_BROWSER_AUTO_REFRESH=$(CAPELLA_DISABLE_SEMANTIC_BROWSER_AUTO_REFRESH) \
 		$(DOCKER_PREFIX)$<:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
 
 run-jupyter-notebook: jupyter-notebook
@@ -315,6 +320,8 @@ run-capella/remote: capella/remote
 		-e XPRA_SUBPATH=$(XPRA_SUBPATH) \
 		-e MEMORY_MIN=$(MEMORY_MIN) \
 		-e MEMORY_MAX=$(MEMORY_MAX) \
+		-e CAPELLA_DISABLE_SEMANTIC_BROWSER_AUTO_REFRESH=$(CAPELLA_DISABLE_SEMANTIC_BROWSER_AUTO_REFRESH) \
+		-e LOG_LEVEL="$(LOG_LEVEL)" \
 		-p $(RDP_PORT):3389 \
 		-p $(WEB_PORT):10000 \
 		-p $(METRICS_PORT):9118 \
@@ -382,6 +389,8 @@ run-t4c/client/remote-legacy: t4c/client/remote
 		-e XPRA_SUBPATH=$(XPRA_SUBPATH) \
 		-e MEMORY_MIN=$(MEMORY_MIN) \
 		-e MEMORY_MAX=$(MEMORY_MAX) \
+		-e CAPELLA_DISABLE_SEMANTIC_BROWSER_AUTO_REFRESH=$(CAPELLA_DISABLE_SEMANTIC_BROWSER_AUTO_REFRESH) \
+		-e LOG_LEVEL="$(LOG_LEVEL)" \
 		-p $(RDP_PORT):3389 \
 		-p $(WEB_PORT):10000 \
 		-p $(METRICS_PORT):9118 \
@@ -398,6 +407,8 @@ run-t4c/client/remote: t4c/client/remote
 		-e XPRA_SUBPATH=$(XPRA_SUBPATH) \
 		-e MEMORY_MIN=$(MEMORY_MIN) \
 		-e MEMORY_MAX=$(MEMORY_MAX) \
+		-e CAPELLA_DISABLE_SEMANTIC_BROWSER_AUTO_REFRESH=$(CAPELLA_DISABLE_SEMANTIC_BROWSER_AUTO_REFRESH) \
+		-e LOG_LEVEL="$(LOG_LEVEL)" \
 		-p $(RDP_PORT):3389 \
 		-p $(WEB_PORT):10000 \
 		-p $(METRICS_PORT):9118 \
@@ -417,6 +428,8 @@ run-t4c/client/remote/pure-variants: t4c/client/remote/pure-variants
 		-e CONNECTION_METHOD=$(CONNECTION_METHOD) \
 		-e XPRA_SUBPATH=$(XPRA_SUBPATH) \
 		-e WORKSPACE_DIR=/workspace/capella_pv \
+		-e CAPELLA_DISABLE_SEMANTIC_BROWSER_AUTO_REFRESH=$(CAPELLA_DISABLE_SEMANTIC_BROWSER_AUTO_REFRESH) \
+		-e LOG_LEVEL="$(LOG_LEVEL)" \
 		-p $(RDP_PORT):3389 \
 		-p $(WEB_PORT):10000 \
 		-p $(METRICS_PORT):9118 \
