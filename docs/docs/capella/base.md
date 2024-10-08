@@ -110,16 +110,6 @@ If you want to install dropins manually, you can place the dropins in the
 copied into the `dropins` directory of the Capella client without any further
 processing.
 
-#### Optional: Customisation of the Capella client
-
-If you want to customize the Capella client even further, you can:
-
-1. extract the downloaded archive,
-1. apply any modifications (e.g., installation of plugins and/ or dropins) to
-   it, and
-1. compress the modified folder `capella` to get a `capella.zip` or
-   `capella.tar.gz` again.
-
 #### Optional: Workaround of pinned library versions to remove incompatibilities
 
 **Note:** _This workaround is normally handled in the Dockerfile and it is only
@@ -147,19 +137,43 @@ For more information refer to
 
 ### Build it manually with Docker
 
+#### Automatic download of Capella
+
 If you want to download the Capella archive automatically, use the following
-command. Does only work for
+command. It does only work for
 [supported Capella versions](introduction.md#supported-versions).
 
 ```zsh
 docker build -t capella/base capella --build-arg BUILD_TYPE=online --build-arg CAPELLA_VERSION=$CAPELLA_VERSION
 ```
 
+You can further customize the mirror to download the Capella archive from. If
+you don't want to use the default mirror, choose another mirror from
+[this list](https://www.eclipse.org/downloads/download.php?file=/capella/core/products/releases&format=xml).
+
+Then, append `/{}` to the mirror URL and pass it as a build argument to the
+above command, e.g.:
+
+```zsh
+--build-arg CAPELLA_DOWNLOAD_URL="https://mirror.umd.edu/eclipse/capella/core/products/releases/{}"`
+```
+
+#### Build with pre-downloaded version of Capella
+
 If you've downloaded the Capella archive manually before, use this command:
 
 ```zsh
 docker build -t capella/base capella --build-arg CAPELLA_VERSION=$CAPELLA_VERSION
 ```
+
+With this method, you can customize the Capella client before running the above
+command:
+
+1. Extract the downloaded archive,
+1. Apply any modifications (e.g., installation of plugins and/ or dropins) to
+   it, and
+1. Compress the modified folder `capella` to get a `capella.zip` or
+   `capella.tar.gz` again.
 
 ### Miscellaneous
 

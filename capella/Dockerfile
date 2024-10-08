@@ -61,6 +61,7 @@ FROM base_new as build_online
 # https://github.com/moby/moby/issues/26533#issuecomment-246966836
 ONBUILD ARG CAPELLA_VERSION="5.2.0"
 ONBUILD ARG BUILD_ARCHITECTURE="amd64"
+ONBUILD ARG CAPELLA_DOWNLOAD_URL
 ONBUILD COPY ./download_archive.py /opt/.download_archive.py
 ONBUILD RUN pip install --no-cache-dir requests && \
     python .download_archive.py ${CAPELLA_VERSION};
