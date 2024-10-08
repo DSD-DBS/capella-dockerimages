@@ -21,14 +21,14 @@ CAPELLA_DOWNLOAD_URL = "https://www.eclipse.org/downloads/download.php?file=/cap
 
 
 def get_directory_structure(url: str) -> list[str]:
-    response = requests.get(url)
+    response = requests.get(url, timeout=10)
     response.raise_for_status()
 
     tree = etree.fromstring(response.content, parser=html.HTMLParser())
     return tree.xpath("//*/a/text()")
 
 
-if __name__ == "__main__":
+def main() -> None:
     capella_version = sys.argv[1]
     print(f"Installing Capella {capella_version}")
 
@@ -55,8 +55,10 @@ if __name__ == "__main__":
         f"{capella_archive_path}{archive_name}"
     )
 
-    download_response = requests.get(download_url)
+    download_response = requests.get(download_url, timeout=120)
     download_response.raise_for_status()
-    download_path = pathlib.Path("/opt/capella.tar.gz").write_bytes(
-        download_response.content
-    )
+    pathlib.Path("/opt/capella.tar.gz").write_bytes(download_response.content)
+
+
+if __name__ == "__main__":
+    main()
