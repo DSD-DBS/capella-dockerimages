@@ -45,8 +45,10 @@ RUN wget -qO /usr/share/keyrings/xpra.asc ${XPRA_REGISTRY}/xpra.asc && \
         nginx && \
     rm -rf /var/lib/apt/lists/*
 
+COPY openbox-launcher.sh /usr/local/bin/openbox-launcher.sh
 COPY rc.xml /etc/xdg/openbox/rc.xml
 COPY menu.xml /etc/xdg/openbox/menu.xml
+RUN echo 'export GTK_IM_MODULE=ibus' >> /etc/environment
 
 # Setup Nitrogen (Desktop background)
 COPY wallpaper.png /tmp/wallpaper.png
@@ -73,7 +75,7 @@ RUN mkdir -p /run/xrdp/sockdir && \
     chown techuser /var/log && \
     chown techuser /etc/supervisord.conf /var/log/nginx /var/log/nginx/* && \
     chown techuser /etc/nginx && \
-    touch /etc/environment && chown techuser /etc/environment
+    chown techuser /etc/environment
 
 WORKDIR /home/techuser
 
