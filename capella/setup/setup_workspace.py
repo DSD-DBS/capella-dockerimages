@@ -17,7 +17,7 @@ ECLIPSE_SETTINGS_BASE_PATH = pathlib.Path(
 )
 
 
-def replace_config(path: pathlib.Path, key: str, value: str) -> None:
+def _replace_config(path: pathlib.Path, key: str, value: str) -> None:
     """Replace the existing config or add the config option."""
     path.parent.mkdir(exist_ok=True, parents=True)
     if path.exists():
@@ -39,7 +39,7 @@ def replace_config(path: pathlib.Path, key: str, value: str) -> None:
     path.write_text(file_content)
 
 
-def set_git_merge_mode() -> None:
+def _set_git_merge_mode() -> None:
     """Set the default merge mode for Git to 'Last head (unmerged)'.
 
     The default merge strategy is set to "Working tree (pre-merged to 'Ours')"
@@ -52,7 +52,7 @@ def set_git_merge_mode() -> None:
     MacOS: Capella > Settings > Version Control (Team) > Git > Diff/Merge > Merge tool content
     Linux: Windows > Preferences > Version Control (Team) > Git > Merge tool content
     """
-    replace_config(
+    _replace_config(
         ECLIPSE_SETTINGS_BASE_PATH / "org.eclipse.egit.ui.prefs",
         "merge_mode",
         "2",
@@ -61,17 +61,17 @@ def set_git_merge_mode() -> None:
 
 if __name__ == "__main__":
     # Disable Welcome Screen
-    replace_config(
+    _replace_config(
         ECLIPSE_SETTINGS_BASE_PATH / "org.eclipse.ui.prefs",
         "showIntro",
         "false",
     )
 
     # Set default EGit path to /workspace/git
-    replace_config(
+    _replace_config(
         ECLIPSE_SETTINGS_BASE_PATH / "org.eclipse.egit.core.prefs",
         "core_defaultRepositoryDir",
         f"{WORKSPACE_DIR}/git",
     )
 
-    set_git_merge_mode()
+    _set_git_merge_mode()
