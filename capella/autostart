@@ -8,7 +8,9 @@ export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 # Load environment variables from /etc/environment
 source /etc/environment
 
-nitrogen --restore &
+if command -v nitrogen > /dev/null; then
+  nitrogen --restore &
+fi
 
 if [ "$AUTOSTART_CAPELLA" = "1" ];
 then
