@@ -27,7 +27,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
     obconf \
     gettext-base \
     xprintidle \
-    nitrogen && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
 
 ARG XPRA_REGISTRY=https://xpra.org
 
@@ -49,10 +49,6 @@ COPY openbox-launcher.sh /usr/local/bin/openbox-launcher.sh
 COPY rc.xml /etc/xdg/openbox/rc.xml
 COPY menu.xml /etc/xdg/openbox/menu.xml
 RUN echo 'export GTK_IM_MODULE=ibus' >> /etc/environment
-
-# Setup Nitrogen (Desktop background)
-COPY wallpaper.png /tmp/wallpaper.png
-COPY bg-saved.cfg /home/techuser/.config/nitrogen/bg-saved.cfg
 
 # Copy Supervisor Configuration
 RUN pip install --no-cache-dir supervisor==4.2.5
