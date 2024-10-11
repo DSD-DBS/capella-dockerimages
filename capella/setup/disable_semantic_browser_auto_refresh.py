@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
 # SPDX-License-Identifier: Apache-2.0
+"""Module is documented in the function `main`."""
+
 import fileinput
 import logging
 import os
@@ -27,6 +29,39 @@ WORKSPACE_DIR = os.getenv("WORKSPACE_DIR", "/workspace")
 
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 logger = logging.getLogger(__file__)
+
+
+def main() -> None:
+    """Disable auto-refresh of semantic browser when setting exists.
+
+    This script will disable the auto-refresh of the semantic browser in
+    Capella. A precondition is, that the according Capella configuration
+    entry already exists on disk. The script identifies the setting of
+    interest using ``lxml`` and an XPath query. The editing of the
+    configuration file is done in-place using the ``fileinput`` module
+    instead of writing it on disk with ``lxml``. This is done to avoid
+    issues with the file format. Capella mixes HTML into an XML file
+    and `lxml` escapes some HTML entities, which would break the file.
+    """
+    _check_environment_variable()
+    logger.debug("Expecting the workspace to be at: `%s`", WORKSPACE_DIR)
+    file_path = (
+        pathlib.Path(WORKSPACE_DIR)
+        / ".metadata"
+        / ".plugins"
+        / "org.eclipse.e4.workbench"
+        / "workbench.xmi"
+    )
+    _check_for_file_existence(file_path)
+
+    browser_autorefresh_line_no = _identify_semantic_browser_line_no(file_path)
+
+    _replace_content_in_line_of_file(
+        file_path,
+        browser_autorefresh_line_no,
+        "listeningToWorkbenchPageSelectionEvents=&quot;1&quot;",
+        "listeningToWorkbenchPageSelectionEvents=&quot;0&quot;",
+    )
 
 
 def _check_environment_variable() -> None:
@@ -120,28 +155,6 @@ def _replace_content_in_line_of_file(
                     old,
                 )
             sys.stdout.write(line)
-
-
-def main() -> None:
-    _check_environment_variable()
-    logger.debug("Expecting the workspace to be at: `%s`", WORKSPACE_DIR)
-    file_path = (
-        pathlib.Path(WORKSPACE_DIR)
-        / ".metadata"
-        / ".plugins"
-        / "org.eclipse.e4.workbench"
-        / "workbench.xmi"
-    )
-    _check_for_file_existence(file_path)
-
-    browser_autorefresh_line_no = _identify_semantic_browser_line_no(file_path)
-
-    _replace_content_in_line_of_file(
-        file_path,
-        browser_autorefresh_line_no,
-        "listeningToWorkbenchPageSelectionEvents=&quot;1&quot;",
-        "listeningToWorkbenchPageSelectionEvents=&quot;0&quot;",
-    )
 
 
 if __name__ == "__main__":
