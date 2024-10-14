@@ -27,7 +27,8 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
     obconf \
     gettext-base \
     xprintidle \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* && \
+    sed -i -e "/^border\.width:/ s/: .*/: 3/" /usr/share/themes/Clearlooks/openbox-3/themerc
 
 ARG XPRA_REGISTRY=https://xpra.org
 
