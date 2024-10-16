@@ -750,6 +750,9 @@
 
   # end of the example
 -->
+  <application type="splash">
+    <position force="yes"><x>50</x><y>50</y></position>
+  </application>
   <application type="normal" title="workspace *- Capella*">
     <fullscreen>yes</fullscreen>
   </application>
