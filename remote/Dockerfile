@@ -40,7 +40,7 @@ RUN wget -qO /usr/share/keyrings/xpra.asc ${XPRA_REGISTRY}/xpra.asc && \
         --no-install-recommends \
         xpra \
         xpra-x11 \
-        xpra-html5=10.1-r10-1 \
+        xpra-html5 \
         apache2-utils \
         nginx && \
     rm -rf /var/lib/apt/lists/*
