@@ -220,6 +220,27 @@ Please download all packages and place the files in the folder `capella/libs`:
 
 ## Run the container
 
+### Configuration Options
+
+There are a few configuration options that can be passed to the container.
+
+#### Semantic Browser Auto-refresh
+
+One
+[performance recommendation](https://github.com/eclipse-capella/capella/blob/master/doc/plugins/org.polarsys.capella.th.doc/html/Performance%20Recommandations/Performance%20Recommandations.mediawiki#desynchronize-semantic-browser)
+of the Capella team is to disable the semantic browser auto-refresh.
+
+The semantic browser synchronization is disabled by default in our containers.
+To follow a more streamlined approach, it will also be disabled if actively
+changed in the UI / workspace.
+
+To disable this behaviour and just keep the option as it is, pass the following
+flag to the `docker run` command:
+
+```zsh
+--env CAPELLA_DISABLE_SEMANTIC_BROWSER_AUTO_REFRESH=0
+```
+
 ### Locally on X11 systems
 
 If you don't need remote access, have a local X11 server running and just want
@@ -248,7 +269,7 @@ docker run -d \
 
 Capella should start after a few seconds.
 
-### In a remote container (RDP)
+### In a remote container
 
 Please follow the instructions on the [remote](../remote.md) page. When running
 the image, add the following variables to the `docker run` command:
