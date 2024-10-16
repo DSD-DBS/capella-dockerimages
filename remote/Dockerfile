@@ -49,7 +49,6 @@ RUN wget -qO /usr/share/keyrings/xpra.asc ${XPRA_REGISTRY}/xpra.asc && \
 COPY openbox-launcher.sh /usr/local/bin/openbox-launcher.sh
 COPY rc.xml /etc/xdg/openbox/rc.xml
 COPY menu.xml /etc/xdg/openbox/menu.xml
-RUN echo 'export GTK_IM_MODULE=ibus' >> /etc/environment
 
 # Copy Supervisor Configuration
 RUN pip install --no-cache-dir supervisor==4.2.5
