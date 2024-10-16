@@ -28,7 +28,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
     gettext-base \
     xprintidle \
     && rm -rf /var/lib/apt/lists/* && \
-    sed -i -e "/^border\.width:/ s/: .*/: 3/" /usr/share/themes/Clearlooks/openbox-3/themerc
+    printf '%s\n' >> /usr/share/themes/Natura/openbox-3/themerc "border.width: 3" "window.handle.width: 0"
 
 ARG XPRA_REGISTRY=https://xpra.org
 
