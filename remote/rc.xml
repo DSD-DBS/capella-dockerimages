@@ -750,7 +750,13 @@
 
   # end of the example
 -->
-  <application name="Capella">
+  <application type="normal" title="workspace *- Capella*">
+    <fullscreen>yes</fullscreen>
+  </application>
+  <application type="normal" title="workspace *- Papyrus*">
+    <fullscreen>yes</fullscreen>
+  </application>
+  <application type="normal" title="workspace *- Eclipse*">
     <fullscreen>yes</fullscreen>
   </application>
 </applications>
