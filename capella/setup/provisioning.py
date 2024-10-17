@@ -165,9 +165,8 @@ def provide_project_dirs_to_capella_plugin(
     projects: list[_ProjectDict],
 ) -> None:
     locations = ":".join([str(project["location"]) for project in projects])
-    pathlib.Path("/etc/environment").write_text(
-        f"export MODEL_INBOX_DIRECTORIES={locations}\n", encoding="utf-8"
-    )
+    with open("/etc/environment", "a", encoding="utf-8") as f:
+        f.write(f"export MODEL_INBOX_DIRECTORIES={locations}\n")
     log.info(
         "Set environment variable MODEL_INBOX_DIRECTORIES to '%s'", locations
     )
