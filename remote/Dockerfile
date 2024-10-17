@@ -27,7 +27,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
     obconf \
     gettext-base \
     xprintidle \
-    nitrogen && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
 
 ARG XPRA_REGISTRY=https://xpra.org
 
@@ -47,10 +47,6 @@ RUN wget -qO /usr/share/keyrings/xpra.asc ${XPRA_REGISTRY}/xpra.asc && \
 
 COPY rc.xml /etc/xdg/openbox/rc.xml
 COPY menu.xml /etc/xdg/openbox/menu.xml
-
-# Setup Nitrogen (Desktop background)
-COPY wallpaper.png /tmp/wallpaper.png
-COPY bg-saved.cfg /home/techuser/.config/nitrogen/bg-saved.cfg
 
 # Copy Supervisor Configuration
 RUN pip install --no-cache-dir supervisor==4.2.5
