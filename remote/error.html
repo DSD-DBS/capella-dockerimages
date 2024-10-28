@@ -3,22 +3,72 @@
  ~ SPDX-License-Identifier: Apache-2.0
  -->
 
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
     <style>
       body {
-        font-family: Arial, sans-serif;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+          Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue',
+          sans-serif;
+        display: grid;
+        place-items: center;
+        background-color: #000;
+        color: white;
+        margin: 0;
+        height: 100vh;
+      }
+
+      .container {
+        text-align: center;
+        max-width: 400px;
+        background-color: #1e1e1e;
+        padding: 20px;
+        border-radius: 4px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      div {
+        margin: 10px 0;
       }
     </style>
-  </head>
-  <body>
-    <h2>Xpra is not ready - 502 Bad Gateway</h2>
+    <script>
+      let counter = 3
 
-    <div>If you started the session recently, it is not ready yet.</div>
-    <div>Refresh the page in a few seconds.</div>
-    <div>
-      If this error is persistent, please contact your system administrator.
+      function startCountdown() {
+        const countdownElement = document.getElementById('countdown')
+
+        function updateCountdown() {
+          countdownElement.textContent = counter
+          if (counter > 0) {
+            counter--
+          } else {
+            location.reload()
+          }
+        }
+
+        updateCountdown()
+        setInterval(updateCountdown, 1000)
+      }
+    </script>
+  </head>
+  <body onload="startCountdown()">
+    <div class="container">
+      <h2 style="color: #63ca63; margin-top: 2px">Xpra is starting up...</h2>
+      <div style="text-align: center">
+        <div>
+          It might take some time until Xpra is started up. <br />
+          The page will try to connect to the session automatically.
+        </div>
+        <div>
+          If this page does not disappear after a few minutes and you expect
+          your session to run, please contact your system administrator.
+        </div>
+        <div style="font-style: italic">
+          Refreshing in <span id="countdown">3</span> seconds...
+        </div>
+      </div>
     </div>
   </body>
 </html>
