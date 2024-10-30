@@ -74,4 +74,11 @@ if __name__ == "__main__":
         f"{WORKSPACE_DIR}/git",
     )
 
+    # Force Help to built-in browser
+    _replace_config(
+        ECLIPSE_SETTINGS_BASE_PATH / "org.eclipse.help.base.prefs",
+        "always_external_browser",
+        "false",
+    )
+
     _set_git_merge_mode()
