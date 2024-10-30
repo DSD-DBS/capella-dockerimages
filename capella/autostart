@@ -8,6 +8,9 @@ export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 # Load environment variables from /etc/environment
 source /etc/environment
 
+# Turn off bell sound (loud beep)
+xset b off
+
 nitrogen --restore &
 
 if [ "$AUTOSTART_CAPELLA" = "1" ];
