@@ -9,6 +9,8 @@ update_capella_diagram_cache:
     name: $DOCKER_REGISTRY/capella/base:${CAPELLA_DOCKER_IMAGES_TAG}
     entrypoint: [""]
   script:
+    - python -m venv /tmp/.venv
+    - source /tmp/.venv/bin/activate
     - pip install "capellambse[cli]@git+https://github.com/DSD-DBS/py-capellambse.git@${CAPELLAMBSE_REVISION}"
     - mkdir diagram_cache
     - xvfb-run python -m capellambse.diagram_cache
