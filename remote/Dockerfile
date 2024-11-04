@@ -54,8 +54,8 @@ for (const [id, win] of Object.entries(client.id_to_window).toReversed()) {\
         if (client.topwindow !== parseInt(id)) {\
             console.log("Forcing focus on modal window", id);\
             client.set_focus(win);\
-            break;\
         }\
+        break;\
     }\
 }\
 }, 100);' /usr/share/xpra/www/index.html \
