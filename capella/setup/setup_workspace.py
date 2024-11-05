@@ -81,4 +81,11 @@ if __name__ == "__main__":
         "false",
     )
 
+    # Enable UI freeze monitoring
+    _replace_config(
+        ECLIPSE_SETTINGS_BASE_PATH / "org.eclipse.ui.monitoring.prefs",
+        "monitoring_enabled",
+        "true",
+    )
+
     _set_git_merge_mode()
