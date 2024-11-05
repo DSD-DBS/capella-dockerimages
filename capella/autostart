@@ -11,8 +11,6 @@ source /etc/environment
 # Turn off bell sound (loud beep)
 xset b off
 
-nitrogen --restore &
-
 if [ "$AUTOSTART_CAPELLA" = "1" ];
 then
     if [ "$RESTART_CAPELLA" = "1" ];

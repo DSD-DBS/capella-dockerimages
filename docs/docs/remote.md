@@ -27,8 +27,6 @@ It is a basic Linux server with a [Openbox](http://openbox.org/) installation.
 Feel free to adjust the configurations `remote/rc.xml` and `remote/menu.xml` to
 satisfy custom Openbox configuration needs.
 
-If you like to use your own wallpaper, replace `remote/wallpaper.png`.
-
 ### Build it manually with Docker
 
 ```zsh
