@@ -47,20 +47,11 @@ RUN wget -qO /usr/share/keyrings/xpra.asc ${XPRA_REGISTRY}/xpra.asc && \
 
 # Inject script to force focus on modal windows in xpra client
 # and remove the compressed index.html files because they don't contain our fix
-RUN sed -i '/load_default_settings();/a \
-setInterval(() => {\
-for (const [id, win] of Object.entries(client.id_to_window).toReversed()) {\
-    if (win.metadata.modal) {\
-        if (client.topwindow !== parseInt(id)) {\
-            console.log("Forcing focus on modal window", id);\
-            client.set_focus(win);\
-        }\
-        break;\
-    }\
-}\
-}, 100);' /usr/share/xpra/www/index.html \
+COPY client-inject.js /tmp/client-inject.js
+RUN sed -i '/load_default_settings();/r /tmp/client-inject.js' /usr/share/xpra/www/index.html \
 && rm /usr/share/xpra/www/index.html.gz \
 && rm /usr/share/xpra/www/index.html.br
+
 COPY rc.xml /etc/xdg/openbox/rc.xml
 COPY menu.xml /etc/xdg/openbox/menu.xml
 
