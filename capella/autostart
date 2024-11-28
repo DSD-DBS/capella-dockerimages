@@ -4,6 +4,7 @@
 
 # Autostart script
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+export GTK_OVERLAY_SCROLLING=0
 
 # Load environment variables from /etc/environment
 source /etc/environment
