@@ -7,9 +7,11 @@ import datetime
 import logging
 import os
 import subprocess
+import typing as t
 from wsgiref import simple_server
 
 import prometheus_client
+import psutil
 
 METRICS_PORT = int(os.getenv("METRICS_PORT", "9118"))
 LOGGER = logging.getLogger(__file__)
@@ -56,7 +58,91 @@ class IdleTimer:
         return round(current_idle_time, 2)
 
 
+class ProcessCollector(prometheus_client.registry.Collector):
+    """Track metrics of all system processes."""
+
+    def collect(self) -> t.Iterable[prometheus_client.Metric]:
+        """Collect metrics from all system processes."""
+        processes = psutil.process_iter()
+
+        process_cpu_percent_metric = (
+            prometheus_client.metrics_core.GaugeMetricFamily(
+                "process_cpu_percent",
+                "CPU percent of the process",
+                labels=["process_name"],
+            )
+        )
+
+        process_memory_usage_metric = (
+            prometheus_client.metrics_core.GaugeMetricFamily(
+                "process_memory_usage_bytes",
+                "Memory usage of the process in bytes",
+                labels=["process_name"],
+            )
+        )
+
+        process_io_counters_metric = (
+            prometheus_client.metrics_core.GaugeMetricFamily(
+                "process_io_counters_bytes",
+                "Read and write bytes by the process",
+                labels=["process_name", "io_type"],
+            )
+        )
+
+        process_num_threads_metric = (
+            prometheus_client.metrics_core.GaugeMetricFamily(
+                "process_num_threads",
+                "Number of threads of the process",
+                labels=["process_name"],
+            )
+        )
+
+        process_open_fds_metric = (
+            prometheus_client.metrics_core.GaugeMetricFamily(
+                "process_open_file_descriptors",
+                "Number of open file descriptors by the process",
+                labels=["process_name"],
+            )
+        )
+
+        for process in processes:
+            with process.oneshot():
+                process_cpu_percent_metric.add_metric(
+                    [process.name()], process.cpu_percent()
+                )
+
+                process_memory_usage_metric.add_metric(
+                    [process.name()], process.memory_info().rss
+                )
+
+                io_counters = process.io_counters()
+                if io_counters:
+                    process_io_counters_metric.add_metric(
+                        [process.name(), "read"], io_counters.read_bytes
+                    )
+                    process_io_counters_metric.add_metric(
+                        [process.name(), "write"], io_counters.write_bytes
+                    )
+
+                process_num_threads_metric.add_metric(
+                    [process.name()], process.num_threads()
+                )
+
+                if hasattr(process, "num_fds"):
+                    process_open_fds_metric.add_metric(
+                        [process.name()], process.num_fds()
+                    )
+
+        yield process_cpu_percent_metric
+        yield process_memory_usage_metric
+        yield process_io_counters_metric
+        yield process_num_threads_metric
+        yield process_open_fds_metric
+
+
 IDLETIME.set_function(IdleTimer().get_idletime)
+
+prometheus_client.REGISTRY.register(ProcessCollector())
 
 
 def start_server(
