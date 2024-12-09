@@ -84,7 +84,7 @@ COPY startup.sh .startup.sh
 RUN chmod 755 .startup.sh /home/techuser/.config/openbox/autostart
 
 # Prepare idletime metric endpoint
-RUN pip install --no-cache-dir prometheus-client==0.17.1
+RUN pip install --no-cache-dir prometheus-client==0.21.0 psutil==6.1.0
 
 COPY metrics.py .metrics.py
 RUN chown techuser /home/techuser/.metrics.py
