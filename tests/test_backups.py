@@ -33,7 +33,7 @@ def fixture_t4c_backup_local_env(
 
 @pytest.fixture(name="t4c_backup_container")
 def fixture_t4c_backup_container(
-    t4c_backup_local_env: dict[str, str]
+    t4c_backup_local_env: dict[str, str],
 ) -> t.Generator[containers.Container, None, None]:
     with conftest.get_container(
         image="t4c/client/base",

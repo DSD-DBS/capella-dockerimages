@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
 # SPDX-License-Identifier: Apache-2.0
 """Unit tests for metrics."""
+
 import time
 import typing as t
 from unittest import mock
@@ -11,15 +12,12 @@ import pytest
 
 @pytest.fixture(name="idler")
 def fixture_idler() -> metrics.IdleTimer:
-    """Return an instance of `metrics.IdleTime`"""
+    """Return an instance of `metrics.IdleTime`."""
     return metrics.IdleTimer()
 
 
 def print_no_display(*__: t.Any, **_: t.Any) -> mock.MagicMock:
-    """
-    Just print: 'could not open display', the response of xprintidle
-    when there is no X server.
-    """
+    """Just print: 'could not open display', the response of xprintidle when there is no X server."""
     return mock.MagicMock(stdout="couldn't open display")
 
 
@@ -64,5 +62,6 @@ def test_get_idletime_increases_after_display_is_closed(
 
     second_idletime = idler.get_idletime()
 
-    assert isinstance(idletime, float) and isinstance(second_idletime, float)
+    assert isinstance(idletime, float)
+    assert isinstance(second_idletime, float)
     assert idletime < second_idletime
