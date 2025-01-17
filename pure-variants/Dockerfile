@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 ARG BASE_IMAGE=capella/remote
-FROM ${BASE_IMAGE} as base
+FROM ${BASE_IMAGE} AS base
 
 ARG ECLIPSE_REPOSITORY=https://download.eclipse.org
 
@@ -32,6 +32,7 @@ RUN installUI=com.ps.consul.eclipse.purevariants.emf.feature.mapping.feature.gro
     -installIU "$installUI"
 
 USER root
+# hadolint ignore=SC2086
 RUN if [ "$BASE_TYPE" == "capella" ]; \
     then chmod +x ${ECLIPSE_INSTALLATION_PATH:?}/plugins/com.ps.consul.eclipse.core.linux_*/server/bin/variantsd && \
     chmod +x ${ECLIPSE_INSTALLATION_PATH:?}/plugins/com.ps.consul.eclipse.core.linux_*/server/bin/finishInstallation.sh; \
