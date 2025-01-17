@@ -8,7 +8,8 @@ SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 ENV SHELL=/bin/bash
 
 RUN apt-get update && \
-    apt-get install -y maven
+    apt-get install -y maven --no-install-recommends && \
+    rm -rf /var/lib/apt/lists/*
 
 RUN pip install --no-cache-dir lxml==4.9.3
 

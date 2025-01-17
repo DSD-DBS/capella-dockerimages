@@ -1,5 +1,3 @@
-# syntax=docker/dockerfile:1.4
-
 # SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
 # SPDX-License-Identifier: Apache-2.0
 
@@ -15,7 +13,7 @@ ENV SHELL=/bin/bash
 USER root
 
 RUN apt-get update && \
-    apt-get install -y xvfb xauth && \
+    apt-get install -y xvfb xauth --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
 
 COPY docker_entrypoint.sh /docker_entrypoint.sh
@@ -39,7 +37,7 @@ RUN T4C_ZIP=$(find . -type f -iname "com.thalesgroup.mde.melody.team.license.upd
     -consoleLog \
     -application org.eclipse.equinox.p2.director \
     -noSplash \
-    -repository jar:file:///opt/updateSite/$T4C_ZIP!/ \
+    -repository "jar:file:///opt/updateSite/$T4C_ZIP!/" \
     -installIU com.thalesgroup.mde.melody.collab.feature.feature.group,com.thalesgroup.mde.melody.collab.maintenance.feature.feature.group,com.thalesgroup.mde.melody.collab.licbranding.feature.feature.group && \
     chown -R techuser /opt/capella/configuration
 

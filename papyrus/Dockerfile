@@ -13,11 +13,9 @@ ARG ECLIPSE_REPOSITORY=https://download.eclipse.org
 USER root
 
 ARG PAPYRUS_VERSION
-COPY ./versions/${PAPYRUS_VERSION}/papyrus.tar.gz /opt/
+ADD ./versions/${PAPYRUS_VERSION}/papyrus.tar.gz /opt/
 
 WORKDIR /opt/
-RUN tar -xf papyrus.tar.gz && \
-    rm -rf papyrus.tar.gz
 
 COPY set_memory_flags.py /opt/setup/set_memory_flags.py
 RUN mkdir -p /workspace; \
