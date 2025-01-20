@@ -6,9 +6,20 @@ theme:
   name: material
   font: false
   palette:
-    scheme: slate
-    primary: indigo
-    accent: light blue
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
   features:
     - content.code.copy
     - content.code.annotate
@@ -80,4 +91,4 @@ markdown_extensions:
 extra:
   generator: false
 
-copyright: Copyright &copy; 2022-2023 DB InfraGO AG
+copyright: Copyright &copy; 2022-2025 DB InfraGO AG
