@@ -51,6 +51,7 @@ RUN python3 -m pip install --no-cache-dir -r /etc/skel/requirements_template.txt
     mkdir /home/techuser/.jupyter && chown techuser /home/techuser/.jupyter
 
 COPY jupyter_lab_config.py /home/techuser/.jupyter/jupyter_lab_config.py
+COPY --chown=techuser jupyter_terminal_config.json /home/techuser/.jupyter/lab/user-settings/@jupyterlab/terminal-extension/plugin.jupyterlab-settings
 
 ENV JUPYTER_PORT=8888
 ENV WORKSPACE_DIR=/workspace/notebooks
