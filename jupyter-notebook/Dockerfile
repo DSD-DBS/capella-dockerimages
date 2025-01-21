@@ -34,18 +34,18 @@ RUN chmod +x /docker-entrypoint.sh && \
 
 USER techuser
 
-RUN pip install --no-cache-dir supervisor requests prometheus_client
+RUN pip install --no-cache-dir supervisor requests prometheus_client uv
 COPY supervisord.conf /etc/supervisord.conf
 COPY jupyter_metrics.py /opt/metrics.py
 
 # Activate virtual environment
-RUN python -m venv /home/techuser/.venv
+RUN uv venv --seed /home/techuser/.venv
 
 ENV _OLD_VIRTUAL_PATH="$PATH"
 ENV VIRTUAL_ENV=/home/techuser/.venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-RUN python3 -m pip install --no-cache-dir -r /etc/skel/requirements_template.txt jupyterlab jupyter-collaboration && \
+RUN uv pip install --no-cache -r /etc/skel/requirements_template.txt jupyterlab jupyter-collaboration && \
     jupyter labextension disable "@jupyterlab/extensionmanager-extension" && \
     jupyter labextension disable "@jupyterlab/apputils-extension:announcements" && \
     mkdir /home/techuser/.jupyter && chown techuser /home/techuser/.jupyter
