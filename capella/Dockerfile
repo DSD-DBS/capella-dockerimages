@@ -83,6 +83,7 @@ RUN apt-get update && \
     apt-get install -y \
     libxtst6 \
     xdg-utils \
+    x11-xserver-utils \
     xvfb \
     xauth \
     dbus-x11 && \
