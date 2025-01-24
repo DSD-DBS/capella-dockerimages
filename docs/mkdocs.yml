@@ -91,4 +91,6 @@ markdown_extensions:
 extra:
   generator: false
 
-copyright: Copyright &copy; 2022-2025 DB InfraGO AG
+# prettier-ignore
+copyright:
+  'Copyright &copy; 2022-<script>document.write(new Date().getFullYear())</script> DB InfraGO AG'
