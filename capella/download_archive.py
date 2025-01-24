@@ -52,8 +52,8 @@ def main() -> None:
         for arch in dir_content
         if arch.endswith("linux-gtk-x86_64.tar.gz")
     )
-    download_url = os.getenv(
-        "CAPELLA_DOWNLOAD_URL", CAPELLA_DEFAULT_DOWNLOAD_URL
+    download_url = (
+        os.getenv("CAPELLA_DOWNLOAD_URL") or CAPELLA_DEFAULT_DOWNLOAD_URL
     ).format(f"{capella_archive_path}{archive_name}")
     print(f"Downloading Capella from `{download_url}`...")
 
