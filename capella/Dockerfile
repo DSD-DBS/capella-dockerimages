@@ -171,5 +171,6 @@ COPY startup.sh /startup.sh
 ENTRYPOINT [ "/tini", "--", "/startup.sh" ]
 
 ENV BASE_TYPE=capella
+ENV DISPLAY_NAME="Capella $CAPELLA_VERSION"
 
 USER techuser

@@ -45,4 +45,6 @@ COPY setup_workspace_purevariants.py /opt/setup/setup_workspace_purevariants.py
 # This fixes the error by switching to the vfork launch mechanism
 RUN echo '-Djdk.lang.Process.launchMechanism=vfork' >> "${ECLIPSE_EXECUTABLE:?}.ini"
 
+ENV DISPLAY_NAME="pure::variants $PURE_VARIANTS_VERSION"
+
 USER techuser
