@@ -15,6 +15,7 @@ RUN apt-get update && \
     libcairo2-dev \
     gir1.2-pango-1.0 \
     curl \
+    less \
     weasyprint \
     graphviz && \
     rm -rf /var/lib/apt/lists/*
