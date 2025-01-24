@@ -44,7 +44,6 @@ ONBUILD RUN if [ "$INJECT_PACKAGES" = "true" ]; then \
 FROM base as old_gtk_false
 
 ONBUILD USER root
-ONBUILD COPY libs /tmp/libs
 ONBUILD RUN apt-get update && \
     apt-get install -y \
     libjavascriptcoregtk-4.0-18 \
