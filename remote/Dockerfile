@@ -33,7 +33,7 @@ ARG XPRA_REGISTRY=https://xpra.org
 
 # Install xpra and dependencies
 RUN wget -qO /usr/share/keyrings/xpra.asc ${XPRA_REGISTRY}/xpra.asc && \
-    wget -qO /etc/apt/sources.list.d/xpra.sources https://raw.githubusercontent.com/Xpra-org/xpra/master/packaging/repos/bookworm/xpra-beta.sources && \
+    wget -qO /etc/apt/sources.list.d/xpra.sources https://raw.githubusercontent.com/Xpra-org/xpra/master/packaging/repos/bookworm/xpra.sources && \
     sed -i "s|https://xpra.org|${XPRA_REGISTRY}|" /etc/apt/sources.list.d/xpra.sources && \
     apt-get update && \
     apt-get install -y \
