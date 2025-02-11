@@ -65,6 +65,9 @@ nav:
 repo_url: https://github.com/DSD-DBS/capella-dockerimages
 edit_uri: edit/master/docs/docs
 
+hooks:
+  - copyright_hook.py
+
 markdown_extensions:
   - meta
   - admonition
@@ -90,7 +93,3 @@ markdown_extensions:
 
 extra:
   generator: false
-
-# prettier-ignore
-copyright:
-  'Copyright &copy; 2022-<script>document.write(new Date().getFullYear())</script> DB InfraGO AG'
