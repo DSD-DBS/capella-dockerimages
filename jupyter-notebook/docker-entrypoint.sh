@@ -21,7 +21,10 @@ mkdir -p "$WORKSPACE_DIR"
 unset JUPYTER_ADDITIONAL_DEPENDENCIES
 
 test -f "$WORKSPACE_DIR/requirements.txt" || cp /etc/skel/requirements_template.txt "$WORKSPACE_DIR/requirements.txt"
-uv pip install -U -r "$WORKSPACE_DIR/requirements.txt" -r /etc/skel/requirements_template.txt 2>&1 | tee -a "$WORKSPACE_DIR/installlog.txt"
+
+if ! uv pip install -U -r "$WORKSPACE_DIR/requirements.txt" -r /etc/skel/requirements_template.txt 2>&1 | tee -a "$WORKSPACE_DIR/installlog.txt"; then
+    echo "Failed to install requirements.txt, check for invalid packages" | tee -a "$WORKSPACE_DIR/installlog.txt"
+fi
 
 test -d "$WORKSPACE_DIR/shared" || ln -s /shared "$WORKSPACE_DIR/shared"
 
