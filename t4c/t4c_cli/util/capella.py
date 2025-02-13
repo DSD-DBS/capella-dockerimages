@@ -41,9 +41,12 @@ def run_capella_command_and_handle_errors(
     ```
     """
 
-    command = (
-        DEFAULT_CAPELLA_COMMAND + ["-application", application] + arguments
-    )
+    command = [
+        *DEFAULT_CAPELLA_COMMAND,
+        "-application",
+        application,
+        *arguments,
+    ]
     log.info("Executing the following command: %s", " ".join(command))
 
     stderr = ""

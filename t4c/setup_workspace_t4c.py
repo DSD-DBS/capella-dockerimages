@@ -78,7 +78,7 @@ def setup_repositories() -> None:
         if count > 1
     ]
     for repo in t4c_repos:
-        protocol = repo["protocol"] if "protocol" in repo else None
+        protocol = repo.get("protocol", None)
         if protocol:
             assert protocol in ["tcp", "ssl", "ws", "wss"]
         inject_t4c_connection_details(

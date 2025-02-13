@@ -21,7 +21,7 @@ def extract_repositories_and_install_ius(dropins: dict[str, t.Any]) -> None:
         if not dropin_slug:
             continue
 
-        if not dropin_slug in dropins:
+        if dropin_slug not in dropins:
             raise KeyError(
                 f"Dropin '{dropin_slug}' not found in list of supported dropins."
             )

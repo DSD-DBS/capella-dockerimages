@@ -27,41 +27,14 @@ repos:
       - id: end-of-file-fixer
       - id: fix-byte-order-marker
       - id: trailing-whitespace
-  - repo: https://github.com/pylint-dev/pylint
-    rev: v3.3.1
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.9.4
     hooks:
-      - id: pylint
-        additional_dependencies:
-          - mccabe
-        require_serial: false
-        args:
-          - -rn
-          - -sn
-          - -dfixme
-          - -dduplicate-code
-  - repo: https://github.com/psf/black-pre-commit-mirror
-    rev: 24.10.0
-    hooks:
-      - id: black
-  - repo: https://github.com/PyCQA/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort
-  - repo: https://github.com/PyCQA/docformatter
-    rev: eb1df347edd128b30cd3368dddc3aa65edcfac38
-    hooks:
-      - id: docformatter
-        additional_dependencies:
-          - docformatter[tomli]
-  - repo: https://github.com/PyCQA/pydocstyle
-    rev: 6.3.0
-    hooks:
-      - id: pydocstyle
-        exclude: '^tests/'
-        additional_dependencies:
-          - pydocstyle[toml]
+      - id: ruff
+        args: [--extend-ignore=FIX, --fix]
+      - id: ruff-format
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.11.2
+    rev: v1.14.1
     hooks:
       - id: mypy
         additional_dependencies:
@@ -121,23 +94,18 @@ repos:
           - --comment-style
           - '..|  |'
   - repo: https://github.com/fsfe/reuse-tool
-    rev: v4.0.3
+    rev: v5.0.2
     hooks:
       - id: reuse
   - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
-    rev: v9.18.0
+    rev: v9.20.0
     hooks:
       - id: commitlint
         stages: [commit-msg]
         additional_dependencies:
           - '@commitlint/config-conventional'
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.17.0
-    hooks:
-      - id: pyupgrade
-        args: ['--py311-plus']
   - repo: https://github.com/hadolint/hadolint
-    rev: v2.12.0
+    rev: v2.13.1-beta
     hooks:
       - id: hadolint-docker
   - repo: local
