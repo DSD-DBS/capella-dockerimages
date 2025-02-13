@@ -115,7 +115,11 @@ class ProcessCollector(prometheus_client.registry.Collector):
                     [process.name()], process.memory_info().rss
                 )
 
-                io_counters = process.io_counters()
+                try:
+                    io_counters = process.io_counters()
+                except psutil.AccessDenied:
+                    io_counters = None
+
                 if io_counters:
                     process_io_counters_metric.add_metric(
                         [process.name(), "read"], io_counters.read_bytes
@@ -129,9 +133,12 @@ class ProcessCollector(prometheus_client.registry.Collector):
                 )
 
                 if hasattr(process, "num_fds"):
-                    process_open_fds_metric.add_metric(
-                        [process.name()], process.num_fds()
-                    )
+                    try:
+                        process_open_fds_metric.add_metric(
+                            [process.name()], process.num_fds()
+                        )
+                    except psutil.AccessDenied:
+                        pass
 
         yield process_cpu_percent_metric
         yield process_memory_usage_metric
