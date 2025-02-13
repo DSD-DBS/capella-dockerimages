@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 ARG BASE_IMAGE=base
-FROM $BASE_IMAGE as base
+FROM $BASE_IMAGE AS base
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -13,15 +13,15 @@ USER root
 ARG ECLIPSE_REPOSITORY=https://download.eclipse.org
 
 # https://forums.debian.net/viewtopic.php?t=151997
-RUN apt-get update && apt-get install -y openjdk-17-jre || apt-get install -y openjdk-17-jre
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends openjdk-17-jre || apt-get install -y --no-install-recommends openjdk-17-jre && \
+    rm -rf /var/lib/apt/lists/*
 
 ARG ECLIPSE_VERSION
 ARG BUILD_ARCHITECTURE=amd64
-COPY ./versions/${ECLIPSE_VERSION}/${BUILD_ARCHITECTURE}/eclipse.tar.gz /opt/
+ADD ./versions/${ECLIPSE_VERSION}/${BUILD_ARCHITECTURE}/eclipse.tar.gz /opt/
 
 WORKDIR /opt/
-RUN tar -xf eclipse.tar.gz && \
-    rm -rf eclipse.tar.gz
 
 RUN mkdir -p /workspace; \
     # Set workspace permissions
