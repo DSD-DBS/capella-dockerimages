@@ -3,17 +3,7 @@
 # SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
 # SPDX-License-Identifier: Apache-2.0
 
-handle_exit() {
-    exit_status=$?
-    if [ $exit_status -ne 0 ]; then
-        echo "---FAILURE_PREPARE_WORKSPACE---"
-    fi
-}
-trap handle_exit EXIT
-
 set -euo pipefail
-
-echo "---START_PREPARE_WORKSPACE---"
 
 mkdir -p "$WORKSPACE_DIR"
 
@@ -28,5 +18,7 @@ fi
 
 test -d "$WORKSPACE_DIR/shared" || ln -s /shared "$WORKSPACE_DIR/shared"
 
-echo "---START_SESSION---"
+# Patch certifi to find all preloaded certificates
+cat /etc/ssl/certs/*.pem > "$(python -m certifi)"
+
 exec /opt/.venv/bin/supervisord
