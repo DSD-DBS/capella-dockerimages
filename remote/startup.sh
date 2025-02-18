@@ -50,6 +50,4 @@ else
     cat /tmp/supervisord/supervisord.xrdp.conf >> /etc/supervisord.conf
 fi
 
-echo "---START_SESSION---"
-
 exec supervisord

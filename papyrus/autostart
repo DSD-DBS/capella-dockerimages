@@ -6,13 +6,17 @@
 
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
+command="/opt/Papyrus/papyrus -consoleLog -data ${WORKSPACE_DIR:-/workspace}"
+stdout="/var/log/session/papyrus.stdout.log"
+stderr="/var/log/session/papyrus.stderr.log"
+
 if [ "$AUTOSTART_PAPYRUS" = "1" ];
 then
     if [ "$RESTART_PAPYRUS" = "1" ];
     then
         # Restart Papyrus automatically
-        ( while true; do /opt/Papyrus/papyrus -data ${WORKSPACE_DIR:-/workspace} > /var/log/papyrus.stdout.log 2> /var/log/papyrus.stderr.log; sleep 1; done ) &
+        ( while true; do $command > $stdout 2> $stderr; sleep 1; done ) &
     else
-        /opt/Papyrus/papyrus -data ${WORKSPACE_DIR:-/workspace} > /var/log/papyrus.stdout.log 2> /var/log/papyrus.stderr.log &
+        $command > $stdout 2> $stderr &
     fi
 fi
