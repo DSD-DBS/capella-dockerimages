@@ -20,8 +20,7 @@ IDLETIME = prometheus_client.Gauge(
 
 PORT = os.getenv("JUPYTER_PORT", "8888")
 BASE_URL = os.getenv("JUPYTER_BASE_URL", "/")
-if BASE_URL.endswith("/"):
-    BASE_URL = BASE_URL[:-1]
+BASE_URL = BASE_URL.removesuffix("/")
 
 
 def get_last_activity() -> datetime.datetime | None:

@@ -41,8 +41,8 @@ def fixture_t4c_exporter_container(
     t4c_exporter_git_env: dict[str, str],
     t4c_ip_addr: str,
     t4c_http_port: str,
-    init_t4c_server_repo: None,  # pylint: disable=unused-argument
-    init_git_server: None,  # pylint: disable=unused-argument
+    init_t4c_server_repo: None,  # noqa: ARG001
+    init_git_server: None,  # noqa: ARG001
 ) -> t.Generator[containers.Container, None, None]:
     if conftest.is_capella_6_x_x():
         assert not conftest.get_projects_of_t4c_repository(

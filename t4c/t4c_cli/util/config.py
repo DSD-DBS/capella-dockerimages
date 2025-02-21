@@ -54,9 +54,9 @@ class FileHandler(enum.Enum):
 class GeneralConfig:
     file_handler = FileHandler(os.getenv("FILE_HANDLER", "GIT").upper())
 
-    git: GitConfig = GitConfig()
-    t4c: T4CConfig = T4CConfig()
-    capella: CapellaConfig = CapellaConfig()
+    git: GitConfig = dataclasses.field(default_factory=GitConfig)
+    t4c: T4CConfig = dataclasses.field(default_factory=T4CConfig)
+    capella: CapellaConfig = dataclasses.field(default_factory=CapellaConfig)
 
 
 config = GeneralConfig()

@@ -141,7 +141,7 @@ def _replace_content_in_line_of_file(
                 sys.stdout.write(line)
                 continue
             if old in line:
-                line = line.replace(old, new)
+                line = line.replace(old, new)  # noqa: PLW2901
                 logger.info(
                     "Replaced `%s` with `%s` in line number: `%d`",
                     old,

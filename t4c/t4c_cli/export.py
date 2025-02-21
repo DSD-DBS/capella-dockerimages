@@ -51,9 +51,9 @@ def _build_export_command(model_dir: pathlib.Path) -> list[str]:
 def _validate_exporter_stdout(line: str) -> None:
     if "No address associated with hostname" in line:
         raise RuntimeError("Unknown host")
-    elif "No such user:" in line:
+    if "No such user:" in line:
         raise RuntimeError("Unknown user")
-    elif re.search(r"[1-9][0-9]* projects? exports? failed", line):
+    if re.search(r"[1-9][0-9]* projects? exports? failed", line):
         raise RuntimeError("Export failed")
 
 
