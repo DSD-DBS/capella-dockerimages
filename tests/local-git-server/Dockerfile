@@ -10,7 +10,7 @@ USER root
 
 RUN apt-get update && \
     apt-get upgrade --yes && \
-    apt-get install --yes \
+    apt-get install --yes --no-install-recommends \
     git \
     lighttpd && \
     rm -rf /var/lib/apt/lists/*

@@ -1,17 +1,17 @@
+# syntax=docker/dockerfile:1.10.0
 # SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
 # SPDX-License-Identifier: Apache-2.0
-
 ARG BASE_IMAGE=base
 ARG BUILD_TYPE=online
 ARG INSTALL_OLD_GTK_VERSION=true
-FROM ${BASE_IMAGE} as base
+FROM ${BASE_IMAGE} AS base
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 ENV SHELL=/bin/bash
 
-FROM base as old_gtk_true
+FROM base AS old_gtk_true
 
 ONBUILD USER root
 
@@ -22,7 +22,7 @@ ONBUILD ARG INJECT_PACKAGES=false
 ONBUILD RUN if [ "$INJECT_PACKAGES" = "true" ]; then \
     apt-get update && \
     # Inject old packages manually
-    apt-get install -y $(find /tmp/libs -iname "*.deb"); \
+    apt-get install --no-install-recommends -y $(find /tmp/libs -iname "*.deb"); \
     rm -rf /var/lib/apt/lists/*; \
     rm -r /tmp/libs; \
     else \
@@ -34,27 +34,27 @@ ONBUILD RUN if [ "$INJECT_PACKAGES" = "true" ]; then \
     apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 871920D1991BC93C; \
     apt-get update; \
     ## Install the packages
-    apt-get install -y \
+    apt-get install -y --no-install-recommends \
     libjavascriptcoregtk-4.0-18=2.28.1-1 \
     libwebkit2gtk-4.0-37=2.28.1-1; \
     rm /etc/apt/sources.list.d/focal.list; \
     fi; \
     rm -rf /var/lib/apt/lists/*;
 
-FROM base as old_gtk_false
+FROM base AS old_gtk_false
 
 ONBUILD USER root
 ONBUILD RUN apt-get update && \
-    apt-get install -y \
+    apt-get install -y --no-install-recommends \
     libjavascriptcoregtk-4.0-18 \
     libwebkit2gtk-4.0-37 && \
     rm -rf /var/lib/apt/lists/*;
 
-FROM old_gtk_${INSTALL_OLD_GTK_VERSION} as base_new
+FROM old_gtk_${INSTALL_OLD_GTK_VERSION} AS base_new
 
 WORKDIR /opt/
 
-FROM base_new as build_online
+FROM base_new AS build_online
 # Download a Capella executable archive
 
 # https://github.com/moby/moby/issues/26533#issuecomment-246966836
@@ -65,7 +65,7 @@ ONBUILD COPY ./download_archive.py /opt/.download_archive.py
 ONBUILD RUN pip install --no-cache-dir requests && \
     python .download_archive.py ${CAPELLA_VERSION};
 
-FROM base_new as build_offline
+FROM base_new AS build_offline
 
 # ONBUILD is required here
 # https://github.com/moby/moby/issues/26533#issuecomment-246966836
@@ -79,7 +79,7 @@ FROM build_${BUILD_TYPE}
 ARG CAPELLA_VERSION
 
 RUN apt-get update && \
-    apt-get install -y \
+    apt-get install --no-install-recommends -y \
     libxtst6 \
     xdg-utils \
     x11-xserver-utils \
