@@ -70,7 +70,9 @@ RUN ln -s "$(which python3.11)" /usr/bin/python \
     && git config --global core.hooksPath /opt/git/global-hooks \
     && chmod -R 755 /opt/git/global-hooks \
     && chown -R techuser /opt/.venv/bin/ /opt/.venv/lib/python3.11/site-packages \
-    && cat /etc/ssl/certs/*.pem > "$(python -m certifi)"
+    && cat /etc/ssl/certs/*.pem > "$(python -m certifi)" \
+    && mkdir -p "/var/log/session" \
+    && chown techuser -R /var/log
 
 # Make pre-commit cache persistent
 ENV PRE_COMMIT_HOME=/workspace/.pre-commit

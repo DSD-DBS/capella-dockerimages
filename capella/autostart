@@ -12,13 +12,17 @@ source /etc/environment
 # Turn off bell sound (loud beep)
 xset b off
 
+command="/opt/capella/capella -consoleLog -data ${WORKSPACE_DIR:-/workspace}"
+stdout="/var/log/session/capella.stdout.log"
+stderr="/var/log/session/capella.stderr.log"
+
 if [ "$AUTOSTART_CAPELLA" = "1" ];
 then
     if [ "$RESTART_CAPELLA" = "1" ];
     then
         # Run capella in a loop:
-        ( while true; do /opt/capella/capella -data ${WORKSPACE_DIR:-/workspace} > /var/log/capella.stdout.log 2> /var/log/capella.stderr.log; sleep 1; done ) &
+        ( while true; do $command > $stdout 2> $stderr; sleep 1; done ) &
     else
-        /opt/capella/capella -data ${WORKSPACE_DIR:-/workspace} > /var/log/capella.stdout.log 2> /var/log/capella.stderr.log &
+        $command > $stdout 2> $stderr &
     fi
 fi

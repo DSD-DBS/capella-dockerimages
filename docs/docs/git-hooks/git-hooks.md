@@ -71,4 +71,4 @@ pre-commit environment and store it in the persistent `/workspace` directory.
     If you receive an error message in Eclipse (as shown below) while committing, your pre-commit has failed.
     ![Empty error message in Eclipse with EGit](./egit-failed-git-hook.png)
 
-    Please check the Capella logs, located at `/var/logs`.
+    Please check the Capella logs, located at `/var/log/session`.
