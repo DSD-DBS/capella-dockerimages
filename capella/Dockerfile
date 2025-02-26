@@ -140,7 +140,9 @@ RUN mkdir -p /opt/capella/configuration/.settings; \
     chown -R techuser /workspace && \
     chmod -R 777 /opt/capella/configuration && \
     chmod -R 777 /opt/capella/p2/org.eclipse.equinox.p2.engine/profileRegistry && \
-    chown techuser /opt /opt/capella/capella.ini
+    chown techuser /opt /opt/capella/capella.ini && \
+    mkdir -p /home/techuser/.config/gtk-3.0 && \
+    echo "file:///workspace" >> ~/.config/gtk-3.0/bookmarks
 
 RUN echo '-Dosgi.configuration.area=file:/opt/capella/configuration' >> /opt/capella/capella.ini
 COPY setup/* /opt/setup/
