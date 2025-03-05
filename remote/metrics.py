@@ -3,6 +3,7 @@
 # SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
 # SPDX-License-Identifier: Apache-2.0
 
+import contextlib
 import datetime
 import logging
 import os
@@ -133,12 +134,10 @@ class ProcessCollector(prometheus_client.registry.Collector):
                 )
 
                 if hasattr(process, "num_fds"):
-                    try:
+                    with contextlib.suppress(psutil.AccessDenied):
                         process_open_fds_metric.add_metric(
                             [process.name()], process.num_fds()
                         )
-                    except psutil.AccessDenied:
-                        pass
 
         yield process_cpu_percent_metric
         yield process_memory_usage_metric
