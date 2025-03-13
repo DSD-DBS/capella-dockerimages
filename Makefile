@@ -144,21 +144,6 @@ MEMORY_MIN ?= 70%
 # More information is available in the "Capella/Base" documentation.
 CAPELLA_DISABLE_SEMANTIC_BROWSER_AUTO_REFRESH ?= 1
 
-# If this option is set to 1, all tests that require a running t4c server
-# will be executed. To run these tests, you need a Makefile in
-# t4c/server with a target t4c/server/server that builds the t4c server
-# docker images and provides them in the following format:
-# t4c/server/server:x.x.x-latest. You also need test data in
-# tests/t4c-server-test-data/data/x.x.x, which consists of a
-# test repository (name test-repo) with a test project (name test-project).
-# x.x.x here refers to the capella version
-RUN_TESTS_WITH_T4C_SERVER ?= 0
-
-# If this option is set to 1, all tests that require a t4c client will
-# be executed. To run these tests, you must place the t4c files in the
-# correct locations (as described in the README)
-RUN_TESTS_WITH_T4C_CLIENT ?= 0
-
 CREATE_ENV_FILE:=$(shell touch .env)
 include .env
 
@@ -514,33 +499,6 @@ run-local-git-server: local-git-server
 		-p $(GIT_SERVER_PORT):80 \
 		$(DOCKER_PREFIX)$<:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
 
-ifeq ($(RUN_TESTS_WITH_T4C_SERVER), 1)
-test: t4c/client/base local-git-server t4c/server/server
-endif
-
-ifeq ($(RUN_TESTS_WITH_T4C_CLIENT), 1)
-test: t4c/client/remote
-endif
-
-test: SHELL=./capella_loop.sh
-test:
-	export CAPELLA_VERSION=$$CAPELLA_VERSION
-	source .venv/bin/activate
-	cd tests
-
-	export PYTEST_MARKERS="not (t4c or t4c_server)"
-	if [ "$(RUN_TESTS_WITH_T4C_SERVER)" == "1" ]
-	then
-		export PYTEST_MARKERS="$$PYTEST_MARKERS or t4c_server"
-	fi
-
-	if [ "$(RUN_TESTS_WITH_T4C_CLIENT)" == "1" ]
-	then
-		export PYTEST_MARKERS="$$PYTEST_MARKERS or t4c"
-	fi
-
-	pytest -o log_cli=true -s -m "$$PYTEST_MARKERS"
-
 .push:
 	@if [ "$(PUSH_IMAGES)" == "1" ]; \
 	then \
@@ -548,4 +506,4 @@ test:
 		docker push "$(DOCKER_REGISTRY)/$(DOCKER_PREFIX)$(IMAGENAME):$$DOCKER_TAG";\
 	fi
 
-.PHONY: tests/* t4c/* t4c/server/* *
+.PHONY: t4c/* t4c/server/* *
