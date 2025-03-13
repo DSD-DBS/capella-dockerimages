@@ -56,7 +56,7 @@ repos:
           - '#'
       - id: insert-license
         name: Insert license headers (shell-style comments)
-        files: '(?:^|/)(?:codeql-analysis.yml|dependabot.yml|\.(?:pre-commit-config.yaml|browserslistrc|editorconfig|(?:git|helm|docker)ignore))$'
+        files: '(?:^|/)(?:codeql-analysis.yml|dependabot.yml|\.(?:pre-commit-config.yaml|browserslistrc|editorconfig|(?:git|helm|docker|trivy)ignore))$'
         args:
           - --detect-license-in-X-top-lines=15
           - --license-filepath

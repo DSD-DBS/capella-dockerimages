@@ -1,0 +1,14 @@
+
+# SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
+# SPDX-License-Identifier: CC0-1.0
+
+# https://avd.aquasec.com/nvd/2023/cve-2023-4759/
+# "The issue occurs only on case-insensitive filesystems, like the default filesystems on Windows and macOS."
+# Our containers run with a case-sensitive filesystem, so we are not affected.
+CVE-2023-4759
+
+# https://avd.aquasec.com/nvd/2024/cve-2024-47554/
+# Since the container runs in a scoped environment (either locally or in Kubernetes cluster)
+# a denial of service would only affect the user itself.
+# This is an acceptable risk.
+CVE-2024-47554

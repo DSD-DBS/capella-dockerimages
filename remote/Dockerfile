@@ -27,7 +27,8 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
     obconf \
     gettext-base \
     xprintidle \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && rm /etc/ssl/private/ssl-cert-snakeoil.key
 
 ARG XPRA_REGISTRY=https://xpra.org
 
@@ -43,7 +44,9 @@ RUN wget -qO /usr/share/keyrings/xpra.asc ${XPRA_REGISTRY}/xpra.asc && \
         xpra-html5 \
         apache2-utils \
         nginx && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* \
+    && rm /etc/xpra/ssl/key.pem \
+    && rm /etc/xpra/ssl/ssl-cert.pem
 
 COPY rc.xml /etc/xdg/openbox/rc.xml
 COPY menu.xml /etc/xdg/openbox/menu.xml

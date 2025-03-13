@@ -293,6 +293,14 @@ capella/builder:
 	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(CAPELLA_DOCKERIMAGES_REVISION) builder
 	docker run -it -e CAPELLA_VERSION=$(CAPELLA_VERSION) -v $$(pwd)/builder/output/$(CAPELLA_VERSION):/output -v $$(pwd)/builder/m2_cache:/root/.m2/repository $(DOCKER_PREFIX)$@:$(CAPELLA_DOCKERIMAGES_REVISION)
 
+scan-t4c/client/remote: t4c/client/remote
+	trivy image \
+		--ignorefile capella/.trivyignore \
+		--exit-code 0 \
+		--severity HIGH,CRITICAL \
+		--ignore-unfixed \
+		$(DOCKER_PREFIX)$<:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
+
 run-capella/base: capella/base
 	docker run $(DOCKER_RUN_FLAGS) \
 		-e CAPELLA_DISABLE_SEMANTIC_BROWSER_AUTO_REFRESH=$(CAPELLA_DISABLE_SEMANTIC_BROWSER_AUTO_REFRESH) \
