@@ -31,7 +31,6 @@ Homepage = "https://github.com/DSD-DBS/capella-dockerimages"
 dev = [
   "ruff",
   "mypy",
-  "pytest",
   "types-PyYAML",
   "types-lxml",
 ]
@@ -102,11 +101,6 @@ max-complexity = 14
 backup = "t4c_cli.backup:backup"
 exporter = "t4c_cli.export:export"
 
-[tool.coverage.run]
-branch = true
-command_line = "-m pytest"
-source = ["t4c_cli"]
-
 [tool.coverage.report]
 exclude_also = [
   'if t\.TYPE_CHECKING:',
@@ -133,15 +127,6 @@ module = [
   # ...
 ]
 ignore_missing_imports = true
-
-[tool.pytest.ini_options]
-addopts = """
-  --import-mode=importlib
-  --strict-config
-  --strict-markers
-"""
-testpaths = ["tests"]
-xfail_strict = true
 
 [tool.setuptools]
 platforms = ["any"]

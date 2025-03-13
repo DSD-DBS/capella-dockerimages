@@ -119,10 +119,7 @@ def set_pure_variants_server_url() -> None:
     )
 
     known_cores = E.CORELIST(
-        *[
-            E.CORE(NAME=server["name"], URL=server["url"])
-            for server in resolved_servers
-        ]
+        *[E.CORE(NAME=server["name"], URL=server["url"]) for server in resolved_servers]
     )
     replace_config(
         ECLIPSE_SETTINGS_BASE_PATH / "com.ps.consul.eclipse.ui.prefs",

@@ -15,9 +15,7 @@ import sys
 import requests
 from lxml import etree, html
 
-CAPELLA_INDEX_URL = (
-    "https://mirror.dkm.cz/eclipse/capella/core/products/releases/"
-)
+CAPELLA_INDEX_URL = "https://mirror.dkm.cz/eclipse/capella/core/products/releases/"
 CAPELLA_DEFAULT_DOWNLOAD_URL = "https://www.eclipse.org/downloads/download.php?file=/capella/core/products/releases/{}&r=1"
 
 
@@ -48,9 +46,7 @@ def main() -> None:
     final_url = f"{CAPELLA_INDEX_URL}{capella_archive_path}"
     dir_content = get_directory_structure(final_url)
     archive_name = next(
-        arch
-        for arch in dir_content
-        if arch.endswith("linux-gtk-x86_64.tar.gz")
+        arch for arch in dir_content if arch.endswith("linux-gtk-x86_64.tar.gz")
     )
     download_url = (
         os.getenv("CAPELLA_DOWNLOAD_URL") or CAPELLA_DEFAULT_DOWNLOAD_URL

@@ -6,16 +6,16 @@ theme:
   name: material
   font: false
   palette:
-    - media: "(prefers-color-scheme)"
+    - media: '(prefers-color-scheme)'
       toggle:
         icon: material/brightness-auto
         name: Switch to light mode
-    - media: "(prefers-color-scheme: light)"
+    - media: '(prefers-color-scheme: light)'
       scheme: default
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
-    - media: "(prefers-color-scheme: dark)"
+    - media: '(prefers-color-scheme: dark)'
       scheme: slate
       toggle:
         icon: material/brightness-4
@@ -35,7 +35,6 @@ nav:
           - Image builder: ci-templates/gitlab/image-builder.md
           - Model validation: ci-templates/gitlab/model-validation.md
           - T4C export: ci-templates/gitlab/t4c-export.md
-          - Test container clean up: ci-templates/gitlab/cleanup.md
       - Github:
           - Diagram cache: ci-templates/github/diagram-cache.md
   - Jupyter Notebooks: jupyter/index.md
@@ -59,8 +58,6 @@ nav:
       - Memory Options: eclipse/memory-options.md
       - 'pure::variants': pure-variants.md
   - Remote: remote.md
-  - Development:
-      - Testing: development/testing.md
 
 repo_url: https://github.com/DSD-DBS/capella-dockerimages
 edit_uri: edit/master/docs/docs

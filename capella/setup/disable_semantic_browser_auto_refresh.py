@@ -14,9 +14,7 @@ NS_MAP = {
     "xmi": "http://www.omg.org/XMI",
     "xsi": "http://www.w3.org/2001/XMLSchema-instance",
     "basic": "http://www.eclipse.org/ui/2010/UIModel/application/ui/basic",
-    "advanced": (
-        "http://www.eclipse.org/ui/2010/UIModel/application/ui/advanced"
-    ),
+    "advanced": ("http://www.eclipse.org/ui/2010/UIModel/application/ui/advanced"),
     "application": "http://www.eclipse.org/ui/2010/UIModel/application",
     "menu": "http://www.eclipse.org/ui/2010/UIModel/application/ui/menu",
 }
@@ -93,8 +91,7 @@ def _check_environment_variable() -> None:
 def _check_for_file_existence(file_path: pathlib.Path) -> None:
     if not file_path.is_file():
         logger.debug(
-            "File not found: `%s`."
-            " Cannot disable auto-refresh of semantic browser.",
+            "File not found: `%s`. Cannot disable auto-refresh of semantic browser.",
             file_path,
         )
         sys.exit(0)

@@ -126,5 +126,5 @@ manually.
 
 We provide a
 [Gitlab CI/CD template](https://github.com/DSD-DBS/capella-dockerimages/blob/main/ci-templates/gitlab/image-builder.yml)
-to build and test the images in CI/CD environment. Please find the instructions
+to build the images in CI/CD environment. Please find the instructions
 [here](https://github.com/DSD-DBS/capella-dockerimages/tree/main/ci-templates/gitlab#image-builder).
