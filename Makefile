@@ -74,9 +74,6 @@ GIT_SERVER_PORT ?= 10001
 # Preferred metrics port on your host system
 METRICS_PORT ?= 9118
 
-# Capella version used for builds
-export CAPELLA_VERSIONS ?= 5.0.0 5.2.0 6.0.0 6.1.0 7.0.0
-
 # Capella version used to run containers
 export CAPELLA_VERSION ?= 6.1.0
 
@@ -91,7 +88,6 @@ AUTOSTART_CAPELLA ?= 1
 # CAPELLA_DROPINS ?= ModelsImporter,CapellaXHTMLDocGen,DiagramStyler,PVMT,Filtering,Requirements,SubsystemTransition,TextualEditor
 CAPELLA_DROPINS ?= ""
 
-# Only use when "capella_loop.sh" is NOT used
 export DOCKER_TAG_SCHEMA ?= $$CAPELLA_VERSION-$$CAPELLA_DOCKERIMAGES_REVISION
 
 PAPYRUS_VERSION ?= 6.4.0
@@ -110,20 +106,14 @@ export TECHUSER_UID = 1004370000
 # Capella build type (online/offline)
 CAPELLA_BUILD_TYPE ?= online
 
-# Old GTK versions can improve the Capella description editor experience.
-# Set the option to 'false' if you want to run it on arm architectures.
 INSTALL_OLD_GTK_VERSION ?= true
 
 PURE_VARIANTS_LICENSE_SERVER ?= http://localhost:8080
 PURE_VARIANTS_KNOWN_SERVERS ?= '[{"name": "test", "url": "http://example.localhost"}]'
 
-# Inject libraries from the capella/libs directory
-INJECT_LIBS_CAPELLA ?= false
-
 # Build architecture: amd64 or arm64
 BUILD_ARCHITECTURE ?= amd64
 
-DOCKER_BUILD_FLAGS ?= --platform linux/$(BUILD_ARCHITECTURE)
 DOCKER_RUN_FLAGS ?= --add-host=host.docker.internal:host-gateway --rm -it
 DOCKER_DEBUG_FLAGS ?= -it --entrypoint="bash" -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=$$DISPLAY
 
@@ -144,15 +134,6 @@ MEMORY_MIN ?= 70%
 # More information is available in the "Capella/Base" documentation.
 CAPELLA_DISABLE_SEMANTIC_BROWSER_AUTO_REFRESH ?= 1
 
-CREATE_ENV_FILE:=$(shell touch .env)
-include .env
-
-export DOCKER_BUILDKIT=1
-export MAKE_CURRENT_TARGET=$@
-
-.ONESHELL:
-SHELL=/bin/bash
-
 all: \
 	base \
 	jupyter-notebook \
@@ -163,37 +144,19 @@ all: \
 	t4c/client/remote/pure-variants \
 	capella/remote/pure-variants
 
-base: SHELL=/bin/bash
 base:
-	docker build $(DOCKER_BUILD_FLAGS) \
-		--build-arg UID=$(TECHUSER_UID) \
-		-t $(DOCKER_PREFIX)$@:$(CAPELLA_DOCKERIMAGES_REVISION) \
-		base
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) DOCKER_TAG=$(CAPELLA_DOCKERIMAGES_REVISION) IMAGENAME=$@ .push
+	uv run cdi build base
 
 jupyter-notebook: DOCKER_TAG=$(JUPYTER_NOTEBOOK_REVISION)
 jupyter-notebook: base
 	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$(DOCKER_TAG) jupyter-notebook
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) DOCKER_TAG=$(DOCKER_TAG) IMAGENAME=$@ .push
 
-capella/base: SHELL=./capella_loop.sh
 capella/base: base
-	envsubst < capella/.dockerignore.template > capella/.dockerignore
-	cp eclipse/set_memory_flags.py capella/setup/set_memory_flags.py
-	docker build $(DOCKER_BUILD_FLAGS) \
-		-t $(DOCKER_PREFIX)$@:$$DOCKER_TAG \
-		--build-arg BUILD_ARCHITECTURE=$(BUILD_ARCHITECTURE) \
-		--build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$(CAPELLA_DOCKERIMAGES_REVISION) \
-		--build-arg BUILD_TYPE=$(CAPELLA_BUILD_TYPE) \
-		--build-arg CAPELLA_DOWNLOAD_URL=$(CAPELLA_DOWNLOAD_URL) \
-		--build-arg CAPELLA_VERSION=$$CAPELLA_VERSION \
-		--build-arg "CAPELLA_DROPINS=$(CAPELLA_DROPINS)" \
-		--build-arg "INJECT_PACKAGES=$(INJECT_LIBS_CAPELLA)" \
-		--build-arg INSTALL_OLD_GTK_VERSION=$(INSTALL_OLD_GTK_VERSION) \
-		capella
-	rm capella/.dockerignore
-	rm capella/setup/set_memory_flags.py
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
+	uv run cdi build capella \
+		--without-t4c-client \
+		--no-remote \
+		--skip-base-image
 
 papyrus/base: DOCKER_TAG=$(PAPYRUS_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
 papyrus/base: DOCKER_BUILD_FLAGS=--platform linux/amd64
@@ -217,10 +180,11 @@ eclipse/base: base
 		eclipse
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) DOCKER_TAG=$(DOCKER_TAG) IMAGENAME=$@ .push
 
-capella/remote: SHELL=./capella_loop.sh
 capella/remote: capella/base
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG remote
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
+	uv run cdi build capella \
+		--without-t4c-client \
+		--skip-base-image \
+		--skip-capella-image
 
 papyrus/remote: DOCKER_TAG=$(PAPYRUS_VERSION)-$(CAPELLA_DOCKERIMAGES_REVISION)
 papyrus/remote: DOCKER_BUILD_FLAGS=--platform linux/amd64
@@ -248,19 +212,20 @@ eclipse/remote/pure-variants: eclipse/remote
 		pure-variants
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) DOCKER_TAG=$(DOCKER_TAG) IMAGENAME=$@ .push
 
-t4c/client/base: SHELL=./capella_loop.sh
 t4c/client/base: capella/base
-	envsubst < t4c/.dockerignore.template > t4c/.dockerignore
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG --build-arg CAPELLA_VERSION=$$CAPELLA_VERSION t4c
-	rm t4c/.dockerignore
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
+	uv run cdi build capella \
+		--t4c-client \
+		--no-remote \
+		--skip-base-image \
+		--skip-capella-image
 
-t4c/client/remote: SHELL=./capella_loop.sh
-t4c/client/remote: t4c/client/base
-	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG remote
-	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
+t4c/client/remote: capella/base
+	uv run cdi build capella \
+		--t4c-client \
+		--remote \
+		--skip-base-image \
+		--skip-capella-image
 
-t4c/client/remote/pure-variants: SHELL=./capella_loop.sh
 t4c/client/remote/pure-variants: t4c/client/remote
 	docker build $(DOCKER_BUILD_FLAGS) \
 		-t $(DOCKER_PREFIX)$@:$$DOCKER_TAG \
@@ -269,7 +234,6 @@ t4c/client/remote/pure-variants: t4c/client/remote
 		pure-variants
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
 
-capella/remote/pure-variants: SHELL=./capella_loop.sh
 capella/remote/pure-variants: capella/remote
 	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG --build-arg BASE_IMAGE=$(DOCKER_PREFIX)$<:$$DOCKER_TAG pure-variants
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
@@ -485,11 +449,9 @@ debug-eclipse/remote/pure-variants: run-eclipse/remote/pure-variants
 debug-jupyter-notebook: DOCKER_RUN_FLAGS=$(DOCKER_DEBUG_FLAGS)
 debug-jupyter-notebook: run-jupyter-notebook
 
-t4c/server/server: SHELL=./capella_loop.sh
 t4c/server/server:
 	$(MAKE) -C t4c/server PUSH_IMAGES=$(PUSH_IMAGES) CAPELLA_VERSION=$$CAPELLA_VERSION $@
 
-local-git-server: SHELL=./capella_loop.sh
 local-git-server:
 	docker build $(DOCKER_BUILD_FLAGS) -t $(DOCKER_PREFIX)$@:$$DOCKER_TAG local-git-server
 	$(MAKE) PUSH_IMAGES=$(PUSH_IMAGES) IMAGENAME=$@ .push
@@ -498,12 +460,5 @@ run-local-git-server: local-git-server
 	docker run $(DOCKER_RUN_FLAGS) \
 		-p $(GIT_SERVER_PORT):80 \
 		$(DOCKER_PREFIX)$<:$$(echo "$(DOCKER_TAG_SCHEMA)" | envsubst)
-
-.push:
-	@if [ "$(PUSH_IMAGES)" == "1" ]; \
-	then \
-		docker tag "$(DOCKER_PREFIX)$(IMAGENAME):$$DOCKER_TAG" "$(DOCKER_REGISTRY)/$(DOCKER_PREFIX)$(IMAGENAME):$$DOCKER_TAG"; \
-		docker push "$(DOCKER_REGISTRY)/$(DOCKER_PREFIX)$(IMAGENAME):$$DOCKER_TAG";\
-	fi
 
 .PHONY: t4c/* t4c/server/* *

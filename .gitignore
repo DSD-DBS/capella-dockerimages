@@ -10,7 +10,6 @@ capella/versions/*/dropins/*
 capella/versions/*/patches/*
 !capella/versions/*/patches/.gitkeep
 capella/.dockerignore
-capella/libs/*
 
 # Capella Builder
 builder/m2_cache

@@ -110,31 +110,6 @@ If you want to install dropins manually, you can place the dropins in the
 copied into the `dropins` directory of the Capella client without any further
 processing.
 
-#### Optional: Workaround of pinned library versions to remove incompatibilities
-
-**Note:** _This workaround is normally handled in the Dockerfile and it is only
-necessary to download below libraries if there are restrictions on your network
-that block an access to these libraries when the Docker image is being built._
-
-In some Capella versions, there are incompatiblities with certain versions of
-the following libraries:
-
-- `libjavascriptcoregtk-4.0-18` (version `2.32.4`)
-- `libwebkit2gtk-4.0-37` (version `2.32.4`)
-
-The workaround is to use version `2.28.1` for both libraries in the container.
-
-So if your build environment restricts access to the latest versions you need
-to manually download the packages with the command `apt download` and inject
-them into the container.
-
-For more information refer to
-[Download older packages manually](#download-older-packages-manually).
-
-<!-- prettier-ignore -->
-!!! info
-    You have to add `--build-arg INJECT_PACKAGES=true` to the `docker build` command if you want to use the previously downloaded packages.
-
 ### Build it manually with Docker
 
 #### Automatic download of Capella
@@ -176,47 +151,6 @@ command:
    `capella.tar.gz` again.
 
 ### Miscellaneous
-
-#### Download older debian packages manually
-
-Unfortunately the version `2.28.1` of `libwebkit2gtk-4.0-37` is no longer
-available in the stable Debian registry, but it is still available in the
-Ubuntu `focal` repository
-(<https://packages.ubuntu.com/focal/libwebkit2gtk-4.0-37>).
-
-First of all, you have to add the source to your `apt`-sources and add the apt
-keys.
-
-Recommendation: Spawn a `debian:bookworm` Docker container and execute the
-steps inside the container.
-
-```zsh
-apt update && apt install -y gnupg
-echo "deb http://security.ubuntu.com/ubuntu focal-security main" >> /etc/apt/sources.list.d/focal.list
-apt-key adv --keyserver keyserver.ubuntu.com --recv-keys "3B4FE6ACC0B21F32"
-apt-key adv --keyserver keyserver.ubuntu.com --recv-keys "871920D1991BC93C"
-apt update
-```
-
-Please download all packages and place the files in the folder `capella/libs`:
-
-- `libicu66_66.1-2ubuntu2_amd64.deb` <br /> (Run
-  `apt download libicu66=66.1-2ubuntu2`)
-
-- `libjavascriptcoregtk-4.0-18_2.28.1-1_amd64.deb` <br /> (Run
-  `apt download libjavascriptcoregtk-4.0-18=2.28.1-1`)
-
-- `libjpeg-turbo8_2.0.3-0ubuntu1_amd64.deb` <br /> (Run
-  `apt download libjpeg-turbo8=2.0.3-0ubuntu1`)
-
-- `libjpeg8_8c-2ubuntu8_amd64.deb` <br /> (Run
-  `apt download libjpeg8=8c-2ubuntu8`)
-
-- `libwebkit2gtk-4.0-37_2.28.1-1_amd64.deb` <br /> (Run
-  `apt download libwebkit2gtk-4.0-37=2.28.1-1`)
-
-- `libwebp6_0.6.1-2ubuntu0.20.04.2_amd64.deb` <br /> (Run
-  `apt download libwebp6=0.6.1-2ubuntu0.20.04.2`)
 
 ## Run the container
 
