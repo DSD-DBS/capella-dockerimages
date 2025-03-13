@@ -39,9 +39,14 @@ def main() -> None:
         )
 
     versions = get_directory_structure(CAPELLA_INDEX_URL)
-    capella_archive_path = next(
-        version for version in versions if version.startswith(capella_version)
-    )
+    try:
+        capella_archive_path = next(
+            version for version in versions if version.startswith(capella_version)
+        )
+    except StopIteration as exc:
+        raise RuntimeError(
+            f"Capella version {capella_version} not found in the list of versions: {versions}."
+        ) from exc
 
     final_url = f"{CAPELLA_INDEX_URL}{capella_archive_path}"
     dir_content = get_directory_structure(final_url)

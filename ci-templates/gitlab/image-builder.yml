@@ -4,39 +4,51 @@
 variables:
   BASE:
     value: '0'
+    options: ['0', '1']
     description: 'Build the base image?'
   CAPELLA_BASE:
     value: '0'
+    options: ['0', '1']
     description: 'Build the capella/base image?'
   CAPELLA_REMOTE:
     value: '0'
+    options: ['0', '1']
     description: 'Build the capella/remote image?'
   T4C_CLIENT_BASE:
     value: '0'
+    options: ['0', '1']
     description: 'Build the t4c/client/base image?'
   T4C_CLIENT_REMOTE:
     value: '0'
+    options: ['0', '1']
     description: 'Build the t4c/client/remote image?'
   T4C_CLIENT_REMOTE_PURE_VARIANTS:
     value: '0'
+    options: ['0', '1']
     description: 'Build the t4c/client/remote/pure-variants image?'
   JUPYTER:
     value: '0'
+    options: ['0', '1']
     description: 'Build the jupyter-notebook image?'
   PAPYRUS_BASE:
     value: '0'
+    options: ['0', '1']
     description: 'Build the papyrus/base image?'
   PAPYRUS_REMOTE:
     value: '0'
+    options: ['0', '1']
     description: 'Build the papyrus/remote image?'
   ECLIPSE_BASE:
     value: '0'
+    options: ['0', '1']
     description: 'Build the eclipse/base image?'
   ECLIPSE_REMOTE:
     value: '0'
+    options: ['0', '1']
     description: 'Build the eclipse/remote image?'
   ECLIPSE_REMOTE_PURE_VARIANTS:
     value: '0'
+    options: ['0', '1']
     description: 'Build the eclipse/remote/pure-variants image?'
   CAPELLA_DOCKER_IMAGES_REVISION:
     value: 'main'
@@ -45,12 +57,14 @@ variables:
       (https://github.com/DSD-DBS/capella-dockerimages)'
   CAPELLA_VERSION:
     value: '6.0.0'
+    options: ['5.0.0', '5.2.0', '6.0.0', '6.1.0', '7.0.0']
     description:
       'Capella version. Please make sure that a subdirectory with the name of
       the value exists. The value must be valid ASCII and may contain lowercase
       and uppercase letters, digits, underscores, periods and dashes.'
   BUILD_FOR_LATEST_TAG:
     value: '0'
+    options: ['0', '1']
     description:
       "Fetch the latest tag for the image builder repository and use it as
       revision. If 0, '$CI_COMMIT_REF_NAME' will be used."
@@ -206,13 +220,11 @@ capella/base:
       else
         echo "No files to move in patches"
       fi
-    - mv ../../../libs/* ./capella/libs/
     - |
       docker build $DOCKER_BUILD_ARGS \
         -t $DOCKER_REGISTRY/capella/base:$DOCKER_TAG \
         --build-arg BUILD_TYPE=offline \
         --build-arg CAPELLA_VERSION=$CAPELLA_VERSION \
-        --build-arg INJECT_PACKAGES=true \
         --build-arg BUILD_ARCHITECTURE="$BUILD_ARCHITECTURE" \
         --build-arg BASE_IMAGE=$BASE_IMAGE \
         capella
@@ -451,5 +463,5 @@ jupyter:
       docker build $DOCKER_BUILD_ARGS \
         -t $IMAGE:$DOCKER_TAG \
         --build-arg BASE_IMAGE=$BASE_IMAGE \
-        jupyter-notebook
+        jupyter
     - *push

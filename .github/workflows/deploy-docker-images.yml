@@ -4,12 +4,14 @@ name: Build & push images
 
 on:
   push:
+    branches: ['main']
+    tags: ['**']
   pull_request:
     branches: ['main']
 
 env:
-  registry: ghcr.io/dsd-dbs/capella-dockerimages/
-  images: capella/base capella/remote
+  COLUMNS: 120
+  REGISTRY: ghcr.io/dsd-dbs/capella-dockerimages/
 
 jobs:
   lint:
@@ -28,13 +30,9 @@ jobs:
 
   deploy-docker-images:
     runs-on: ubuntu-latest
-    needs: [lint]
     strategy:
       matrix:
         capella_version:
-          - '5.0.0'
-          - '5.2.0'
-          - '6.0.0'
           - '6.1.0'
           - '7.0.0'
         dropins:
@@ -43,11 +41,13 @@ jobs:
           - name: 'selected'
             dropins: 'ModelsImporter,CapellaXHTMLDocGen,DiagramStyler,PVMT,Filtering,Requirements,SubsystemTransition'
     name:
-      Capella ${{ matrix.capella_version }} with ${{ matrix.dropins.name }}
+      Capella ${{ matrix.capella_version }} - ${{ matrix.dropins.name }}
       dropins
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
       - name: Login to github container registry
         uses: docker/login-action@v3
         with:
@@ -59,19 +59,29 @@ jobs:
         run: |
           echo "branch=$(echo $GITHUB_REF_NAME | sed 's/[^a-zA-Z0-9.]/-/g')" >> "$GITHUB_OUTPUT"
           echo "sha=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
-      - name: Build
-        # prettier-ignore
+      - name: Install CDI CLI
+        run: uv venv && uv pip install -e ./cli
+      - name: Build Capella (Base)
         run: >
-          make ${{ env.images }}
-          CAPELLA_DOWNLOAD_URL="https://mirror.umd.edu/eclipse/capella/core/products/releases/{}"
-          CAPELLA_VERSIONS="${{ matrix.capella_version }}"
-          DOCKER_PREFIX="${{ env.registry }}"
-          CAPELLA_DOCKERIMAGES_REVISION="${{ steps.tag.outputs.branch }}"
-          CAPELLA_DROPINS="${{ matrix.dropins.dropins }}"
-          DOCKER_TAG_SCHEMA=${{ matrix.capella_version }}-${{ matrix.dropins.name }}-dropins-${{ steps.tag.outputs.branch }}
-          DOCKER_BUILD_FLAGS="--label git-short-sha=${{ steps.tag.outputs.sha }}"
-      - name: Push
-        run: |
-          for image in ${{ env.images }}
-          do docker push "${{ env.registry }}$image:${{ matrix.capella_version }}-${{ matrix.dropins.name }}-dropins-${{ steps.tag.outputs.branch }}"
-          done
+          uv run cdi build capella \
+            --no-remote \
+            --build-type online \
+            --capella-download-url 'https://mirror.umd.edu/eclipse/capella/core/products/releases/{}' \
+            --capella-version "${{ matrix.capella_version }}" \
+            --image-prefix "${{ env.REGISTRY }}" \
+            --image-tag "{capella_version}-${{ matrix.dropins.name }}-dropins-${{ steps.tag.outputs.branch }}" \
+            --capella-dropins "${{ matrix.dropins.dropins }}" \
+            --label "git-short-sha=${{ steps.tag.outputs.sha }}" \
+            --verbose \
+            --push
+      - name: Build Capella (Remote)
+        run: >
+          uv run cdi build capella \
+            --remote \
+            --skip-capella-image \
+            --capella-version "${{ matrix.capella_version }}" \
+            --image-prefix "${{ env.REGISTRY }}" \
+            --image-tag "{capella_version}-${{ matrix.dropins.name }}-dropins-${{ steps.tag.outputs.branch }}" \
+            --label "git-short-sha=${{ steps.tag.outputs.sha }}" \
+            --verbose \
+            --push

@@ -23,7 +23,8 @@ RUN apt-get update && \
 COPY docker-entrypoint.sh /
 COPY requirements_template.txt /etc/skel
 RUN chmod +x /docker-entrypoint.sh && \
-    mkdir -p "/shared" && chown techuser "/shared"
+    mkdir -p "/shared" && chown techuser "/shared" && \
+    mkdir -p "/workspace" && chown techuser "/workspace"
 
 USER techuser
 

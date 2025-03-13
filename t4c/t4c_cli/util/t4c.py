@@ -16,23 +16,16 @@ logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 log = logging.getLogger("T4C")
 
 
-def check_dir_for_aird_files(path: pathlib.Path) -> None:
-    aird_files = list(path.glob("*.aird"))
+def check_dir_for_aird_files(resolved_model_dir: pathlib.Path) -> None:
+    """Validate the project directory structure.
 
-    entrypoint = config.config.git.entrypoint
+    Every Capella project should contain at least one .aird file.
+    """
 
-    if not len(aird_files) == 1:
+    if len(list(resolved_model_dir.glob("*.aird"))) == 0:
         raise RuntimeError(
-            "Entrypoint (if provided) or root directoy does not contain a .aird file"
+            f"{resolved_model_dir.absolute()} contains no .aird file"
         )
-
-    if entrypoint:
-        entrypoint_filename = pathlib.Path(entrypoint).name
-        found_filename = aird_files[0].name
-        if entrypoint_filename and (not entrypoint_filename == found_filename):
-            raise RuntimeError(
-                f"Found {found_filename}, but expected {entrypoint_filename} as provided."
-            )
 
 
 def extract_t4c_commit_information() -> tuple[str, datetime.datetime | None]:

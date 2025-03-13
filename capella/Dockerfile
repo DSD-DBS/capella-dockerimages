@@ -15,20 +15,8 @@ FROM base AS old_gtk_true
 
 ONBUILD USER root
 
-# Install WebKit with GTK
-ONBUILD COPY libs /tmp/libs
-ONBUILD ARG INJECT_PACKAGES=false
 # hadolint ignore=SC2046
-ONBUILD RUN if [ "$INJECT_PACKAGES" = "true" ]; then \
-    apt-get update && \
-    # Inject old packages manually
-    apt-get install --no-install-recommends -y $(find /tmp/libs -iname "*.deb"); \
-    rm -rf /var/lib/apt/lists/*; \
-    rm -r /tmp/libs; \
-    else \
-    # Download old packages from the Ubuntu focal registry
-    ## Add source
-    echo "deb http://de.archive.ubuntu.com/ubuntu/ focal main" >> /etc/apt/sources.list.d/focal.list; \
+ONBUILD RUN echo "deb http://de.archive.ubuntu.com/ubuntu/ focal main" >> /etc/apt/sources.list.d/focal.list; \
     ## Import the required keys
     apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32; \
     apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 871920D1991BC93C; \
@@ -38,7 +26,6 @@ ONBUILD RUN if [ "$INJECT_PACKAGES" = "true" ]; then \
     libjavascriptcoregtk-4.0-18=2.28.1-1 \
     libwebkit2gtk-4.0-37=2.28.1-1; \
     rm /etc/apt/sources.list.d/focal.list; \
-    fi; \
     rm -rf /var/lib/apt/lists/*;
 
 FROM base AS old_gtk_false
@@ -173,6 +160,10 @@ COPY startup.sh /startup.sh
 ENTRYPOINT [ "/tini", "--", "/startup.sh" ]
 
 ENV BASE_TYPE=capella
+
+# Default display for virtual display
+ENV USE_VIRTUAL_DISPLAY="1"
+ENV DISPLAY=":99"
 ENV DISPLAY_NAME="Capella $CAPELLA_VERSION"
 
 USER techuser

@@ -37,10 +37,25 @@ repos:
     rev: v1.14.1
     hooks:
       - id: mypy
-        additional_dependencies:
+        name: Mypy (Standalone scripts)
+        exclude: '^(?:cli|t4c)/'
+        additional_dependencies: &mypy-dependencies
+          - python-dotenv
+          - rich
+          - typer
           - types-PyYAML
           - types-requests
           - types-lxml
+      - id: mypy
+        name: Mypy (CDI CLI)
+        files: '^cli/'
+        args: [--config-file, cli/pyproject.toml]
+        additional_dependencies: *mypy-dependencies
+      - id: mypy
+        name: Mypy (T4C CLI)
+        files: '^t4c/'
+        args: [--config-file, t4c/pyproject.toml]
+        additional_dependencies: *mypy-dependencies
   - repo: https://github.com/Lucas-C/pre-commit-hooks
     rev: v1.5.5
     hooks:

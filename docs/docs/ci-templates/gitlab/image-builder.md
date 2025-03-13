@@ -74,25 +74,13 @@ The tree inside of your Gitlab repository should look like:
 ```zsh
 ├── capella
 │   └── versions
-│       ├── 5.0.0
+│       ├── 6.1.0
 │       │   ├── capella.tar.gz
 │       │   ├── dropins
-│       │   ├── ease
 │       │   └── updateSite
-│       ├── 5.2.0
-│       │   ├── capella.tar.gz
-│       │   ├── dropins
-│       │   ├── ease
-│       │   └── updateSite
-│       ├── 6.0.0
-│       │   ├── capella.tar.gz
-│       │   ├── dropins
-│       │   ├── ease
-│       │   └── updateSite
-│       └── 6.1.0
+│       └── 7.0.0
 │           ├── capella.tar.gz
 │           ├── dropins
-│           ├── ease
 │           └── updateSite
 ├── papyrus
 │   └── versions

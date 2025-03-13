@@ -17,8 +17,8 @@ added support for arm64 starting with Capella `6.0.0`.
 
 ## Supported dropins
 
-Starting with version `v1.11.0`, we have prebuilt images with a pre-selected
-sets of dropins. Available options are:
+We have prebuilt images for Capella versions `6.1.0` and `7.0.0`
+with a pre-selected set of dropins. Available options are:
 
 - `without-dropins`: Without dropins
 - `selected-dropins`: With
