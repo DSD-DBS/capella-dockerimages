@@ -34,9 +34,6 @@ papyrus/versions/*/papyrus.tar.gz
 # Eclipse
 eclipse/versions/*/*/eclipse.tar.gz
 
-# Tests
-tests/t4c-server-test-data
-
 # General
 __pycache__
 node_exporter*

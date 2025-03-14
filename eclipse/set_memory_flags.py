@@ -26,14 +26,10 @@ def remove_all_memory_flags(file_content: list[str]) -> list[str]:
     This will explicitely remove the -Xms and -Xmx flags.
     """
 
-    return [
-        line for line in file_content if not line.lstrip().startswith("-Xm")
-    ]
+    return [line for line in file_content if not line.lstrip().startswith("-Xm")]
 
 
-def set_memory_flags(
-    file_content: list[str], memory_min: str, memory_max: str
-) -> None:
+def set_memory_flags(file_content: list[str], memory_min: str, memory_max: str) -> None:
     """Set the memory flags in *.ini.
 
     If the value of memory_max ends with a %, we assume that it's a percentage value.
@@ -50,16 +46,12 @@ def set_memory_flags(
         append_flag_to_file(
             file_content, "XX:InitialRAMPercentage=", memory_min.strip("%")
         )
-        append_flag_to_file(
-            file_content, "XX:MinRAMPercentage=", memory_min.strip("%")
-        )
+        append_flag_to_file(file_content, "XX:MinRAMPercentage=", memory_min.strip("%"))
     else:
         append_flag_to_file(file_content, "Xms", memory_min)
 
     if memory_max.strip().endswith("%"):
-        append_flag_to_file(
-            file_content, "XX:MaxRAMPercentage=", memory_max.strip("%")
-        )
+        append_flag_to_file(file_content, "XX:MaxRAMPercentage=", memory_max.strip("%"))
     else:
         append_flag_to_file(file_content, "Xmx", memory_max)
 
@@ -70,9 +62,7 @@ def print_vm_memory_usage_during_start(file_content: list[str]) -> None:
     file_content.append("-XshowSettings:vm")
 
 
-def append_flag_to_file(
-    file_content: list[str], flag: str, value: str
-) -> None:
+def append_flag_to_file(file_content: list[str], flag: str, value: str) -> None:
     """Append a flag to the *.ini file."""
 
     file_content.append(f"-{flag}{value}")

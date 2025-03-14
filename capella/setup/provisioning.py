@@ -33,9 +33,7 @@ class _ProjectDict(t.TypedDict):
         str | pathlib.Path
     )  # Entrypoint relative from the root of the repository
 
-    location: t.NotRequired[
-        pathlib.Path
-    ]  # Location resolved from path + entrypoint
+    location: t.NotRequired[pathlib.Path]  # Location resolved from path + entrypoint
 
 
 def fetch_projects_from_environment() -> list[_ProjectDict]:
@@ -73,9 +71,7 @@ def derive_project_name_from_aird(project_location: pathlib.Path) -> str:
 def load_or_generate_project_etree(project: _ProjectDict) -> None:
     project_description_file: pathlib.Path = project["location"] / ".project"
     if project_description_file.exists():
-        project["etree"] = etree.fromstring(
-            project_description_file.read_bytes()
-        )
+        project["etree"] = etree.fromstring(project_description_file.read_bytes())
     else:
         project["etree"] = generate_project_etree(project)
 
@@ -167,9 +163,7 @@ def provide_project_dirs_to_capella_plugin(
     locations = ":".join([str(project["location"]) for project in projects])
     with open("/etc/environment", "a", encoding="utf-8") as f:
         f.write(f"export MODEL_INBOX_DIRECTORIES={locations}\n")
-    log.info(
-        "Set environment variable MODEL_INBOX_DIRECTORIES to '%s'", locations
-    )
+    log.info("Set environment variable MODEL_INBOX_DIRECTORIES to '%s'", locations)
 
 
 def main() -> None:

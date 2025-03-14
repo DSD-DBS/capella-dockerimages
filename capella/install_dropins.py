@@ -11,9 +11,9 @@ import yaml
 
 
 def load_dropins() -> dict[str, t.Any]:
-    return yaml.safe_load(
-        pathlib.Path("/opt/dropins.yml").read_text(encoding="utf-8")
-    )["dropins"]
+    return yaml.safe_load(pathlib.Path("/opt/dropins.yml").read_text(encoding="utf-8"))[
+        "dropins"
+    ]
 
 
 def extract_repositories_and_install_ius(dropins: dict[str, t.Any]) -> None:
@@ -30,13 +30,9 @@ def extract_repositories_and_install_ius(dropins: dict[str, t.Any]) -> None:
 
         match dropin["type"]:
             case "updateSite":
-                install_update_sites(
-                    dropin["eclipseRepository"], dropin["installIU"]
-                )
+                install_update_sites(dropin["eclipseRepository"], dropin["installIU"])
             case "dropin":
-                download_and_copy_dropin(
-                    dropin["downloadURL"], dropin["fileName"]
-                )
+                download_and_copy_dropin(dropin["downloadURL"], dropin["fileName"])
             case _:
                 raise ValueError(f"Unknown plugin type '{dropin['type']}'.")
 

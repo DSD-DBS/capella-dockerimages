@@ -5,8 +5,7 @@
 
 # Image builder
 
-The image builder template builds all images supported by this repository,
-executes our tests on each builded images, and pushes them to any Docker
+The image builder template builds all images supported by this repository, and pushes them to any Docker
 registry. We use it in our automated deployment environment for our
 [Collaboration project](https://github.com/DSD-DBS/capella-collab-manager). We
 have restricted internet access in our build environment, so the Gitlab CI
@@ -67,14 +66,6 @@ level. Make sure to enable the "Expand variable reference" flag.
       permission to the Docker registry
     - `DOCKER_REGISTRY_PASSWORD_${ENVIRONMENT}`: Corresponding password of the
       techuser
-- `T4C_SERVER_REGISTRY`: Docker registry which contains the required t4c server
-  image
-- `T4C_SERVER_TAG`: Docker tag that is used for the t4c server image
-- `T4C_SERVER_TEST_DATA_REPO`: Link to a Git repository containing t4c test
-  data needed to run the backup tests. The repository needs to have the
-  following structure: `/data/$CAPELLA_VERSION/repositories/test-repo`
-- `LOCAL_GIT_BASE_IMAGE`: Specifies the base image which is used to build the
-  local git server for the pytest.
 
 ## Repository tree
 
@@ -82,12 +73,6 @@ The tree inside of your Gitlab repository should look like:
 
 ```zsh
 ├── capella
-│   ├── libs
-│   │   ├── libicu66_66.1-2ubuntu2_amd64.deb
-│   │   ├── libjavascriptcoregtk-4.0-18_2.28.1-1_amd64.deb
-│   │   ├── libjpeg-turbo8_2.0.3-0ubuntu1.20.04.1_amd64.deb
-│   │   ├── libjpeg8_8c-2ubuntu8_amd64.deb
-│   │   └── libwebkit2gtk-4.0-37_2.28.1-1_amd64.deb
 │   └── versions
 │       ├── 5.0.0
 │       │   ├── capella.tar.gz

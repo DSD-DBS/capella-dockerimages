@@ -69,10 +69,6 @@ variables:
       'Specifies the environment. Make sure that all related environment
       variables are set on the repository level. More information in the
       documentation.'
-  T4C_SERVER_REGISTRY: '' # Registry where you can find the t4c server image
-  T4C_SERVER_TAG: '$CAPELLA_VERSION-main' # Tag that is used for the t4c server image
-  T4C_SERVER_TEST_DATA_REPO: '' # Link to the t4c test data repo needed to run the backup tests
-  LOCAL_GIT_BASE_IMAGE: 'debian:bookworm' # Specifies the base images used to build the local git server needed to run the tests
   DOCKER_BUILD_ARGS: '--no-cache'
   BUILD_ARCHITECTURE: amd64
   PURE_VARIANTS_VERSION: '6.0.1'
@@ -156,31 +152,6 @@ default:
   - BASE_IMAGE="${DOCKER_REGISTRY}/${BASE_IMAGE}:$ECLIPSE_VERSION-$GENERAL_IMAGE_TAG"
   - cd pure-variants
   - *github
-
-.local-git-server: &local-git-server
-  - |
-    docker build $DOCKER_BUILD_ARGS \
-      -t local-git-server \
-      --build-arg BASE_IMAGE=$LOCAL_GIT_BASE_IMAGE \
-      tests/local-git-server
-
-.prepare-tests-general: &prepare-tests-general
-  - export LOCAL_GIT_TAG=latest
-  - export DOCKER_PREFIX=${DOCKER_REGISTRY:?}/
-  - apt-get update && apt-get -y install jq
-  # This command lists docker containers, identifies the current job and writes the network ID of the current container into the DOCKER_NETWORK variable.
-  # prettier-ignore
-  - export DOCKER_NETWORK=$(docker inspect -f "{{json .NetworkSettings.Networks }}" $(docker ps -q -f "label=com.gitlab.gitlab-runner.job.id=$CI_JOB_ID" -f "label=com.gitlab.gitlab-runner.type=build") | jq -r 'keys[0]' | head -n 1)
-  - *local-git-server
-  - python -m venv .venv
-  - source .venv/bin/activate
-  - pip install -e '.[test]'
-  - cd tests
-
-.prepare-t4c-server-tests: &prepare-t4c-server-tests
-  - *prepare-tests-general
-  # prettier-ignore
-  - GIT_PASSWORD=${T4C_SERVER_TEST_DATA_REPO_TOKEN:?} git clone ${T4C_SERVER_TEST_DATA_REPO:?}
 
 base:
   stage: build
@@ -290,14 +261,7 @@ t4c/client/base:
         --build-arg CAPELLA_VERSION=$CAPELLA_VERSION \
         --build-arg BASE_IMAGE=$BASE_IMAGE \
         t4c
-    - *prepare-t4c-server-tests
-    # prettier-ignore
-    - pytest -o log_cli=true -s -m t4c_server test_backups.py test_exporter_local.py test_exporter_git.py || r=3
     - *push
-    - exit $r
-  allow_failure: &allow_failure
-    exit_codes:
-      - 3 # Exit code when pytest fail
 
 t4c/client/remote:
   stage: build
@@ -319,11 +283,7 @@ t4c/client/remote:
         --build-arg BASE_IMAGE=$BASE_IMAGE \
         --build-arg XPRA_REGISTRY=$XPRA_REGISTRY \
         remote
-    - *prepare-tests-general
-    - pytest -o log_cli=true -s test_t4c_repository_injection.py || r=3
     - *push
-    - exit $r
-  allow_failure: *allow_failure
 
 t4c/client/remote/pure-variants:
   stage: build

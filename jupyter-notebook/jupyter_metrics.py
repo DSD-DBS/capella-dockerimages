@@ -26,14 +26,10 @@ BASE_URL = BASE_URL.removesuffix("/")
 def get_last_activity() -> datetime.datetime | None:
     """Return the last activity from the JupyterLab status API."""
 
-    response = requests.get(
-        f"http://localhost:{PORT}{BASE_URL}/api/status", timeout=1
-    )
+    response = requests.get(f"http://localhost:{PORT}{BASE_URL}/api/status", timeout=1)
 
     if response.status_code != 200:
-        LOGGER.error(
-            "Failed to get last activity: %s", response.content.decode()
-        )
+        LOGGER.error("Failed to get last activity: %s", response.content.decode())
         return None
 
     return datetime.datetime.fromisoformat(response.json()["last_activity"])
@@ -67,6 +63,4 @@ def start_server(
 
 
 if __name__ == "__main__":
-    start_server(
-        addr="", port=METRICS_PORT, registry=prometheus_client.REGISTRY
-    )
+    start_server(addr="", port=METRICS_PORT, registry=prometheus_client.REGISTRY)

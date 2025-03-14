@@ -81,23 +81,19 @@ def package_product(root: etree._Element) -> None:
 
     for package in existing_packages.values():
         move_todir = package["move"]
-        move = target.xpath(
-            f"./*[local-name()='move' and ./@todir='{move_todir}']"
-        )[0]
+        move = target.xpath(f"./*[local-name()='move' and ./@todir='{move_todir}']")[0]
 
         copied_move = copy.deepcopy(move)
         copied_move.attrib["todir"] = move_todir.replace("x86_64", "aarch64")
         fileset = copied_move.getchildren()[0]
-        fileset.attrib["dir"] = fileset.attrib["dir"].replace(
-            "JRE", "JRE-aarch64"
-        )
+        fileset.attrib["dir"] = fileset.attrib["dir"].replace("JRE", "JRE-aarch64")
 
         target.append(copied_move)
 
         tar_destfile = package["tar"]
-        tar = target.xpath(
-            f"./*[local-name()='tar' and ./@destfile='{tar_destfile}']"
-        )[0]
+        tar = target.xpath(f"./*[local-name()='tar' and ./@destfile='{tar_destfile}']")[
+            0
+        ]
 
         copied_tar = copy.deepcopy(tar)
         copied_tar.attrib["destfile"] = copied_tar.attrib["destfile"].replace(

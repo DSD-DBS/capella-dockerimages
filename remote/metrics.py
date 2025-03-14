@@ -66,44 +66,34 @@ class ProcessCollector(prometheus_client.registry.Collector):
         """Collect metrics from all system processes."""
         processes = psutil.process_iter()
 
-        process_cpu_percent_metric = (
-            prometheus_client.metrics_core.GaugeMetricFamily(
-                "process_cpu_percent",
-                "CPU percent of the process",
-                labels=["process_name"],
-            )
+        process_cpu_percent_metric = prometheus_client.metrics_core.GaugeMetricFamily(
+            "process_cpu_percent",
+            "CPU percent of the process",
+            labels=["process_name"],
         )
 
-        process_memory_usage_metric = (
-            prometheus_client.metrics_core.GaugeMetricFamily(
-                "process_memory_usage_bytes",
-                "Memory usage of the process in bytes",
-                labels=["process_name"],
-            )
+        process_memory_usage_metric = prometheus_client.metrics_core.GaugeMetricFamily(
+            "process_memory_usage_bytes",
+            "Memory usage of the process in bytes",
+            labels=["process_name"],
         )
 
-        process_io_counters_metric = (
-            prometheus_client.metrics_core.GaugeMetricFamily(
-                "process_io_counters_bytes",
-                "Read and write bytes by the process",
-                labels=["process_name", "io_type"],
-            )
+        process_io_counters_metric = prometheus_client.metrics_core.GaugeMetricFamily(
+            "process_io_counters_bytes",
+            "Read and write bytes by the process",
+            labels=["process_name", "io_type"],
         )
 
-        process_num_threads_metric = (
-            prometheus_client.metrics_core.GaugeMetricFamily(
-                "process_num_threads",
-                "Number of threads of the process",
-                labels=["process_name"],
-            )
+        process_num_threads_metric = prometheus_client.metrics_core.GaugeMetricFamily(
+            "process_num_threads",
+            "Number of threads of the process",
+            labels=["process_name"],
         )
 
-        process_open_fds_metric = (
-            prometheus_client.metrics_core.GaugeMetricFamily(
-                "process_open_file_descriptors",
-                "Number of open file descriptors by the process",
-                labels=["process_name"],
-            )
+        process_open_fds_metric = prometheus_client.metrics_core.GaugeMetricFamily(
+            "process_open_file_descriptors",
+            "Number of open file descriptors by the process",
+            labels=["process_name"],
         )
 
         for process in processes:
@@ -149,12 +139,10 @@ class ProcessCollector(prometheus_client.registry.Collector):
 class XpraCollector(prometheus_client.registry.Collector):
     def collect(self) -> t.Iterable[prometheus_client.Metric]:
         """Collect metrics from xpra info command output."""
-        client_batch_delay_metric = (
-            prometheus_client.metrics_core.GaugeMetricFamily(
-                "xpra_client_batch_delay_ms",
-                "Batch delay in ms",
-                labels=["type"],
-            )
+        client_batch_delay_metric = prometheus_client.metrics_core.GaugeMetricFamily(
+            "xpra_client_batch_delay_ms",
+            "Batch delay in ms",
+            labels=["type"],
         )
         client_connection_client_ping_latency_metric = (
             prometheus_client.metrics_core.GaugeMetricFamily(
@@ -191,26 +179,20 @@ class XpraCollector(prometheus_client.registry.Collector):
                 labels=["type"],
             )
         )
-        client_encoding_speed_metric = (
-            prometheus_client.metrics_core.GaugeMetricFamily(
-                "xpra_client_encoding_speed",
-                "Encoder speed parameter (0-100)",
-                labels=["type"],
-            )
+        client_encoding_speed_metric = prometheus_client.metrics_core.GaugeMetricFamily(
+            "xpra_client_encoding_speed",
+            "Encoder speed parameter (0-100)",
+            labels=["type"],
         )
 
-        client_latency_metric = (
-            prometheus_client.metrics_core.GaugeMetricFamily(
-                "xpra_client_latency_ms",
-                "Latency of xpra client in milliseconds (excludes ping)",
-            )
+        client_latency_metric = prometheus_client.metrics_core.GaugeMetricFamily(
+            "xpra_client_latency_ms",
+            "Latency of xpra client in milliseconds (excludes ping)",
         )
 
-        client_jitter_metric = (
-            prometheus_client.metrics_core.GaugeMetricFamily(
-                "xpra_client_jitter_ms",
-                "Jitter of xpra client in milliseconds",
-            )
+        client_jitter_metric = prometheus_client.metrics_core.GaugeMetricFamily(
+            "xpra_client_jitter_ms",
+            "Jitter of xpra client in milliseconds",
         )
 
         proc = subprocess.run(
@@ -238,19 +220,13 @@ class XpraCollector(prometheus_client.registry.Collector):
                     [metric_type], float(val)
                 )
 
-            if val := xpra_metrics.get(
-                f"client.damage.data_queue.size.{metric_type}"
-            ):
+            if val := xpra_metrics.get(f"client.damage.data_queue.size.{metric_type}"):
                 client_damage_data_queue_size_metric.add_metric(
                     [metric_type], float(val)
                 )
 
-            if val := xpra_metrics.get(
-                f"client.damage.in_latency.{metric_type}"
-            ):
-                client_damage_in_latency_metric.add_metric(
-                    [metric_type], float(val)
-                )
+            if val := xpra_metrics.get(f"client.damage.in_latency.{metric_type}"):
+                client_damage_in_latency_metric.add_metric([metric_type], float(val))
 
             if val := xpra_metrics.get(
                 f"client.damage.packet_queue.size.{metric_type}"
@@ -259,17 +235,11 @@ class XpraCollector(prometheus_client.registry.Collector):
                     [metric_type], float(val)
                 )
 
-            if val := xpra_metrics.get(
-                f"client.encoding.quality.{metric_type}"
-            ):
-                client_encoding_quality_metric.add_metric(
-                    [metric_type], float(val)
-                )
+            if val := xpra_metrics.get(f"client.encoding.quality.{metric_type}"):
+                client_encoding_quality_metric.add_metric([metric_type], float(val))
 
             if val := xpra_metrics.get(f"client.encoding.speed.{metric_type}"):
-                client_encoding_speed_metric.add_metric(
-                    [metric_type], float(val)
-                )
+                client_encoding_speed_metric.add_metric([metric_type], float(val))
 
         if val := xpra_metrics.get("client.damage.client-latency"):
             client_latency_metric.add_metric([], float(val))
@@ -306,6 +276,4 @@ def start_server(
 
 
 if __name__ == "__main__":
-    start_server(
-        addr="", port=METRICS_PORT, registry=prometheus_client.REGISTRY
-    )
+    start_server(addr="", port=METRICS_PORT, registry=prometheus_client.REGISTRY)
