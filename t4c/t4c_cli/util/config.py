@@ -17,7 +17,7 @@ class GitConfig:
     entrypoint: str | None = os.getenv("ENTRYPOINT") or os.getenv(
         "GIT_REPO_ENTRYPOINT"
     )
-    email: str = os.getenv("GIT_EMAIL", "backup@example.com")
+    email: str = os.getenv("GIT_EMAIL", "")
     username: str = os.getenv("GIT_USERNAME", "")
     password: str = os.getenv("GIT_PASSWORD", "")
     askpass: str = "/etc/git_askpass.py"
@@ -30,9 +30,6 @@ class T4CConfig:
     repo_port: str = os.getenv("T4C_REPO_PORT", "2036")
     repo_name: str = os.environ["T4C_REPO_NAME"]
     credentials_file_path: str = "/tmp/t4c_credentials"
-    include_commit_history = str_to_bool(
-        os.getenv("INCLUDE_COMMIT_HISTORY", "false")
-    )
 
     def __init__(self) -> None:
         with open(self.credentials_file_path, "w", encoding="utf-8") as file:
@@ -50,9 +47,15 @@ class FileHandler(enum.Enum):
     LOCAL = "LOCAL"
 
 
+class CommitMapping(str, enum.Enum):
+    EXACT = "exact"
+    GROUPED = "grouped"
+
+
 @dataclasses.dataclass
 class GeneralConfig:
     file_handler = FileHandler(os.getenv("FILE_HANDLER", "GIT").upper())
+    commit_mapping = CommitMapping(os.getenv("CDI_COMMIT_MAPPING", "exact"))
 
     git: GitConfig = dataclasses.field(default_factory=GitConfig)
     t4c: T4CConfig = dataclasses.field(default_factory=T4CConfig)

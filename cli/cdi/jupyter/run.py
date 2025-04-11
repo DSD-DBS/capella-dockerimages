@@ -6,7 +6,7 @@ import pathlib
 
 import typer
 
-from cdi import args, docker, helpers
+from cdi import args, docker, git, helpers
 from cdi import logging as _logging
 from cdi.base import args as base_args
 from cdi.jupyter import build as jupyter_builder
@@ -40,6 +40,7 @@ def jupyter(
     _verbose: _logging.VerboseOption = False,
 ) -> None:
     helpers.print_cli_options(locals(), "running Jupyter")
+    image_tag = image_tag.format(cdi_revision=git.get_current_cdi_revision())
 
     if not skip_build:
         jupyter_builder.jupyter(

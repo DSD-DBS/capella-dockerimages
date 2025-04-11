@@ -5,6 +5,7 @@ import datetime
 import logging
 import os
 import pathlib
+import shutil
 import subprocess
 
 from . import config
@@ -14,10 +15,19 @@ logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 log = logging.getLogger("Git")
 
 
+def clean_git_directory() -> None:
+    git_dir = pathlib.Path(config.config.git.dir_path)
+    if git_dir.exists():
+        shutil.rmtree(git_dir)
+    git_dir.mkdir(exist_ok=True)
+
+
 def clone_git_repository_to_git_dir_path(
     raise_if_branch_not_exist: bool = False,
 ) -> pathlib.Path:
     git_config = config.config.git
+
+    clean_git_directory()
 
     git_dir = pathlib.Path(git_config.dir_path)
     git_dir.mkdir(exist_ok=True)
@@ -71,6 +81,7 @@ def git_commit_and_push(
     git_config: config.GitConfig,
     commit_message: str,
     commit_datetime: datetime.datetime | None,
+    author: str = config.config.git.username,
 ) -> None:
     git_dir = pathlib.Path(git_config.dir_path)
 
@@ -106,7 +117,16 @@ def git_commit_and_push(
             }
 
         subprocess.run(
-            ["git", "commit", "--no-verify", "--message", commit_message],
+            [
+                "git",
+                "commit",
+                "--no-verify",
+                "--allow-empty",
+                "--author",
+                f"{author} <{git_config.email}>",
+                "--message",
+                commit_message,
+            ],
             check=True,
             cwd=git_dir,
             env=git_commit_env,
@@ -157,7 +177,7 @@ def find_last_commit_timestamp_by_text_search(
             "git",
             "log",
             "-1",
-            "--format=%ct",
+            "--format=%at",
             f"--grep={grep_arg}",
         ],
         check=False,

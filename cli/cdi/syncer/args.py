@@ -156,3 +156,24 @@ LocalFileHandlerPathOption = t.Annotated[
         dir_okay=True,
     ),
 ]
+
+
+class CommitMapping(str, enum.Enum):
+    EXACT = "exact"
+    GROUPED = "grouped"
+
+
+CommitMappingOption = t.Annotated[
+    CommitMapping,
+    typer.Option(
+        "--commit-mapping",
+        help=(
+            "Specify the commit mapping of T4C to Git commits."
+            " With the 'exact' option, every TeamForCapella commit is mapped to an individual Git commit."
+            " The 'exact' option is limited to 20 commits. If there are more than 20 T4C commits since the last run,"
+            " it falls back to the 'grouped' option. The 'grouped' option creates one Git commit with all T4C changes since"
+            " the last commit."
+        ),
+        rich_help_panel="Importer Options",
+    ),
+]
