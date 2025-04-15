@@ -358,7 +358,7 @@ def backup() -> None:
 
     last_backup_commit_datetime = (
         util_git.find_last_commit_timestamp_by_text_search(
-            git_config=git_config, grep_arg="[CDI]"
+            git_config=git_config, grep_arg=r"\[CDI\]"
         )
     )
     if not last_backup_commit_datetime:
