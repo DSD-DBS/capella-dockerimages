@@ -50,10 +50,6 @@ exclude_also = [
 ]
 skip_covered = true
 
-[tool.docformatter]
-wrap-descriptions = 72
-wrap-summaries = 79
-
 [tool.mypy]
 check_untyped_defs = true
 disallow_incomplete_defs = true

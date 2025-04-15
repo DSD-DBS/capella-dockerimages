@@ -29,7 +29,7 @@ DEFAULT_CAPELLA_COMMAND = [
 def run_capella_command_and_handle_errors(
     application: str,
     arguments: list[str],
-    stdout_line_validator: t.Callable[[str], None],
+    stdout_line_validator: t.Callable[[str], None] | None = None,
 ) -> tuple[str, str]:
     """Run the provided Capella command.
 
@@ -86,7 +86,8 @@ def run_capella_command_and_handle_errors(
                 )
                 sys.exit(1)
 
-            stdout_line_validator(line)
+            if stdout_line_validator:
+                stdout_line_validator(line)
 
         if popen.stderr:
             stderr = popen.stderr.read()
@@ -98,6 +99,10 @@ def run_capella_command_and_handle_errors(
         )
 
     return stdout, stderr
+
+
+def is_capella_7_x_x() -> bool:
+    return bool(re.match(r"7.[0-9]+.[0-9]+", config.config.capella.version))
 
 
 def is_capella_5_x_x() -> bool:

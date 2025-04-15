@@ -2,15 +2,18 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import datetime
+import json
 import logging
 import os
 import pathlib
 import re
 import shutil
 import subprocess
+import typing as t
 import urllib.parse
 
 import click
+import yaml
 
 from .util import capella as util_capella
 from .util import config
@@ -25,6 +28,8 @@ log = logging.getLogger("Importer")
 
 def _build_backup_command(
     last_backup_commit_datetime: datetime.datetime | None,
+    commit_history_only: bool = False,
+    checkout: datetime.datetime | None = None,
 ) -> list[str]:
     t4c_config = config.config.t4c
 
@@ -52,28 +57,48 @@ def _build_backup_command(
         "-overrideExistingProject",
         "true",
         "-importCommitHistoryAsJson",
-        str(t4c_config.include_commit_history),
-        "-includeCommitHistoryChanges",
-        str(t4c_config.include_commit_history),
+        "true",
         "-backupDBOnFailure",
         "false",
     ]
+
+    if util_capella.is_capella_7_x_x() and commit_history_only:
+        command += [
+            "-importType",
+            "COMMIT_HISTORY_ONLY",
+        ]
 
     if last_backup_commit_datetime is not None:
         command += [
             "-from",
             util_datetime.format_datetime_to_isoformat_without_tz(
-                last_backup_commit_datetime
+                last_backup_commit_datetime + datetime.timedelta(seconds=1)
             ),
             "-to",
             util_datetime.format_datetime_to_isoformat_without_tz(
                 datetime.datetime.now()
             ),
         ]
+
+    if checkout:
+        command += [
+            "-checkout",
+            util_datetime.format_datetime_to_isoformat_without_tz(checkout),
+        ]
+
     return command
 
 
 def _validate_backup_stdout(line: str) -> None:
+    if (
+        re.search(r"project .+ not found on the repository .+\.", line)
+        or "No project found!" in line
+    ):
+        log.warning(
+            "Project not found in the repository."
+            " This is expected if the referenced revision relates to another project in the repository.",
+        )
+        raise ProjectNotFoundError()
     if re.search(r"[1-9][0-9]* projects? imports? failed", line):
         raise RuntimeError("Backup failed. Please check the logs above.")
     if re.search(r"[1-9][0-9]* archivings? failed", line):
@@ -82,14 +107,30 @@ def _validate_backup_stdout(line: str) -> None:
         )
 
 
-def run_importer_script(
+def fetch_t4c_commit_history(
     last_backup_commit_datetime: datetime.datetime | None,
+) -> None:
+    util_capella.run_capella_command_and_handle_errors(
+        "com.thalesgroup.mde.melody.collab.importer",
+        _build_backup_command(
+            last_backup_commit_datetime, commit_history_only=True
+        ),
+    )
+
+
+class ProjectNotFoundError(Exception):
+    """Exception if the TeamForCapella project is not found"""
+
+
+def run_importer_script(
+    last_backup_commit_datetime: datetime.datetime | None = None,
+    checkout: datetime.datetime | None = None,
 ) -> None:
     log.debug("Import model from TeamForCapella server...")
 
     stdout, _ = util_capella.run_capella_command_and_handle_errors(
         "com.thalesgroup.mde.melody.collab.importer",
-        _build_backup_command(last_backup_commit_datetime),
+        _build_backup_command(last_backup_commit_datetime, checkout=checkout),
         _validate_backup_stdout,
     )
 
@@ -155,23 +196,151 @@ def copy_exported_files_into_git_repo() -> None:
         dirs_exist_ok=True,
     )
 
-    if t4c_config.include_commit_history is True:
-        shutil.copy2(
-            next(project_dir.glob("CommitHistory__*.activitymetadata")),
-            target_directory / "CommitHistory.activitymetadata",
-        )
-
-        shutil.copy2(
-            next(project_dir.glob("CommitHistory__*.json*")),
-            target_directory / "CommitHistory.json",
-        )
+    shutil.copy2(
+        next(project_dir.glob("CommitHistory__*.activitymetadata")),
+        target_directory / "CommitHistory.activitymetadata",
+    )
+    shutil.copy2(
+        next(project_dir.glob("CommitHistory__*.json*")),
+        target_directory / "CommitHistory.json",
+    )
 
     log.info("Finished copying files...")
 
 
-def create_t4c_project_dir() -> None:
+def clean_and_create_t4c_project_dir() -> None:
     project_dir = pathlib.Path(config.config.t4c.project_dir_path)
+    if project_dir.exists():
+        shutil.rmtree(project_dir)
     project_dir.mkdir(exist_ok=True)
+
+
+class CommitHistoryEntry(t.TypedDict):
+    description: str
+    date: datetime.datetime
+    user: str
+
+
+def get_activities_from_history() -> list[CommitHistoryEntry]:
+    commit_history = next(
+        pathlib.Path(config.config.t4c.project_dir_path).glob(
+            "CommitHistory__*.json*"
+        )
+    )
+
+    with commit_history.open(encoding="utf-8") as file:
+        commit_history_json = json.load(file)
+
+    return [
+        {
+            "description": activity.get("description", "No commit message"),
+            "date": datetime.datetime.fromisoformat(activity["date"]),
+            "user": activity.get("user", "Unknown"),
+        }
+        for activity in commit_history_json["activityMetadataExport"][
+            "activities"
+        ]
+    ]
+
+
+def run_importer_and_local() -> None:
+    """Run the import locally and extract the project files"""
+
+    run_importer_script()
+    unzip_exported_files()
+
+    log.info("Backup of model finished (stored locally)")
+
+
+def grouped_git_commits(
+    last_backup_commit_datetime: datetime.datetime | None = None,
+) -> None:
+    """Create one Git commit for all T4C activities since the last backup"""
+    run_importer_script(last_backup_commit_datetime)
+    unzip_exported_files()
+
+    activities = get_activities_from_history()
+    if len(activities) == 0:
+        log.info("No new commits since last backup")
+        return
+
+    commit_information = yaml.dump(activities, sort_keys=False)
+
+    copy_exported_files_into_git_repo()
+    util_git.git_commit_and_push(
+        git_config=config.config.git,
+        commit_message=f"[CDI] Backup\n\n{commit_information}",
+        commit_datetime=activities[0]["date"],
+    )
+
+    log.info("Backup of model finished with grouped commit mapping")
+
+
+def exact_git_commit_mapping(
+    last_backup_commit_datetime: datetime.datetime | None = None,
+) -> None:
+    """Create individual Git commits for each T4C activity since the last backup"""
+
+    fetch_t4c_commit_history(
+        last_backup_commit_datetime=last_backup_commit_datetime
+    )
+    activities = get_activities_from_history()
+
+    if len(activities) == 0:
+        log.info("No new commits since last backup")
+        return
+
+    if len(activities) > 20:
+        log.warning(
+            "Too many commits for the exact commit mapping. Falling back to grouped commit mapping."
+        )
+        grouped_git_commits(last_backup_commit_datetime)
+        return
+
+    log.info("Found %s commits since last backup", len(activities))
+
+    for idx, activity in enumerate(activities[::-1]):
+        log.info(
+            "Starting to export the following commit (%d/%d):"
+            "\nDate: %s"
+            "\nDescription: %s"
+            "\nUser: %s",
+            idx,
+            len(activities),
+            activity["date"],
+            activity["description"],
+            activity["user"],
+        )
+
+        if activity["date"] == last_backup_commit_datetime:
+            log.info(
+                "Skipping commit '%s' from '%s', already committed",
+                activity["description"],
+                activity["date"],
+            )
+            continue
+
+        clean_and_create_t4c_project_dir()
+        try:
+            run_importer_script(checkout=activity["date"])
+        except ProjectNotFoundError:
+            log.warning(
+                "Project not found in the repository for commit %s."
+                " Continue with next commit.",
+                activity["date"],
+            )
+            continue
+        unzip_exported_files()
+        copy_exported_files_into_git_repo()
+
+        util_git.git_commit_and_push(
+            git_config=config.config.git,
+            author=activity["user"],
+            commit_message=f"[CDI] {activity['description']}",
+            commit_datetime=activity["date"],
+        )
+
+    log.info("Backup of model finished with exact commit mapping")
 
 
 @click.command()
@@ -179,34 +348,49 @@ def backup() -> None:
     git_config: config.GitConfig = config.config.git
     file_handler = config.config.file_handler
 
-    create_t4c_project_dir()
+    clean_and_create_t4c_project_dir()
 
-    last_backup_commit_datetime = None
-    if file_handler == config.FileHandler.GIT:
-        util_git.clone_git_repository_to_git_dir_path()
+    if file_handler == config.FileHandler.LOCAL:
+        run_importer_and_local()
+        return
+
+    util_git.clone_git_repository_to_git_dir_path()
+
+    last_backup_commit_datetime = (
+        util_git.find_last_commit_timestamp_by_text_search(
+            git_config=git_config, grep_arg="[CDI]"
+        )
+    )
+    if not last_backup_commit_datetime:
+        # Legacy backup commits don't have the [CDI] tag
         last_backup_commit_datetime = (
             util_git.find_last_commit_timestamp_by_text_search(
                 git_config=git_config, grep_arg="Backup"
             )
         )
 
-    run_importer_script(last_backup_commit_datetime)
-    unzip_exported_files()
+    log.info(
+        "The last backup Git commit was on %s",
+        last_backup_commit_datetime,
+    )
 
-    if file_handler == config.FileHandler.GIT:
-        copy_exported_files_into_git_repo()
-
-        t4c_commit_information, last_t4c_commit_datetime = (
-            util_t4c.extract_t4c_commit_information()
+    if config.config.commit_mapping == config.CommitMapping.EXACT and (
+        not util_capella.is_capella_7_x_x()
+    ):
+        log.warning(
+            "Exact commit mapping is only supported with Capella 7.x.x and later."
+            " Fallback to grouped commits."
         )
 
-        util_git.git_commit_and_push(
-            git_config=git_config,
-            commit_message=f"Backup\n\n{t4c_commit_information}",
-            commit_datetime=last_t4c_commit_datetime,
-        )
+    if (
+        config.config.commit_mapping == config.CommitMapping.EXACT
+        and util_capella.is_capella_7_x_x()
+    ):
+        exact_git_commit_mapping(last_backup_commit_datetime)
+        return
 
-    log.info("Backup of model finished")
+    grouped_git_commits(last_backup_commit_datetime)
+    return
 
 
 if __name__ == "__main__":

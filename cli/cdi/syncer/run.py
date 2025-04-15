@@ -218,6 +218,7 @@ def t4c2git(
     t4c_server_port: syncer_args.T4CServerPortOption = 2036,
     t4c_username: syncer_args.T4CUsername = "admin",
     t4c_password: syncer_args.T4CPassword = None,
+    commit_mapping: syncer_args.CommitMappingOption = syncer_args.CommitMapping.EXACT,
     _verbose: _logging.VerboseOption = False,
 ) -> None:
     helpers.print_cli_options(locals(), "running T4C Importer")
@@ -319,6 +320,8 @@ def t4c2git(
     environment["T4C_PROJECT_NAME"] = t4c_project_name
     environment["T4C_USERNAME"] = t4c_username
     environment["T4C_PASSWORD"] = t4c_password
+
+    environment["CDI_COMMIT_MAPPING"] = commit_mapping.value
 
     if debug:
         volumes[pathlib.Path("./t4c/t4c_cli")] = pathlib.PurePosixPath(

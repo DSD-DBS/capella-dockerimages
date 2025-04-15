@@ -34,6 +34,7 @@ def jupyter(
     base_image_tag = base_image_tag.format(
         cdi_revision=git.get_current_cdi_revision()
     )
+    image_tag = image_tag.format(cdi_revision=git.get_current_cdi_revision())
 
     if not skip_base_image:
         base_build.command(
