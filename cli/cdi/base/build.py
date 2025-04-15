@@ -25,6 +25,8 @@ def command(
     uid: base_args.UIDOption = base_args.UID_OPTION_DEFAULT,
     no_cache: args.NoCacheOption = False,
     labels: args.ImageLabelOption = None,
+    proxy: base_args.ProxyOption = "",
+    no_proxy: base_args.NoProxyOption = "",
     _verbose: _logging.VerboseOption = False,
     suppress_cli_options: bool = False,
 ) -> None:
@@ -41,7 +43,12 @@ def command(
         build_context="base",
         build_architecture=cpu_architecture,
         no_cache=no_cache,
-        build_args={"UID": uid},
+        build_args={
+            "UID": uid,
+            "HTTP_PROXY": proxy,
+            "HTTPS_PROXY": proxy,
+            "NO_PROXY": no_proxy,
+        },
         labels=helpers.transform_labels(labels),
     )
 

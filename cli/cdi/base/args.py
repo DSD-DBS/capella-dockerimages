@@ -36,3 +36,23 @@ SkipBaseImageOption = t.Annotated[
         rich_help_panel=BASE_OPTIONS,
     ),
 ]
+
+ProxyOption = t.Annotated[
+    str,
+    typer.Option(
+        "--proxy",
+        help="Proxy which is injected during build.",
+        rich_help_panel=BASE_OPTIONS,
+        envvar="HTTP_PROXY",
+    ),
+]
+
+NoProxyOption = t.Annotated[
+    str,
+    typer.Option(
+        "--no-proxy",
+        help="Comma-separated list of domain names to except from proxy.",
+        rich_help_panel=BASE_OPTIONS,
+        envvar="NO_PROXY",
+    ),
+]
