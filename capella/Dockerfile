@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: Apache-2.0
 ARG BASE_IMAGE=base
 ARG BUILD_TYPE=online
-ARG INSTALL_OLD_GTK_VERSION=true
 FROM ${BASE_IMAGE} AS base
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -11,48 +10,29 @@ ENV DEBIAN_FRONTEND=noninteractive
 SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 ENV SHELL=/bin/bash
 
-FROM base AS old_gtk_true
-
-ONBUILD USER root
-
-# hadolint ignore=SC2046
-ONBUILD RUN echo "deb http://de.archive.ubuntu.com/ubuntu/ focal main" >> /etc/apt/sources.list.d/focal.list; \
-    ## Import the required keys
-    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32; \
-    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 871920D1991BC93C; \
-    apt-get update; \
-    ## Install the packages
-    apt-get install -y --no-install-recommends \
-    libjavascriptcoregtk-4.0-18=2.28.1-1 \
-    libwebkit2gtk-4.0-37=2.28.1-1; \
-    rm /etc/apt/sources.list.d/focal.list; \
-    rm -rf /var/lib/apt/lists/*;
-
-FROM base AS old_gtk_false
-
-ONBUILD USER root
-ONBUILD RUN apt-get update && \
+USER root
+RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     libjavascriptcoregtk-4.0-18 \
     libwebkit2gtk-4.0-37 && \
     rm -rf /var/lib/apt/lists/*;
 
-FROM old_gtk_${INSTALL_OLD_GTK_VERSION} AS base_new
-
 WORKDIR /opt/
+USER techuser
 
-FROM base_new AS build_online
+FROM base AS build_online
+
 # Download a Capella executable archive
-
 # https://github.com/moby/moby/issues/26533#issuecomment-246966836
 ONBUILD ARG CAPELLA_VERSION="5.2.0"
 ONBUILD ARG BUILD_ARCHITECTURE="amd64"
 ONBUILD ARG CAPELLA_DOWNLOAD_URL
+ONBUILD USER root
 ONBUILD COPY ./download_archive.py /opt/.download_archive.py
 ONBUILD RUN pip install --no-cache-dir requests && \
     python .download_archive.py ${CAPELLA_VERSION};
 
-FROM base_new AS build_offline
+FROM base AS build_offline
 
 # ONBUILD is required here
 # https://github.com/moby/moby/issues/26533#issuecomment-246966836
@@ -60,9 +40,9 @@ ONBUILD ARG CAPELLA_VERSION="5.2.0"
 ONBUILD ARG BUILD_ARCHITECTURE="amd"
 ONBUILD COPY ./versions/${CAPELLA_VERSION}/${BUILD_ARCHITECTURE}/capella.* /opt/
 
-
 FROM build_${BUILD_TYPE}
 
+USER root
 ARG CAPELLA_VERSION
 
 RUN apt-get update && \

@@ -134,7 +134,6 @@ def git2t4c(
             build_type=build_type,
             capella_download_url=capella_download_url,
             capella_dropins=capella_dropins,
-            install_old_gtk_version=False,
             pure_variants_client=False,
         )
 
@@ -285,7 +284,6 @@ def t4c2git(
             build_type=build_type,
             capella_download_url=capella_download_url,
             capella_dropins=capella_dropins,
-            install_old_gtk_version=False,
             pure_variants_client=False,
         )
 

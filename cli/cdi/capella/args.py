@@ -76,16 +76,6 @@ CapellaDropinsOption = t.Annotated[
     ),
 ]
 
-InstallOldGTKVersionOption = t.Annotated[
-    bool,
-    typer.Option(
-        "--old-gtk-version/--current-gtk-version",
-        help="Old GTK versions can improve the Capella description editor in Capella versions < 7.0.0.",
-        envvar="INSTALL_OLD_GTK_VERSION",
-        rich_help_panel=CAPELLA_BUILD_OPTIONS,
-    ),
-]
-
 CAPELLA_RUN_OPTIONS = "Capella Run Options"
 
 DisableSemanticBrowserOption = t.Annotated[

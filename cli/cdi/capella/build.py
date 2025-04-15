@@ -161,7 +161,6 @@ def capella(
     build_type: capella_args.BuildTypeOption = capella_args.BuildType.OFFLINE,
     capella_download_url: capella_args.CapellaDownloadURLOption = None,
     capella_dropins: capella_args.CapellaDropinsOption = "",
-    install_old_gtk_version: capella_args.InstallOldGTKVersionOption = False,
     pure_variants_client: pv_args.PureVariantsOption = False,
     pure_variants_version: pv_args.PureVariantsVersionOption = "6.0.1",
     labels: args.ImageLabelOption = None,
@@ -240,9 +239,6 @@ def capella(
                     "CAPELLA_DOWNLOAD_URL": capella_download_url or "",
                     "CAPELLA_VERSION": capella_version,
                     "CAPELLA_DROPINS": capella_dropins,
-                    "INSTALL_OLD_GTK_VERSION": (
-                        "true" if install_old_gtk_version else "false"
-                    ),
                 },
                 labels=helpers.transform_labels(labels),
             )
