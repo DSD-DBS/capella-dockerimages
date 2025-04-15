@@ -185,6 +185,9 @@ base:
     - |
       docker build $DOCKER_BUILD_ARGS \
         -t $IMAGE:$DOCKER_TAG \
+        --build-arg HTTP_PROXY=${HTTP_PROXY} \
+        --build-arg HTTPS_PROXY=${HTTPS_PROXY} \
+        --build-arg NO_PROXY=${NO_PROXY} \
         --build-arg UID=${!UID_QUERY} \
         --build-arg BASE_IMAGE=$BASE_IMAGE \
         base
