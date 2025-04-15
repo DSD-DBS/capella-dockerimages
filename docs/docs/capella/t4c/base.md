@@ -23,8 +23,6 @@ client plugins.
    <https://www.obeosoft.com/en/team-for-capella-download>
 
     Note that the T4C client version must match the version for Capella itself.
-   To obtain a Linux T4C client version below 5.2 you may want to contact
-   [Obeo](https://www.obeosoft.com/en/team-for-capella-download) to get a bundle.
 
 1. Extract the downloaded archive. The extracted folder comes with a `.zip` file
    containing the T4C client:

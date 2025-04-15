@@ -27,7 +27,9 @@ DEFAULT_CAPELLA_COMMAND = [
 
 
 def run_capella_command_and_handle_errors(
-    application: str, arguments: list[str], stdout_line_validator: t.Callable
+    application: str,
+    arguments: list[str],
+    stdout_line_validator: t.Callable[[str], None],
 ) -> tuple[str, str]:
     """Run the provided Capella command.
 
@@ -62,10 +64,9 @@ def run_capella_command_and_handle_errors(
         for line in popen.stdout:
             stdout += line
 
-            # Flush is needed, otherwise the logs are delayed
             print(
                 textwrap.indent(
-                    stdout,
+                    line,
                     "[STDOUT] ",
                 ),
                 end="",
@@ -93,7 +94,7 @@ def run_capella_command_and_handle_errors(
 
     if (return_code := popen.returncode) != 0:
         raise RuntimeError(
-            f"Capella importer failed with exit code {return_code}"
+            f"Capella command failed with exit code {return_code}"
         )
 
     return stdout, stderr
@@ -115,8 +116,20 @@ def determine_model_dir(
     model_dir = root_path
     if entrypoint:
         model_dir = pathlib.Path(
-            root_path, str(pathlib.Path(entrypoint).parent).lstrip("/")
+            root_path, str(pathlib.Path(entrypoint)).lstrip("/")
         )
+
+    if not create_if_not_exist and not model_dir.exists():
+        raise FileNotFoundError(model_dir)
+
+    if model_dir.is_file():
+        log.warning(
+            "The entrypoint '%s' is a file."
+            " Due to limitations with the TeamForCapella CLI, "
+            " we're falling back to the parent directory as model directory.",
+            entrypoint,
+        )
+        model_dir = model_dir.parent
 
     if create_if_not_exist:
         model_dir.mkdir(exist_ok=True, parents=True)

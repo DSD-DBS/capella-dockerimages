@@ -19,7 +19,7 @@ RUN apt-get update && \
 COPY docker_entrypoint.sh /docker_entrypoint.sh
 RUN chmod 555 /docker_entrypoint.sh
 
-ENV DISPLAY :99
+ENV DISPLAY=":99"
 
 WORKDIR /opt/capella
 

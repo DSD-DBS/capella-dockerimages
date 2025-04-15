@@ -17,7 +17,7 @@ environment variables to the `docker run` commands:
   calculated according to the total memory of the system or the total memory
   available to the container.
 
-If the value ends with a %, we assume that it's a percentage value.
+If the value ends with a `%`, we assume that it's a percentage value.
 
 - If used in a Kubernetes cluster, it determines the values from the Pod
   requests/limits.
@@ -25,5 +25,5 @@ If the value ends with a %, we assume that it's a percentage value.
 
 See also:
 
-- https://stackoverflow.com/a/65327769
-- https://www.merikan.com/2019/04/jvm-in-a-container/#java-10
+- <https://stackoverflow.com/a/65327769>
+- <https://www.merikan.com/2019/04/jvm-in-a-container/#java-10>

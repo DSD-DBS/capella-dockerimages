@@ -168,27 +168,20 @@ def provide_project_dirs_to_capella_plugin(
 
 def main() -> None:
     projects = fetch_projects_from_environment()
-    print("---START_LOAD_MODEL---")
     log.info("Found the following models: %s", projects)
-    try:
-        for project in projects:
-            project["location"] = pathlib.Path(project["path"])
-            resolve_entrypoint(project)
-            check_that_location_exists(project)
-            load_or_generate_project_etree(project)
-            derive_project_name(project)
+    for project in projects:
+        project["location"] = pathlib.Path(project["path"])
+        resolve_entrypoint(project)
+        check_that_location_exists(project)
+        load_or_generate_project_etree(project)
+        derive_project_name(project)
 
-        resolve_duplicate_names(projects)
+    resolve_duplicate_names(projects)
 
-        for project in projects:
-            write_updated_project_file(project)
+    for project in projects:
+        write_updated_project_file(project)
 
-        provide_project_dirs_to_capella_plugin(projects)
-    except Exception as e:
-        print("---FAILURE_LOAD_MODEL---")
-        raise e
-
-    print("---FINISH_LOAD_MODEL---")
+    provide_project_dirs_to_capella_plugin(projects)
 
 
 if __name__ == "__main__":

@@ -31,43 +31,28 @@ To get started, please clone this repository and include all submodules:
 git clone https://github.com/DSD-DBS/capella-dockerimages.git
 ```
 
-### Build images with GNU Make
+### Build images using our CLI
 
-If you have [GNU Make](https://www.gnu.org/software/make/manual/make.html)
-installed on your system, you can make use of our Makefile to build, run and
+You can use our command-line interface to build, run and
 debug our Docker images.
 
-<!-- prettier-ignore -->
-!!! warning
-
-    The minimum required GNU Make version is `3.82`, however we recommend version `4.X`. Use version `4.4` for the best experience. The **preinstalled Make version on macOS is `3.81` and is not supported by us**. Please update the version to >= `3.82`.
-
-<!-- prettier-ignore -->
 !!! info
 
-    When running the build targets with `PUSH_IMAGES=1`, they get pushed to your preferred registry after each build.
+    For each image, please execute the steps described in the preparation section
+    in the documentation before building the image.
 
-For each image, please execute the steps described in the preparation section
-in the documentation for each image.
+To install the CLI, install the [uv package manager](https://docs.astral.sh/uv/getting-started/installation/)
+and run the following command:
+
+
+```
+uv tool install -e ./cli
+```
 
 Then, just run the following command:
 
 ```sh
-make <image-name>
-```
-
-to build the image and it's dependencies or
-
-```sh
-make run-<image-name>
-```
-
-to build the images, all dependencies and run the image.
-
-In case you executed the preparation sections for all images, you can run:
-
-```sh
-make all
+cdi --help
 ```
 
 ### Build images manually with Docker
