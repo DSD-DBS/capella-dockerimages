@@ -196,15 +196,6 @@ def copy_exported_files_into_git_repo() -> None:
         dirs_exist_ok=True,
     )
 
-    shutil.copy2(
-        next(project_dir.glob("CommitHistory__*.activitymetadata")),
-        target_directory / "CommitHistory.activitymetadata",
-    )
-    shutil.copy2(
-        next(project_dir.glob("CommitHistory__*.json*")),
-        target_directory / "CommitHistory.json",
-    )
-
     log.info("Finished copying files...")
 
 
