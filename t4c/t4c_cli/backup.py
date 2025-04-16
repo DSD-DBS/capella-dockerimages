@@ -224,9 +224,9 @@ def get_activities_from_history() -> list[CommitHistoryEntry]:
 
     return [
         {
-            "description": activity.get("description", "No commit message"),
+            "description": activity.get("description") or "No commit message",
             "date": datetime.datetime.fromisoformat(activity["date"]),
-            "user": activity.get("user", "Unknown"),
+            "user": activity.get("user") or "Unknown",
         }
         for activity in commit_history_json["activityMetadataExport"][
             "activities"
