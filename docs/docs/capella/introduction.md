@@ -27,7 +27,7 @@ with a pre-selected set of dropins. Available options are:
   [PVMT](https://github.com/eclipse/capella/wiki/PVMT),
   [Filtering](https://github.com/eclipse/capella-filtering),
   [Requirements](https://github.com/eclipse/capella-requirements-vp) and
-  [SubsystemTransition](https://github.com/eclipse/capella-sss-transition)
+  [SubsystemTransition](https://github.com/eclipse/capella-sss-transition) (The CDO parts of the extensions are not included, but required for compatibility with TeamForCapella, see [#400](https://github.com/DSD-DBS/capella-dockerimages/issues/400#issuecomment-2900870323))
 
 If you need a custom set of dropins, you have two options:
 
