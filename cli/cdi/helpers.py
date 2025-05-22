@@ -66,7 +66,7 @@ def configure_remote_connection(
 ) -> None:
     environment["CONNECTION_METHOD"] = connection_method.value
     environment["XPRA_SUBPATH"] = xpra_subpath
-    environment["RDP_PASSWORD"] = rdp_password if rdp_password else ""
+    environment["RMT_PASSWORD"] = rdp_password if rdp_password else ""
 
     if connection_method == args.ConnectionMethod.XRDP:
         ports[rdp_port] = 3389
