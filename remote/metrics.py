@@ -261,7 +261,8 @@ class XpraCollector(prometheus_client.registry.Collector):
 IDLETIME.set_function(IdleTimer().get_idletime)
 
 prometheus_client.REGISTRY.register(ProcessCollector())
-prometheus_client.REGISTRY.register(XpraCollector())
+if os.getenv("CONNECTION_METHOD", "").lower() == "xpra":
+    prometheus_client.REGISTRY.register(XpraCollector())
 
 
 def start_server(
