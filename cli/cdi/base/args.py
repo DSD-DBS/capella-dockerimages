@@ -23,6 +23,7 @@ BaseImageTagOption = t.Annotated[
         "--base-image-tag",
         help="Docker tag for the base image.",
         rich_help_panel=BASE_OPTIONS,
+        envvar="BASE_IMAGE_TAG",
     ),
 ]
 SkipBaseImageOption = t.Annotated[
