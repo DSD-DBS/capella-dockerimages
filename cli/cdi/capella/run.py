@@ -24,6 +24,7 @@ app = typer.Typer()
 def capella(
     *,
     detach: args.RunDetachedOption = False,
+    root: args.RunAsRootOption = False,
     disable_semantic_browser: capella_args.DisableSemanticBrowserOption = False,
     log_level: capella_args.LogLevelOption = "DEBUG",  # type: ignore
     memory_min: eclipse_args.MemoryMinOption = "70%",
@@ -152,6 +153,7 @@ def capella(
         ports=ports,
         volumes=volumes,
         debug=debug,
+        root=root,
         args=capella_arguments,
         after_run_callback=helpers.remote_callback_factory(
             remote=remote,

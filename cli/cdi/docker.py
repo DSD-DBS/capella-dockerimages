@@ -101,6 +101,7 @@ def run_container(
     image_name: str,
     build_architecture: SupportedArchitecture,
     detach: bool,
+    root: bool,
     environment: dict[str, str] | None = None,
     volumes: dict[pathlib.Path, pathlib.PurePosixPath] | None = None,
     ports: dict[int, int] | None = None,
@@ -129,6 +130,9 @@ def run_container(
             container_name,
         )
         cmd.append("-d")
+
+    if root:
+        cmd.append("--user=root")
 
     if debug:
         cmd.append("-it")

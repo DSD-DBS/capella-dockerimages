@@ -110,6 +110,33 @@ If you want to install dropins manually, you can place the dropins in the
 copied into the `dropins` directory of the Capella client without any further
 processing.
 
+If you only have the updateSite and not the dropin, you can create a file `dropins.overwrites.yml` next to the `dropins.yml` in `capella/versions/$CAPELLA_VERSIONS` with the following content:
+
+```yaml
+dropins:
+  NameOfTheDropin:
+    type: updateSite
+    eclipseRepository:
+      - <filename>.zip # (1)!
+      - 'https://download.eclipse.org/releases/2023-03' # (2)!
+    installIU: # (3)!
+      - org.eclipse.xxx.feature.feature.group
+    tag: "FeaturePatch" # (4)!
+    profile: "DefaultProfile" # (5)!
+    autouse: false # (6)!
+    proxy: null # (7)!
+    disable_mirrors: false # (8)!
+```
+
+1. Place the file in the `capella/versions/$CAPELLA_VERSION/patches` directory and specify the filename here. Must be a zip file.
+2. Specify additional registries like the Eclipse registry to fetch dependencies from.
+3. Add all IDs of installable units that you want to install. You can see those while installing the updateSite via the Capella UI.
+4. Optional tag if required. Remove the line if no tag is required.
+5. Optional profile to use. Remove the line if no profile is required. If transitioning from `patch_info.csv`, use the profile `DefaultProfile`.
+6. If `autouse` is enabled, the dropin will be installed independently of the `CAPELLA_DROPINS` build argument.
+7. Optional proxy to fetch external registries. If not set, no proxy will be used. To use the proxy of the environment, set it to `{proxy}`.
+8. Decide if mirrors should be disabled or not. This might be needed if you run your own mirror.
+
 ### Build it manually with Docker
 
 #### Automatic download of Capella

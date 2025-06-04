@@ -42,6 +42,7 @@ def file_handler_validator(
 def git2t4c(
     *,
     debug: args.DebugOption = False,
+    root: args.RunAsRootOption = False,
     skip_build: args.SkipBuildOption = False,
     cpu_architecture: args.CPUArchitectureOption,
     image_prefix: args.ImagePrefixOption = "",
@@ -183,6 +184,7 @@ def git2t4c(
         ports=ports,
         volumes=volumes,
         debug=debug,
+        root=root,
         args=["export"],
     )
 
@@ -194,6 +196,7 @@ def git2t4c(
 def t4c2git(
     *,
     debug: args.DebugOption = False,
+    root: args.RunAsRootOption = False,
     skip_build: args.SkipBuildOption = False,
     cpu_architecture: args.CPUArchitectureOption,
     image_prefix: args.ImagePrefixOption = "",
@@ -336,5 +339,6 @@ def t4c2git(
         ports=ports,
         volumes=volumes,
         debug=debug,
+        root=root,
         args=["backup"],
     )

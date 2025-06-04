@@ -83,19 +83,20 @@ USER techuser
 COPY ./versions/${CAPELLA_VERSION}/dropins /opt/capella/dropins
 ARG CAPELLA_DROPINS=""
 COPY install_dropins.py /opt/install_dropins.py
-COPY ./versions/${CAPELLA_VERSION}/dropins.yml /opt/dropins.yml
+COPY ./versions/${CAPELLA_VERSION}/dropins*.yml /opt
 
 ARG MEMORY_LIMIT=5500m
 
 RUN echo '-Dorg.eclipse.equinox.p2.transport.ecf.retry=15' >> /opt/capella/capella.ini && \
     echo '-Dorg.eclipse.ecf.provider.filetransfer.retrieve.readTimeout=10000' >> /opt/capella/capella.ini && \
     sed -i "s/-Xmx[^ ]*/-Xmx$MEMORY_LIMIT/g" /opt/capella/capella.ini
-RUN python install_dropins.py
 
 COPY ./versions/${CAPELLA_VERSION}/patches /opt/patches
-RUN PATCH_DIR=/opt/patches /opt/patch.sh
 
 USER root
+RUN chown -R techuser /opt/patches \
+    && PATCH_DIR=/opt/patches /opt/patch.sh \
+    && python install_dropins.py
 
 # Eclipse settings
 RUN mkdir -p /opt/capella/configuration/.settings; \

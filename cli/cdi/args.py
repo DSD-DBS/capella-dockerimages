@@ -115,6 +115,17 @@ RunDetachedOption = t.Annotated[
     ),
 ]
 
+
+RunAsRootOption = t.Annotated[
+    bool,
+    typer.Option(
+        "--root/--techuser",
+        help="Run the image as root user. Otherwise use the non-root techuser.",
+        rich_help_panel=RUN_OPTIONS,
+    ),
+]
+
+
 DebugOption = t.Annotated[
     bool,
     typer.Option(
