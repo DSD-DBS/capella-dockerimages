@@ -30,6 +30,7 @@ def papyrus(
     papyrus_version: papyrus_args.PapyrusVersionOption = "6.4.0",
     remote: args.RemoteOption = True,
     detach: args.RunDetachedOption = False,
+    root: args.RunAsRootOption = False,
     memory_min: eclipse_args.MemoryMinOption = "70%",
     memory_max: eclipse_args.MemoryMaxOption = "90%",
     debug: args.DebugOption = False,
@@ -111,6 +112,7 @@ def papyrus(
         ports=ports,
         volumes=volumes,
         debug=debug,
+        root=root,
         after_run_callback=helpers.remote_callback_factory(
             remote=remote,
             connection_method=connection_method,

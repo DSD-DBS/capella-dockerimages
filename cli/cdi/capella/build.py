@@ -19,20 +19,34 @@ log = logging.getLogger(__name__)
 app = typer.Typer()
 
 
+def load_dropins_files(
+    capella_version: str,
+) -> dict[str, list[str]]:
+    """Load the dropins files from the Capella version directory."""
+
+    base_dir = _repository_root / "capella" / "versions" / capella_version
+    dropins = yaml.safe_load(
+        (base_dir / "dropins.yml").read_text(encoding="utf-8")
+    )["dropins"]
+
+    dropins_overwrites = {}
+    dropins_overwrites_path = base_dir / "dropins.overwrites.yml"
+    if dropins_overwrites_path.exists():
+        dropins_overwrites_content = yaml.safe_load(
+            dropins_overwrites_path.read_text(encoding="utf-8")
+        )
+        if "dropins" in dropins_overwrites_content:
+            dropins_overwrites = dropins_overwrites_content["dropins"]
+
+    return dropins | dropins_overwrites
+
+
 def validate_dropins(
     capella_version: str,
     dropins: list[str],
 ) -> None:
     """Make sure that the list of dropins is available for the Capella version."""
-    available_dropins = yaml.safe_load(
-        (
-            _repository_root
-            / "capella"
-            / "versions"
-            / capella_version
-            / "dropins.yml"
-        ).read_text(encoding="utf-8")
-    )["dropins"]
+    available_dropins = load_dropins_files(capella_version)
 
     for dropin in dropins:
         if dropin and dropin not in available_dropins:
@@ -42,7 +56,7 @@ def validate_dropins(
                 "1. If the dropin is missing in the %s"
                 " and you think it should be there, please open a new %s\n"
                 "2. Download the dropins and add them to the 'capella/versions/%s/dropins' directory.\n"
-                "3. Manually edit the 'capella/%s/dropins.yml' file and add the required dropins.",
+                "3. Create a file 'capella/versions/%s/dropins.overwrites.yml' and add the required dropins.",
                 dropin,
                 capella_version,
                 formatting.build_rich_link(

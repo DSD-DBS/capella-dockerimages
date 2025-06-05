@@ -209,6 +209,8 @@ capella/base:
     - *docker
     # prettier-ignore
     - mv ../capella.tar.gz ./capella/versions/$CAPELLA_VERSION/$BUILD_ARCHITECTURE/capella.tar.gz
+    - mv ../dropins.overwrites.yml
+      ./capella/versions/$CAPELLA_VERSION/dropins.overwrites.yml
     - cp ./eclipse/set_memory_flags.py ./capella/setup/set_memory_flags.py
     - >
       if [[ -n "$(find ../dropins -maxdepth 1 -type d)" ]]; then

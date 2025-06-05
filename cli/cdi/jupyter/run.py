@@ -25,6 +25,7 @@ app = typer.Typer()
 def jupyter(
     *,
     detach: args.RunDetachedOption = False,
+    root: args.RunAsRootOption = False,
     debug: args.DebugOption = False,
     skip_build: args.SkipBuildOption = False,
     cpu_architecture: args.CPUArchitectureOption,
@@ -83,5 +84,6 @@ def jupyter(
         ports=ports,
         volumes=volumes,
         debug=debug,
+        root=root,
         after_run_callback=jupyter_callback,
     )

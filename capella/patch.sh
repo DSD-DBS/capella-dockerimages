@@ -3,6 +3,16 @@
 # SPDX-License-Identifier: Apache-2.0
 set -euo pipefail
 
+# Installation command complains about empty proxy variables
+if [[ "${http_proxy}" == "" ]]; then
+    echo "http_proxy is empty, unsetting it"
+    unset http_proxy
+fi
+if [[ "${https_proxy}" == "" ]]; then
+    echo "https_proxy is empty, unsetting it"
+    unset https_proxy
+fi
+
 if [[ -s "${PATCH_DIR:?}/patch_info.csv" ]];
 then
     while IFS="," read -r patch_zip install_iu tag
