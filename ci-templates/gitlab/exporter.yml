@@ -7,7 +7,7 @@ variables:
 export-to-t4c:
   image:
     name: $DOCKER_REGISTRY/t4c/client/base:${CAPELLA_DOCKER_IMAGES_TAG}
-    entrypoint: [""]
+    entrypoint: ['']
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       when: always
@@ -15,7 +15,7 @@ export-to-t4c:
     # Needed when model modifiers change the models in a row.
     # To avoid conflicts, reset the branch to the latest state.
     - git config --global --add safe.directory $CI_BUILDS_DIR/model
-    - git fetch
+    - git fetch --depth 1
     - git reset --hard origin/$CI_COMMIT_BRANCH
   script:
     - xvfb-run python /opt/scripts/export.py

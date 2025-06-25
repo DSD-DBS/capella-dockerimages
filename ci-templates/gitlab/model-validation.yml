@@ -8,7 +8,7 @@ model-validation:
   script:
     # As our containers run with techuser (non-root) git commands fail with dubious ownership, see <https://gitlab.com/gitlab-org/gitlab-runner/-/issues/29022> for the solution.
     - git config --global --add safe.directory ${CI_PROJECT_DIR}
-    - git fetch
+    - git fetch --depth 1
     - if [ ! -z $CI_COMMIT_BRANCH ]; then git reset --hard origin/$CI_COMMIT_BRANCH; fi
     - BUILD_DIR=$(pwd)
     - if [ ! -f ".project" ]; then echo "The model validator requires a '.project' file!" && exit 1; fi
