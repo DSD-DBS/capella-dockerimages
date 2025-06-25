@@ -153,6 +153,9 @@ def eclipse(
                 labels=helpers.transform_labels(labels),
             )
 
+        if push:
+            docker.push_image(image_name)
+
     if remote:
         image_core += "/remote"
         remote_image_name = docker.build_image_name(
@@ -168,6 +171,9 @@ def eclipse(
         )
         image_name = remote_image_name
 
+        if push:
+            docker.push_image(image_name)
+
     if pure_variants_client:
         pure_variants_image = docker.build_image_name(
             image_prefix, image_core + "/pure-variants", image_tag
@@ -182,8 +188,8 @@ def eclipse(
         )
         image_name = pure_variants_image
 
-    if push:
-        docker.push_image(image_name)
+        if push:
+            docker.push_image(image_name)
 
 
 def get_final_eclipse_image_tag(
