@@ -256,6 +256,8 @@ def capella(
                 },
                 labels=helpers.transform_labels(labels),
             )
+        if push:
+            docker.push_image(image_name)
 
     if t4c_client:
         image_core = "t4c/client"
@@ -277,6 +279,8 @@ def capella(
                 labels=helpers.transform_labels(labels),
             )
         image_name = t4c_image_name
+        if push:
+            docker.push_image(image_name)
 
     if remote:
         image_core += "/remote"
@@ -292,6 +296,8 @@ def capella(
             labels=helpers.transform_labels(labels),
         )
         image_name = remote_image_name
+        if push:
+            docker.push_image(image_name)
 
     if pure_variants_client:
         pure_variants_image = docker.build_image_name(
@@ -306,9 +312,8 @@ def capella(
             labels=helpers.transform_labels(labels),
         )
         image_name = pure_variants_image
-
-    if push:
-        docker.push_image(image_name)
+        if push:
+            docker.push_image(image_name)
 
     if build_type == capella_args.BuildType.ONLINE:
         log.warning(

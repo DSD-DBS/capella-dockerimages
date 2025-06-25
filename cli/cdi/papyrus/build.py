@@ -123,6 +123,9 @@ def papyrus(
             labels=helpers.transform_labels(labels),
         )
 
+    if push:
+        docker.push_image(image_name)
+
     if remote:
         remote_image_name = docker.build_image_name(
             image_prefix, "papyrus/remote", image_tag
@@ -137,5 +140,5 @@ def papyrus(
         )
         image_name = remote_image_name
 
-    if push:
-        docker.push_image(image_name)
+        if push:
+            docker.push_image(image_name)
