@@ -19,7 +19,23 @@ def clean_git_directory() -> None:
     git_dir = pathlib.Path(config.config.git.dir_path)
     if git_dir.exists():
         shutil.rmtree(git_dir)
-    git_dir.mkdir(exist_ok=True)
+
+
+def init_git() -> None:
+    subprocess.run(
+        [
+            "git",
+            "config",
+            "--global",
+            "--unset",
+            "core.hooksPath",
+        ],
+        check=True,
+    )
+    subprocess.run(
+        ["git", "lfs", "install"],
+        check=True,
+    )
 
 
 def clone_git_repository_to_git_dir_path(
@@ -120,7 +136,6 @@ def git_commit_and_push(
             [
                 "git",
                 "commit",
-                "--no-verify",
                 "--allow-empty",
                 "--author",
                 f"{author} <{git_config.email}>",
@@ -136,7 +151,6 @@ def git_commit_and_push(
             [
                 "git",
                 "push",
-                "--no-verify",
                 "origin",
                 f"HEAD:{git_config.branch}",
             ],
