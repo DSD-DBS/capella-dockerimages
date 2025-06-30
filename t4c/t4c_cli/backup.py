@@ -200,10 +200,20 @@ def copy_exported_files_into_git_repo() -> None:
 
 
 def clean_and_create_t4c_project_dir() -> None:
+    """Remove all files in the t4c project directory or create it if it does not exist.
+
+    We can't simply remove the directory because it could be mounted as a volume.
+    """
+
     project_dir = pathlib.Path(config.config.t4c.project_dir_path)
     if project_dir.exists():
-        shutil.rmtree(project_dir)
-    project_dir.mkdir(exist_ok=True)
+        for item in project_dir.iterdir():
+            if item.is_dir():
+                shutil.rmtree(item)
+            else:
+                item.unlink()
+    else:
+        project_dir.mkdir(exist_ok=True)
 
 
 class CommitHistoryEntry(t.TypedDict):
@@ -340,6 +350,7 @@ def backup() -> None:
     file_handler = config.config.file_handler
 
     clean_and_create_t4c_project_dir()
+    util_git.init_git()
 
     if file_handler == config.FileHandler.LOCAL:
         run_importer_and_local()
