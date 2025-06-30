@@ -117,7 +117,16 @@ def validate_t4c_archive(*, t4c_client: bool, capella_version: str) -> None:
         t4c_directory = (
             _repository_root / "t4c" / "updateSite" / capella_version
         )
-        if len(list(t4c_directory.glob("*.zip"))) != 1:
+        if (
+            len(
+                list(
+                    t4c_directory.glob(
+                        "com.thalesgroup.mde.melody.team.license.update-*.zip"
+                    )
+                )
+            )
+            != 1
+        ):
             log.error(
                 "No or more than one T4C client archive found in the directory 't4c/updateSite/%s'."
                 " More information how to download the TeamForCapella archive is available in our %s",
