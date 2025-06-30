@@ -222,6 +222,16 @@ class CommitHistoryEntry(t.TypedDict):
     user: str
 
 
+def parse_datetime_from_commit_history(date: str) -> datetime.datetime:
+    if util_capella.is_capella_7_x_x():
+        return datetime.datetime.fromisoformat(date)
+
+    # Older versions of Capella use a format like "01/01/2020, 12:00"
+    return datetime.datetime.strptime(date, "%d/%m/%Y, %H:%M").replace(
+        tzinfo=datetime.UTC
+    )
+
+
 def get_activities_from_history() -> list[CommitHistoryEntry]:
     commit_history = next(
         pathlib.Path(config.config.t4c.project_dir_path).glob(
@@ -235,7 +245,7 @@ def get_activities_from_history() -> list[CommitHistoryEntry]:
     return [
         {
             "description": activity.get("description") or "No commit message",
-            "date": datetime.datetime.fromisoformat(activity["date"]),
+            "date": parse_datetime_from_commit_history(activity["date"]),
             "user": activity.get("user") or "Unknown",
         }
         for activity in commit_history_json["activityMetadataExport"][
