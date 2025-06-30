@@ -55,7 +55,7 @@ class CommitMapping(str, enum.Enum):
 @dataclasses.dataclass
 class GeneralConfig:
     file_handler = FileHandler(os.getenv("FILE_HANDLER", "GIT").upper())
-    commit_mapping = CommitMapping(os.getenv("CDI_COMMIT_MAPPING", "exact"))
+    commit_mapping = CommitMapping(os.getenv("CDI_COMMIT_MAPPING", "grouped"))
 
     git: GitConfig = dataclasses.field(default_factory=GitConfig)
     t4c: T4CConfig = dataclasses.field(default_factory=T4CConfig)
