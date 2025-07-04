@@ -1,47 +1,49 @@
 # SPDX-FileCopyrightText: Copyright DB InfraGO AG and contributors
 # SPDX-License-Identifier: Apache-2.0
 
-name: 'Generate diagram cache'
-description: 'An action to create and push a capella diagram cache'
+name: "Generate diagram cache"
+description: "An action to create and push a capella diagram cache"
 
 inputs:
   commit_msg:
-    description: 'The commit message for updating the diagram cache'
+    description: "The commit message for updating the diagram cache"
     required: false
     default: "docs: Update diagram cache"
   entry_point:
-    description: 'The entry point of the used model'
+    description: "The entry point of the used model"
   capellambse_revision:
-    description: 'The revision of the py-capellambse package to install'
+    description: "The revision of the py-capellambse package to install"
     required: false
     default: master
   capella_docker_images_revision:
-    description: 'The revision of capella-dockerimages to use'
+    description: "The revision of capella-dockerimages to use"
     required: false
-    default:  main
+    default: main
   capella_docker_images_dropins:
-    description: 'Please have a look at https://dsd-dbs.github.io/capella-dockerimages/capella/introduction/#supported-dropins'
+    description: "Please have a look at https://dsd-dbs.github.io/capella-dockerimages/capella/introduction/#supported-dropins"
     required: false
     default: selected
   push_diagram_cache:
-    description: 'Whether to push the diagram cache changes or not'
+    description: "Whether to push the diagram cache changes or not"
     required: false
     default: "true"
 
 runs:
   using: "composite"
   steps:
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v3
+    - name: Set up Python 3.13
+      uses: astral-sh/setup-uv@v6
       with:
-        python-version: 3.11
+        enable-cache: true
+        cache-dependency-glob: "**/pyproject.toml"
+        python-version: "3.13"
     - name: Install capellambse
       shell: bash
-      run: pip install "capellambse[cli]@git+https://github.com/DSD-DBS/py-capellambse.git@${{ inputs.capellambse_revision }}"
+      run: uv pip install "capellambse[cli]@git+https://github.com/DSD-DBS/py-capellambse.git@${{ inputs.capellambse_revision }}"
     - name: Generate diagram cache
       shell: bash
       run: >-
-        python -m capellambse.diagram_cache
+        uv run capellambse export-diagrams
         --model "${{ inputs.entry_point }}"
         --output ./diagram_cache
         --index
