@@ -8,7 +8,7 @@ inputs:
   commit_msg:
     description: 'The commit message for updating the diagram cache'
     required: false
-    default: "docs: Update diagram cache"
+    default: 'docs: Update diagram cache'
   entry_point:
     description: 'The entry point of the used model'
   capellambse_revision:
@@ -18,34 +18,41 @@ inputs:
   capella_docker_images_revision:
     description: 'The revision of capella-dockerimages to use'
     required: false
-    default:  main
+    default: main
   capella_docker_images_dropins:
-    description: 'Please have a look at https://dsd-dbs.github.io/capella-dockerimages/capella/introduction/#supported-dropins'
+    description:
+      'Please have a look at
+      https://dsd-dbs.github.io/capella-dockerimages/capella/introduction/#supported-dropins'
     required: false
     default: selected
   push_diagram_cache:
     description: 'Whether to push the diagram cache changes or not'
     required: false
-    default: "true"
+    default: 'true'
 
 runs:
-  using: "composite"
+  using: 'composite'
   steps:
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v3
+    - name: Set up Python 3.13
+      uses: astral-sh/setup-uv@v6
       with:
-        python-version: 3.11
+        python-version: '3.13'
+        activate-environment: true
     - name: Install capellambse
       shell: bash
-      run: pip install "capellambse[cli]@git+https://github.com/DSD-DBS/py-capellambse.git@${{ inputs.capellambse_revision }}"
+      # prettier-ignore
+      run:
+        uv pip install
+          "capellambse[cli]@git+https://github.com/DSD-DBS/py-capellambse.git@${{ inputs.capellambse_revision }}"
     - name: Generate diagram cache
       shell: bash
+      # prettier-ignore
       run: >-
-        python -m capellambse.diagram_cache
-        --model "${{ inputs.entry_point }}"
-        --output ./diagram_cache
-        --index
-        --docker "ghcr.io/dsd-dbs/capella-dockerimages/capella/base:{VERSION}-${{ inputs.capella_docker_images_dropins }}-dropins-${{ inputs.capella_docker_images_revision }}"
+        uv run capellambse export-diagrams \
+          --model "${{ inputs.entry_point }}" \
+          --output ./diagram_cache \
+          --index \
+          --docker "ghcr.io/dsd-dbs/capella-dockerimages/capella/base:{VERSION}-${{ inputs.capella_docker_images_dropins }}-dropins-${{ inputs.capella_docker_images_revision }}"
     - name: Push diagram cache to orphan branch
       shell: bash
       run: |
@@ -59,7 +66,7 @@ runs:
         git commit -m "${{ inputs.commit_msg }} for $SHORT_COMMIT_SHA"
         git push -o ci.skip --set-upstream origin $DERIVED_BRANCH_NAME --force
     - name: Archive diagram cache in artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: diagram_cache
         path: diagram_cache
